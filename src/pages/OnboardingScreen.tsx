@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { PhoneInput } from "@/components/PhoneInput";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
-import { useToast } from "@/hooks/use-toast";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import logo from "@/assets/logo.svg";
 import iconGoogle from "@/assets/icon-google.svg";
@@ -15,15 +14,18 @@ const OnboardingScreen = () => {
   const [otp, setOtp] = useState("");
   const [showOtpInput, setShowOtpInput] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
+
+  // Validation State
+  const [phoneError, setPhoneError] = useState("");
+  const [otpError, setOtpError] = useState("");
 
   const handleRequestOTP = async () => {
+    // Reset error
+    setPhoneError("");
+
+    // Simulate Validation
     if (phoneNumber.length < 10) {
-      toast({
-        title: "Invalid number",
-        description: "Please enter a valid 10-digit mobile number",
-        variant: "destructive",
-      });
+      setPhoneError("Don't ghost us, drop your number.");
       return;
     }
 
@@ -31,39 +33,39 @@ const OnboardingScreen = () => {
     await new Promise((resolve) => setTimeout(resolve, 1500));
     setIsLoading(false);
     setShowOtpInput(true);
-
-    toast({
-      title: "OTP Sent!",
-      description: `A verification code has been sent to +91 ${phoneNumber}`,
-    });
   };
 
   const handleVerifyOTP = async () => {
-    if (otp.length < 6) {
-      toast({
-        title: "Invalid OTP",
-        description: "Please enter a valid 6-digit code",
-        variant: "destructive",
-      });
-      return;
+    setOtpError("");
+
+    // Simulate Verification
+    // Success condition: e.g., '123456'
+    if (otp !== "123456") {
+        setOtpError("That code's off target. Double-check your SMS.");
+        return;
     }
 
     setIsLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 1500));
     setIsLoading(false);
 
-    toast({
-      title: "Success!",
-      description: "Phone number verified successfully",
-    });
+    // Proceed to next screen or show success (Just console for now since no toast)
+    console.log("Verified!");
   };
 
   const handleSocialLogin = (provider: string) => {
-    toast({
-      title: `${provider} Login`,
-      description: `Continue with ${provider} - Coming soon!`,
-    });
+    console.log(`${provider} Login clicked`);
   };
+
+  const handlePhoneChange = (val: string) => {
+    setPhoneNumber(val);
+    if (phoneError) setPhoneError("");
+  };
+
+  const handleOtpChange = (val: string) => {
+    setOtp(val);
+    if (otpError) setOtpError("");
+  }
 
   return (
     <div 
@@ -108,15 +110,19 @@ const OnboardingScreen = () => {
 
             {/* Phone Input */}
             <div
-              className="animate-fade-in"
+              className="animate-fade-in space-y-2"
               style={{ animationDelay: "0.3s" }}
             >
               <PhoneInput
                 value={phoneNumber}
-                onChange={setPhoneNumber}
+                onChange={handlePhoneChange}
                 countryCode="+91"
                 placeholder="Enter your mobile number"
+                error={!!phoneError}
               />
+              {phoneError && (
+                <p className="text-red-500 text-sm">{phoneError}</p>
+              )}
             </div>
 
             {/* Request OTP Button */}
@@ -126,9 +132,9 @@ const OnboardingScreen = () => {
             >
               <Button
                 variant="gradient"
-                className="w-full"
+                className="w-full rounded-full"
                 onClick={handleRequestOTP}
-                disabled={isLoading}
+                disabled={isLoading || phoneNumber.length === 0}
               >
                 {isLoading ? (
                   <span className="flex items-center gap-2">
@@ -226,11 +232,11 @@ const OnboardingScreen = () => {
             </div>
 
             {/* OTP Input */}
-            <div className="flex justify-center py-4">
+            <div className="flex flex-col items-center gap-2 py-4">
               <InputOTP
                 maxLength={6}
                 value={otp}
-                onChange={setOtp}
+                onChange={handleOtpChange}
                 autoFocus
               >
                 <InputOTPGroup className="gap-3">
@@ -238,7 +244,9 @@ const OnboardingScreen = () => {
                     <InputOTPSlot
                       key={index}
                       index={index}
-                      className="h-14 w-12 rounded-xl border-none text-2xl font-semibold text-white transition-all ring-1 ring-white/10 bg-cover bg-center"
+                      className={`h-14 w-12 rounded-xl border-none text-2xl font-semibold text-white transition-all bg-cover bg-center ${
+                          otpError ? 'border border-red-500 ring-1 ring-red-500' : 'ring-1 ring-white/10'
+                      }`}
                       style={{
                         backgroundImage: `url(${otpInputField})`,
                         backgroundColor: 'transparent'
@@ -247,22 +255,29 @@ const OnboardingScreen = () => {
                   ))}
                 </InputOTPGroup>
               </InputOTP>
+              {otpError && (
+                 <p className="text-red-500 text-sm self-start pl-2 w-full max-w-[360px] mx-auto text-left">
+                     {otpError}
+                 </p>
+              )}
             </div>
 
             {/* Links */}
             <div className="flex justify-between items-center text-sm px-1">
               <button
-                onClick={() => setShowOtpInput(false)}
+                onClick={() => {
+                  setShowOtpInput(false);
+                  setOtp("");
+                  setOtpError("");
+                }}
                 className="text-link hover:underline"
               >
                 Wrong number? Fix it here.
               </button>
               <button
                 onClick={() => {
-                  toast({
-                    title: "OTP Resent",
-                    description: `A new code has been sent to +91 ${phoneNumber}`,
-                  });
+                  // Resend logic mock
+                  console.log("Resend OTP");
                 }}
                 className="text-link hover:underline"
               >
@@ -273,9 +288,9 @@ const OnboardingScreen = () => {
             {/* Verify Button */}
             <Button
               variant="gradient"
-              className="w-full h-12 text-base rounded-xl"
+              className="w-full h-12 text-base rounded-full"
               onClick={handleVerifyOTP}
-              disabled={isLoading}
+              disabled={isLoading || otp.length < 6}
             >
               {isLoading ? (
                 <span className="flex items-center gap-2">
