@@ -8,6 +8,7 @@ import logo from "@/assets/logo.svg";
 import iconGoogle from "@/assets/icon-google.svg";
 import iconApple from "@/assets/icon-apple.svg";
 import iconX from "@/assets/icon-x.svg";
+import otpInputField from "@/assets/otp-input-field.png";
 
 const OnboardingScreen = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -217,16 +218,10 @@ const OnboardingScreen = () => {
              {/* Heading */}
              <div className="text-center space-y-2">
               <h2 className="text-2xl font-bold text-foreground">
-                Enter Verification Code
+                Enter your OTP
               </h2>
               <p className="text-muted-foreground text-sm">
-                We've sent a code to +91 {phoneNumber}
-                <button
-                  onClick={() => setShowOtpInput(false)}
-                  className="ml-2 text-link hover:underline font-medium"
-                >
-                  Change
-                </button>
+                Code sent to <span className="text-link">+91 {phoneNumber}</span>
               </p>
             </div>
 
@@ -238,21 +233,47 @@ const OnboardingScreen = () => {
                 onChange={setOtp}
                 autoFocus
               >
-                <InputOTPGroup className="gap-2">
-                  <InputOTPSlot index={0} className="h-12 w-12 rounded-lg border-white/20 bg-white/5 text-lg" />
-                  <InputOTPSlot index={1} className="h-12 w-12 rounded-lg border-white/20 bg-white/5 text-lg" />
-                  <InputOTPSlot index={2} className="h-12 w-12 rounded-lg border-white/20 bg-white/5 text-lg" />
-                  <InputOTPSlot index={3} className="h-12 w-12 rounded-lg border-white/20 bg-white/5 text-lg" />
-                  <InputOTPSlot index={4} className="h-12 w-12 rounded-lg border-white/20 bg-white/5 text-lg" />
-                  <InputOTPSlot index={5} className="h-12 w-12 rounded-lg border-white/20 bg-white/5 text-lg" />
+                <InputOTPGroup className="gap-3">
+                  {[0, 1, 2, 3, 4, 5].map((index) => (
+                    <InputOTPSlot
+                      key={index}
+                      index={index}
+                      className="h-14 w-12 rounded-xl border-none text-2xl font-semibold text-white transition-all ring-1 ring-white/10 bg-cover bg-center"
+                      style={{
+                        backgroundImage: `url(${otpInputField})`,
+                        backgroundColor: 'transparent'
+                      }}
+                    />
+                  ))}
                 </InputOTPGroup>
               </InputOTP>
+            </div>
+
+            {/* Links */}
+            <div className="flex justify-between items-center text-sm px-1">
+              <button
+                onClick={() => setShowOtpInput(false)}
+                className="text-link hover:underline"
+              >
+                Wrong number? Fix it here.
+              </button>
+              <button
+                onClick={() => {
+                  toast({
+                    title: "OTP Resent",
+                    description: `A new code has been sent to +91 ${phoneNumber}`,
+                  });
+                }}
+                className="text-link hover:underline"
+              >
+                Resend OTP in 20s
+              </button>
             </div>
 
             {/* Verify Button */}
             <Button
               variant="gradient"
-              className="w-full"
+              className="w-full h-12 text-base rounded-xl"
               onClick={handleVerifyOTP}
               disabled={isLoading}
             >
@@ -281,26 +302,51 @@ const OnboardingScreen = () => {
                   Verifying...
                 </span>
               ) : (
-                "Verify OTP"
+                "Continue"
               )}
             </Button>
 
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground">
-                Didn't receive the code?{" "}
-                <button
-                  onClick={() => {
-                    toast({
-                      title: "OTP Resent",
-                      description: `A new code has been sent to +91 ${phoneNumber}`,
-                    });
-                  }}
-                  className="text-link hover:underline font-medium"
-                >
-                  Resend
-                </button>
-              </p>
+            {/* Divider */}
+            <div className="flex items-center gap-4 py-2">
+              <span className="text-muted-foreground text-sm w-full text-center">or</span>
             </div>
+
+            {/* Social Login Buttons */}
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => handleSocialLogin("Google")}
+                aria-label="Continue with Google"
+                className="w-[52px] h-[52px] transition-transform duration-200 hover:scale-105 active:scale-95"
+              >
+                <img src={iconGoogle} alt="" className="w-full h-full" />
+              </button>
+              <button
+                onClick={() => handleSocialLogin("Apple")}
+                aria-label="Continue with Apple"
+                className="w-[52px] h-[52px] transition-transform duration-200 hover:scale-105 active:scale-95"
+              >
+                <img src={iconApple} alt="" className="w-full h-full" />
+              </button>
+              <button
+                onClick={() => handleSocialLogin("X")}
+                aria-label="Continue with X"
+                className="w-[52px] h-[52px] transition-transform duration-200 hover:scale-105 active:scale-95"
+              >
+                <img src={iconX} alt="" className="w-full h-full" />
+              </button>
+            </div>
+
+            {/* Terms */}
+            <p className="text-center text-xs text-muted-foreground leading-relaxed px-4 pt-2">
+              By continuing, you agree to Dot.Pe's{" "}
+              <a href="#" className="text-link hover:underline">
+                Terms & Conditions
+              </a>{" "}
+              and{" "}
+              <a href="#" className="text-link hover:underline">
+                Privacy Policy
+              </a>
+            </p>
           </div>
         )}
       </div>
