@@ -7,6 +7,7 @@ interface PhoneInputProps {
   countryCode?: string;
   placeholder?: string;
   className?: string;
+  error?: boolean;
 }
 
 export const PhoneInput = ({
@@ -15,6 +16,7 @@ export const PhoneInput = ({
   countryCode = "+91",
   placeholder = "Enter your mobile number",
   className,
+  error,
 }: PhoneInputProps) => {
   const [isFocused, setIsFocused] = useState(false);
 
@@ -27,13 +29,14 @@ export const PhoneInput = ({
   return (
     <div
       className={cn(
-        "flex items-center h-14 rounded-2xl input-surface transition-all duration-200",
-        isFocused && "ring-2 ring-primary/50 border-primary/50",
+        "flex items-center h-[48px] rounded-xl input-surface transition-all duration-200 border border-transparent",
+        isFocused && !error && "ring-2 ring-primary/50 border-primary/50",
+        error && "border-red-500 ring-1 ring-red-500",
         className
       )}
     >
       <div className="flex items-center px-4 border-r border-border/50">
-        <span className="text-muted-foreground font-medium text-base">
+        <span className="text-muted-foreground font-normal text-sm">
           {countryCode}
         </span>
       </div>
@@ -46,7 +49,7 @@ export const PhoneInput = ({
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         placeholder={placeholder}
-        className="flex-1 h-full bg-transparent px-4 text-base text-foreground placeholder:text-muted-foreground focus:outline-none"
+        className="flex-1 h-full bg-transparent px-4 text-sm font-normal text-foreground placeholder:text-muted-foreground focus:outline-none"
         maxLength={10}
       />
     </div>

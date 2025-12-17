@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,300,400&display=swap');
 
 @layer base {
   :root {
@@ -16,7 +16,7 @@
     --popover: 222 47% 8%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 234 89% 64%;
+    --primary: 235.1 98.9% 65.9%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 222 47% 12%;
@@ -25,7 +25,7 @@
     --muted: 222 30% 18%;
     --muted-foreground: 215 20% 55%;
 
-    --accent: 234 89% 64%;
+    --accent: 235.1 98.9% 65.9%;
     --accent-foreground: 210 40% 98%;
 
     --destructive: 0 84% 60%;
@@ -33,16 +33,16 @@
 
     --border: 222 30% 18%;
     --input: 222 30% 14%;
-    --ring: 234 89% 64%;
+    --ring: 235.1 98.9% 65.9%;
 
     --radius: 0.75rem;
 
     /* Custom colors */
-    --gradient-start: 234 89% 64%;
+    --gradient-start: 235.1 98.9% 65.9%;
     --gradient-end: 280 70% 50%;
     --surface-elevated: 222 47% 10%;
     --text-secondary: 215 20% 65%;
-    --link-color: 234 89% 70%;
+    --link-color: 235.1 98.9% 65.9%;
   }
 
   .dark {
@@ -57,7 +57,7 @@
   }
 
   html {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Satoshi', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -98,7 +98,7 @@
   }
 
   .gradient-bg {
-    background: radial-gradient(ellipse at 50% 0%, hsl(234 89% 64% / 0.15) 0%, transparent 50%),
+    background: radial-gradient(ellipse at 50% 0%, hsl(235.1 98.9% 65.9% / 0.15) 0%, transparent 50%),
                 linear-gradient(180deg, hsl(222 47% 8%) 0%, hsl(222 47% 4%) 100%);
   }
 
