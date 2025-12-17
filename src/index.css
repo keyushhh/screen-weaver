@@ -73,6 +73,30 @@
     background: linear-gradient(135deg, hsl(var(--gradient-start)) 0%, hsl(var(--gradient-end)) 100%);
   }
 
+  /* Special button gradient with blend mode effect */
+  .btn-gradient {
+    position: relative;
+    background-color: #5260FE;
+    overflow: hidden;
+  }
+
+  .btn-gradient::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 100%);
+    mix-blend-mode: overlay;
+    pointer-events: none;
+  }
+
+  .btn-gradient::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 50%);
+    pointer-events: none;
+  }
+
   .gradient-bg {
     background: radial-gradient(ellipse at 50% 0%, hsl(234 89% 64% / 0.15) 0%, transparent 50%),
                 linear-gradient(180deg, hsl(222 47% 8%) 0%, hsl(222 47% 4%) 100%);
