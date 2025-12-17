@@ -29,7 +29,7 @@ export const PhoneInput = ({
   return (
     <div
       className={cn(
-        "flex items-center h-[48px] rounded-xl input-surface transition-all duration-200 border border-transparent",
+        "flex items-center h-[48px] rounded-full input-surface transition-all duration-200 border border-transparent",
         isFocused && !error && "ring-2 ring-primary/50 border-primary/50",
         error && "border-red-500 ring-1 ring-red-500",
         className
