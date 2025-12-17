@@ -7,6 +7,7 @@ interface PhoneInputProps {
   countryCode?: string;
   placeholder?: string;
   className?: string;
+  error?: boolean;
 }
 
 export const PhoneInput = ({
@@ -15,6 +16,7 @@ export const PhoneInput = ({
   countryCode = "+91",
   placeholder = "Enter your mobile number",
   className,
+  error,
 }: PhoneInputProps) => {
   const [isFocused, setIsFocused] = useState(false);
 
@@ -27,8 +29,9 @@ export const PhoneInput = ({
   return (
     <div
       className={cn(
-        "flex items-center h-14 rounded-2xl input-surface transition-all duration-200",
-        isFocused && "ring-2 ring-primary/50 border-primary/50",
+        "flex items-center h-14 rounded-2xl input-surface transition-all duration-200 border border-transparent",
+        isFocused && !error && "ring-2 ring-primary/50 border-primary/50",
+        error && "border-red-500 ring-1 ring-red-500",
         className
       )}
     >
