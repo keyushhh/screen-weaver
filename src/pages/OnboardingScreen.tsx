@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { PhoneInput } from "@/components/PhoneInput";
-import { SocialButton } from "@/components/SocialButton";
-import { GoogleIcon } from "@/components/icons/GoogleIcon";
-import { AppleIcon } from "@/components/icons/AppleIcon";
-import { XIcon } from "@/components/icons/XIcon";
 import { useToast } from "@/hooks/use-toast";
+import bgDarkMode from "@/assets/bg-dark-mode.png";
+import logo from "@/assets/logo.svg";
+import iconGoogle from "@/assets/icon-google.svg";
+import iconApple from "@/assets/icon-apple.svg";
+import iconX from "@/assets/icon-x.svg";
 
 const OnboardingScreen = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -23,7 +24,6 @@ const OnboardingScreen = () => {
     }
 
     setIsLoading(true);
-    // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1500));
     setIsLoading(false);
 
@@ -41,17 +41,24 @@ const OnboardingScreen = () => {
   };
 
   return (
-    <div className="min-h-[100dvh] gradient-bg flex flex-col safe-area-top safe-area-bottom">
+    <div 
+      className="min-h-[100dvh] flex flex-col safe-area-top safe-area-bottom"
+      style={{
+        backgroundColor: '#0a0a12',
+        backgroundImage: `url(${bgDarkMode})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'top center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
       {/* Logo Section */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 pt-12">
         <div 
-          className="animate-fade-in"
+          className="animate-fade-in flex flex-col items-center"
           style={{ animationDelay: "0.1s" }}
         >
-          <h1 className="text-4xl font-bold text-foreground tracking-tight">
-            dot.pe
-          </h1>
-          <p className="text-muted-foreground text-base mt-2 text-center">
+          <img src={logo} alt="dot.pe" className="h-12 mb-3" />
+          <p className="text-muted-foreground text-base text-center">
             Cash access, reimagined.
           </p>
         </div>
@@ -131,9 +138,9 @@ const OnboardingScreen = () => {
           className="flex items-center gap-4 animate-fade-in"
           style={{ animationDelay: "0.5s" }}
         >
-          <div className="flex-1 h-px bg-border" />
+          <div className="flex-1 h-px bg-white/10" />
           <span className="text-muted-foreground text-sm">or</span>
-          <div className="flex-1 h-px bg-border" />
+          <div className="flex-1 h-px bg-white/10" />
         </div>
 
         {/* Social Login Buttons */}
@@ -141,21 +148,27 @@ const OnboardingScreen = () => {
           className="flex justify-center gap-4 animate-fade-in"
           style={{ animationDelay: "0.6s" }}
         >
-          <SocialButton
-            icon={<GoogleIcon className="w-6 h-6" />}
+          <button
             onClick={() => handleSocialLogin("Google")}
-            label="Continue with Google"
-          />
-          <SocialButton
-            icon={<AppleIcon className="w-6 h-6 text-foreground" />}
+            aria-label="Continue with Google"
+            className="w-[52px] h-[52px] transition-transform duration-200 hover:scale-105 active:scale-95"
+          >
+            <img src={iconGoogle} alt="" className="w-full h-full" />
+          </button>
+          <button
             onClick={() => handleSocialLogin("Apple")}
-            label="Continue with Apple"
-          />
-          <SocialButton
-            icon={<XIcon className="w-5 h-5 text-foreground" />}
+            aria-label="Continue with Apple"
+            className="w-[52px] h-[52px] transition-transform duration-200 hover:scale-105 active:scale-95"
+          >
+            <img src={iconApple} alt="" className="w-full h-full" />
+          </button>
+          <button
             onClick={() => handleSocialLogin("X")}
-            label="Continue with X"
-          />
+            aria-label="Continue with X"
+            className="w-[52px] h-[52px] transition-transform duration-200 hover:scale-105 active:scale-95"
+          >
+            <img src={iconX} alt="" className="w-full h-full" />
+          </button>
         </div>
 
         {/* Terms */}
