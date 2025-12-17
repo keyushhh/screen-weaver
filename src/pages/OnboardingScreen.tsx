@@ -85,7 +85,7 @@ const OnboardingScreen = () => {
           style={{ animationDelay: "0.1s" }}
         >
           <img src={logo} alt="dot.pe" className="h-12 mb-3" />
-          <p className="text-muted-foreground text-base text-center">
+          <p className="text-muted-foreground text-[18px] font-normal text-center">
             Cash access, reimagined.
           </p>
         </div>
@@ -100,10 +100,10 @@ const OnboardingScreen = () => {
               className="text-center space-y-2 animate-fade-in"
               style={{ animationDelay: "0.2s" }}
             >
-              <h2 className="text-2xl font-bold text-foreground">
+              <h2 className="text-[26px] font-medium text-foreground">
                 Let's get started!
               </h2>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-muted-foreground text-[14px] font-normal">
                 We'll send a one-time code for instant access.
               </p>
             </div>
@@ -132,7 +132,7 @@ const OnboardingScreen = () => {
             >
               <Button
                 variant="gradient"
-                className="w-full rounded-full"
+                className="w-full h-[48px] rounded-full text-[18px] font-medium"
                 onClick={handleRequestOTP}
                 disabled={isLoading || phoneNumber.length === 0}
               >
@@ -223,10 +223,10 @@ const OnboardingScreen = () => {
           <div className="space-y-6 animate-fade-in">
              {/* Heading */}
              <div className="text-center space-y-2">
-              <h2 className="text-2xl font-bold text-foreground">
+              <h2 className="text-[26px] font-medium text-foreground">
                 Enter your OTP
               </h2>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-muted-foreground text-[14px] font-normal">
                 Code sent to <span className="text-link">+91 {phoneNumber}</span>
               </p>
             </div>
@@ -239,12 +239,12 @@ const OnboardingScreen = () => {
                 onChange={handleOtpChange}
                 autoFocus
               >
-                <InputOTPGroup className="gap-3">
+                <InputOTPGroup className="gap-[8px]">
                   {[0, 1, 2, 3, 4, 5].map((index) => (
                     <InputOTPSlot
                       key={index}
                       index={index}
-                      className={`h-14 w-12 rounded-xl border-none text-2xl font-semibold text-white transition-all bg-cover bg-center ${
+                      className={`h-[48px] w-[48px] rounded-[7px] border-none text-2xl font-semibold text-white transition-all bg-cover bg-center ${
                           otpError ? 'border border-red-500 ring-1 ring-red-500' : 'ring-1 ring-white/10'
                       }`}
                       style={{
@@ -256,7 +256,7 @@ const OnboardingScreen = () => {
                 </InputOTPGroup>
               </InputOTP>
               {otpError && (
-                 <p className="text-red-500 text-sm self-start pl-2 w-full max-w-[360px] mx-auto text-left">
+                 <p className="text-red-500 text-[14px] font-normal self-start pl-2 w-full max-w-[360px] mx-auto text-left">
                      {otpError}
                  </p>
               )}
@@ -288,7 +288,7 @@ const OnboardingScreen = () => {
             {/* Verify Button */}
             <Button
               variant="gradient"
-              className="w-full h-12 text-base rounded-full"
+              className="w-full h-[48px] text-[18px] font-medium rounded-full"
               onClick={handleVerifyOTP}
               disabled={isLoading || otp.length < 6}
             >
