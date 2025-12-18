@@ -341,7 +341,7 @@ const OnboardingScreen = () => {
             <div className="space-y-3">
               <p className="text-foreground text-[14px] font-normal">Create a secure 4 digit MPIN</p>
               <InputOTP maxLength={4} value={mpin} onChange={handleMpinChange} autoFocus>
-                <InputOTPGroup className="gap-[13px]">
+                <InputOTPGroup className="w-[364px] justify-between">
                   {[0, 1, 2, 3].map(index => (
                     <InputOTPSlot
                       key={index}
@@ -366,7 +366,7 @@ const OnboardingScreen = () => {
             <div className="space-y-3">
               <p className="text-foreground text-[14px] font-normal">Re-enter MPIN</p>
               <InputOTP maxLength={4} value={confirmMpin} onChange={handleConfirmMpinChange}>
-                <InputOTPGroup className="gap-[13px]">
+                <InputOTPGroup className="w-[364px] justify-between">
                   {[0, 1, 2, 3].map(index => (
                     <InputOTPSlot
                       key={index}
