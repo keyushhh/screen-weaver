@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { PhoneInput } from "@/components/PhoneInput";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
@@ -17,6 +17,17 @@ const OnboardingScreen = () => {
   // Validation State
   const [phoneError, setPhoneError] = useState("");
   const [otpError, setOtpError] = useState("");
+  const [resendTimer, setResendTimer] = useState(0);
+
+  // Resend timer countdown
+  useEffect(() => {
+    if (resendTimer > 0) {
+      const interval = setInterval(() => {
+        setResendTimer(prev => prev - 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [resendTimer]);
   const handleRequestOTP = async () => {
     // Reset error
     setPhoneError("");
@@ -30,6 +41,7 @@ const OnboardingScreen = () => {
     await new Promise(resolve => setTimeout(resolve, 1500));
     setIsLoading(false);
     setShowOtpInput(true);
+    setResendTimer(20);
   };
   const handleVerifyOTP = async () => {
     setOtpError("");
@@ -187,11 +199,17 @@ const OnboardingScreen = () => {
           }} className="text-link hover:underline">
                 Wrong number? Fix it here.
               </button>
-              <button onClick={() => {
-            // Resend logic mock
-            console.log("Resend OTP");
-          }} className="text-link hover:underline">
-                Resend OTP in 20s
+              <button 
+                onClick={() => {
+                  if (resendTimer === 0) {
+                    console.log("Resend OTP");
+                    setResendTimer(20);
+                  }
+                }} 
+                disabled={resendTimer > 0}
+                className={`${resendTimer > 0 ? 'text-muted-foreground cursor-not-allowed' : 'text-link hover:underline'}`}
+              >
+                {resendTimer > 0 ? `Resend OTP in ${resendTimer}s` : 'Resend OTP'}
               </button>
             </div>
 
