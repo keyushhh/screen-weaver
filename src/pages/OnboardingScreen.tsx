@@ -11,6 +11,9 @@ import iconX from "@/assets/icon-x.svg";
 import otpInputField from "@/assets/otp-input-field.png";
 import toggleOn from "@/assets/toggle-on.svg";
 import toggleOff from "@/assets/toggle-off.svg";
+import mpinInputSuccess from "@/assets/mpin-input-success.png";
+import mpinInputError from "@/assets/mpin-input-error.png";
+import buttonBiometricBg from "@/assets/button-biometric-bg.png";
 
 const OnboardingScreen = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -28,6 +31,7 @@ const OnboardingScreen = () => {
   const [mpin, setMpin] = useState("");
   const [confirmMpin, setConfirmMpin] = useState("");
   const [mpinError, setMpinError] = useState("");
+  const [mpinSuccess, setMpinSuccess] = useState(false);
   const [biometricEnabled, setBiometricEnabled] = useState(false);
 
   // Predictable PINs to reject
@@ -42,6 +46,31 @@ const OnboardingScreen = () => {
       return () => clearInterval(interval);
     }
   }, [resendTimer]);
+
+  // Validation Logic
+  useEffect(() => {
+    // Reset success/error on change
+    setMpinSuccess(false);
+
+    // Predictable check
+    if (mpin.length === 4) {
+      if (mpin === "1234") {
+        setMpinError("Let's stop you right there, try something less predictable?");
+        return;
+      }
+    }
+
+    if (confirmMpin.length === 4 && mpin.length === 4) {
+       if (mpin !== confirmMpin) {
+         setMpinError("Bro... seriously? That's not even close.");
+       } else {
+         setMpinError("");
+         setMpinSuccess(true);
+       }
+    } else {
+       if (mpin !== "1234") setMpinError("");
+    }
+  }, [mpin, confirmMpin]);
 
   const handleRequestOTP = async () => {
     setPhoneError("");
@@ -71,28 +100,15 @@ const OnboardingScreen = () => {
 
   const handleMpinChange = (val: string) => {
     setMpin(val);
-    setMpinError("");
   };
 
   const handleConfirmMpinChange = (val: string) => {
     setConfirmMpin(val);
-    setMpinError("");
   };
 
   const handleSetupMpin = async () => {
-    setMpinError("");
-
-    // Check for predictable PIN
-    if (predictablePins.includes(mpin)) {
-      setMpinError("Let's stop you right there, try something less predictable?");
-      return;
-    }
-
-    // Check if PINs match
-    if (mpin !== confirmMpin) {
-      setMpinError("Bro... seriously? That's not even close.");
-      return;
-    }
+    // Final validation before submit
+    if (mpinError || !mpinSuccess) return;
 
     setIsLoading(true);
     await new Promise(resolve => setTimeout(resolve, 1500));
@@ -325,14 +341,18 @@ const OnboardingScreen = () => {
             <div className="space-y-3">
               <p className="text-foreground text-[14px] font-normal">Create a secure 4 digit MPIN</p>
               <InputOTP maxLength={4} value={mpin} onChange={handleMpinChange} autoFocus>
-                <InputOTPGroup className="gap-[8px]">
+                <InputOTPGroup className="gap-[13px]">
                   {[0, 1, 2, 3].map(index => (
                     <InputOTPSlot
                       key={index}
                       index={index}
-                      className={`h-[56px] w-[72px] rounded-[12px] border text-2xl font-semibold text-white transition-all bg-[#1a1a2e]/50 ${
-                        isPredictableError ? 'border-red-500 ring-1 ring-red-500' : 'border-white/10'
+                      className={`h-[54px] w-[81px] rounded-[12px] border-none text-2xl font-semibold text-white transition-all bg-cover bg-center ${
+                        isPredictableError ? 'border border-red-500 ring-1 ring-red-500' : 'ring-1 ring-white/10'
                       }`}
+                      style={{
+                        backgroundImage: isPredictableError ? `url(${mpinInputError})` : undefined,
+                        backgroundColor: isPredictableError ? 'transparent' : 'rgba(26, 26, 46, 0.5)'
+                       }}
                     />
                   ))}
                 </InputOTPGroup>
@@ -346,14 +366,20 @@ const OnboardingScreen = () => {
             <div className="space-y-3">
               <p className="text-foreground text-[14px] font-normal">Re-enter MPIN</p>
               <InputOTP maxLength={4} value={confirmMpin} onChange={handleConfirmMpinChange}>
-                <InputOTPGroup className="gap-[8px]">
+                <InputOTPGroup className="gap-[13px]">
                   {[0, 1, 2, 3].map(index => (
                     <InputOTPSlot
                       key={index}
                       index={index}
-                      className={`h-[56px] w-[72px] rounded-[12px] border text-2xl font-semibold text-white transition-all bg-[#1a1a2e]/50 ${
-                        isMismatchError ? 'border-red-500 ring-1 ring-red-500' : 'border-white/10'
+                      className={`h-[54px] w-[81px] rounded-[12px] border-none text-2xl font-semibold text-white transition-all bg-cover bg-center ${
+                        isMismatchError ? 'border border-red-500 ring-1 ring-red-500' :
+                        mpinSuccess ? 'ring-1 ring-green-500' : 'ring-1 ring-white/10'
                       }`}
+                      style={{
+                        backgroundImage: isMismatchError ? `url(${mpinInputError})` :
+                                         mpinSuccess ? `url(${mpinInputSuccess})` : undefined,
+                        backgroundColor: (isMismatchError || mpinSuccess) ? 'transparent' : 'rgba(26, 26, 46, 0.5)'
+                       }}
                     />
                   ))}
                 </InputOTPGroup>
@@ -365,9 +391,10 @@ const OnboardingScreen = () => {
 
             {/* Biometric Toggle */}
             <div
-              className="flex items-center justify-between p-4 rounded-2xl border border-white/10"
+              className="flex items-center justify-between px-4 w-full h-[54px] rounded-2xl border-none bg-cover bg-center"
               style={{
-                background: 'linear-gradient(135deg, rgba(26, 26, 46, 0.8) 0%, rgba(15, 15, 30, 0.9) 100%)'
+                width: '364px', // Explicit width as requested
+                backgroundImage: `url(${buttonBiometricBg})`
               }}
             >
               <div className="flex items-center gap-3">
@@ -401,7 +428,7 @@ const OnboardingScreen = () => {
               variant="gradient"
               className="w-full h-[48px] text-[18px] font-medium rounded-full"
               onClick={handleSetupMpin}
-              disabled={isLoading || mpin.length < 4 || confirmMpin.length < 4}
+              disabled={isLoading || mpin.length < 4 || confirmMpin.length < 4 || !!mpinError || !mpinSuccess}
             >
               {isLoading ? (
                 <span className="flex items-center gap-2">
