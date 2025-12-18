@@ -140,9 +140,9 @@ const OnboardingScreen = () => {
             </div>
 
             {/* Terms */}
-            <p className="text-center text-xs text-muted-foreground leading-relaxed animate-fade-in px-4" style={{
+            <p style={{
           animationDelay: "0.7s"
-        }}>
+        }} className="text-center text-muted-foreground leading-relaxed animate-fade-in px-4 text-sm font-normal">
               By continuing, you agree to Dot.Pe's{" "}
               <a href="#" className="text-link hover:underline">
                 Terms & Conditions
