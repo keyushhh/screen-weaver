@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.581d96d6c11146b69b95ddd9e2f0b0f7',
+  appId: 'com.dotpe.customer',
   appName: 'Dot.Pe',
   webDir: 'dist',
   server: {
