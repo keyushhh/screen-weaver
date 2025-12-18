@@ -34,9 +34,6 @@ const OnboardingScreen = () => {
   const [mpinSuccess, setMpinSuccess] = useState(false);
   const [biometricEnabled, setBiometricEnabled] = useState(false);
 
-  // Predictable PINs to reject
-  const predictablePins = ["1234", "0000", "1111", "2222", "3333", "4444", "5555", "6666", "7777", "8888", "9999", "4321", "1212", "2121"];
-
   // Resend timer countdown
   useEffect(() => {
     if (resendTimer > 0) {
