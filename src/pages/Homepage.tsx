@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Eye, EyeOff, ChevronDown, Home, CreditCard, Gift, MoreHorizontal, Plus } from "lucide-react";
+import { Eye, EyeOff, ChevronDown, Plus } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import iconOrderCash from "@/assets/icon-order-cash.png";
 import iconWallet from "@/assets/icon-wallet.png";
@@ -7,6 +7,11 @@ import iconFxConvert from "@/assets/icon-fx-convert.png";
 import iconGift from "@/assets/icon-gift.png";
 import bannerBg from "@/assets/banner-bg.svg";
 import navPlusButton from "@/assets/nav-plus-button.png";
+import navbarBg from "@/assets/navbar-bg.png";
+import navHome from "@/assets/nav-home.svg";
+import navCards from "@/assets/nav-cards.svg";
+import navRewards from "@/assets/nav-rewards.svg";
+import navMore from "@/assets/nav-more.svg";
 
 const Homepage = () => {
   const [showBalance, setShowBalance] = useState(false);
@@ -114,25 +119,33 @@ const Homepage = () => {
       </div>
 
       {/* Bottom Navigation */}
-      <div className="px-5 pb-6 pt-4">
-        <div className="flex items-center justify-around">
+      <div 
+        className="px-5 pb-6 pt-4"
+        style={{
+          backgroundImage: `url(${navbarBg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}
+      >
+        <div className="flex items-center justify-around relative">
           <button className="flex flex-col items-center gap-1">
-            <Home className="w-6 h-6 text-foreground" fill="currentColor" />
+            <img src={navHome} alt="Home" className="w-6 h-6" />
             <span className="text-foreground text-[10px]">HOME</span>
           </button>
           <button className="flex flex-col items-center gap-1">
-            <CreditCard className="w-6 h-6 text-muted-foreground" />
+            <img src={navCards} alt="Cards" className="w-6 h-6" />
             <span className="text-muted-foreground text-[10px]">CARDS</span>
           </button>
-          <button className="-mt-6">
+          <button className="absolute left-1/2 -translate-x-1/2 -top-8">
             <img src={navPlusButton} alt="Add" className="w-16 h-16" />
           </button>
+          <div className="w-16" /> {/* Spacer for center button */}
           <button className="flex flex-col items-center gap-1">
-            <Gift className="w-6 h-6 text-muted-foreground" />
+            <img src={navRewards} alt="Rewards" className="w-6 h-6" />
             <span className="text-muted-foreground text-[10px]">REWARDS</span>
           </button>
           <button className="flex flex-col items-center gap-1">
-            <MoreHorizontal className="w-6 h-6 text-muted-foreground" />
+            <img src={navMore} alt="More" className="w-6 h-6" />
             <span className="text-muted-foreground text-[10px]">MORE</span>
           </button>
         </div>
