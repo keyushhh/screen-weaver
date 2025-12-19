@@ -5,10 +5,6 @@ import bgDarkMode from "@/assets/bg-dark-mode.png";
 import iconKyc from "@/assets/icon-kyc.svg";
 import popupBg from "@/assets/popup-bg.png";
 import buttonCloseBg from "@/assets/button-close.png";
-import {
-  Dialog,
-  DialogOverlay,
-} from "@/components/ui/dialog";
 
 const KYCIntro = () => {
   const navigate = useNavigate();
@@ -95,12 +91,17 @@ const KYCIntro = () => {
       </div>
 
       {/* Why KYC Modal */}
-      <Dialog open={showWhyModal} onOpenChange={setShowWhyModal}>
-        <DialogOverlay className="backdrop-blur-md bg-black/40" />
+      {showWhyModal && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center p-6">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 backdrop-blur-md bg-black/40"
+            onClick={() => setShowWhyModal(false)}
+          />
+          
           {/* Popup Box with glass background */}
           <div 
-            className="relative rounded-2xl p-6 max-w-[320px] w-full"
+            className="relative rounded-2xl p-6 max-w-[320px] w-full z-10"
             style={{
               backgroundImage: `url(${popupBg})`,
               backgroundSize: 'cover',
@@ -123,7 +124,7 @@ const KYCIntro = () => {
           {/* Close Button - Outside the popup */}
           <button 
             onClick={() => setShowWhyModal(false)}
-            className="mt-6 px-8 py-3 rounded-full flex items-center justify-center gap-2"
+            className="relative z-10 mt-6 px-8 py-3 rounded-full flex items-center justify-center gap-2"
             style={{
               backgroundImage: `url(${buttonCloseBg})`,
               backgroundSize: 'cover',
@@ -134,7 +135,7 @@ const KYCIntro = () => {
             <span className="text-foreground text-[14px]">Close</span>
           </button>
         </div>
-      </Dialog>
+      )}
     </div>
   );
 };
