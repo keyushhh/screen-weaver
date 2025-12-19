@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, CreditCard, Building2, Bell, Moon, LogOut, Shield, Pencil } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import avatarImg from "@/assets/avatar.png";
+import dotPeLogo from "@/assets/dot-pe-logo.svg";
 import { Switch } from "@/components/ui/switch";
 import { useState } from "react";
 const Settings = () => {
@@ -135,7 +136,7 @@ const Settings = () => {
       {/* Footer Logo */}
       <div className="flex-1" />
       <div className="px-5 pb-8 opacity-40 font-grotesk">
-        <p className="text-foreground text-[24px] font-bold">dot.pe</p>
+        <img src={dotPeLogo} alt="dot.pe" className="h-8" />
         <p className="text-foreground text-sm font-medium">This is not where you find love.</p>
       </div>
     </div>;
