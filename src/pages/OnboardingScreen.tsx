@@ -47,6 +47,29 @@ const OnboardingScreen = () => {
     }
   }, [resendTimer]);
 
+  // Helper function to detect weak/predictable MPINs
+  const isWeakMpin = (pin: string): boolean => {
+    if (pin.length !== 4) return false;
+    
+    // Check for all same digits (0000, 1111, 2222, etc.)
+    if (/^(\d)\1{3}$/.test(pin)) return true;
+    
+    // Check for sequential ascending (1234, 2345, 0123, etc.)
+    const digits = pin.split('').map(Number);
+    const isAscending = digits.every((d, i) => i === 0 || d === digits[i - 1] + 1);
+    if (isAscending) return true;
+    
+    // Check for sequential descending (4321, 9876, 3210, etc.)
+    const isDescending = digits.every((d, i) => i === 0 || d === digits[i - 1] - 1);
+    if (isDescending) return true;
+    
+    // Common weak PINs blocklist
+    const weakPins = ['1212', '2121', '1122', '2211', '1221', '2020', '6969', '1010', '0101', '1357', '2468'];
+    if (weakPins.includes(pin)) return true;
+    
+    return false;
+  };
+
   // Validation Logic
   useEffect(() => {
     // Reset success/error on change
@@ -54,7 +77,7 @@ const OnboardingScreen = () => {
 
     // Predictable check
     if (mpin.length === 4) {
-      if (mpin === "1234") {
+      if (isWeakMpin(mpin)) {
         setMpinError("Let's stop you right there, try something less predictable?");
         return;
       }
@@ -68,7 +91,7 @@ const OnboardingScreen = () => {
          setMpinSuccess(true);
        }
     } else {
-       if (mpin !== "1234") setMpinError("");
+       if (!isWeakMpin(mpin)) setMpinError("");
     }
   }, [mpin, confirmMpin]);
 
