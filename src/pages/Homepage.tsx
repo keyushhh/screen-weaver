@@ -118,32 +118,41 @@ const Homepage = () => {
       </div>
 
       {/* Bottom Navigation */}
-      <div className="px-5 pb-6 pt-4" style={{
-      backgroundImage: `url(${navbarBg})`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center'
-    }}>
-        <div className="flex items-center justify-around relative">
-          <button className="flex flex-col items-center gap-1">
-            <img src={navHome} alt="Home" className="w-6 h-6" />
-            <span className="text-foreground text-[10px]">HOME</span>
-          </button>
-          <button className="flex flex-col items-center gap-1">
-            <img src={navCards} alt="Cards" className="w-6 h-6" />
-            <span className="text-muted-foreground text-[10px]">CARDS</span>
-          </button>
-          <button className="absolute left-1/2 -translate-x-1/2 -top-8">
-            <img src={navPlusButton} alt="Add" className="w-16 h-16" />
-          </button>
-          <div className="w-16" /> {/* Spacer for center button */}
-          <button className="flex flex-col items-center gap-1">
-            <img src={navRewards} alt="Rewards" className="w-6 h-6" />
-            <span className="text-muted-foreground text-[10px]">REWARDS</span>
-          </button>
-          <button className="flex flex-col items-center gap-1">
-            <img src={navMore} alt="More" className="w-6 h-6" />
-            <span className="text-muted-foreground text-[10px]">MORE</span>
-          </button>
+      <div className="relative">
+        {/* Background */}
+        <div 
+          className="absolute inset-0 h-full"
+          style={{
+            backgroundImage: `url(${navbarBg})`,
+            backgroundSize: '100% 100%',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          }}
+        />
+        
+        {/* Content */}
+        <div className="relative px-5 pb-6 pt-4">
+          <div className="flex items-end justify-between">
+            <button className="flex flex-col items-center gap-1 flex-1">
+              <img src={navHome} alt="Home" className="w-6 h-6" />
+              <span className="text-foreground text-[10px]">HOME</span>
+            </button>
+            <button className="flex flex-col items-center gap-1 flex-1">
+              <img src={navCards} alt="Cards" className="w-6 h-6" />
+              <span className="text-muted-foreground text-[10px]">CARDS</span>
+            </button>
+            <button className="flex flex-col items-center flex-1 -mt-6">
+              <img src={navPlusButton} alt="Add" className="w-14 h-14" />
+            </button>
+            <button className="flex flex-col items-center gap-1 flex-1">
+              <img src={navRewards} alt="Rewards" className="w-6 h-6" />
+              <span className="text-muted-foreground text-[10px]">REWARDS</span>
+            </button>
+            <button className="flex flex-col items-center gap-1 flex-1">
+              <img src={navMore} alt="More" className="w-6 h-6" />
+              <span className="text-muted-foreground text-[10px]">MORE</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>;
