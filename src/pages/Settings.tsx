@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pencil } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import avatarImg from "@/assets/avatar.png";
 import dotPeLogo from "@/assets/dot-pe-logo.svg";
@@ -9,8 +9,6 @@ import iconBankAcc from "@/assets/icon-bank-acc.svg";
 import iconNotifications from "@/assets/icon-notifications.svg";
 import iconDarkMode from "@/assets/icon-dark-mode.svg";
 import iconLogout from "@/assets/icon-logout.svg";
-import buttonBack from "@/assets/button-back.png";
-import buttonEdit from "@/assets/button-edit.png";
 import { Switch } from "@/components/ui/switch";
 import { useState } from "react";
 const Settings = () => {
@@ -28,8 +26,8 @@ const Settings = () => {
       {/* Header */}
       <div className="px-5 pt-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="w-10 h-10">
-            <img src={buttonBack} alt="Back" className="w-full h-full" />
+          <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center">
+            <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
           <h1 className="text-foreground text-[18px] font-semibold">Settings</h1>
         </div>
@@ -50,8 +48,8 @@ const Settings = () => {
             </div>
           </div>
         </div>
-        <button className="w-10 h-10">
-          <img src={buttonEdit} alt="Edit" className="w-full h-full" />
+        <button className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center">
+          <Pencil className="w-4 h-4 text-foreground" />
         </button>
       </div>
 
