@@ -14,6 +14,7 @@ import navCards from "@/assets/nav-cards.svg";
 import navRewards from "@/assets/nav-rewards.svg";
 import navMore from "@/assets/nav-more.svg";
 import buttonAddMoney from "@/assets/button-add-money.png";
+import avatarImg from "@/assets/avatar.png";
 const Homepage = () => {
   const [showBalance, setShowBalance] = useState(false);
   const balance = "0.00";
@@ -33,9 +34,7 @@ const Homepage = () => {
             <ChevronDown className="w-4 h-4" />
           </button>
         </div>
-        <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-400 to-gray-600" />
-        </div>
+        <img src={avatarImg} alt="Profile" className="w-12 h-12 rounded-full" />
       </div>
 
       {/* Balance Section */}
