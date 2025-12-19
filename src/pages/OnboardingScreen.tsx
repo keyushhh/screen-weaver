@@ -48,26 +48,25 @@ const OnboardingScreen = () => {
   }, [resendTimer]);
 
   // Helper function to detect weak/predictable MPINs
-  const isWeakMpin = (pin: string): boolean => {
-    if (pin.length !== 4) return false;
+  const isWeakMpin = (pin: string): { weak: boolean; reason?: 'predictable' | 'reversed' } => {
+    if (pin.length !== 4) return { weak: false };
+    
+    // Special case: 4321 is just reversed 1234
+    if (pin === '4321') return { weak: true, reason: 'reversed' };
     
     // Check for all same digits (0000, 1111, 2222, etc.)
-    if (/^(\d)\1{3}$/.test(pin)) return true;
+    if (/^(\d)\1{3}$/.test(pin)) return { weak: true, reason: 'predictable' };
     
     // Check for sequential ascending (1234, 2345, 0123, etc.)
     const digits = pin.split('').map(Number);
     const isAscending = digits.every((d, i) => i === 0 || d === digits[i - 1] + 1);
-    if (isAscending) return true;
-    
-    // Check for sequential descending (4321, 9876, 3210, etc.)
-    const isDescending = digits.every((d, i) => i === 0 || d === digits[i - 1] - 1);
-    if (isDescending) return true;
+    if (isAscending) return { weak: true, reason: 'predictable' };
     
     // Common weak PINs blocklist
     const weakPins = ['1212', '2121', '1122', '2211', '1221', '2020', '6969', '1010', '0101', '1357', '2468'];
-    if (weakPins.includes(pin)) return true;
+    if (weakPins.includes(pin)) return { weak: true, reason: 'predictable' };
     
-    return false;
+    return { weak: false };
   };
 
   // Validation Logic
@@ -77,8 +76,13 @@ const OnboardingScreen = () => {
 
     // Predictable check
     if (mpin.length === 4) {
-      if (isWeakMpin(mpin)) {
-        setMpinError("Let's stop you right there, try something less predictable?");
+      const check = isWeakMpin(mpin);
+      if (check.weak) {
+        if (check.reason === 'reversed') {
+          setMpinError("Bro, that's just reversed. Use something stronger.");
+        } else {
+          setMpinError("Let's stop you right there, try something less predictable?");
+        }
         return;
       }
     }
@@ -91,7 +95,7 @@ const OnboardingScreen = () => {
          setMpinSuccess(true);
        }
     } else {
-       if (!isWeakMpin(mpin)) setMpinError("");
+       if (!isWeakMpin(mpin).weak) setMpinError("");
     }
   }, [mpin, confirmMpin]);
 
