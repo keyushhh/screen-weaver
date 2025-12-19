@@ -9,6 +9,7 @@ import iconBankAcc from "@/assets/icon-bank-acc.svg";
 import iconNotifications from "@/assets/icon-notifications.svg";
 import iconDarkMode from "@/assets/icon-dark-mode.svg";
 import iconLogout from "@/assets/icon-logout.svg";
+import buttonAddMoney from "@/assets/button-add-money.png";
 import { Switch } from "@/components/ui/switch";
 import { useState } from "react";
 const Settings = () => {
@@ -31,7 +32,11 @@ const Settings = () => {
           </button>
           <h1 className="text-foreground text-[18px] font-semibold">Settings</h1>
         </div>
-        <button className="px-4 py-2 rounded-full border border-white/20 flex items-center gap-2">
+        <button className="px-4 py-2 flex items-center gap-2" style={{
+          backgroundImage: `url(${buttonAddMoney})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}>
           <span className="text-foreground text-[14px]">+ Support</span>
         </button>
       </div>
@@ -66,7 +71,11 @@ const Settings = () => {
               <p className="text-red-400 text-[12px]">Incomplete</p>
             </div>
           </div>
-          <button className="px-4 py-2 rounded-full bg-white/10 border border-white/20">
+          <button className="px-4 py-2" style={{
+            backgroundImage: `url(${buttonAddMoney})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          }}>
             <span className="text-foreground text-[12px]">Check Security</span>
           </button>
         </div>
