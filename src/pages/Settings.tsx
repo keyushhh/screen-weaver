@@ -72,7 +72,7 @@ const Settings = () => {
             </div>
           </div>
           <button className="px-4 py-2 rounded-full" style={{
-          backgroundImage: `url(${buttonAddMoney})`,
+          backgroundImage: "url(\"/lovable-uploads/49de8f57-4936-4893-a65c-87ac5e256526.png\")",
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }}>
