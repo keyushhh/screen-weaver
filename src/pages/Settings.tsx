@@ -134,9 +134,9 @@ const Settings = () => {
 
       {/* Footer Logo */}
       <div className="flex-1" />
-      <div className="px-5 pb-8 opacity-40">
+      <div className="px-5 pb-8 opacity-40 font-grotesk">
         <p className="text-foreground text-[24px] font-bold">dot.pe</p>
-        <p className="text-foreground italic font-mono text-sm font-medium">This is not where you find love.</p>
+        <p className="text-foreground text-sm font-medium">This is not where you find love.</p>
       </div>
     </div>;
 };
