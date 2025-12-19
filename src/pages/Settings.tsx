@@ -4,31 +4,22 @@ import bgDarkMode from "@/assets/bg-dark-mode.png";
 import avatarImg from "@/assets/avatar.png";
 import { Switch } from "@/components/ui/switch";
 import { useState } from "react";
-
 const Settings = () => {
   const navigate = useNavigate();
   const [pushNotifications, setPushNotifications] = useState(true);
   const [transactionAlerts, setTransactionAlerts] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
-
-  return (
-    <div
-      className="min-h-[100dvh] flex flex-col safe-area-top safe-area-bottom"
-      style={{
-        backgroundColor: '#0a0a12',
-        backgroundImage: `url(${bgDarkMode})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'top center',
-        backgroundRepeat: 'no-repeat'
-      }}
-    >
+  return <div className="min-h-[100dvh] flex flex-col safe-area-top safe-area-bottom" style={{
+    backgroundColor: '#0a0a12',
+    backgroundImage: `url(${bgDarkMode})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'top center',
+    backgroundRepeat: 'no-repeat'
+  }}>
       {/* Header */}
       <div className="px-5 pt-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <button 
-            onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center"
-          >
+          <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center">
             <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
           <h1 className="text-foreground text-[18px] font-semibold">Settings</h1>
@@ -57,7 +48,10 @@ const Settings = () => {
 
       {/* Security & KYC Card */}
       <div className="mx-5 mt-6">
-        <div className="rounded-xl p-4 flex items-center justify-between" style={{ background: 'linear-gradient(135deg, rgba(139, 0, 0, 0.4) 0%, rgba(50, 0, 0, 0.6) 100%)', border: '1px solid rgba(139, 0, 0, 0.5)' }}>
+        <div className="rounded-xl p-4 flex items-center justify-between" style={{
+        background: 'linear-gradient(135deg, rgba(139, 0, 0, 0.4) 0%, rgba(50, 0, 0, 0.6) 100%)',
+        border: '1px solid rgba(139, 0, 0, 0.5)'
+      }}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
               <Shield className="w-5 h-5 text-foreground" />
@@ -142,10 +136,8 @@ const Settings = () => {
       <div className="flex-1" />
       <div className="px-5 pb-8 opacity-40">
         <p className="text-foreground text-[24px] font-bold">dot.pe</p>
-        <p className="text-foreground text-[12px] italic">This is not where you find love.</p>
+        <p className="text-foreground italic font-mono text-sm font-medium">This is not where you find love.</p>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Settings;
