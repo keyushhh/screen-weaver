@@ -1,8 +1,14 @@
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, CreditCard, Building2, Bell, Moon, LogOut, Shield, Pencil } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pencil } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import avatarImg from "@/assets/avatar.png";
 import dotPeLogo from "@/assets/dot-pe-logo.svg";
+import iconSecurity from "@/assets/icon-security.svg";
+import iconLinkedCards from "@/assets/icon-linked-cards.svg";
+import iconBankAcc from "@/assets/icon-bank-acc.svg";
+import iconNotifications from "@/assets/icon-notifications.svg";
+import iconDarkMode from "@/assets/icon-dark-mode.svg";
+import iconLogout from "@/assets/icon-logout.svg";
 import { Switch } from "@/components/ui/switch";
 import { useState } from "react";
 const Settings = () => {
@@ -54,9 +60,7 @@ const Settings = () => {
         border: '1px solid rgba(139, 0, 0, 0.5)'
       }}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-              <Shield className="w-5 h-5 text-foreground" />
-            </div>
+            <img src={iconSecurity} alt="Security" className="w-10 h-10" />
             <div>
               <h3 className="text-foreground text-[14px] font-medium">Security & KYC</h3>
               <p className="text-red-400 text-[12px]">Incomplete</p>
@@ -74,7 +78,7 @@ const Settings = () => {
         
         <button className="w-full flex items-center justify-between py-4 border-b border-white/10">
           <div className="flex items-center gap-3">
-            <CreditCard className="w-5 h-5 text-muted-foreground" />
+            <img src={iconLinkedCards} alt="Linked Cards" className="w-[18px] h-[18px] opacity-60" />
             <div className="text-left">
               <p className="text-foreground text-[14px]">Linked Cards</p>
               <p className="text-muted-foreground text-[12px]">0 cards linked</p>
@@ -85,7 +89,7 @@ const Settings = () => {
 
         <button className="w-full flex items-center justify-between py-4 border-b border-white/10">
           <div className="flex items-center gap-3">
-            <Building2 className="w-5 h-5 text-muted-foreground" />
+            <img src={iconBankAcc} alt="Bank Account" className="w-[18px] h-[18px] opacity-60" />
             <div className="text-left">
               <p className="text-foreground text-[14px]">Bank Account Info</p>
               <p className="text-muted-foreground text-[12px]">0 bank accounts linked</p>
@@ -101,7 +105,7 @@ const Settings = () => {
         
         <div className="py-4 border-b border-white/10">
           <div className="flex items-center gap-3 mb-3">
-            <Bell className="w-5 h-5 text-muted-foreground" />
+            <img src={iconNotifications} alt="Notifications" className="w-[18px] h-[18px] opacity-60" />
             <p className="text-foreground text-[14px]">Notifications</p>
           </div>
           <div className="ml-8 space-y-3">
@@ -118,7 +122,7 @@ const Settings = () => {
 
         <div className="flex items-center justify-between py-4 border-b border-white/10">
           <div className="flex items-center gap-3">
-            <Moon className="w-5 h-5 text-muted-foreground" />
+            <img src={iconDarkMode} alt="Dark Mode" className="w-[18px] h-[18px] opacity-60" />
             <p className="text-foreground text-[14px]">Dark Mode</p>
           </div>
           <Switch checked={darkMode} onCheckedChange={setDarkMode} />
@@ -126,7 +130,7 @@ const Settings = () => {
 
         <button className="w-full flex items-center justify-between py-4">
           <div className="flex items-center gap-3">
-            <LogOut className="w-5 h-5 text-muted-foreground" />
+            <img src={iconLogout} alt="Log Out" className="w-[18px] h-[18px] opacity-60" />
             <p className="text-foreground text-[14px]">Log Out</p>
           </div>
           <ChevronRight className="w-5 h-5 text-muted-foreground" />
