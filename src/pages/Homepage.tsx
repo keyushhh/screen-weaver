@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, ChevronDown, Plus } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import iconOrderCash from "@/assets/icon-order-cash.png";
@@ -16,6 +17,7 @@ import navMore from "@/assets/nav-more.svg";
 import buttonAddMoney from "@/assets/button-add-money.png";
 import avatarImg from "@/assets/avatar.png";
 const Homepage = () => {
+  const navigate = useNavigate();
   const [showBalance, setShowBalance] = useState(false);
   const balance = "0.00";
   return <div className="min-h-[100dvh] flex flex-col safe-area-top safe-area-bottom" style={{
@@ -34,7 +36,9 @@ const Homepage = () => {
             <ChevronDown className="w-4 h-4" />
           </button>
         </div>
-        <img src={avatarImg} alt="Profile" className="w-12 h-12 rounded-full" />
+        <button onClick={() => navigate('/settings')}>
+          <img src={avatarImg} alt="Profile" className="w-12 h-12 rounded-full" />
+        </button>
       </div>
 
       {/* Balance Section */}
