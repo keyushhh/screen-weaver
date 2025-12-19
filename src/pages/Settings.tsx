@@ -137,7 +137,7 @@ const Settings = () => {
           <Switch checked={darkMode} onCheckedChange={setDarkMode} />
         </div>
 
-        <button className="w-full flex items-center justify-between py-4">
+        <button onClick={() => navigate('/')} className="w-full flex items-center justify-between py-4">
           <div className="flex items-center gap-3">
             <img src={iconLogout} alt="Log Out" className="w-[18px] h-[18px] opacity-60" />
             <p className="text-foreground text-[14px]">Log Out</p>
