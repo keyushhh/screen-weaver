@@ -6,6 +6,7 @@ import iconWallet from "@/assets/icon-wallet.png";
 import iconFxConvert from "@/assets/icon-fx-convert.png";
 import iconGift from "@/assets/icon-gift.png";
 import bannerBg from "@/assets/banner-bg.png";
+import navPlusButton from "@/assets/nav-plus-button.png";
 
 const Homepage = () => {
   const [showBalance, setShowBalance] = useState(false);
@@ -65,9 +66,7 @@ const Homepage = () => {
           { icon: iconFxConvert, label: "FX Convert" }
         ].map((action) => (
           <button key={action.label} className="flex flex-col items-center gap-2">
-            <div className="w-14 h-14 rounded-full bg-[#1a1a2e] border border-white/10 flex items-center justify-center">
-              <img src={action.icon} alt={action.label} className="w-6 h-6" />
-            </div>
+            <img src={action.icon} alt={action.label} className="w-[52px] h-[52px]" />
             <span className="text-foreground text-[12px]">{action.label}</span>
           </button>
         ))}
@@ -129,8 +128,8 @@ const Homepage = () => {
             <CreditCard className="w-6 h-6 text-muted-foreground" />
             <span className="text-muted-foreground text-[10px]">CARDS</span>
           </button>
-          <button className="w-14 h-14 rounded-full bg-primary flex items-center justify-center -mt-6">
-            <Plus className="w-7 h-7 text-primary-foreground" />
+          <button className="-mt-6">
+            <img src={navPlusButton} alt="Add" className="w-16 h-16" />
           </button>
           <button className="flex flex-col items-center gap-1">
             <Gift className="w-6 h-6 text-muted-foreground" />
