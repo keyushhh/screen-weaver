@@ -95,11 +95,15 @@ const Settings = () => {
               <p className={`${securityConfig.textColor} text-[12px]`}>{securityConfig.label}</p>
             </div>
           </div>
-          <button className="px-4 py-2 rounded-full" style={{
-          backgroundImage: "url(\"/lovable-uploads/49de8f57-4936-4893-a65c-87ac5e256526.png\")",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }}>
+          <button 
+            onClick={() => navigate('/kyc-intro')}
+            className="px-4 py-2 rounded-full" 
+            style={{
+              backgroundImage: "url(\"/lovable-uploads/49de8f57-4936-4893-a65c-87ac5e256526.png\")",
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            }}
+          >
             <span className="text-foreground text-[12px]">Check Security</span>
           </button>
         </div>
