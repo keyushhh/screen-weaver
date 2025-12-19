@@ -6,6 +6,7 @@ import { HashRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Homepage from "./pages/Homepage";
 import Settings from "./pages/Settings";
+import KYCIntro from "./pages/KYCIntro";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,6 +21,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/home" element={<Homepage />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/kyc-intro" element={<KYCIntro />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
