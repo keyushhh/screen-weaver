@@ -13,22 +13,16 @@ import navHome from "@/assets/nav-home.svg";
 import navCards from "@/assets/nav-cards.svg";
 import navRewards from "@/assets/nav-rewards.svg";
 import navMore from "@/assets/nav-more.svg";
-
 const Homepage = () => {
   const [showBalance, setShowBalance] = useState(false);
   const balance = "0.00";
-
-  return (
-    <div
-      className="min-h-[100dvh] flex flex-col safe-area-top safe-area-bottom"
-      style={{
-        backgroundColor: '#0a0a12',
-        backgroundImage: `url(${bgDarkMode})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'top center',
-        backgroundRepeat: 'no-repeat'
-      }}
-    >
+  return <div className="min-h-[100dvh] flex flex-col safe-area-top safe-area-bottom" style={{
+    backgroundColor: '#0a0a12',
+    backgroundImage: `url(${bgDarkMode})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'top center',
+    backgroundRepeat: 'no-repeat'
+  }}>
       {/* Header */}
       <div className="px-5 pt-4 flex items-start justify-between">
         <div className="space-y-1">
@@ -48,11 +42,7 @@ const Homepage = () => {
         <div className="flex items-center gap-2">
           <p className="text-muted-foreground text-[14px]">Available Balance</p>
           <button onClick={() => setShowBalance(!showBalance)} className="p-1">
-            {showBalance ? (
-              <Eye className="w-5 h-5 text-muted-foreground" />
-            ) : (
-              <EyeOff className="w-5 h-5 text-muted-foreground" />
-            )}
+            {showBalance ? <Eye className="w-5 h-5 text-muted-foreground" /> : <EyeOff className="w-5 h-5 text-muted-foreground" />}
           </button>
         </div>
         <p className="text-foreground text-[32px] font-semibold">
@@ -66,28 +56,28 @@ const Homepage = () => {
 
       {/* Quick Actions */}
       <div className="flex justify-center gap-6 mt-8 px-5">
-        {[
-          { icon: iconOrderCash, label: "Order Cash" },
-          { icon: iconWallet, label: "Wallet" },
-          { icon: iconFxConvert, label: "FX Convert" }
-        ].map((action) => (
-          <button key={action.label} className="flex flex-col items-center gap-2">
+        {[{
+        icon: iconOrderCash,
+        label: "Order Cash"
+      }, {
+        icon: iconWallet,
+        label: "Wallet"
+      }, {
+        icon: iconFxConvert,
+        label: "FX Convert"
+      }].map(action => <button key={action.label} className="flex flex-col items-center gap-2">
             <img src={action.icon} alt={action.label} className="w-[52px] h-[52px]" />
             <span className="text-foreground text-[12px]">{action.label}</span>
-          </button>
-        ))}
+          </button>)}
       </div>
 
       {/* Referral Banner */}
       <div className="mx-5 mt-6">
-        <div
-          className="rounded-2xl overflow-hidden flex"
-          style={{
-            backgroundImage: `url(${bannerBg})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center'
-          }}
-        >
+        <div className="rounded-2xl overflow-hidden flex" style={{
+        backgroundImage: `url(${bannerBg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      }}>
           <div className="flex-1 p-4 flex flex-col justify-center">
             <div className="flex items-center gap-2 mb-2">
               <img src={iconGift} alt="Gift" className="w-5 h-5" />
@@ -95,16 +85,12 @@ const Homepage = () => {
             <h3 className="text-foreground text-[16px] font-semibold mb-1">Refer & Earn!</h3>
             <p className="text-muted-foreground text-[12px]">Earn ₹50 on each referral</p>
           </div>
-          <img 
-            src={bannerImage} 
-            alt="Referral" 
-            className="w-[160px] h-[104px] object-cover rounded-r-2xl"
-          />
+          <img src={bannerImage} alt="Referral" className="w-[160px] h-[104px] object-cover rounded-r-2xl" />
         </div>
         {/* Carousel Dots */}
         <div className="flex justify-center gap-2 mt-3">
-          <div className="w-2 h-2 rounded-full bg-white/30" />
           <div className="w-2 h-2 rounded-full bg-primary" />
+          <div className="w-2 h-2 rounded-full bg-muted" />
         </div>
       </div>
 
@@ -112,10 +98,7 @@ const Homepage = () => {
       <div className="mx-5 mt-6 flex-1">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-foreground text-[16px] font-medium">Recent Transactions</h3>
-          <button 
-            disabled 
-            className="text-primary/50 text-[14px] cursor-not-allowed"
-          >
+          <button disabled className="text-primary/50 text-[14px] cursor-not-allowed">
             View All
           </button>
         </div>
@@ -127,14 +110,11 @@ const Homepage = () => {
       </div>
 
       {/* Bottom Navigation */}
-      <div 
-        className="px-5 pb-6 pt-4"
-        style={{
-          backgroundImage: `url(${navbarBg})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }}
-      >
+      <div className="px-5 pb-6 pt-4" style={{
+      backgroundImage: `url(${navbarBg})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center'
+    }}>
         <div className="flex items-center justify-around relative">
           <button className="flex flex-col items-center gap-1">
             <img src={navHome} alt="Home" className="w-6 h-6" />
@@ -158,8 +138,6 @@ const Homepage = () => {
           </button>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Homepage;
