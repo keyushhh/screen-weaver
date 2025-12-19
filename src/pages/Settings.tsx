@@ -27,7 +27,7 @@ const Settings = () => {
       {/* Header */}
       <div className="px-5 pt-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate('/')} className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center">
+          <button onClick={() => navigate('/home')} className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center">
             <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
           <h1 className="text-foreground text-[18px] font-semibold">Settings</h1>
