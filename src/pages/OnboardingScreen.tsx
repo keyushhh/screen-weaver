@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PhoneInput } from "@/components/PhoneInput";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
@@ -17,6 +18,7 @@ import buttonBiometricBg from "@/assets/button-biometric-bg.png";
 import biometricIcon from "@/assets/biometric-icon.png";
 
 const OnboardingScreen = () => {
+  const navigate = useNavigate();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [otp, setOtp] = useState("");
   const [showOtpInput, setShowOtpInput] = useState(false);
@@ -112,6 +114,7 @@ const OnboardingScreen = () => {
     await new Promise(resolve => setTimeout(resolve, 1500));
     setIsLoading(false);
     console.log("MPIN Setup Complete!", { biometricEnabled });
+    navigate("/home");
   };
 
   const handleSocialLogin = (provider: string) => {
