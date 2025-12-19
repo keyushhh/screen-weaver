@@ -32,7 +32,7 @@ const Settings = () => {
           </button>
           <h1 className="text-foreground text-[18px] font-semibold">Settings</h1>
         </div>
-        <button className="px-4 py-2 flex items-center gap-2" style={{
+        <button className="px-4 py-2 rounded-full flex items-center gap-2" style={{
           backgroundImage: `url(${buttonAddMoney})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
@@ -71,7 +71,7 @@ const Settings = () => {
               <p className="text-red-400 text-[12px]">Incomplete</p>
             </div>
           </div>
-          <button className="px-4 py-2" style={{
+          <button className="px-4 py-2 rounded-full" style={{
             backgroundImage: `url(${buttonAddMoney})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center'
