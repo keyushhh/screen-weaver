@@ -48,14 +48,11 @@ const Homepage = () => {
         <p className="text-foreground text-[32px] font-semibold">
           ₹{showBalance ? balance : "******"}
         </p>
-        <button 
-          className="flex items-center justify-center gap-2 px-6 py-3 text-foreground text-[14px] font-medium h-12 w-[180px]"
-          style={{
-            backgroundImage: `url(${buttonAddMoney})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center'
-          }}
-        >
+        <button className="flex items-center justify-center gap-2 px-6 py-3 text-foreground text-[14px] font-medium h-12 w-[180px]" style={{
+        backgroundImage: `url(${buttonAddMoney})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      }}>
           <Plus className="w-4 h-4" />
           Add Money
         </button>
@@ -119,35 +116,32 @@ const Homepage = () => {
       {/* Bottom Navigation */}
       <div className="relative">
         {/* Background */}
-        <div 
-          className="absolute inset-0 h-full"
-          style={{
-            backgroundImage: `url(${navbarBg})`,
-            backgroundSize: '100% 100%',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat'
-          }}
-        />
+        <div className="absolute inset-0 h-full" style={{
+        backgroundImage: `url(${navbarBg})`,
+        backgroundSize: '100% 100%',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }} />
         
         {/* Content */}
-        <div className="relative px-5 pb-6 pt-4">
+        <div className="relative px-5 pb-6 pt-4 py-[24px] my-[2px]">
           <div className="flex items-end justify-between">
-            <button className="flex flex-col items-center gap-1 flex-1">
+            <button className="flex-col gap-1 flex-1 flex items-center justify-center">
               <img src={navHome} alt="Home" className="w-6 h-6" />
               <span className="text-foreground text-[10px]">HOME</span>
             </button>
-            <button className="flex flex-col items-center gap-1 flex-1">
+            <button className="flex-col gap-1 flex-1 flex items-center justify-center">
               <img src={navCards} alt="Cards" className="w-6 h-6" />
               <span className="text-muted-foreground text-[10px]">CARDS</span>
             </button>
-            <button className="flex flex-col items-center flex-1 -mt-6">
+            <button className="flex-1 -mt-6 items-center justify-center flex flex-col">
               <img src={navPlusButton} alt="Add" className="w-14 h-14" />
             </button>
-            <button className="flex flex-col items-center gap-1 flex-1">
+            <button className="flex-col gap-1 flex-1 flex items-center justify-center">
               <img src={navRewards} alt="Rewards" className="w-6 h-6" />
               <span className="text-muted-foreground text-[10px]">REWARDS</span>
             </button>
-            <button className="flex flex-col items-center gap-1 flex-1">
+            <button className="flex-col gap-1 flex-1 flex items-center justify-center">
               <img src={navMore} alt="More" className="w-6 h-6" />
               <span className="text-muted-foreground text-[10px]">MORE</span>
             </button>
