@@ -15,7 +15,7 @@ import navMore from "@/assets/nav-more.svg";
 
 const Homepage = () => {
   const [showBalance, setShowBalance] = useState(false);
-  const balance = "50,000";
+  const balance = "0.00";
 
   return (
     <div
