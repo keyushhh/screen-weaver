@@ -10,13 +10,33 @@ import iconNotifications from "@/assets/icon-notifications.svg";
 import iconDarkMode from "@/assets/icon-dark-mode.svg";
 import iconLogout from "@/assets/icon-logout.svg";
 import buttonAddMoney from "@/assets/button-add-money.png";
+import securityIncomplete from "@/assets/security-incomplete.png";
+import securityComplete from "@/assets/security-complete.png";
+import securityPending from "@/assets/security-pending.png";
 import { Switch } from "@/components/ui/switch";
 import { useState } from "react";
+
+type SecurityStatus = 'incomplete' | 'pending' | 'complete';
+
+const getSecurityConfig = (status: SecurityStatus) => {
+  switch (status) {
+    case 'complete':
+      return { bg: securityComplete, label: 'Complete', textColor: 'text-green-500' };
+    case 'pending':
+      return { bg: securityPending, label: 'Pending', textColor: 'text-yellow-500' };
+    case 'incomplete':
+    default:
+      return { bg: securityIncomplete, label: 'Incomplete', textColor: 'text-red-400' };
+  }
+};
 const Settings = () => {
   const navigate = useNavigate();
   const [pushNotifications, setPushNotifications] = useState(true);
   const [transactionAlerts, setTransactionAlerts] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
+  const [securityStatus] = useState<SecurityStatus>('incomplete'); // Change this to test different states
+  
+  const securityConfig = getSecurityConfig(securityStatus);
   return <div className="min-h-[100dvh] flex flex-col safe-area-top safe-area-bottom" style={{
     backgroundColor: '#0a0a12',
     backgroundImage: `url(${bgDarkMode})`,
@@ -60,15 +80,19 @@ const Settings = () => {
 
       {/* Security & KYC Card */}
       <div className="mx-5 mt-6">
-        <div className="rounded-xl p-4 flex items-center justify-between" style={{
-        background: 'linear-gradient(135deg, rgba(139, 0, 0, 0.4) 0%, rgba(50, 0, 0, 0.6) 100%)',
-        border: '1px solid rgba(139, 0, 0, 0.5)'
-      }}>
+        <div 
+          className="rounded-xl p-4 flex items-center justify-between"
+          style={{
+            backgroundImage: `url(${securityConfig.bg})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        >
           <div className="flex items-center gap-3">
             <img src={iconSecurity} alt="Security" className="w-10 h-10" />
             <div>
               <h3 className="text-foreground text-[14px] font-medium">Security & KYC</h3>
-              <p className="text-red-400 text-[12px]">Incomplete</p>
+              <p className={`${securityConfig.textColor} text-[12px]`}>{securityConfig.label}</p>
             </div>
           </div>
           <button className="px-4 py-2 rounded-full" style={{
