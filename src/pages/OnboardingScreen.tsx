@@ -370,11 +370,13 @@ const OnboardingScreen = () => {
                       key={index}
                       index={index}
                       className={`h-[54px] w-[81px] rounded-[12px] border-none text-2xl font-semibold text-white transition-all bg-cover bg-center ${
-                        isPredictableError ? 'border border-red-500 ring-1 ring-red-500' : 'ring-1 ring-white/10'
+                        isPredictableError ? 'border border-red-500 ring-1 ring-red-500' :
+                        mpinSuccess ? 'ring-1 ring-green-500' : 'ring-1 ring-white/10'
                       }`}
                       style={{
-                        backgroundImage: isPredictableError ? `url(${mpinInputError})` : undefined,
-                        backgroundColor: isPredictableError ? 'transparent' : 'rgba(26, 26, 46, 0.5)'
+                        backgroundImage: isPredictableError ? `url(${mpinInputError})` : 
+                                         mpinSuccess ? `url(${mpinInputSuccess})` : undefined,
+                        backgroundColor: (isPredictableError || mpinSuccess) ? 'transparent' : 'rgba(26, 26, 46, 0.5)'
                        }}
                     />
                   ))}
