@@ -124,8 +124,8 @@ const Homepage = () => {
       }} />
         
         {/* Content */}
-        <div className="relative px-5 pb-6 pt-4 py-[24px] my-[2px]">
-          <div className="flex items-end justify-between">
+        <div className="relative px-5 py-3">
+          <div className="flex items-center justify-between">
             <button className="flex-col gap-1 flex-1 flex items-center justify-center">
               <img src={navHome} alt="Home" className="w-6 h-6" />
               <span className="text-foreground text-[10px]">HOME</span>
@@ -134,8 +134,8 @@ const Homepage = () => {
               <img src={navCards} alt="Cards" className="w-6 h-6" />
               <span className="text-muted-foreground text-[10px]">CARDS</span>
             </button>
-            <button className="flex-1 -mt-6 flex-col flex items-center justify-start">
-              <img src={navPlusButton} alt="Add" className="w-14 h-14" />
+            <button className="flex-1 flex items-center justify-center">
+              <img src={navPlusButton} alt="Add" className="w-12 h-12" />
             </button>
             <button className="flex-col gap-1 flex-1 flex items-center justify-center">
               <img src={navRewards} alt="Rewards" className="w-6 h-6" />
