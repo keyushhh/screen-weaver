@@ -6,6 +6,7 @@ import iconWallet from "@/assets/icon-wallet.png";
 import iconFxConvert from "@/assets/icon-fx-convert.png";
 import iconGift from "@/assets/icon-gift.png";
 import bannerBg from "@/assets/banner-bg.svg";
+import bannerImage from "@/assets/banner-image.png";
 import navPlusButton from "@/assets/nav-plus-button.png";
 import navbarBg from "@/assets/navbar-bg.png";
 import navHome from "@/assets/nav-home.svg";
@@ -80,18 +81,25 @@ const Homepage = () => {
       {/* Referral Banner */}
       <div className="mx-5 mt-6">
         <div
-          className="rounded-2xl overflow-hidden p-4"
+          className="rounded-2xl overflow-hidden flex"
           style={{
             backgroundImage: `url(${bannerBg})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center'
           }}
         >
-          <div className="flex items-center gap-2 mb-2">
-            <img src={iconGift} alt="Gift" className="w-5 h-5" />
+          <div className="flex-1 p-4 flex flex-col justify-center">
+            <div className="flex items-center gap-2 mb-2">
+              <img src={iconGift} alt="Gift" className="w-5 h-5" />
+            </div>
+            <h3 className="text-foreground text-[16px] font-semibold mb-1">Refer & Earn!</h3>
+            <p className="text-muted-foreground text-[12px]">Earn ₹50 on each referral</p>
           </div>
-          <h3 className="text-foreground text-[16px] font-semibold mb-1">Refer & Earn!</h3>
-          <p className="text-muted-foreground text-[12px]">Earn ₹50 on each referral</p>
+          <img 
+            src={bannerImage} 
+            alt="Referral" 
+            className="w-[160px] h-[104px] object-cover rounded-r-2xl"
+          />
         </div>
         {/* Carousel Dots */}
         <div className="flex justify-center gap-2 mt-3">
