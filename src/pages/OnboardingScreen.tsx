@@ -122,11 +122,13 @@ const OnboardingScreen = () => {
   };
 
   const handleMpinChange = (val: string) => {
-    setMpin(val);
+    const numericOnly = val.replace(/\D/g, '');
+    setMpin(numericOnly);
   };
 
   const handleConfirmMpinChange = (val: string) => {
-    setConfirmMpin(val);
+    const numericOnly = val.replace(/\D/g, '');
+    setConfirmMpin(numericOnly);
   };
 
   const handleSetupMpin = async () => {
