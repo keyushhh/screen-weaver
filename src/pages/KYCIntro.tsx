@@ -4,6 +4,7 @@ import { ChevronLeft, X } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import iconKyc from "@/assets/icon-kyc.svg";
 import popupBg from "@/assets/popup-bg.png";
+import buttonCloseBg from "@/assets/button-close.png";
 import {
   Dialog,
   DialogOverlay,
@@ -122,7 +123,12 @@ const KYCIntro = () => {
           {/* Close Button - Outside the popup */}
           <button 
             onClick={() => setShowWhyModal(false)}
-            className="mt-6 px-8 py-3 rounded-full border border-white/20 flex items-center gap-2 bg-[#1a1a24]"
+            className="mt-6 px-8 py-3 rounded-full flex items-center justify-center gap-2"
+            style={{
+              backgroundImage: `url(${buttonCloseBg})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
           >
             <X className="w-4 h-4 text-foreground" />
             <span className="text-foreground text-[14px]">Close</span>
