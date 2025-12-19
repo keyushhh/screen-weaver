@@ -125,7 +125,7 @@ const Homepage = () => {
         
         {/* Content */}
         <div className="relative px-5 py-3">
-          <div className="flex items-center justify-between">
+          <div className="py-[28px] flex-row flex items-end justify-between">
             <button className="flex-col gap-1 flex-1 flex items-center justify-center">
               <img src={navHome} alt="Home" className="w-6 h-6" />
               <span className="text-foreground text-[10px]">HOME</span>
