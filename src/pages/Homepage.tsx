@@ -13,6 +13,7 @@ import navHome from "@/assets/nav-home.svg";
 import navCards from "@/assets/nav-cards.svg";
 import navRewards from "@/assets/nav-rewards.svg";
 import navMore from "@/assets/nav-more.svg";
+import buttonAddMoney from "@/assets/button-add-money.png";
 const Homepage = () => {
   const [showBalance, setShowBalance] = useState(false);
   const balance = "0.00";
@@ -48,7 +49,14 @@ const Homepage = () => {
         <p className="text-foreground text-[32px] font-semibold">
           ₹{showBalance ? balance : "******"}
         </p>
-        <button className="flex items-center gap-2 px-6 py-3 rounded-full bg-[#1a1a2e] border border-white/10 text-foreground text-[14px] font-medium">
+        <button 
+          className="flex items-center justify-center gap-2 px-6 py-3 text-foreground text-[14px] font-medium h-12 w-[180px]"
+          style={{
+            backgroundImage: `url(${buttonAddMoney})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          }}
+        >
           <Plus className="w-4 h-4" />
           Add Money
         </button>
