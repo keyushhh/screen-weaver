@@ -5,7 +5,7 @@ import iconOrderCash from "@/assets/icon-order-cash.png";
 import iconWallet from "@/assets/icon-wallet.png";
 import iconFxConvert from "@/assets/icon-fx-convert.png";
 import iconGift from "@/assets/icon-gift.png";
-import bannerBg from "@/assets/banner-bg.svg";
+import bannerBg from "@/assets/banner-bg-new.png";
 import bannerImage from "@/assets/banner-image.png";
 import navPlusButton from "@/assets/nav-plus-button.png";
 import navbarBg from "@/assets/navbar-bg.png";
