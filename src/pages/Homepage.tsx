@@ -134,7 +134,7 @@ const Homepage = () => {
               <img src={navCards} alt="Cards" className="w-6 h-6" />
               <span className="text-muted-foreground text-[10px]">CARDS</span>
             </button>
-            <button className="flex-1 flex items-center justify-center">
+            <button className="flex-1 flex items-start justify-center py-0 px-0 my-0">
               <img src={navPlusButton} alt="Add" className="w-12 h-12" />
             </button>
             <button className="flex-col gap-1 flex-1 flex items-center justify-center">
