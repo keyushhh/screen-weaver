@@ -137,6 +137,13 @@ const Settings = () => {
           <ChevronRight className="w-5 h-5 text-muted-foreground" />
         </button>
       </div>
+
+      {/* Footer Logo */}
+      <div className="flex-1" />
+      <div className="px-5 pb-8 opacity-40">
+        <p className="text-foreground text-[24px] font-bold">dot.pe</p>
+        <p className="text-foreground text-[12px] italic">This is not where you find love.</p>
+      </div>
     </div>
   );
 };
