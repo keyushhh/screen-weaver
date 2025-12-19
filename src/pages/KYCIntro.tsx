@@ -1,9 +1,17 @@
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft } from "lucide-react";
+import { useState } from "react";
+import { ChevronLeft, X } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
+import iconKyc from "@/assets/icon-kyc.svg";
+import {
+  Dialog,
+  DialogContent,
+  DialogOverlay,
+} from "@/components/ui/dialog";
 
 const KYCIntro = () => {
   const navigate = useNavigate();
+  const [showWhyModal, setShowWhyModal] = useState(false);
 
   const benefits = [
     {
@@ -77,10 +85,38 @@ const KYCIntro = () => {
         >
           Start KYC
         </button>
-        <button className="w-full text-center text-foreground text-[14px] underline underline-offset-2">
+        <button 
+          onClick={() => setShowWhyModal(true)}
+          className="w-full text-center text-foreground text-[14px] underline underline-offset-2"
+        >
           Why is this needed?
         </button>
       </div>
+
+      {/* Why KYC Modal */}
+      <Dialog open={showWhyModal} onOpenChange={setShowWhyModal}>
+        <DialogOverlay className="backdrop-blur-sm bg-black/60" />
+        <DialogContent className="bg-[#1a1a24] border-0 rounded-2xl p-6 max-w-[320px] mx-auto">
+          <div className="flex flex-col items-center">
+            <img src={iconKyc} alt="KYC" className="w-8 h-8 mb-4" />
+            <h2 className="text-foreground text-[18px] font-semibold mb-4">
+              Know Your Customer
+            </h2>
+            <div className="bg-[#0a0a12] rounded-xl p-4">
+              <p className="text-foreground text-[14px] leading-relaxed">
+                In accordance with the Reserve Bank of India (RBI) regulations, completion of eKYC is mandatory to enable wallet functionalities such as fund transfers, cash withdrawals, and account upgrades. This ensures compliance, enhances security, and enables uninterrupted access to regulated financial services.
+              </p>
+            </div>
+            <button 
+              onClick={() => setShowWhyModal(false)}
+              className="mt-6 px-8 py-3 rounded-full border border-white/20 flex items-center gap-2"
+            >
+              <X className="w-4 h-4 text-foreground" />
+              <span className="text-foreground text-[14px]">Close</span>
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
