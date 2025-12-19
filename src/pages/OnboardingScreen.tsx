@@ -48,11 +48,8 @@ const OnboardingScreen = () => {
   }, [resendTimer]);
 
   // Helper function to detect weak/predictable MPINs
-  const isWeakMpin = (pin: string): { weak: boolean; reason?: 'predictable' | 'reversed' } => {
+  const isWeakMpin = (pin: string): { weak: boolean; reason?: 'predictable' } => {
     if (pin.length !== 4) return { weak: false };
-    
-    // Special case: 4321 is just reversed 1234
-    if (pin === '4321') return { weak: true, reason: 'reversed' };
     
     // Check for all same digits (0000, 1111, 2222, etc.)
     if (/^(\d)\1{3}$/.test(pin)) return { weak: true, reason: 'predictable' };
@@ -78,11 +75,7 @@ const OnboardingScreen = () => {
     if (mpin.length === 4) {
       const check = isWeakMpin(mpin);
       if (check.weak) {
-        if (check.reason === 'reversed') {
-          setMpinError("Bro, that's just reversed. Use something stronger.");
-        } else {
-          setMpinError("Let's stop you right there, try something less predictable?");
-        }
+        setMpinError("Let's stop you right there, try something less predictable?");
         return;
       }
     }
