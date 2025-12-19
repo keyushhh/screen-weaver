@@ -3,9 +3,9 @@ import { useState } from "react";
 import { ChevronLeft, X } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import iconKyc from "@/assets/icon-kyc.svg";
+import popupBg from "@/assets/popup-bg.png";
 import {
   Dialog,
-  DialogContent,
   DialogOverlay,
 } from "@/components/ui/dialog";
 
@@ -95,27 +95,39 @@ const KYCIntro = () => {
 
       {/* Why KYC Modal */}
       <Dialog open={showWhyModal} onOpenChange={setShowWhyModal}>
-        <DialogOverlay className="backdrop-blur-sm bg-black/60" />
-        <DialogContent className="bg-[#1a1a24] border-0 rounded-2xl p-6 max-w-[320px] mx-auto">
-          <div className="flex flex-col items-center">
-            <img src={iconKyc} alt="KYC" className="w-8 h-8 mb-4" />
-            <h2 className="text-foreground text-[18px] font-semibold mb-4">
-              Know Your Customer
-            </h2>
-            <div className="bg-[#0a0a12] rounded-xl p-4">
-              <p className="text-foreground text-[14px] leading-relaxed">
-                In accordance with the Reserve Bank of India (RBI) regulations, completion of eKYC is mandatory to enable wallet functionalities such as fund transfers, cash withdrawals, and account upgrades. This ensures compliance, enhances security, and enables uninterrupted access to regulated financial services.
-              </p>
+        <DialogOverlay className="backdrop-blur-md bg-black/40" />
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center p-6">
+          {/* Popup Box with glass background */}
+          <div 
+            className="relative rounded-2xl p-6 max-w-[320px] w-full"
+            style={{
+              backgroundImage: `url(${popupBg})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          >
+            <div className="flex flex-col items-center">
+              <img src={iconKyc} alt="KYC" className="w-8 h-8 mb-4" />
+              <h2 className="text-foreground text-[18px] font-semibold mb-4">
+                Know Your Customer
+              </h2>
+              <div className="bg-[#0a0a12]/80 rounded-xl p-4">
+                <p className="text-foreground text-[14px] leading-relaxed">
+                  In accordance with the Reserve Bank of India (RBI) regulations, completion of eKYC is mandatory to enable wallet functionalities such as fund transfers, cash withdrawals, and account upgrades. This ensures compliance, enhances security, and enables uninterrupted access to regulated financial services.
+                </p>
+              </div>
             </div>
-            <button 
-              onClick={() => setShowWhyModal(false)}
-              className="mt-6 px-8 py-3 rounded-full border border-white/20 flex items-center gap-2"
-            >
-              <X className="w-4 h-4 text-foreground" />
-              <span className="text-foreground text-[14px]">Close</span>
-            </button>
           </div>
-        </DialogContent>
+          
+          {/* Close Button - Outside the popup */}
+          <button 
+            onClick={() => setShowWhyModal(false)}
+            className="mt-6 px-8 py-3 rounded-full border border-white/20 flex items-center gap-2 bg-[#1a1a24]"
+          >
+            <X className="w-4 h-4 text-foreground" />
+            <span className="text-foreground text-[14px]">Close</span>
+          </button>
+        </div>
       </Dialog>
     </div>
   );
