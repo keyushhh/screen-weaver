@@ -94,9 +94,9 @@ const KYCForm = () => {
             >
               <div className="flex justify-between items-start">
                 <img src={doc.icon} alt={doc.name} className="w-8 h-8 object-contain" />
-                <img
-                  src={selectedDoc === doc.id ? radioOn : radioOff}
-                  alt={selectedDoc === doc.id ? "Selected" : "Not selected"}
+                <img 
+                  src={selectedDoc === doc.id ? radioOn : radioOff} 
+                  alt={selectedDoc === doc.id ? "Selected" : "Not selected"} 
                   className="w-6 h-6"
                 />
               </div>
@@ -133,6 +133,7 @@ const KYCForm = () => {
           variant="gradient"
           className="w-full h-[48px] rounded-full text-[16px] font-medium"
           disabled={!selectedDoc}
+          onClick={() => navigate("/kyc-upload")}
         >
           Continue
         </Button>
