@@ -147,7 +147,7 @@ export function GlassCalendar({ selected, onSelect, onClose, className }: GlassC
           <div
             className="absolute left-1/2 -translate-x-1/2 top-16 z-50 w-[160px] rounded-[16px] overflow-hidden backdrop-blur-[25.2px]"
             style={{
-              backgroundImage: `url(${yearDropdownBg})`,
+              backgroundImage: `linear-gradient(rgba(0,0,0,0.80), rgba(0,0,0,0.80)), url(${yearDropdownBg})`,
               backgroundSize: "100% 100%",
               backgroundRepeat: "no-repeat",
               boxShadow: "0 10px 40px rgba(0,0,0,0.4)",
