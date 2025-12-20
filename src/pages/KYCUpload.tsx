@@ -8,6 +8,7 @@ import iconGallery from "@/assets/icon-gallery.png";
 import iconPlaceholder from "@/assets/icon-gallery-placeholder.png";
 import inputFieldBg from "@/assets/input-field-bg.png";
 import pendingStatusIcon from "@/assets/pending-status.png";
+import thumbnailsBg from "@/assets/thumbnails-bg.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
@@ -155,8 +156,15 @@ const KYCUpload = () => {
         </div>
 
         {/* Thumbnails Section */}
-        <div className="mb-6">
-            <div className="flex justify-between items-center mb-2 px-1">
+        <div
+          className="mb-6 rounded-[16px] p-4"
+          style={{
+            backgroundImage: `url(${thumbnailsBg})`,
+            backgroundSize: '100% 100%',
+            backgroundRepeat: 'no-repeat',
+          }}
+        >
+            <div className="flex justify-between items-center">
                 <div className="flex gap-4">
                     {/* Front Side */}
                     <div className="w-[100px] h-[80px] rounded-[12px] border border-white/10 bg-white/5 flex flex-col items-center justify-center gap-2 overflow-hidden relative">
