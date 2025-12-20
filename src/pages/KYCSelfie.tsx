@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ChevronLeft, X } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import stepsBg from "@/assets/kyc-steps-bg.png";
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 
 const KYCSelfie = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
 
@@ -125,7 +126,12 @@ const KYCSelfie = () => {
             className="w-full h-[48px] rounded-full text-[16px] font-medium bg-[#5260FE] hover:bg-[#5260FE]/90 text-white"
             onClick={() => {
                 // Navigate to next step or complete
-                navigate("/kyc-review");
+                navigate("/kyc-review", {
+                  state: {
+                    ...location.state,
+                    selfie: capturedImage
+                  }
+                });
             }}
           >
             Continue

@@ -483,7 +483,16 @@ const KYCUpload = () => {
           style={{
             opacity: isFormComplete ? 1 : 0.5,
           }}
-          onClick={() => navigate("/kyc-selfie")}
+          onClick={() => navigate("/kyc-selfie", {
+            state: {
+              images,
+              documentNumber,
+              fullName,
+              dob: dob?.toISOString(),
+              addressProof,
+              documentType
+            }
+          })}
         >
           Continue
         </Button>
