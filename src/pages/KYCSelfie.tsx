@@ -6,6 +6,7 @@ import stepsBg from "@/assets/kyc-steps-bg.png";
 import flashIcon from "@/assets/flash.png";
 import shutterIcon from "@/assets/shutter.png";
 import thumbnailBg from "@/assets/thumbnail-bg.png";
+import frameIcon from "@/assets/frame.png";
 import { Button } from "@/components/ui/button";
 
 const KYCSelfie = () => {
@@ -149,18 +150,9 @@ const KYCSelfie = () => {
 
           {/* Camera Viewport Simulation */}
           <div className="flex-1 relative bg-black flex flex-col items-center justify-center">
-              {/* Frame Corners SVG */}
-              <div className="relative w-[85%] aspect-square max-w-[360px]">
-                <svg className="w-full h-full absolute inset-0 text-white" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-                    {/* Top Left */}
-                    <path d="M25 2H10C5.58172 2 2 5.58172 2 10V25" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                    {/* Top Right */}
-                    <path d="M75 2H90C94.4183 2 98 5.58172 98 10V25" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                    {/* Bottom Left */}
-                    <path d="M25 98H10C5.58172 98 2 94.4183 2 90V75" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                    {/* Bottom Right */}
-                    <path d="M75 98H90C94.4183 98 98 94.4183 98 90V75" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                </svg>
+              {/* Frame Asset */}
+              <div className="relative w-[85%] aspect-square max-w-[360px] flex items-center justify-center">
+                <img src={frameIcon} alt="Frame" className="w-full h-full object-contain" />
               </div>
 
               {/* Text Instructions */}
