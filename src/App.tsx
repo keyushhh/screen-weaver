@@ -7,6 +7,8 @@ import Index from "./pages/Index";
 import Homepage from "./pages/Homepage";
 import Settings from "./pages/Settings";
 import KYCIntro from "./pages/KYCIntro";
+import KYCForm from "./pages/KYCForm";
+import KYCUpload from "./pages/KYCUpload";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +24,8 @@ const App = () => (
           <Route path="/home" element={<Homepage />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/kyc-intro" element={<KYCIntro />} />
+          <Route path="/kyc-form" element={<KYCForm />} />
+          <Route path="/kyc-upload" element={<KYCUpload />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
