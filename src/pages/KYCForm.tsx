@@ -8,6 +8,8 @@ import iconAadhar from "@/assets/icon-aadhar.png";
 import iconPan from "@/assets/icon-pan.png";
 import iconPassport from "@/assets/icon-passport.png";
 import iconVoter from "@/assets/icon-voter.png";
+import radioOn from "@/assets/radio-on.png";
+import radioOff from "@/assets/radio-off.png";
 import { Button } from "@/components/ui/button";
 
 const KYCForm = () => {
@@ -83,9 +85,7 @@ const KYCForm = () => {
             <div
               key={doc.id}
               onClick={() => setSelectedDoc(doc.id)}
-              className={`relative h-[120px] rounded-[16px] p-4 flex flex-col justify-between cursor-pointer transition-all duration-200 border ${
-                selectedDoc === doc.id ? "border-[#5260FE]" : "border-transparent"
-              }`}
+              className="relative h-[120px] rounded-[16px] p-4 flex flex-col justify-between cursor-pointer transition-all duration-200 border border-transparent"
               style={{
                 backgroundImage: `url(${documentBg})`,
                 backgroundSize: "cover",
@@ -94,13 +94,11 @@ const KYCForm = () => {
             >
               <div className="flex justify-between items-start">
                 <img src={doc.icon} alt={doc.name} className="w-8 h-8 object-contain" />
-                <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                  selectedDoc === doc.id ? "border-[#5260FE]" : "border-white/20"
-                }`}>
-                  {selectedDoc === doc.id && (
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#5260FE]" />
-                  )}
-                </div>
+                <img
+                  src={selectedDoc === doc.id ? radioOn : radioOff}
+                  alt={selectedDoc === doc.id ? "Selected" : "Not selected"}
+                  className="w-6 h-6"
+                />
               </div>
               <span className="text-white text-[14px] font-medium">{doc.name}</span>
             </div>
