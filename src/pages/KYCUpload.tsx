@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import stepsBg from "@/assets/kyc-steps-bg.png";
 import iconFlash from "@/assets/icon-flash.png";
@@ -12,13 +13,15 @@ import thumbnailsBg from "@/assets/thumbnails-bg.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { GlassCalendar } from "@/components/GlassCalendar";
 
 const KYCUpload = () => {
   const navigate = useNavigate();
   const [otp, setOtp] = useState("");
   const [documentNumber, setDocumentNumber] = useState("");
   const [fullName, setFullName] = useState("");
-  const [dob, setDob] = useState("");
+  const [dob, setDob] = useState<Date | undefined>(undefined);
+  const [showCalendar, setShowCalendar] = useState(false);
 
   // State for camera/images
   const [flashOn, setFlashOn] = useState(false);
@@ -225,18 +228,37 @@ const KYCUpload = () => {
                     backgroundColor: 'transparent'
                 }}
             />
-            <Input
-                placeholder="Date of Birth"
-                value={dob}
-                onChange={(e) => setDob(e.target.value)}
-                className="w-[363px] h-[48px] rounded-[100px] border-none text-white placeholder:text-muted-foreground/60 px-6 mx-auto block"
+            {/* Date of Birth with Calendar */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setShowCalendar(!showCalendar)}
+                className="w-[363px] h-[48px] rounded-[100px] border-none text-left px-6 mx-auto flex items-center justify-between"
                 style={{
-                    backgroundImage: `url(${inputFieldBg})`,
-                    backgroundSize: '100% 100%',
-                    backgroundRepeat: 'no-repeat',
-                    backgroundColor: 'transparent'
+                  backgroundImage: `url(${inputFieldBg})`,
+                  backgroundSize: '100% 100%',
+                  backgroundRepeat: 'no-repeat',
+                  backgroundColor: 'transparent'
                 }}
-            />
+              >
+                <span className={dob ? "text-white" : "text-muted-foreground/60"}>
+                  {dob ? format(dob, "dd/MM/yyyy") : "Date of Birth"}
+                </span>
+                <CalendarIcon className="w-5 h-5 text-muted-foreground/60" />
+              </button>
+              
+              {showCalendar && (
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-50">
+                  <GlassCalendar
+                    selected={dob}
+                    onSelect={(date) => {
+                      setDob(date);
+                      setShowCalendar(false);
+                    }}
+                  />
+                </div>
+              )}
+            </div>
         </div>
 
         {/* OTP Section */}
