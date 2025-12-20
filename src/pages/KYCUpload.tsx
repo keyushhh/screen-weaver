@@ -130,27 +130,27 @@ const KYCUpload = () => {
             {/* Camera Box */}
             <div className="w-[362px] h-[184px] bg-black rounded-[24px] flex flex-col items-center justify-center relative overflow-hidden mb-4">
                 {/* Simulated Camera View */}
-
-                {/* Controls */}
-                <div className="absolute bottom-4 flex items-center gap-4 z-20">
-                    <button
-                        onClick={toggleFlash}
-                        className={`w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95 ${flashOn ? 'bg-white/20' : ''}`}
-                    >
-                    <img src={iconFlash} alt="Flash" className="w-10 h-10" />
-                    </button>
-                    <button
-                        onClick={handleGalleryClick}
-                        className="w-10 h-10 rounded-full flex items-center justify-center transition-transform active:scale-95"
-                    >
-                    <img src={iconGallery} alt="Gallery" className="w-10 h-10" />
-                    </button>
-                </div>
             </div>
 
             {/* Label Pill */}
-            <div className="w-[111px] h-[31px] bg-black rounded-full flex items-center justify-center">
+            <div className="w-[111px] h-[31px] bg-black rounded-full flex items-center justify-center mb-4">
                 <p className="text-white text-[12px] font-medium">Upload front side</p>
+            </div>
+
+            {/* Controls - Moved outside and below */}
+            <div className="flex items-center gap-4 z-20">
+                <button
+                    onClick={toggleFlash}
+                    className={`w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95 ${flashOn ? 'bg-white/20' : ''}`}
+                >
+                <img src={iconFlash} alt="Flash" className="w-10 h-10" />
+                </button>
+                <button
+                    onClick={handleGalleryClick}
+                    className="w-10 h-10 rounded-full flex items-center justify-center transition-transform active:scale-95"
+                >
+                <img src={iconGallery} alt="Gallery" className="w-10 h-10" />
+                </button>
             </div>
         </div>
 
