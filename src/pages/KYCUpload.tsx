@@ -197,7 +197,7 @@ const KYCUpload = () => {
       {/* Header */}
       <div className="flex-none flex items-center justify-between px-5 pt-4 pb-2 z-10">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/kyc-form")}
           className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center transition-colors hover:bg-white/10"
         >
           <ChevronLeft className="w-5 h-5 text-foreground" />
