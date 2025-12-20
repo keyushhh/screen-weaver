@@ -255,6 +255,7 @@ const KYCUpload = () => {
                       setDob(date);
                       setShowCalendar(false);
                     }}
+                    onClose={() => setShowCalendar(false)}
                   />
                 </div>
               )}
