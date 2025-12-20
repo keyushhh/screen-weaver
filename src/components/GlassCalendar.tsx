@@ -1,15 +1,17 @@
 import * as React from "react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from "lucide-react";
-import { format, setMonth, setYear, getDaysInMonth, startOfMonth, getDay, addMonths, subMonths } from "date-fns";
+import { getDaysInMonth, startOfMonth, getDay, addMonths, subMonths, setYear } from "date-fns";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import calendarBg from "@/assets/calendar-bg.png";
 import calendarSelection from "@/assets/calendar-selection.png";
+import yearDropdownBg from "@/assets/year-dropdown-bg.png";
 
 interface GlassCalendarProps {
   selected?: Date;
   onSelect?: (date: Date) => void;
+  onClose?: () => void;
   className?: string;
 }
 
@@ -24,9 +26,10 @@ const DAYS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 const currentYear = new Date().getFullYear();
 const YEARS = Array.from({ length: currentYear - 1920 + 1 }, (_, i) => currentYear - i);
 
-export function GlassCalendar({ selected, onSelect, className }: GlassCalendarProps) {
+export function GlassCalendar({ selected, onSelect, onClose, className }: GlassCalendarProps) {
   const [currentDate, setCurrentDate] = useState(selected || new Date());
   const [showYearDropdown, setShowYearDropdown] = useState(false);
+  const calendarRef = useRef<HTMLDivElement>(null);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -35,6 +38,20 @@ export function GlassCalendar({ selected, onSelect, className }: GlassCalendarPr
   const firstDayOfMonth = startOfMonth(currentDate);
   // getDay returns 0 for Sunday, we need Monday as first day (0)
   const startDay = (getDay(firstDayOfMonth) + 6) % 7;
+
+  // Click outside to dismiss
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (calendarRef.current && !calendarRef.current.contains(event.target as Node)) {
+        onClose?.();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [onClose]);
 
   const handlePrevMonth = () => {
     setCurrentDate(subMonths(currentDate, 1));
@@ -74,8 +91,10 @@ export function GlassCalendar({ selected, onSelect, className }: GlassCalendarPr
 
   return (
     <div
+      ref={calendarRef}
       className={cn(
         "w-[340px] rounded-[20px] p-3 relative overflow-hidden",
+        "backdrop-blur-[25.2px]",
         className
       )}
       style={{
@@ -128,7 +147,9 @@ export function GlassCalendar({ selected, onSelect, className }: GlassCalendarPr
           <div
             className="absolute left-1/2 -translate-x-1/2 top-16 z-50 w-[160px] rounded-[16px] overflow-hidden"
             style={{
-              background: "linear-gradient(180deg, rgba(180,180,190,0.95) 0%, rgba(160,160,170,0.95) 100%)",
+              backgroundImage: `url(${yearDropdownBg})`,
+              backgroundSize: "100% 100%",
+              backgroundRepeat: "no-repeat",
               boxShadow: "0 10px 40px rgba(0,0,0,0.4)",
             }}
           >
@@ -149,10 +170,10 @@ export function GlassCalendar({ selected, onSelect, className }: GlassCalendarPr
                     key={y}
                     onClick={() => handleYearSelect(y)}
                     className={cn(
-                      "w-full px-4 py-2.5 text-left text-lg font-medium transition-colors",
+                      "w-full px-4 py-2.5 text-left text-lg font-medium transition-colors text-white",
                       y === year
-                        ? "bg-black/30 text-white"
-                        : "text-white/90 hover:bg-black/10"
+                        ? "bg-[rgba(0,0,0,0.49)]"
+                        : "hover:bg-black/20"
                     )}
                   >
                     {y}
