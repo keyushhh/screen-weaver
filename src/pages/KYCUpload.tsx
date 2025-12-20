@@ -85,6 +85,10 @@ const KYCUpload = () => {
     back: null,
   });
 
+  // State for address proof (PAN card only)
+  const [addressProof, setAddressProof] = useState<string | null>(null);
+  const addressProofInputRef = useRef<HTMLInputElement>(null);
+
   // Reference for hidden file input
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -104,7 +108,34 @@ const KYCUpload = () => {
     fullName.trim() !== "" && 
     dob !== undefined && 
     dobError === "" &&
-    otpVerified;
+    otpVerified &&
+    (documentType !== "pan" || addressProof !== null);
+
+  // Handle address proof file selection
+  const handleAddressProofChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Check file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        alert("File size must be less than 5MB");
+        return;
+      }
+      // Check file type
+      const validTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+      if (!validTypes.includes(file.type)) {
+        alert("Only .JPG, .PNG, .PDF file formats are allowed");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAddressProof(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+    if (event.target) {
+      event.target.value = '';
+    }
+  };
 
   // Toggle Flash
   const toggleFlash = () => {
@@ -350,6 +381,57 @@ const KYCUpload = () => {
                 <p className="text-red-500 text-[12px] mt-1 ml-6">{dobError}</p>
               )}
             </div>
+
+            {/* Address Proof Section - Only for PAN Card */}
+            {documentType === "pan" && (
+              <div className="mt-4">
+                <p className="text-muted-foreground text-[14px] mb-4">
+                  We'll also need a document that shows your address. Please upload a valid address proof (e.g., Aadhaar, Voter ID, Driver's License, utility bill, or bank statement).
+                </p>
+                <input
+                  type="file"
+                  ref={addressProofInputRef}
+                  className="hidden"
+                  accept=".jpg,.jpeg,.png,.pdf"
+                  onChange={handleAddressProofChange}
+                />
+                <div
+                  onClick={() => addressProofInputRef.current?.click()}
+                  className="w-full rounded-[16px] border border-white/10 bg-white/5 p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-white/10 transition-colors"
+                >
+                  {addressProof ? (
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
+                        <svg className="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <span className="text-green-400 text-[14px]">Document uploaded</span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setAddressProof(null);
+                        }}
+                        className="text-red-400 text-[12px] underline mt-1"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="w-10 h-10 mb-3 flex items-center justify-center">
+                        <svg className="w-6 h-6 text-white/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                        </svg>
+                      </div>
+                      <p className="text-white/40 text-[14px] mb-1">Only .JPG, .PNG, .PDF file formats are allowed.</p>
+                      <p className="text-white/40 text-[14px] mb-3">Max file size 5MB.</p>
+                      <p className="text-white/60 text-[14px]">Tap to upload your document here.</p>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
         </div>
 
         {/* OTP Section */}
