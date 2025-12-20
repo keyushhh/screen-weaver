@@ -168,23 +168,37 @@ const KYCUpload = () => {
                 <div className="flex gap-4">
                     {/* Front Side */}
                     <div className="w-[74px] h-[74px] rounded-[12px] border border-white/10 bg-white/5 flex flex-col items-center justify-center gap-1 overflow-hidden relative">
+        <div className="mb-6">
+            <div className="flex justify-between items-center mb-2 px-1">
+                <div className="flex gap-4">
+                    {/* Front Side */}
+                    <div className="w-[100px] h-[80px] rounded-[12px] border border-white/10 bg-white/5 flex flex-col items-center justify-center gap-2 overflow-hidden relative">
                         {images.front ? (
                             <img src={images.front} alt="Front" className="w-full h-full object-cover" />
                         ) : (
                             <>
+
                                 <img src={iconPlaceholder} alt="" className="w-5 h-5 opacity-50" />
                                 <span className="text-white/60 text-[9px] text-center leading-none">Front side</span>
+                                <img src={iconPlaceholder} alt="" className="w-6 h-6 opacity-50" />
+                                <span className="text-white/60 text-[10px]">Front side</span>
                             </>
                         )}
                     </div>
                      {/* Back Side */}
+
                     <div className="w-[74px] h-[74px] rounded-[12px] border border-white/10 bg-white/5 flex flex-col items-center justify-center gap-1 overflow-hidden relative">
+                    <div className="w-[100px] h-[80px] rounded-[12px] border border-white/10 bg-white/5 flex flex-col items-center justify-center gap-2 overflow-hidden relative">
                         {images.back ? (
                             <img src={images.back} alt="Back" className="w-full h-full object-cover" />
                         ) : (
                             <>
+
                                 <img src={iconPlaceholder} alt="" className="w-5 h-5 opacity-50" />
                                 <span className="text-white/60 text-[9px] text-center leading-none">Back side</span>
+
+                                <img src={iconPlaceholder} alt="" className="w-6 h-6 opacity-50" />
+                                <span className="text-white/60 text-[10px]">Back side</span>
                             </>
                         )}
                     </div>
@@ -193,6 +207,9 @@ const KYCUpload = () => {
                     onClick={handleClearAll}
                     disabled={!images.front && !images.back}
                     className={`text-[12px] underline underline-offset-2 transition-colors mr-2 ${(!images.front && !images.back) ? 'text-gray-500 cursor-not-allowed' : 'text-red-500 hover:text-red-400'}`}
+
+                    className={`text-[12px] underline underline-offset-2 transition-colors ${(!images.front && !images.back) ? 'text-gray-500 cursor-not-allowed' : 'text-red-500 hover:text-red-400'}`}
+
                 >
                     Clear All
                 </button>
