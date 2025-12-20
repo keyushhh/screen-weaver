@@ -4,6 +4,8 @@ import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from "lucide-react"
 import { format, setMonth, setYear, getDaysInMonth, startOfMonth, getDay, addMonths, subMonths } from "date-fns";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import calendarBg from "@/assets/calendar-bg.png";
+import calendarSelection from "@/assets/calendar-selection.png";
 
 interface GlassCalendarProps {
   selected?: Date;
@@ -73,128 +75,134 @@ export function GlassCalendar({ selected, onSelect, className }: GlassCalendarPr
   return (
     <div
       className={cn(
-        "w-[340px] rounded-[20px] p-5 relative overflow-hidden",
-        // iOS 26 Liquid Glass effect
-        "bg-white/15 backdrop-blur-[40px]",
-        "border border-white/30",
-        "shadow-[0_8px_32px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.3)]",
+        "w-[340px] rounded-[20px] p-3 relative overflow-hidden",
         className
       )}
       style={{
-        background: "linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 100%)",
+        backgroundImage: `url(${calendarBg})`,
+        backgroundSize: "100% 100%",
+        backgroundRepeat: "no-repeat",
       }}
     >
-      {/* Glass highlight overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none rounded-[20px]" />
-      
-      {/* Header with Month/Year and Navigation */}
-      <div className="flex items-center justify-between mb-4 relative z-10">
-        {/* Previous Month Button */}
-        <button
-          onClick={handlePrevMonth}
-          className="w-10 h-10 rounded-[10px] bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center transition-all hover:bg-white/20 active:scale-95"
-        >
-          <ChevronLeft className="w-5 h-5 text-white" />
-        </button>
-
-        {/* Month/Year Selector */}
-        <button
-          onClick={() => setShowYearDropdown(!showYearDropdown)}
-          className="flex items-center gap-2 text-white text-lg font-semibold hover:opacity-80 transition-opacity"
-        >
-          <span>{MONTHS[month]} {year}</span>
-          {showYearDropdown ? (
-            <ChevronUp className="w-4 h-4" />
-          ) : (
-            <ChevronDown className="w-4 h-4" />
-          )}
-        </button>
-
-        {/* Next Month Button */}
-        <button
-          onClick={handleNextMonth}
-          className="w-10 h-10 rounded-[10px] bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center transition-all hover:bg-white/20 active:scale-95"
-        >
-          <ChevronRight className="w-5 h-5 text-white" />
-        </button>
-      </div>
-
-      {/* Year Dropdown */}
-      {showYearDropdown && (
-        <div
-          className="absolute left-1/2 -translate-x-1/2 top-16 z-50 w-[160px] rounded-[16px] overflow-hidden"
-          style={{
-            background: "linear-gradient(180deg, rgba(180,180,190,0.95) 0%, rgba(160,160,170,0.95) 100%)",
-            boxShadow: "0 10px 40px rgba(0,0,0,0.4)",
-          }}
-        >
-          {/* Year header */}
-          <div
-            className="px-4 py-3 flex items-center justify-between border-b border-black/10"
-            onClick={() => setShowYearDropdown(false)}
+      {/* Inner content with black 20% opacity fill */}
+      <div
+        className="rounded-[16px] p-4 relative"
+        style={{
+          backgroundColor: "rgba(0, 0, 0, 0.20)",
+        }}
+      >
+        {/* Header with Month/Year and Navigation */}
+        <div className="flex items-center justify-between mb-4 relative z-10">
+          {/* Previous Month Button */}
+          <button
+            onClick={handlePrevMonth}
+            className="w-10 h-10 rounded-[10px] bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center transition-all hover:bg-white/20 active:scale-95"
           >
-            <span className="text-white text-lg font-semibold">{year}</span>
-            <ChevronUp className="w-5 h-5 text-white" />
-          </div>
-          
-          {/* Scrollable year list */}
-          <ScrollArea className="h-[280px]">
-            <div className="py-1">
-              {YEARS.map((y) => (
-                <button
-                  key={y}
-                  onClick={() => handleYearSelect(y)}
-                  className={cn(
-                    "w-full px-4 py-2.5 text-left text-lg font-medium transition-colors",
-                    y === year
-                      ? "bg-black/30 text-white"
-                      : "text-white/90 hover:bg-black/10"
-                  )}
-                >
-                  {y}
-                </button>
-              ))}
-            </div>
-          </ScrollArea>
-          
-          {/* Custom scrollbar indicator */}
-          <div className="absolute right-1 top-[52px] bottom-2 w-1 bg-black/30 rounded-full">
-            <div className="w-full h-[60px] bg-blue-500 rounded-full" />
-          </div>
+            <ChevronLeft className="w-5 h-5 text-white" />
+          </button>
+
+          {/* Month/Year Selector */}
+          <button
+            onClick={() => setShowYearDropdown(!showYearDropdown)}
+            className="flex items-center gap-2 text-white text-lg font-semibold hover:opacity-80 transition-opacity"
+          >
+            <span>{MONTHS[month]} {year}</span>
+            {showYearDropdown ? (
+              <ChevronUp className="w-4 h-4" />
+            ) : (
+              <ChevronDown className="w-4 h-4" />
+            )}
+          </button>
+
+          {/* Next Month Button */}
+          <button
+            onClick={handleNextMonth}
+            className="w-10 h-10 rounded-[10px] bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center transition-all hover:bg-white/20 active:scale-95"
+          >
+            <ChevronRight className="w-5 h-5 text-white" />
+          </button>
         </div>
-      )}
 
-      {/* Days of Week Header */}
-      <div className="grid grid-cols-7 gap-1 mb-2 relative z-10">
-        {DAYS.map((day) => (
+        {/* Year Dropdown */}
+        {showYearDropdown && (
           <div
-            key={day}
-            className="h-8 flex items-center justify-center text-white/60 text-xs font-medium"
+            className="absolute left-1/2 -translate-x-1/2 top-16 z-50 w-[160px] rounded-[16px] overflow-hidden"
+            style={{
+              background: "linear-gradient(180deg, rgba(180,180,190,0.95) 0%, rgba(160,160,170,0.95) 100%)",
+              boxShadow: "0 10px 40px rgba(0,0,0,0.4)",
+            }}
           >
-            {day}
+            {/* Year header */}
+            <div
+              className="px-4 py-3 flex items-center justify-between border-b border-black/10 cursor-pointer"
+              onClick={() => setShowYearDropdown(false)}
+            >
+              <span className="text-white text-lg font-semibold">{year}</span>
+              <ChevronUp className="w-5 h-5 text-white" />
+            </div>
+            
+            {/* Scrollable year list */}
+            <ScrollArea className="h-[280px]">
+              <div className="py-1">
+                {YEARS.map((y) => (
+                  <button
+                    key={y}
+                    onClick={() => handleYearSelect(y)}
+                    className={cn(
+                      "w-full px-4 py-2.5 text-left text-lg font-medium transition-colors",
+                      y === year
+                        ? "bg-black/30 text-white"
+                        : "text-white/90 hover:bg-black/10"
+                    )}
+                  >
+                    {y}
+                  </button>
+                ))}
+              </div>
+            </ScrollArea>
+            
+            {/* Custom scrollbar indicator */}
+            <div className="absolute right-1 top-[52px] bottom-2 w-1 bg-black/30 rounded-full">
+              <div className="w-full h-[60px] bg-blue-500 rounded-full" />
+            </div>
           </div>
-        ))}
-      </div>
+        )}
 
-      {/* Calendar Days Grid */}
-      <div className="grid grid-cols-7 gap-1 relative z-10">
-        {calendarDays.map((day, index) => (
-          <div key={index} className="aspect-square flex items-center justify-center">
-            {day !== null ? (
-              <button
-                onClick={() => handleDayClick(day)}
-                className={cn(
-                  "w-10 h-10 rounded-[10px] flex items-center justify-center text-white text-base font-medium transition-all",
-                  isSelected(day)
-                    ? "bg-[#5260FE]/60 border border-[#5260FE]/80 shadow-[0_0_20px_rgba(82,96,254,0.4)]"
-                    : "hover:bg-white/10 active:scale-95"
-                )}
-              >
-                {day}
-              </button>
-            ) : null}
-          </div>
-        ))}
+        {/* Days of Week Header */}
+        <div className="grid grid-cols-7 gap-1 mb-2 relative z-10">
+          {DAYS.map((day) => (
+            <div
+              key={day}
+              className="h-8 flex items-center justify-center text-white/60 text-xs font-medium"
+            >
+              {day}
+            </div>
+          ))}
+        </div>
+
+        {/* Calendar Days Grid */}
+        <div className="grid grid-cols-7 gap-1 relative z-10">
+          {calendarDays.map((day, index) => (
+            <div key={index} className="aspect-square flex items-center justify-center">
+              {day !== null ? (
+                <button
+                  onClick={() => handleDayClick(day)}
+                  className={cn(
+                    "w-10 h-10 rounded-[10px] flex items-center justify-center text-white text-base font-medium transition-all",
+                    !isSelected(day) && "hover:bg-white/10 active:scale-95"
+                  )}
+                  style={isSelected(day) ? {
+                    backgroundImage: `url(${calendarSelection})`,
+                    backgroundSize: "100% 100%",
+                    backgroundRepeat: "no-repeat",
+                  } : undefined}
+                >
+                  {day}
+                </button>
+              ) : null}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
