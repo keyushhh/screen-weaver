@@ -1,29 +1,38 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
+import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import stepsBg from "@/assets/kyc-steps-bg.png";
-import iconAadhar from "@/assets/icon-aadhar.png";
-// Using aadhar icon as a placeholder for the document thumbnail
-import avatar from "@/assets/avatar.png";
-// Using avatar or similar for selfie placeholder if specific one not available,
-// or I can use the 'icon-gallery-placeholder.png' or just a colored div.
-// The screenshot shows a photo of a woman. I'll use a placeholder or the avatar if suitable.
+import checkBox from "@/assets/check-box.png";
+import checkBoxOutlineBlank from "@/assets/check-box-outline-blank.png";
 
 const KYCReview = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [agreed, setAgreed] = useState(false);
 
-  // Mock data to match screenshot
-  const kycData = {
-    documentType: "Aadhar Card",
-    documentNumber: "1234 XXXX 3242",
-    fullName: "Rohit Khandelwal",
-    dob: "13 May 2025",
-    // In a real app, these would be real URLs
+  // Get data from location state (passed from previous steps)
+  const state = location.state || {};
+  const {
+    images = {},
+    documentNumber = "",
+    fullName = "",
+    dob = null,
+    documentType = "",
+    selfie = null
+  } = state;
+
+  const documentLabels: Record<string, string> = {
+    aadhar: "Aadhar Card",
+    voter: "Voter ID",
+    passport: "Passport",
+    pan: "PAN Card"
   };
+
+  const formattedDocType = documentLabels[documentType] || "Document";
+  const formattedDob = dob ? format(new Date(dob), "dd MMM yyyy") : "";
 
   const handleSubmit = () => {
     // Submit logic here
@@ -92,35 +101,39 @@ const KYCReview = () => {
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-white/40 text-[12px] mb-1">ID Document</p>
-                <p className="text-white text-[14px] font-medium">{kycData.documentType} ending 3242</p>
+                <p className="text-white text-[14px] font-medium">{formattedDocType}</p>
               </div>
               <div className="flex gap-2">
-                {/* Mock Thumbnails for Front & Back */}
-                <div className="w-[42px] h-[32px] rounded-[4px] bg-white/10 overflow-hidden border border-white/20 flex items-center justify-center">
-                    <img src={iconAadhar} alt="Front" className="w-full h-full object-cover opacity-80" />
-                </div>
-                <div className="w-[42px] h-[32px] rounded-[4px] bg-white/10 overflow-hidden border border-white/20 flex items-center justify-center">
-                    <img src={iconAadhar} alt="Back" className="w-full h-full object-cover opacity-80" />
-                </div>
+                {/* Thumbnails for Front & Back */}
+                {images.front && (
+                  <div className="w-[42px] h-[32px] rounded-[4px] bg-white/10 overflow-hidden border border-white/20 flex items-center justify-center">
+                      <img src={images.front} alt="Front" className="w-full h-full object-cover" />
+                  </div>
+                )}
+                {images.back && (
+                  <div className="w-[42px] h-[32px] rounded-[4px] bg-white/10 overflow-hidden border border-white/20 flex items-center justify-center">
+                      <img src={images.back} alt="Back" className="w-full h-full object-cover" />
+                  </div>
+                )}
               </div>
             </div>
 
             {/* ID Number */}
             <div>
               <p className="text-white/40 text-[12px] mb-1">ID Number</p>
-              <p className="text-white text-[14px] font-medium">{kycData.documentNumber}</p>
+              <p className="text-white text-[14px] font-medium">{documentNumber}</p>
             </div>
 
             {/* Full Name */}
             <div>
               <p className="text-white/40 text-[12px] mb-1">Full Name</p>
-              <p className="text-white text-[14px] font-medium">{kycData.fullName}</p>
+              <p className="text-white text-[14px] font-medium">{fullName}</p>
             </div>
 
             {/* Date of Birth */}
             <div>
               <p className="text-white/40 text-[12px] mb-1">Date of Birth</p>
-              <p className="text-white text-[14px] font-medium">{kycData.dob}</p>
+              <p className="text-white text-[14px] font-medium">{formattedDob}</p>
             </div>
 
             {/* Selfie Verification */}
@@ -130,10 +143,11 @@ const KYCReview = () => {
                  <p className="text-white text-[14px] font-medium">Selfie Verified</p>
               </div>
               {/* Selfie Thumbnail */}
-              <div className="w-[42px] h-[42px] rounded-[8px] bg-white/10 overflow-hidden border border-white/20">
-                 {/* Using avatar as mock for selfie */}
-                 <img src={avatar} alt="Selfie" className="w-full h-full object-cover" />
-              </div>
+              {selfie && (
+                <div className="w-[42px] h-[42px] rounded-[8px] bg-white/10 overflow-hidden border border-white/20">
+                   <img src={selfie} alt="Selfie" className="w-full h-full object-cover" />
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -142,15 +156,13 @@ const KYCReview = () => {
 
       {/* Footer Area */}
       <div className="fixed bottom-0 left-0 right-0 px-5 pb-8 pt-4 bg-gradient-to-t from-[#0a0a12] via-[#0a0a12] to-transparent z-20">
-        <div className="flex items-start gap-3 mb-6">
-            <Checkbox
-                id="terms"
-                checked={agreed}
-                onCheckedChange={(checked) => setAgreed(checked as boolean)}
-                className="mt-1 border-white/40 data-[state=checked]:bg-[#5260FE] data-[state=checked]:border-[#5260FE]"
+        <div className="flex items-start gap-3 mb-6" onClick={() => setAgreed(!agreed)}>
+            <img
+              src={agreed ? checkBox : checkBoxOutlineBlank}
+              alt="Checkbox"
+              className="w-5 h-5 mt-0.5 object-contain"
             />
             <label
-                htmlFor="terms"
                 className="text-white/60 text-[13px] leading-tight cursor-pointer"
             >
                 I agree, all information provided are correct and accurate to best of my knowledge.
