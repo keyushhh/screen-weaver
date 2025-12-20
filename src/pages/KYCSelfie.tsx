@@ -119,13 +119,13 @@ const KYCSelfie = () => {
 
        {/* Footer - Continue Button (only when captured) */}
        {capturedImage && (
-        <div className="fixed bottom-0 left-0 right-0 px-5 pb-8 pt-4 bg-gradient-to-t from-[#0a0a12] to-transparent">
+        <div className="fixed bottom-0 left-0 right-0 px-5 pb-8 pt-4 bg-gradient-to-t from-[#0a0a12] to-transparent z-20">
           <Button
             variant="default"
             className="w-full h-[48px] rounded-full text-[16px] font-medium bg-[#5260FE] hover:bg-[#5260FE]/90 text-white"
             onClick={() => {
                 // Navigate to next step or complete
-                console.log("Continue to Step 4");
+                navigate("/kyc-review");
             }}
           >
             Continue
@@ -170,15 +170,17 @@ const KYCSelfie = () => {
               {/* Shutter Button */}
               <button
                 onClick={handleCapture}
-                className="w-20 h-20 rounded-full flex items-center justify-center transition-transform active:scale-95"
+                className="w-20 h-20 rounded-full flex items-center justify-center transition-transform active:scale-95 z-20"
               >
                   <img src={shutterIcon} alt="Capture" className="w-full h-full object-contain" />
               </button>
 
               {/* Flash Button */}
-              <button className="absolute right-12 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center">
-                  <img src={flashIcon} alt="Flash" className="w-full h-full object-contain" />
-              </button>
+              <div className="absolute inset-0 flex items-center justify-end px-12 pointer-events-none">
+                  <button className="w-8 h-8 flex items-center justify-center pointer-events-auto">
+                      <img src={flashIcon} alt="Flash" className="w-full h-full object-contain" />
+                  </button>
+              </div>
           </div>
         </div>
       )}
