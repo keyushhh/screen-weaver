@@ -157,9 +157,9 @@ export function GlassCalendar({ selected, onSelect, onClose, disableFutureDates 
         {/* Year Dropdown */}
         {showYearDropdown && (
           <div
-            className="absolute left-1/2 -translate-x-1/2 top-16 z-50 w-[160px] rounded-[16px] overflow-hidden backdrop-blur-[25.2px]"
+            className="absolute left-1/2 -translate-x-1/2 top-16 z-50 w-[160px] rounded-[16px] overflow-hidden"
             style={{
-              backgroundImage: `linear-gradient(rgba(0,0,0,0.80), rgba(0,0,0,0.80)), url(${yearDropdownBg})`,
+              backgroundImage: `url(${yearDropdownBg})`,
               backgroundSize: "100% 100%",
               backgroundRepeat: "no-repeat",
               boxShadow: "0 10px 40px rgba(0,0,0,0.4)",
@@ -175,7 +175,7 @@ export function GlassCalendar({ selected, onSelect, onClose, disableFutureDates 
             </div>
             
             {/* Scrollable year list */}
-            <ScrollArea className="h-[280px]">
+            <ScrollArea className="h-[220px]">
               <div className="py-1">
                 {YEARS.map((y) => (
                   <button
