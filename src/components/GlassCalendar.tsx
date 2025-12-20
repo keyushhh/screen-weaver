@@ -12,6 +12,7 @@ interface GlassCalendarProps {
   selected?: Date;
   onSelect?: (date: Date) => void;
   onClose?: () => void;
+  disableFutureDates?: boolean;
   className?: string;
 }
 
@@ -26,10 +27,11 @@ const DAYS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 const currentYear = new Date().getFullYear();
 const YEARS = Array.from({ length: currentYear - 1920 + 1 }, (_, i) => currentYear - i);
 
-export function GlassCalendar({ selected, onSelect, onClose, className }: GlassCalendarProps) {
+export function GlassCalendar({ selected, onSelect, onClose, disableFutureDates = false, className }: GlassCalendarProps) {
   const [currentDate, setCurrentDate] = useState(selected || new Date());
   const [showYearDropdown, setShowYearDropdown] = useState(false);
   const calendarRef = useRef<HTMLDivElement>(null);
+  const today = new Date();
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -68,7 +70,17 @@ export function GlassCalendar({ selected, onSelect, onClose, className }: GlassC
 
   const handleDayClick = (day: number) => {
     const newDate = new Date(year, month, day);
+    // Check if future date is disabled
+    if (disableFutureDates && newDate > today) {
+      return;
+    }
     onSelect?.(newDate);
+  };
+
+  const isFutureDate = (day: number) => {
+    if (!disableFutureDates) return false;
+    const date = new Date(year, month, day);
+    return date > today;
   };
 
   const isSelected = (day: number) => {
@@ -208,9 +220,13 @@ export function GlassCalendar({ selected, onSelect, onClose, className }: GlassC
               {day !== null ? (
                 <button
                   onClick={() => handleDayClick(day)}
+                  disabled={isFutureDate(day)}
                   className={cn(
-                    "w-10 h-10 rounded-[10px] flex items-center justify-center text-white text-base font-medium transition-all",
-                    !isSelected(day) && "hover:bg-white/10 active:scale-95"
+                    "w-10 h-10 rounded-[10px] flex items-center justify-center text-base font-medium transition-all",
+                    isFutureDate(day)
+                      ? "text-white/30 cursor-not-allowed"
+                      : "text-white",
+                    !isSelected(day) && !isFutureDate(day) && "hover:bg-white/10 active:scale-95"
                   )}
                   style={isSelected(day) ? {
                     backgroundImage: `url(${calendarSelection})`,

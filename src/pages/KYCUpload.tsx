@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
@@ -9,6 +9,7 @@ import iconGallery from "@/assets/icon-gallery.png";
 import iconPlaceholder from "@/assets/icon-gallery-placeholder.png";
 import inputFieldBg from "@/assets/input-field-bg.png";
 import pendingStatusIcon from "@/assets/pending-status.png";
+import otpVerifiedIcon from "@/assets/otp-verified.png";
 import thumbnailsBg from "@/assets/thumbnails-bg.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +19,7 @@ import { GlassCalendar } from "@/components/GlassCalendar";
 const KYCUpload = () => {
   const navigate = useNavigate();
   const [otp, setOtp] = useState("");
+  const [otpVerified, setOtpVerified] = useState(false);
   const [documentNumber, setDocumentNumber] = useState("");
   const [fullName, setFullName] = useState("");
   const [dob, setDob] = useState<Date | undefined>(undefined);
@@ -32,6 +34,22 @@ const KYCUpload = () => {
 
   // Reference for hidden file input
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Check OTP verification when OTP changes
+  useEffect(() => {
+    if (otp === "123456" && !otpVerified) {
+      setOtpVerified(true);
+    }
+  }, [otp, otpVerified]);
+
+  // Check if all conditions are met to enable Continue button
+  const isFormComplete = 
+    images.front !== null && 
+    images.back !== null && 
+    documentNumber.trim() !== "" && 
+    fullName.trim() !== "" && 
+    dob !== undefined && 
+    otpVerified;
 
   // Toggle Flash
   const toggleFlash = () => {
@@ -256,6 +274,7 @@ const KYCUpload = () => {
                       setShowCalendar(false);
                     }}
                     onClose={() => setShowCalendar(false)}
+                    disableFutureDates={true}
                   />
                 </div>
               )}
@@ -267,7 +286,7 @@ const KYCUpload = () => {
             <p className="text-muted-foreground text-[14px]">
                 An OTP has been sent to your registered mobile number.
             </p>
-            <InputOTP maxLength={6} value={otp} onChange={setOtp}>
+            <InputOTP maxLength={6} value={otp} onChange={setOtp} disabled={otpVerified}>
                 <InputOTPGroup className="w-full justify-between gap-2">
                   {[0, 1, 2, 3, 4, 5].map(index => (
                     <InputOTPSlot
@@ -280,10 +299,22 @@ const KYCUpload = () => {
             </InputOTP>
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <img src={pendingStatusIcon} alt="Pending" className="w-5 h-5 object-contain" />
-                    <span className="text-white/80 text-[12px]">Awaiting OTP verification</span>
+                    {otpVerified ? (
+                      <>
+                        <img src={otpVerifiedIcon} alt="Verified" className="w-5 h-5 object-contain" />
+                        <span className="text-green-400 text-[12px]">OTP verified</span>
+                      </>
+                    ) : (
+                      <>
+                        <img src={pendingStatusIcon} alt="Pending" className="w-5 h-5 object-contain" />
+                        <span className="text-white/80 text-[12px]">Awaiting OTP verification</span>
+                      </>
+                    )}
                 </div>
-                <button className="text-muted-foreground text-[12px] hover:text-white">
+                <button 
+                  className={`text-[12px] ${otpVerified ? 'text-gray-500 cursor-not-allowed' : 'text-muted-foreground hover:text-white'}`}
+                  disabled={otpVerified}
+                >
                     Didn't receive OTP?
                 </button>
             </div>
@@ -295,6 +326,10 @@ const KYCUpload = () => {
         <Button
           variant="gradient"
           className="w-full h-[48px] rounded-full text-[16px] font-medium"
+          disabled={!isFormComplete}
+          style={{
+            opacity: isFormComplete ? 1 : 0.5,
+          }}
         >
           Continue
         </Button>
