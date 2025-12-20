@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useRef, useEffect, useMemo } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { ChevronLeft, CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
+import { format, differenceInYears } from "date-fns";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import stepsBg from "@/assets/kyc-steps-bg.png";
 import iconFlash from "@/assets/icon-flash.png";
@@ -18,12 +18,65 @@ import { GlassCalendar } from "@/components/GlassCalendar";
 
 const KYCUpload = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const documentType = searchParams.get("doc") || "aadhar";
+  
   const [otp, setOtp] = useState("");
   const [otpVerified, setOtpVerified] = useState(false);
   const [documentNumber, setDocumentNumber] = useState("");
   const [fullName, setFullName] = useState("");
   const [dob, setDob] = useState<Date | undefined>(undefined);
+  const [dobError, setDobError] = useState("");
   const [showCalendar, setShowCalendar] = useState(false);
+
+  // Document validation rules
+  const documentLabels: Record<string, string> = {
+    aadhar: "Aadhar Card",
+    voter: "Voter ID",
+    passport: "Passport",
+    pan: "Drivers License"
+  };
+
+  const validateDocumentNumber = (value: string): string => {
+    switch (documentType) {
+      case "aadhar":
+        // 12 digits only
+        if (!/^\d{12}$/.test(value)) {
+          return `Enter a valid ${documentLabels[documentType]} number`;
+        }
+        break;
+      case "voter":
+        // 10 alphanumeric characters
+        if (!/^[a-zA-Z0-9]{10}$/.test(value)) {
+          return `Enter a valid ${documentLabels[documentType]} number`;
+        }
+        break;
+      case "passport":
+        // 8 characters: 1 letter + 7 digits
+        if (!/^[a-zA-Z]\d{7}$/.test(value)) {
+          return `Enter a valid ${documentLabels[documentType]} number`;
+        }
+        break;
+      case "pan":
+        // 15 characters (drivers license)
+        if (!/^[a-zA-Z0-9]{15}$/.test(value)) {
+          return `Enter a valid ${documentLabels[documentType]} number`;
+        }
+        break;
+    }
+    return "";
+  };
+
+  const documentError = useMemo(() => {
+    if (documentNumber.trim() === "") return "";
+    return validateDocumentNumber(documentNumber);
+  }, [documentNumber, documentType]);
+
+  // Validate age (18+)
+  const validateAge = (date: Date): boolean => {
+    const age = differenceInYears(new Date(), date);
+    return age >= 18;
+  };
 
   // State for camera/images
   const [flashOn, setFlashOn] = useState(false);
@@ -47,8 +100,10 @@ const KYCUpload = () => {
     images.front !== null && 
     images.back !== null && 
     documentNumber.trim() !== "" && 
+    documentError === "" &&
     fullName.trim() !== "" && 
     dob !== undefined && 
+    dobError === "" &&
     otpVerified;
 
   // Toggle Flash
@@ -222,18 +277,23 @@ const KYCUpload = () => {
 
         {/* Form Fields */}
         <div className="space-y-4 mb-8">
-            <Input
-                placeholder="Document Number"
-                value={documentNumber}
-                onChange={(e) => setDocumentNumber(e.target.value)}
-                className="w-[363px] h-[48px] rounded-[100px] border-none text-white placeholder:text-muted-foreground/60 px-6 mx-auto block"
-                style={{
-                    backgroundImage: `url(${inputFieldBg})`,
-                    backgroundSize: '100% 100%',
-                    backgroundRepeat: 'no-repeat',
-                    backgroundColor: 'transparent'
-                }}
-            />
+            <div>
+              <Input
+                  placeholder="Document Number"
+                  value={documentNumber}
+                  onChange={(e) => setDocumentNumber(e.target.value)}
+                  className="w-[363px] h-[48px] rounded-[100px] border-none text-white placeholder:text-muted-foreground/60 px-6 mx-auto block"
+                  style={{
+                      backgroundImage: `url(${inputFieldBg})`,
+                      backgroundSize: '100% 100%',
+                      backgroundRepeat: 'no-repeat',
+                      backgroundColor: 'transparent'
+                  }}
+              />
+              {documentError && (
+                <p className="text-red-500 text-[12px] mt-1 ml-6">{documentError}</p>
+              )}
+            </div>
             <Input
                 placeholder="Full Name as per Document"
                 value={fullName}
@@ -260,7 +320,7 @@ const KYCUpload = () => {
                 }}
               >
                 <span className={dob ? "text-white" : "text-muted-foreground/60"}>
-                  {dob ? format(dob, "dd/MM/yyyy") : "Date of Birth"}
+                  {dob ? format(dob, "dd MMM yyyy") : "Date of Birth"}
                 </span>
                 <CalendarIcon className="w-5 h-5 text-muted-foreground/60" />
               </button>
@@ -270,13 +330,24 @@ const KYCUpload = () => {
                   <GlassCalendar
                     selected={dob}
                     onSelect={(date) => {
-                      setDob(date);
+                      if (date) {
+                        if (validateAge(date)) {
+                          setDob(date);
+                          setDobError("");
+                        } else {
+                          setDob(date);
+                          setDobError("You must be 18 years or older");
+                        }
+                      }
                       setShowCalendar(false);
                     }}
                     onClose={() => setShowCalendar(false)}
                     disableFutureDates={true}
                   />
                 </div>
+              )}
+              {dobError && (
+                <p className="text-red-500 text-[12px] mt-1 ml-6">{dobError}</p>
               )}
             </div>
         </div>
