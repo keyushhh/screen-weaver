@@ -1,0 +1,203 @@
+import * as React from "react";
+import { useState } from "react";
+import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from "lucide-react";
+import { format, setMonth, setYear, getDaysInMonth, startOfMonth, getDay, addMonths, subMonths } from "date-fns";
+import { cn } from "@/lib/utils";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+interface GlassCalendarProps {
+  selected?: Date;
+  onSelect?: (date: Date) => void;
+  className?: string;
+}
+
+const MONTHS = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
+
+const DAYS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
+
+// Generate years from 1920 to current year
+const currentYear = new Date().getFullYear();
+const YEARS = Array.from({ length: currentYear - 1920 + 1 }, (_, i) => currentYear - i);
+
+export function GlassCalendar({ selected, onSelect, className }: GlassCalendarProps) {
+  const [currentDate, setCurrentDate] = useState(selected || new Date());
+  const [showYearDropdown, setShowYearDropdown] = useState(false);
+
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+
+  const daysInMonth = getDaysInMonth(currentDate);
+  const firstDayOfMonth = startOfMonth(currentDate);
+  // getDay returns 0 for Sunday, we need Monday as first day (0)
+  const startDay = (getDay(firstDayOfMonth) + 6) % 7;
+
+  const handlePrevMonth = () => {
+    setCurrentDate(subMonths(currentDate, 1));
+  };
+
+  const handleNextMonth = () => {
+    setCurrentDate(addMonths(currentDate, 1));
+  };
+
+  const handleYearSelect = (selectedYear: number) => {
+    setCurrentDate(setYear(currentDate, selectedYear));
+    setShowYearDropdown(false);
+  };
+
+  const handleDayClick = (day: number) => {
+    const newDate = new Date(year, month, day);
+    onSelect?.(newDate);
+  };
+
+  const isSelected = (day: number) => {
+    if (!selected) return false;
+    return (
+      selected.getDate() === day &&
+      selected.getMonth() === month &&
+      selected.getFullYear() === year
+    );
+  };
+
+  // Generate calendar grid
+  const calendarDays: (number | null)[] = [];
+  for (let i = 0; i < startDay; i++) {
+    calendarDays.push(null);
+  }
+  for (let day = 1; day <= daysInMonth; day++) {
+    calendarDays.push(day);
+  }
+
+  return (
+    <div
+      className={cn(
+        "w-[340px] rounded-[20px] p-5 relative overflow-hidden",
+        // iOS 26 Liquid Glass effect
+        "bg-white/15 backdrop-blur-[40px]",
+        "border border-white/30",
+        "shadow-[0_8px_32px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.3)]",
+        className
+      )}
+      style={{
+        background: "linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 100%)",
+      }}
+    >
+      {/* Glass highlight overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none rounded-[20px]" />
+      
+      {/* Header with Month/Year and Navigation */}
+      <div className="flex items-center justify-between mb-4 relative z-10">
+        {/* Previous Month Button */}
+        <button
+          onClick={handlePrevMonth}
+          className="w-10 h-10 rounded-[10px] bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center transition-all hover:bg-white/20 active:scale-95"
+        >
+          <ChevronLeft className="w-5 h-5 text-white" />
+        </button>
+
+        {/* Month/Year Selector */}
+        <button
+          onClick={() => setShowYearDropdown(!showYearDropdown)}
+          className="flex items-center gap-2 text-white text-lg font-semibold hover:opacity-80 transition-opacity"
+        >
+          <span>{MONTHS[month]} {year}</span>
+          {showYearDropdown ? (
+            <ChevronUp className="w-4 h-4" />
+          ) : (
+            <ChevronDown className="w-4 h-4" />
+          )}
+        </button>
+
+        {/* Next Month Button */}
+        <button
+          onClick={handleNextMonth}
+          className="w-10 h-10 rounded-[10px] bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center transition-all hover:bg-white/20 active:scale-95"
+        >
+          <ChevronRight className="w-5 h-5 text-white" />
+        </button>
+      </div>
+
+      {/* Year Dropdown */}
+      {showYearDropdown && (
+        <div
+          className="absolute left-1/2 -translate-x-1/2 top-16 z-50 w-[160px] rounded-[16px] overflow-hidden"
+          style={{
+            background: "linear-gradient(180deg, rgba(180,180,190,0.95) 0%, rgba(160,160,170,0.95) 100%)",
+            boxShadow: "0 10px 40px rgba(0,0,0,0.4)",
+          }}
+        >
+          {/* Year header */}
+          <div
+            className="px-4 py-3 flex items-center justify-between border-b border-black/10"
+            onClick={() => setShowYearDropdown(false)}
+          >
+            <span className="text-white text-lg font-semibold">{year}</span>
+            <ChevronUp className="w-5 h-5 text-white" />
+          </div>
+          
+          {/* Scrollable year list */}
+          <ScrollArea className="h-[280px]">
+            <div className="py-1">
+              {YEARS.map((y) => (
+                <button
+                  key={y}
+                  onClick={() => handleYearSelect(y)}
+                  className={cn(
+                    "w-full px-4 py-2.5 text-left text-lg font-medium transition-colors",
+                    y === year
+                      ? "bg-black/30 text-white"
+                      : "text-white/90 hover:bg-black/10"
+                  )}
+                >
+                  {y}
+                </button>
+              ))}
+            </div>
+          </ScrollArea>
+          
+          {/* Custom scrollbar indicator */}
+          <div className="absolute right-1 top-[52px] bottom-2 w-1 bg-black/30 rounded-full">
+            <div className="w-full h-[60px] bg-blue-500 rounded-full" />
+          </div>
+        </div>
+      )}
+
+      {/* Days of Week Header */}
+      <div className="grid grid-cols-7 gap-1 mb-2 relative z-10">
+        {DAYS.map((day) => (
+          <div
+            key={day}
+            className="h-8 flex items-center justify-center text-white/60 text-xs font-medium"
+          >
+            {day}
+          </div>
+        ))}
+      </div>
+
+      {/* Calendar Days Grid */}
+      <div className="grid grid-cols-7 gap-1 relative z-10">
+        {calendarDays.map((day, index) => (
+          <div key={index} className="aspect-square flex items-center justify-center">
+            {day !== null ? (
+              <button
+                onClick={() => handleDayClick(day)}
+                className={cn(
+                  "w-10 h-10 rounded-[10px] flex items-center justify-center text-white text-base font-medium transition-all",
+                  isSelected(day)
+                    ? "bg-[#5260FE]/60 border border-[#5260FE]/80 shadow-[0_0_20px_rgba(82,96,254,0.4)]"
+                    : "hover:bg-white/10 active:scale-95"
+                )}
+              >
+                {day}
+              </button>
+            ) : null}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default GlassCalendar;
