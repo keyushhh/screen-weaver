@@ -133,7 +133,7 @@ const KYCForm = () => {
           variant="gradient"
           className="w-full h-[48px] rounded-full text-[16px] font-medium"
           disabled={!selectedDoc}
-          onClick={() => navigate("/kyc-upload")}
+          onClick={() => navigate(`/kyc-upload?doc=${selectedDoc}`)}
         >
           Continue
         </Button>
