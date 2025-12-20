@@ -126,7 +126,7 @@ const KYCForm = () => {
 
       {/* Footer */}
       <div className="fixed bottom-0 left-0 right-0 px-5 pb-8 pt-4 bg-gradient-to-t from-[#0a0a12] to-transparent">
-        <p className="text-muted-foreground/60 text-[11px] text-center mb-4 leading-relaxed max-w-[300px] mx-auto">
+        <p className="text-muted-foreground/60 text-[14px] font-normal text-left mb-4 leading-relaxed">
           This information is used for identity verification only, and will be kept secure by Didit
         </p>
         <Button
