@@ -397,7 +397,7 @@ const KYCUpload = () => {
                 />
                 <div
                   onClick={() => addressProofInputRef.current?.click()}
-                  className="w-full rounded-[16px] border border-white/10 bg-white/5 p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-white/10 transition-colors"
+                  className="w-full rounded-[16px] border border-white/10 bg-black p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-black/80 transition-colors"
                 >
                   {addressProof ? (
                     <div className="flex flex-col items-center gap-2">
