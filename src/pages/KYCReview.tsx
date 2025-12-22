@@ -100,7 +100,8 @@ const KYCReview = () => {
           }}
         >
           <h3 className="text-white text-[16px] font-semibold mb-1">Your KYC Details</h3>
-          <p className="text-white/40 text-[12px] mb-6">Please check all the documents before submitting</p>
+          <p className="text-white/40 text-[12px] mb-4">Please check all the documents before submitting</p>
+          <div className="border-t border-white/10 mb-6" />
 
           <div className="space-y-6">
             {/* ID Document Row */}
@@ -143,7 +144,7 @@ const KYCReview = () => {
             </div>
 
             {/* Selfie Verification */}
-            <div className="flex justify-between items-center border-t border-white/10 pt-4">
+            <div className="flex justify-between items-center">
               <div>
                  <p className="text-white/40 text-[12px] mb-1">Selfie Verification</p>
                  <p className="text-white text-[14px] font-medium">Selfie Verified</p>
