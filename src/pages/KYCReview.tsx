@@ -16,11 +16,11 @@ const KYCReview = () => {
 
   // Get data from location state (passed from previous steps)
   const state = location.state || {};
-  const { 
-    images = {}, 
-    documentNumber = "", 
-    fullName = "", 
-    dob = null, 
+  const {
+    images = {},
+    documentNumber = "",
+    fullName = "",
+    dob = null,
     documentType = "",
     selfie = null
   } = state;
@@ -38,7 +38,7 @@ const KYCReview = () => {
   const handleSubmit = () => {
     // Submit logic here
     console.log("Submitting KYC data...");
-    navigate("/kyc-success"); 
+    navigate("/kyc-success");
   };
 
   return (
@@ -164,9 +164,9 @@ const KYCReview = () => {
       {/* Footer Area */}
       <div className="fixed bottom-0 left-0 right-0 px-5 pb-8 pt-4 bg-gradient-to-t from-[#0a0a12] via-[#0a0a12] to-transparent z-20">
         <div className="flex items-start gap-3 mb-6" onClick={() => setAgreed(!agreed)}>
-            <img 
-              src={agreed ? checkBox : checkBoxOutlineBlank} 
-              alt="Checkbox" 
+            <img
+              src={agreed ? checkBox : checkBoxOutlineBlank}
+              alt="Checkbox"
               className="w-5 h-5 mt-0.5 object-contain"
             />
             <label
