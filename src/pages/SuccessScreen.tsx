@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useUser } from "@/contexts/UserContext";
 import successBg from "@/assets/success-bg.png";
 import checkIcon from "@/assets/check-icon.png";
-import buttonAddMoney from "@/assets/button-add-money.png";
+import buttonPrimaryWide from "@/assets/button-primary-wide.png";
 
 const SuccessScreen = () => {
   const navigate = useNavigate();
@@ -66,12 +66,13 @@ const SuccessScreen = () => {
         {/* Countdown Button */}
         <button
           onClick={() => navigate("/home")}
-          className="flex items-center justify-center gap-2 px-6 py-3 text-foreground text-[14px] font-medium h-12 transition-transform active:scale-95"
+          className="flex items-center justify-center text-foreground text-[14px] font-medium transition-transform active:scale-95"
           style={{
-            backgroundImage: `url(${buttonAddMoney})`,
-            backgroundSize: 'cover',
+            backgroundImage: `url(${buttonPrimaryWide})`,
+            backgroundSize: '100% 100%',
             backgroundPosition: 'center',
-            width: '362px'
+            width: '362px',
+            height: '48px'
           }}
         >
           Redirecting Home in {countdown}s...
