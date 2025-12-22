@@ -1,12 +1,19 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "@/contexts/UserContext";
 import successBg from "@/assets/success-bg.png";
 import checkIcon from "@/assets/check-icon.png";
 import redirectHomeButton from "@/assets/redirect-home-button.png";
 
 const SuccessScreen = () => {
   const navigate = useNavigate();
+  const { submitKyc } = useUser();
   const [countdown, setCountdown] = useState(30);
+
+  // Set KYC status to pending on mount
+  useEffect(() => {
+    submitKyc();
+  }, [submitKyc]);
 
   useEffect(() => {
     const timer = setInterval(() => {
