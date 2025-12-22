@@ -83,13 +83,13 @@ const Settings = () => {
       </div>
 
       {/* Profile Section */}
-      <div className="px-5 mt-6 flex items-center justify-between">
+      <div className="px-5 mt-[42px] flex items-center justify-between">
         <div className="flex items-center gap-4">
           <img src={avatarImg} alt="Profile" className="w-14 h-14 rounded-full" />
           <div>
-            <h2 className="text-foreground text-[16px] font-medium">No Name? Who are you?</h2>
+            <h2 className="text-foreground text-[18px] font-medium">No Name? Who are you?</h2>
             <div className="flex items-center gap-1">
-              <span className="text-muted-foreground text-[14px]">
+              <span className="text-muted-foreground text-[14px] font-medium">
                 {phoneNumber || 'No phone number'}
               </span>
               {phoneNumber && <span className="text-green-500">✓</span>}
@@ -102,7 +102,7 @@ const Settings = () => {
       </div>
 
       {/* Security & KYC Card */}
-      <div className="mx-5 mt-6">
+      <div className="mx-5 mt-[12px]">
         <div 
           className="rounded-xl p-4 flex items-center justify-between"
           style={{
@@ -133,25 +133,25 @@ const Settings = () => {
       </div>
 
       {/* Payment Settings */}
-      <div className="px-5 mt-6">
-        <p className="text-muted-foreground text-[12px] font-medium tracking-wider mb-4">PAYMENT SETTINGS</p>
+      <div className="px-5 mt-[20px]">
+        <p className="text-muted-foreground text-[14px] font-bold tracking-wider mb-4">PAYMENT SETTINGS</p>
         
-        <button className="w-full flex items-center justify-between py-4 border-b border-white/10">
+        <button className="w-full flex items-center justify-between py-[14px] border-b border-white/10">
           <div className="flex items-center gap-3">
             <img src={iconLinkedCards} alt="Linked Cards" className="w-[18px] h-[18px] opacity-60" />
             <div className="text-left">
-              <p className="text-foreground text-[14px]">Linked Cards</p>
+              <p className="text-foreground text-[14px] font-medium">Linked Cards</p>
               <p className="text-muted-foreground text-[12px]">0 cards linked</p>
             </div>
           </div>
           <ChevronRight className="w-5 h-5 text-muted-foreground" />
         </button>
 
-        <button className="w-full flex items-center justify-between py-4 border-b border-white/10">
+        <button className="w-full flex items-center justify-between py-[14px] border-b border-white/10">
           <div className="flex items-center gap-3">
             <img src={iconBankAcc} alt="Bank Account" className="w-[18px] h-[18px] opacity-60" />
             <div className="text-left">
-              <p className="text-foreground text-[14px]">Bank Account Info</p>
+              <p className="text-foreground text-[14px] font-medium">Bank Account Info</p>
               <p className="text-muted-foreground text-[12px]">0 bank accounts linked</p>
             </div>
           </div>
@@ -160,38 +160,38 @@ const Settings = () => {
       </div>
 
       {/* App Preferences */}
-      <div className="px-5 mt-6">
-        <p className="text-muted-foreground text-[12px] font-medium tracking-wider mb-4">APP PREFERENCES</p>
+      <div className="px-5 mt-[30px]">
+        <p className="text-muted-foreground text-[14px] font-bold tracking-wider mb-4">APP PREFERENCES</p>
         
-        <div className="py-4 border-b border-white/10">
+        <div className="py-[14px] border-b border-white/10">
           <div className="flex items-center gap-3 mb-3">
             <img src={iconNotifications} alt="Notifications" className="w-[18px] h-[18px] opacity-60" />
-            <p className="text-foreground text-[14px]">Notifications</p>
+            <p className="text-foreground text-[14px] font-medium">Notifications</p>
           </div>
           <div className="ml-8 space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-muted-foreground text-[14px]">Push Notifications</p>
+              <p className="text-muted-foreground text-[14px] font-light">Push Notifications</p>
               <Switch checked={pushNotifications} onCheckedChange={setPushNotifications} />
             </div>
             <div className="flex items-center justify-between">
-              <p className="text-muted-foreground text-[14px]">Transaction Alerts</p>
+              <p className="text-muted-foreground text-[14px] font-light">Transaction Alerts</p>
               <Switch checked={transactionAlerts} onCheckedChange={setTransactionAlerts} />
             </div>
           </div>
         </div>
 
-        <div className="flex items-center justify-between py-4 border-b border-white/10">
+        <div className="flex items-center justify-between py-[14px] border-b border-white/10">
           <div className="flex items-center gap-3">
             <img src={iconDarkMode} alt="Dark Mode" className="w-[18px] h-[18px] opacity-60" />
-            <p className="text-foreground text-[14px]">Dark Mode</p>
+            <p className="text-foreground text-[14px] font-medium">Dark Mode</p>
           </div>
           <Switch checked={darkMode} onCheckedChange={setDarkMode} />
         </div>
 
-        <button onClick={() => navigate('/')} className="w-full flex items-center justify-between py-4">
+        <button onClick={() => navigate('/')} className="w-full flex items-center justify-between py-[14px]">
           <div className="flex items-center gap-3">
             <img src={iconLogout} alt="Log Out" className="w-[18px] h-[18px] opacity-60" />
-            <p className="text-foreground text-[14px]">Log Out</p>
+            <p className="text-foreground text-[14px] font-medium">Log Out</p>
           </div>
           <ChevronRight className="w-5 h-5 text-muted-foreground" />
         </button>
@@ -200,7 +200,7 @@ const Settings = () => {
       {/* Footer Logo - Long press for demo reset */}
       <div className="flex-1" />
       <div 
-        className="px-5 pb-8 opacity-40 font-grotesk cursor-pointer select-none"
+        className="px-5 pb-[69px] opacity-40 font-grotesk cursor-pointer select-none"
         onMouseDown={handleLogoPress}
         onMouseUp={handleLogoRelease}
         onMouseLeave={handleLogoRelease}
