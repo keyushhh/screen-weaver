@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { PhoneInput } from "@/components/PhoneInput";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { LockOpen } from "lucide-react";
+import { useUser } from "@/contexts/UserContext";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import logo from "@/assets/logo.svg";
 import iconGoogle from "@/assets/icon-google.svg";
@@ -19,6 +20,7 @@ import biometricIcon from "@/assets/biometric-icon.png";
 
 const OnboardingScreen = () => {
   const navigate = useNavigate();
+  const { setPhoneNumber: savePhoneNumber } = useUser();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [otp, setOtp] = useState("");
   const [showOtpInput, setShowOtpInput] = useState(false);
@@ -114,6 +116,8 @@ const OnboardingScreen = () => {
     setIsLoading(true);
     await new Promise(resolve => setTimeout(resolve, 1500));
     setIsLoading(false);
+    // Save verified phone number to context/localStorage
+    savePhoneNumber(`+91 ${phoneNumber}`);
     setShowOtpInput(false);
     setShowMpinSetup(true);
   };

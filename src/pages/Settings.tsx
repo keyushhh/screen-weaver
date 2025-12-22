@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Pencil } from "lucide-react";
+import { useState, useRef } from "react";
+import { useUser } from "@/contexts/UserContext";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import avatarImg from "@/assets/avatar.png";
 import dotPeLogo from "@/assets/dot-pe-logo.svg";
@@ -14,14 +16,14 @@ import securityIncomplete from "@/assets/security-incomplete.png";
 import securityComplete from "@/assets/security-complete.png";
 import securityPending from "@/assets/security-pending.png";
 import { Switch } from "@/components/ui/switch";
-import { useState } from "react";
+import { toast } from "sonner";
 
 type SecurityStatus = 'incomplete' | 'pending' | 'complete';
 
 const getSecurityConfig = (status: SecurityStatus) => {
   switch (status) {
     case 'complete':
-      return { bg: securityComplete, label: 'Complete', textColor: 'text-green-500' };
+      return { bg: securityComplete, label: 'Account secured', textColor: 'text-green-500' };
     case 'pending':
       return { bg: securityPending, label: 'Pending', textColor: 'text-yellow-500' };
     case 'incomplete':
@@ -29,14 +31,32 @@ const getSecurityConfig = (status: SecurityStatus) => {
       return { bg: securityIncomplete, label: 'Incomplete', textColor: 'text-red-400' };
   }
 };
+
 const Settings = () => {
   const navigate = useNavigate();
+  const { phoneNumber, kycStatus, resetForDemo } = useUser();
   const [pushNotifications, setPushNotifications] = useState(true);
   const [transactionAlerts, setTransactionAlerts] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
-  const [securityStatus] = useState<SecurityStatus>('incomplete'); // Change this to test different states
   
-  const securityConfig = getSecurityConfig(securityStatus);
+  // Long-press for demo reset
+  const longPressTimer = useRef<NodeJS.Timeout | null>(null);
+  
+  const handleLogoPress = () => {
+    longPressTimer.current = setTimeout(() => {
+      resetForDemo();
+      toast.success("Demo reset! All data cleared.");
+    }, 3000);
+  };
+  
+  const handleLogoRelease = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  };
+  
+  const securityConfig = getSecurityConfig(kycStatus);
   return <div className="min-h-[100dvh] flex flex-col safe-area-top safe-area-bottom" style={{
     backgroundColor: '#0a0a12',
     backgroundImage: `url(${bgDarkMode})`,
@@ -68,8 +88,10 @@ const Settings = () => {
           <div>
             <h2 className="text-foreground text-[16px] font-medium">No Name? Who are you?</h2>
             <div className="flex items-center gap-1">
-              <span className="text-muted-foreground text-[14px]">+91 9898989898</span>
-              <span className="text-green-500">✓</span>
+              <span className="text-muted-foreground text-[14px]">
+                {phoneNumber || 'No phone number'}
+              </span>
+              {phoneNumber && <span className="text-green-500">✓</span>}
             </div>
           </div>
         </div>
@@ -174,9 +196,16 @@ const Settings = () => {
         </button>
       </div>
 
-      {/* Footer Logo */}
+      {/* Footer Logo - Long press for demo reset */}
       <div className="flex-1" />
-      <div className="px-5 pb-8 opacity-40 font-grotesk">
+      <div 
+        className="px-5 pb-8 opacity-40 font-grotesk cursor-pointer select-none"
+        onMouseDown={handleLogoPress}
+        onMouseUp={handleLogoRelease}
+        onMouseLeave={handleLogoRelease}
+        onTouchStart={handleLogoPress}
+        onTouchEnd={handleLogoRelease}
+      >
         <img src={dotPeLogo} alt="dot.pe" className="h-8" />
         <p className="text-foreground text-sm font-medium">This is not where you find love.</p>
       </div>
