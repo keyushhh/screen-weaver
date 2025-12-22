@@ -36,7 +36,6 @@ const KYCReview = () => {
   const formattedDob = dob ? format(new Date(dob), "dd MMM yyyy") : "";
 
   const handleSubmit = () => {
-    // Submit logic here
     console.log("Submitting KYC data...");
     navigate("/kyc-success");
   };
