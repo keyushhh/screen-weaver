@@ -21,6 +21,7 @@ import { toast } from "sonner";
 type SecurityStatus = 'incomplete' | 'pending' | 'complete';
 
 const getSecurityConfig = (status: SecurityStatus) => {
+  // Return configuration based on KYC status
   switch (status) {
     case 'complete':
       return { bg: securityComplete, label: 'Account secured', textColor: 'text-green-500' };
