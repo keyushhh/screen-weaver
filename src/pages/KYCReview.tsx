@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import stepsBg from "@/assets/kyc-steps-bg.png";
+import reviewCardBg from "@/assets/kyc-details-review-bg.png";
 import checkBox from "@/assets/check-box.png";
 import checkBoxOutlineBlank from "@/assets/check-box-outline-blank.png";
 
@@ -91,7 +92,14 @@ const KYCReview = () => {
         </div>
 
         {/* Details Card */}
-        <div className="w-full rounded-[24px] border border-white/10 bg-white/5 p-5">
+        <div
+          className="w-full rounded-[24px] border border-white/10 p-5"
+          style={{
+            backgroundImage: `url(${reviewCardBg})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        >
           <h3 className="text-white text-[16px] font-semibold mb-1">Your KYC Details</h3>
           <p className="text-white/40 text-[12px] mb-6">Please check all the documents before submitting</p>
 
