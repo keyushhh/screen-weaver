@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import stepsBg from "@/assets/kyc-steps-bg.png";
-import kycDetailsBg from "@/assets/kyc-details-bg.png";
+import reviewCardBg from "@/assets/kyc-details-review-bg.png";
 import checkBox from "@/assets/check-box.png";
 import checkBoxOutlineBlank from "@/assets/check-box-outline-blank.png";
 
@@ -16,11 +16,11 @@ const KYCReview = () => {
 
   // Get data from location state (passed from previous steps)
   const state = location.state || {};
-  const {
-    images = {},
-    documentNumber = "",
-    fullName = "",
-    dob = null,
+  const { 
+    images = {}, 
+    documentNumber = "", 
+    fullName = "", 
+    dob = null, 
     documentType = "",
     selfie = null
   } = state;
@@ -36,8 +36,9 @@ const KYCReview = () => {
   const formattedDob = dob ? format(new Date(dob), "dd MMM yyyy") : "";
 
   const handleSubmit = () => {
+    // Submit logic here
     console.log("Submitting KYC data...");
-    navigate("/kyc-success");
+    navigate("/kyc-success"); 
   };
 
   return (
@@ -91,17 +92,16 @@ const KYCReview = () => {
         </div>
 
         {/* Details Card */}
-        <div 
-          className="w-full rounded-[24px] p-5"
+        <div
+          className="w-full rounded-[24px] border border-white/10 p-5"
           style={{
-            backgroundImage: `url(${kycDetailsBg})`,
+            backgroundImage: `url(${reviewCardBg})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
         >
           <h3 className="text-white text-[16px] font-semibold mb-1">Your KYC Details</h3>
-          <p className="text-white/40 text-[12px] mb-4">Please check all the documents before submitting</p>
-          <div className="border-t border-white/10 mb-6" />
+          <p className="text-white/40 text-[12px] mb-6">Please check all the documents before submitting</p>
 
           <div className="space-y-6">
             {/* ID Document Row */}
@@ -144,7 +144,7 @@ const KYCReview = () => {
             </div>
 
             {/* Selfie Verification */}
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center border-t border-white/10 pt-4">
               <div>
                  <p className="text-white/40 text-[12px] mb-1">Selfie Verification</p>
                  <p className="text-white text-[14px] font-medium">Selfie Verified</p>
@@ -164,9 +164,9 @@ const KYCReview = () => {
       {/* Footer Area */}
       <div className="fixed bottom-0 left-0 right-0 px-5 pb-8 pt-4 bg-gradient-to-t from-[#0a0a12] via-[#0a0a12] to-transparent z-20">
         <div className="flex items-start gap-3 mb-6" onClick={() => setAgreed(!agreed)}>
-            <img
-              src={agreed ? checkBox : checkBoxOutlineBlank}
-              alt="Checkbox"
+            <img 
+              src={agreed ? checkBox : checkBoxOutlineBlank} 
+              alt="Checkbox" 
               className="w-5 h-5 mt-0.5 object-contain"
             />
             <label
