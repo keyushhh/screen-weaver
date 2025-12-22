@@ -34,7 +34,7 @@ const KYCUpload = () => {
     aadhar: "Aadhar Card",
     voter: "Voter ID",
     passport: "Passport",
-    pan: "Drivers License"
+    pan: "PAN Card"
   };
 
   const validateDocumentNumber = (value: string): string => {
@@ -58,9 +58,9 @@ const KYCUpload = () => {
         }
         break;
       case "pan":
-        // 15 characters (drivers license)
-        if (!/^[a-zA-Z0-9]{15}$/.test(value)) {
-          return `Enter a valid ${documentLabels[documentType]} number`;
+        // 10 characters for PAN
+        if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(value) && !/^[a-zA-Z0-9]{10}$/.test(value)) {
+             return `Enter a valid ${documentLabels[documentType]} number`;
         }
         break;
     }
@@ -483,6 +483,16 @@ const KYCUpload = () => {
           style={{
             opacity: isFormComplete ? 1 : 0.5,
           }}
+          onClick={() => navigate("/kyc-selfie", {
+            state: {
+              images,
+              documentNumber,
+              fullName,
+              dob: dob?.toISOString(),
+              addressProof,
+              documentType
+            }
+          })}
         >
           Continue
         </Button>
