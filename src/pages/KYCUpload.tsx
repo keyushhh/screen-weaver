@@ -85,6 +85,11 @@ const KYCUpload = () => {
     back: null,
   });
 
+  // Error states for validation
+  const [imageQualityError, setImageQualityError] = useState<string | null>(null);
+  const [documentMismatchError, setDocumentMismatchError] = useState<string | null>(null);
+  const [nameMismatchError, setNameMismatchError] = useState<string | null>(null);
+
   // State for address proof (PAN card only)
   const [addressProof, setAddressProof] = useState<string | null>(null);
   const addressProofInputRef = useRef<HTMLInputElement>(null);
@@ -109,6 +114,9 @@ const KYCUpload = () => {
     dob !== undefined && 
     dobError === "" &&
     otpVerified &&
+    !imageQualityError &&
+    !documentMismatchError &&
+    !nameMismatchError &&
     (documentType !== "pan" || addressProof !== null);
 
   // Handle address proof file selection
@@ -156,6 +164,17 @@ const KYCUpload = () => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
+        // Simulate image quality validation with 20% error chance for demo
+        const hasQualityError = Math.random() < 0.2;
+        
+        if (hasQualityError) {
+          setImageQualityError("The uploaded image is blurry and unreadable. Please fix the background and lighting and try again.");
+          return;
+        }
+        
+        // Clear any previous quality error on successful upload
+        setImageQualityError(null);
+        
         // Simple logic: first upload fills 'front', second fills 'back'
         if (!images.front) {
           setImages(prev => ({ ...prev, front: reader.result as string }));
@@ -173,7 +192,36 @@ const KYCUpload = () => {
 
   const handleClearAll = () => {
     setImages({ front: null, back: null });
+    setImageQualityError(null);
+    setDocumentMismatchError(null);
+    setNameMismatchError(null);
   };
+
+  // Simulate document verification when both images are uploaded
+  useEffect(() => {
+    if (images.front && images.back && documentNumber.trim() && !documentError) {
+      // 15% chance of document number mismatch for demo
+      const hasDocMismatch = Math.random() < 0.15;
+      if (hasDocMismatch) {
+        setDocumentMismatchError("Document number does not match the uploaded document. Please verify and re-enter.");
+      } else {
+        setDocumentMismatchError(null);
+      }
+    }
+  }, [images.front, images.back, documentNumber]);
+
+  // Simulate name verification
+  useEffect(() => {
+    if (images.front && images.back && fullName.trim()) {
+      // 15% chance of name mismatch for demo
+      const hasNameMismatch = Math.random() < 0.15;
+      if (hasNameMismatch) {
+        setNameMismatchError("Name does not match the document. Please enter your name exactly as it appears on the document.");
+      } else {
+        setNameMismatchError(null);
+      }
+    }
+  }, [images.front, images.back, fullName]);
 
   return (
     <div
@@ -304,6 +352,10 @@ const KYCUpload = () => {
                     Clear All
                 </button>
             </div>
+            {/* Image Quality Error */}
+            {imageQualityError && (
+              <p className="text-[#FF6B6B] text-[12px] mt-3">{imageQualityError}</p>
+            )}
         </div>
 
         {/* Form Fields */}
@@ -312,8 +364,11 @@ const KYCUpload = () => {
               <Input
                   placeholder="Document Number"
                   value={documentNumber}
-                  onChange={(e) => setDocumentNumber(e.target.value)}
-                  className="w-[363px] h-[48px] rounded-[100px] border-none text-white placeholder:text-muted-foreground/60 px-6 mx-auto block"
+                  onChange={(e) => {
+                    setDocumentNumber(e.target.value);
+                    setDocumentMismatchError(null); // Clear mismatch error on edit
+                  }}
+                  className={`w-[363px] h-[48px] rounded-[100px] text-white placeholder:text-muted-foreground/60 px-6 mx-auto block ${documentMismatchError ? 'border-2 border-[#FF6B6B]' : 'border-none'}`}
                   style={{
                       backgroundImage: `url(${inputFieldBg})`,
                       backgroundSize: '100% 100%',
@@ -324,19 +379,30 @@ const KYCUpload = () => {
               {documentError && (
                 <p className="text-red-500 text-[12px] mt-1 ml-6">{documentError}</p>
               )}
+              {documentMismatchError && !documentError && (
+                <p className="text-[#FF6B6B] text-[12px] mt-1 ml-6">{documentMismatchError}</p>
+              )}
             </div>
-            <Input
-                placeholder="Full Name as per Document"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                className="w-[363px] h-[48px] rounded-[100px] border-none text-white placeholder:text-muted-foreground/60 px-6 mx-auto block"
-                style={{
-                    backgroundImage: `url(${inputFieldBg})`,
-                    backgroundSize: '100% 100%',
-                    backgroundRepeat: 'no-repeat',
-                    backgroundColor: 'transparent'
-                }}
-            />
+            <div>
+              <Input
+                  placeholder="Full Name as per Document"
+                  value={fullName}
+                  onChange={(e) => {
+                    setFullName(e.target.value);
+                    setNameMismatchError(null); // Clear mismatch error on edit
+                  }}
+                  className={`w-[363px] h-[48px] rounded-[100px] text-white placeholder:text-muted-foreground/60 px-6 mx-auto block ${nameMismatchError ? 'border-2 border-[#FF6B6B]' : 'border-none'}`}
+                  style={{
+                      backgroundImage: `url(${inputFieldBg})`,
+                      backgroundSize: '100% 100%',
+                      backgroundRepeat: 'no-repeat',
+                      backgroundColor: 'transparent'
+                  }}
+              />
+              {nameMismatchError && (
+                <p className="text-[#FF6B6B] text-[12px] mt-1 ml-6">{nameMismatchError}</p>
+              )}
+            </div>
             {/* Date of Birth with Calendar */}
             <div className="relative">
               <button
