@@ -59,7 +59,7 @@ const SuccessScreen = () => {
         {/* Countdown Button */}
         <button
             onClick={() => navigate("/home")}
-            className="w-full h-[54px] rounded-full text-white text-[16px] font-medium transition-transform active:scale-95 flex items-center justify-center relative"
+            className="w-[361px] h-[48px] rounded-full text-white text-[17px] font-medium transition-transform active:scale-95 flex items-center justify-center relative"
         >
           <img
             src={redirectHomeButton}
