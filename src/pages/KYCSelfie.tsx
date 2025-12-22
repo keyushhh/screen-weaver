@@ -14,17 +14,30 @@ const KYCSelfie = () => {
   const location = useLocation();
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [selfieError, setSelfieError] = useState<string | null>(null);
 
   // Ref for the video element (even if we simulate, good to have structure)
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const handleOpenCamera = () => {
     setIsCameraOpen(true);
-    // In a real app, we would request camera access here
+    setSelfieError(null); // Clear error when opening camera to retry
   };
 
   const handleCapture = () => {
-    // Simulate capture
+    // Simulate capture with 25% chance of error for demo
+    const hasSelfieError = Math.random() < 0.25;
+    
+    if (hasSelfieError) {
+      setSelfieError("Selfie was too dark and unclear. Please try again with proper lighting and background.");
+      setIsCameraOpen(false);
+      setCapturedImage(null);
+      return;
+    }
+    
+    // Clear any previous error on successful capture
+    setSelfieError(null);
+    
     // In a real app, we would draw video frame to canvas
     // For now, we'll just use a placeholder color/data URI
     const placeholderImage = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjNTI2MEZFIi8+PC9zdmc+";
@@ -91,13 +104,19 @@ const KYCSelfie = () => {
         {/* Action Area */}
         <div className="mt-4">
           {!capturedImage ? (
-            <Button
-              variant="default"
-              className="w-full h-[48px] rounded-full text-[16px] font-medium bg-[#5260FE] hover:bg-[#5260FE]/90 text-white"
-              onClick={handleOpenCamera}
-            >
-              Open Camera
-            </Button>
+            <>
+              <Button
+                variant="default"
+                className="w-full h-[48px] rounded-full text-[16px] font-medium bg-[#5260FE] hover:bg-[#5260FE]/90 text-white"
+                onClick={handleOpenCamera}
+              >
+                {selfieError ? "Retake Selfie" : "Open Camera"}
+              </Button>
+              {/* Selfie Error Message */}
+              {selfieError && (
+                <p className="text-[#FF6B6B] text-[13px] mt-3 text-center">{selfieError}</p>
+              )}
+            </>
           ) : (
             <div
               className="w-full h-[96px] rounded-[16px] p-4 flex items-center gap-4 border border-white/5"
@@ -111,7 +130,7 @@ const KYCSelfie = () => {
                   <img src={capturedImage} alt="Selfie" className="w-full h-full object-cover" />
                </div>
                <p className="text-white text-[12px] font-normal leading-tight">
-                 You didn’t have to snap this hard, but we appreciate it.
+                 You didn't have to snap this hard, but we appreciate it.
                </p>
             </div>
           )}
