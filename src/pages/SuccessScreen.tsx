@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useUser } from "@/contexts/UserContext";
 import successBg from "@/assets/success-bg.png";
 import checkIcon from "@/assets/check-icon.png";
-import redirectHomeButton from "@/assets/redirect-home-button.png";
+import buttonAddMoney from "@/assets/button-add-money.png";
 
 const SuccessScreen = () => {
   const navigate = useNavigate();
@@ -65,15 +65,16 @@ const SuccessScreen = () => {
       <div className="w-full pb-10 flex flex-col items-center gap-4">
         {/* Countdown Button */}
         <button
-            onClick={() => navigate("/home")}
-            className="w-[361px] h-[48px] rounded-full text-white text-[17px] font-medium transition-transform active:scale-95 flex items-center justify-center relative"
+          onClick={() => navigate("/home")}
+          className="flex items-center justify-center gap-2 px-6 py-3 text-foreground text-[14px] font-medium h-12 transition-transform active:scale-95"
+          style={{
+            backgroundImage: `url(${buttonAddMoney})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            width: '362px'
+          }}
         >
-          <img
-            src={redirectHomeButton}
-            alt="Redirect Button Background"
-            className="absolute inset-0 w-full h-full"
-          />
-          <span className="relative z-10">Redirecting Home in {countdown}s...</span>
+          Redirecting Home in {countdown}s...
         </button>
 
         {/* Disclaimer 1 */}
