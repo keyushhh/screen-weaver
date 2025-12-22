@@ -38,8 +38,7 @@ const KYCReview = () => {
   const handleSubmit = () => {
     // Submit logic here
     console.log("Submitting KYC data...");
-    // navigate to success or home
-    navigate("/home");
+    navigate("/kyc-success");
   };
 
   return (
