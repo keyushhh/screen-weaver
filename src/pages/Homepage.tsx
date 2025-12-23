@@ -132,14 +132,18 @@ const Homepage = () => {
 
   {/* Floating + Button (FAB) */}
   <button
-    className="absolute left-1/2 -translate-x-1/2 -translate-y-6 z-10 w-[64px] h-[64px] rounded-full flex items-center justify-center"
-  >
-    <img
-      src={navPlusButton}
-      alt="Add"
-      className="w-full h-full rounded-full"
-    />
-  </button>
+  className="absolute left-1/2 -translate-x-1/2 z-10 w-[72px] h-[72px] rounded-full flex items-center justify-center"
+  style={{
+    bottom: "28px", // ← key value, matches Figma overlap
+  }}
+>
+  <img
+    src={navPlusButton}
+    alt="Add"
+    className="w-full h-full rounded-full"
+  />
+</button>
+
 
   {/* Nav Items */}
   <div className="relative px-5 py-3">
