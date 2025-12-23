@@ -69,23 +69,23 @@ const ProfileEdit = () => {
       <div className="px-5 mt-8">
         {/* Profile Photo Section */}
         <div className="bg-white/5 rounded-2xl p-4 flex items-center gap-4 border border-white/10 h-[101px]">
-            <img
-              src={profileImage || avatarImg}
-              alt="Profile"
-              className="w-16 h-16 rounded-full object-cover"
+            <img 
+              src={profileImage || avatarImg} 
+              alt="Profile" 
+              className="w-16 h-16 rounded-full object-cover" 
               style={{
                 border: '4px solid rgba(255, 255, 255, 0.17)'
               }}
             />
             <div className="flex-1">
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  className="hidden"
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  className="hidden" 
                   accept="image/*"
                   onChange={handleImageUpload}
                 />
-                <button
+                <button 
                   onClick={triggerFileInput}
                   className="px-4 h-[32px] flex items-center justify-center rounded-full text-[14px] text-foreground mb-2"
                   style={{
