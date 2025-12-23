@@ -131,10 +131,12 @@ const Homepage = () => {
   />
 
   {/* Floating + Button (FAB) */}
-  <button
-  className="absolute left-1/2 -translate-x-1/2 z-10 w-[72px] h-[72px] rounded-full flex items-center justify-center"
+ <button
+  className="absolute left-1/2 -translate-x-1/2 z-10
+             w-[92px] h-[92px] rounded-full
+             flex items-center justify-center"
   style={{
-    bottom: "28px", // ← key value, matches Figma overlap
+    bottom: "8px", // pushes FAB DOWN into visual alignment
   }}
 >
   <img
