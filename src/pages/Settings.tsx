@@ -18,18 +18,17 @@ import securityPending from "@/assets/security-pending.png";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
-type SecurityStatus = 'incomplete' | 'pending' | 'complete';
+type SecurityStatus = "incomplete" | "pending" | "complete";
 
 const getSecurityConfig = (status: SecurityStatus) => {
-  // Return configuration based on KYC status
   switch (status) {
-    case 'complete':
-      return { bg: securityComplete, label: 'Account secured', textColor: 'text-green-500' };
-    case 'pending':
-      return { bg: securityPending, label: 'Pending', textColor: 'text-yellow-500' };
-    case 'incomplete':
+    case "complete":
+      return { bg: securityComplete, label: "Account secured", textColor: "text-green-500" };
+    case "pending":
+      return { bg: securityPending, label: "Pending", textColor: "text-yellow-500" };
+    case "incomplete":
     default:
-      return { bg: securityIncomplete, label: 'Incomplete', textColor: 'text-red-400' };
+      return { bg: securityIncomplete, label: "Incomplete", textColor: "text-red-400" };
   }
 };
 
@@ -39,45 +38,55 @@ const Settings = () => {
   const [pushNotifications, setPushNotifications] = useState(true);
   const [transactionAlerts, setTransactionAlerts] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
-  
-  // Long-press for demo reset
+
   const longPressTimer = useRef<NodeJS.Timeout | null>(null);
-  
+
   const handleLogoPress = () => {
     longPressTimer.current = setTimeout(() => {
       resetForDemo();
       toast.success("Demo reset! All data cleared.");
     }, 3000);
   };
-  
+
   const handleLogoRelease = () => {
     if (longPressTimer.current) {
       clearTimeout(longPressTimer.current);
       longPressTimer.current = null;
     }
   };
-  
+
   const securityConfig = getSecurityConfig(kycStatus);
-  return <div className="h-[100dvh] overflow-hidden flex flex-col safe-area-top safe-area-bottom" style={{
-    backgroundColor: '#0a0a12',
-    backgroundImage: `url(${bgDarkMode})`,
-    backgroundSize: 'cover',
-    backgroundPosition: 'top center',
-    backgroundRepeat: 'no-repeat'
-  }}>
+
+  return (
+    <div
+      className="h-[100dvh] overflow-hidden flex flex-col safe-area-top safe-area-bottom"
+      style={{
+        backgroundColor: "#0a0a12",
+        backgroundImage: `url(${bgDarkMode})`,
+        backgroundSize: "cover",
+        backgroundPosition: "top center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
       {/* Header */}
       <div className="px-5 pt-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate('/home')} className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center">
+          <button
+            onClick={() => navigate("/home")}
+            className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center"
+          >
             <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
           <h1 className="text-foreground text-[18px] font-semibold">Settings</h1>
         </div>
-        <button className="px-4 py-2 rounded-full flex items-center gap-2" style={{
-        backgroundImage: "url(\"/lovable-uploads/881be237-04b4-4be4-b639-b56090b04ed5.png\")",
-        backgroundSize: 'cover',
-        backgroundPosition: 'center'
-      }}>
+        <button
+          className="px-4 py-2 rounded-full flex items-center gap-2"
+          style={{
+            backgroundImage: 'url("/lovable-uploads/881be237-04b4-4be4-b639-b56090b04ed5.png")',
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        >
           <span className="text-foreground text-[14px]">+ Support</span>
         </button>
       </div>
@@ -90,7 +99,7 @@ const Settings = () => {
             <h2 className="text-foreground text-[18px] font-medium">No Name? Who are you?</h2>
             <div className="flex items-center gap-1">
               <span className="text-muted-foreground text-[14px] font-medium">
-                {phoneNumber || 'No phone number'}
+                {phoneNumber || "No phone number"}
               </span>
               {phoneNumber && <span className="text-green-500">✓</span>}
             </div>
@@ -103,28 +112,30 @@ const Settings = () => {
 
       {/* Security & KYC Card */}
       <div className="mx-5 mt-[12px]">
-        <div 
+        <div
           className="rounded-xl p-4 flex items-center justify-between"
           style={{
             backgroundImage: `url(${securityConfig.bg})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
+            backgroundSize: "cover",
+            backgroundPosition: "center",
           }}
         >
           <div className="flex items-center gap-3">
             <img src={iconSecurity} alt="Security" className="w-10 h-10" />
             <div>
               <h3 className="text-foreground text-[14px] font-medium">Security & KYC</h3>
-              <p className={`${securityConfig.textColor} text-[12px]`}>{securityConfig.label}</p>
+              <p className={`${securityConfig.textColor} text-[12px]`}>
+                {securityConfig.label}
+              </p>
             </div>
           </div>
-          <button 
-            onClick={() => navigate('/kyc-intro')}
-            className="px-4 py-2 rounded-full" 
+          <button
+            onClick={() => navigate("/kyc-intro")}
+            className="px-4 py-2 rounded-full"
             style={{
-              backgroundImage: "url(\"/lovable-uploads/49de8f57-4936-4893-a65c-87ac5e256526.png\")",
-              backgroundSize: 'cover',
-              backgroundPosition: 'center'
+              backgroundImage: 'url("/lovable-uploads/49de8f57-4936-4893-a65c-87ac5e256526.png")',
+              backgroundSize: "cover",
+              backgroundPosition: "center",
             }}
           >
             <span className="text-foreground text-[12px]">Check Security</span>
@@ -133,9 +144,11 @@ const Settings = () => {
       </div>
 
       {/* Payment Settings */}
-      <div className="px-5 mt-6">
-        <p className="text-muted-foreground text-[14px] font-bold tracking-wider mb-3.5">PAYMENT SETTINGS</p>
-        
+      <div className="px-5">
+        <p className="mt-8 mb-3.5 text-muted-foreground text-[14px] font-bold tracking-wider">
+          PAYMENT SETTINGS
+        </p>
+
         <button className="w-full flex items-center justify-between py-3.5 border-b border-white/10">
           <div className="flex items-center gap-3">
             <img src={iconLinkedCards} alt="Linked Cards" className="w-[18px] h-[18px] opacity-60" />
@@ -160,9 +173,11 @@ const Settings = () => {
       </div>
 
       {/* App Preferences */}
-      <div className="px-5 mt-6">
-        <p className="text-muted-foreground text-[14px] font-bold tracking-wider mb-3.5">APP PREFERENCES</p>
-        
+      <div className="px-5">
+        <p className="mt-8 mb-3.5 text-muted-foreground text-[14px] font-bold tracking-wider">
+          APP PREFERENCES
+        </p>
+
         <div className="py-3.5 border-b border-white/10">
           <div className="flex items-center gap-3 mb-[13px]">
             <img src={iconNotifications} alt="Notifications" className="w-[18px] h-[18px] opacity-60" />
@@ -170,11 +185,15 @@ const Settings = () => {
           </div>
           <div className="ml-8 space-y-[15px]">
             <div className="flex items-center justify-between">
-              <p className={`${pushNotifications ? 'text-foreground' : 'text-muted-foreground'} text-[14px] font-light`}>Push Notifications</p>
+              <p className={`${pushNotifications ? "text-foreground" : "text-muted-foreground"} text-[14px] font-light`}>
+                Push Notifications
+              </p>
               <Switch checked={pushNotifications} onCheckedChange={setPushNotifications} />
             </div>
             <div className="flex items-center justify-between">
-              <p className={`${transactionAlerts ? 'text-foreground' : 'text-muted-foreground'} text-[14px] font-light`}>Transaction Alerts</p>
+              <p className={`${transactionAlerts ? "text-foreground" : "text-muted-foreground"} text-[14px] font-light`}>
+                Transaction Alerts
+              </p>
               <Switch checked={transactionAlerts} onCheckedChange={setTransactionAlerts} />
             </div>
           </div>
@@ -188,7 +207,7 @@ const Settings = () => {
           <Switch checked={darkMode} onCheckedChange={setDarkMode} />
         </div>
 
-        <button onClick={() => navigate('/')} className="w-full flex items-center justify-between py-3.5">
+        <button onClick={() => navigate("/")} className="w-full flex items-center justify-between py-3.5">
           <div className="flex items-center gap-3">
             <img src={iconLogout} alt="Log Out" className="w-[18px] h-[18px] opacity-60" />
             <p className="text-foreground text-[14px] font-medium">Log Out</p>
@@ -197,10 +216,10 @@ const Settings = () => {
         </button>
       </div>
 
-      {/* Footer Logo - Long press for demo reset */}
+      {/* Footer Logo */}
       <div className="flex-1" />
-      <div 
-        className="px-5 pb-[60px] opacity-40 font-grotesk cursor-pointer select-none"
+      <div
+        className="px-5 pt-14 pb-[60px] opacity-40 font-grotesk cursor-pointer select-none"
         onMouseDown={handleLogoPress}
         onMouseUp={handleLogoRelease}
         onMouseLeave={handleLogoRelease}
@@ -208,8 +227,12 @@ const Settings = () => {
         onTouchEnd={handleLogoRelease}
       >
         <img src={dotPeLogo} alt="dot.pe" className="h-8" />
-        <p className="text-foreground text-sm font-medium">This is not where you find love.</p>
+        <p className="text-foreground text-sm font-medium">
+          This is not where you find love.
+        </p>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default Settings;
