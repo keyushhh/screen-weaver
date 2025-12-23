@@ -160,8 +160,8 @@ const Settings = () => {
       </div>
 
       {/* App Preferences */}
-      <div className="px-5 mt-[30px]">
-        <p className="text-muted-foreground text-[14px] font-bold tracking-wider mb-[20px]">APP PREFERENCES</p>
+      <div className="px-5 mt-[20px]">
+        <p className="text-muted-foreground text-[14px] font-bold tracking-wider mb-[14px]">APP PREFERENCES</p>
         
         <div className="pt-[14px] pb-[19px] border-b border-white/10">
           <div className="flex items-center gap-3 mb-[13px]">
