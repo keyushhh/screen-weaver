@@ -161,32 +161,37 @@ const ProfileEdit = () => {
                 }}
             />
 
-            {/* CTA Buttons - Pushed up by 50px (115 - 50 = 65px) */}
-            <Button
-                onClick={handleSave}
-                className="w-full h-[48px] rounded-full text-[16px] font-medium bg-[#5260FE] hover:bg-[#5260FE]/90 text-white border-none mt-[65px]"
-            >
-                Save My Identity
-            </Button>
-            <button
-                onClick={() => navigate(-1)}
-                className="w-full h-[48px] rounded-full text-[16px] font-medium text-white flex items-center justify-center transition-transform active:scale-95 mt-[14px]"
-                style={{
-                    backgroundImage: `url(${buttonCancel})`,
-                    backgroundSize: '100% 100%',
-                    backgroundRepeat: 'no-repeat'
-                }}
-            >
-                Cancel
-            </button>
+           {/* CTA Buttons */}
+<Button
+  onClick={handleSave}
+  className="w-full h-[48px] rounded-full text-[16px] font-medium bg-[#5260FE] hover:bg-[#5260FE]/90 text-white border-none mt-[65px]"
+>
+  Save My Identity
+</Button>
 
-            {/* Footer Info - Pushed up by 20px (34 - 20 = 14px) */}
-            <div className="mt-[14px] pb-10 opacity-40 flex flex-col items-start">
-                <img src={dotPeLogo} className="h-8 mb-1" />
-                <p className="font-grotesk font-medium text-[14px] text-left">
-                    App Version v1.0.0 — 100% drama compatible.
-                </p>
-            </div>
+<button
+  onClick={() => navigate(-1)}
+  className="w-full h-[48px] rounded-full text-[16px] font-medium text-white flex items-center justify-center transition-transform active:scale-95 mt-[14px]"
+  style={{
+    backgroundImage: `url(${buttonCancel})`,
+    backgroundSize: '100% 100%',
+    backgroundRepeat: 'no-repeat',
+  }}
+>
+  Cancel
+</button>
+
+{/* FLEX SPACER — this is the key */}
+<div className="flex-1" />
+
+{/* Footer Info */}
+<div className="pb-10 opacity-40 flex flex-col items-start">
+  <img src={dotPeLogo} className="h-8 mb-1" />
+  <p className="font-grotesk font-medium text-[14px] text-left">
+    App Version v1.0.0 — 100% drama compatible.
+  </p>
+</div>
+
         </div>
       </div>
     </div>
