@@ -59,7 +59,7 @@ const Settings = () => {
 
   return (
     <div
-      className="h-[100dvh] overflow-hidden flex flex-col safe-area-top safe-area-bottom"
+      className="h-[100dvh] flex flex-col safe-area-top safe-area-bottom"
       style={{
         backgroundColor: "#0a0a12",
         backgroundImage: `url(${bgDarkMode})`,
@@ -143,81 +143,83 @@ const Settings = () => {
         </div>
       </div>
 
-      {/* Payment Settings */}
-      <div className="px-5">
-        <p className="mt-8 mb-3.5 text-muted-foreground text-[14px] font-bold tracking-wider">
-          PAYMENT SETTINGS
-        </p>
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto no-scrollbar">
+        {/* Payment Settings */}
+        <div className="px-5">
+          <p className="mt-8 mb-3.5 text-muted-foreground text-[14px] font-bold tracking-wider">
+            PAYMENT SETTINGS
+          </p>
 
-        <button className="w-full flex items-center justify-between py-3.5 border-b border-white/10">
-          <div className="flex items-center gap-3">
-            <img src={iconLinkedCards} alt="Linked Cards" className="w-[18px] h-[18px] opacity-60" />
-            <div className="text-left">
-              <p className="text-foreground text-[14px] font-medium">Linked Cards</p>
-              <p className="text-muted-foreground text-[12px]">0 cards linked</p>
+          <button className="w-full flex items-center justify-between py-3.5 border-b border-white/10">
+            <div className="flex items-start gap-3">
+              <img src={iconLinkedCards} alt="Linked Cards" className="w-[18px] h-[18px] opacity-60 mt-[2px]" />
+              <div className="text-left">
+                <p className="text-foreground text-[14px] font-medium">Linked Cards</p>
+                <p className="text-muted-foreground text-[12px]">0 cards linked</p>
+              </div>
             </div>
-          </div>
-          <ChevronRight className="w-5 h-5 text-muted-foreground" />
-        </button>
+            <ChevronRight className="w-5 h-5 text-muted-foreground" />
+          </button>
 
-        <button className="w-full flex items-center justify-between py-3.5 border-b border-white/10">
-          <div className="flex items-center gap-3">
-            <img src={iconBankAcc} alt="Bank Account" className="w-[18px] h-[18px] opacity-60" />
-            <div className="text-left">
-              <p className="text-foreground text-[14px] font-medium">Bank Account Info</p>
-              <p className="text-muted-foreground text-[12px]">0 bank accounts linked</p>
+          <button className="w-full flex items-center justify-between py-3.5 border-b border-white/10">
+            <div className="flex items-start gap-3">
+              <img src={iconBankAcc} alt="Bank Account" className="w-[18px] h-[18px] opacity-60 mt-[2px]" />
+              <div className="text-left">
+                <p className="text-foreground text-[14px] font-medium">Bank Account Info</p>
+                <p className="text-muted-foreground text-[12px]">0 bank accounts linked</p>
+              </div>
             </div>
-          </div>
-          <ChevronRight className="w-5 h-5 text-muted-foreground" />
-        </button>
-      </div>
-
-      {/* App Preferences */}
-      <div className="px-5">
-        <p className="mt-8 mb-3.5 text-muted-foreground text-[14px] font-bold tracking-wider">
-          APP PREFERENCES
-        </p>
-
-        <div className="py-3.5 border-b border-white/10">
-          <div className="flex items-center gap-3 mb-[13px]">
-            <img src={iconNotifications} alt="Notifications" className="w-[18px] h-[18px] opacity-60" />
-            <p className="text-foreground text-[14px] font-medium">Notifications</p>
-          </div>
-          <div className="ml-8 space-y-[15px]">
-            <div className="flex items-center justify-between">
-              <p className={`${pushNotifications ? "text-foreground" : "text-muted-foreground"} text-[14px] font-light`}>
-                Push Notifications
-              </p>
-              <Switch checked={pushNotifications} onCheckedChange={setPushNotifications} />
-            </div>
-            <div className="flex items-center justify-between">
-              <p className={`${transactionAlerts ? "text-foreground" : "text-muted-foreground"} text-[14px] font-light`}>
-                Transaction Alerts
-              </p>
-              <Switch checked={transactionAlerts} onCheckedChange={setTransactionAlerts} />
-            </div>
-          </div>
+            <ChevronRight className="w-5 h-5 text-muted-foreground" />
+          </button>
         </div>
 
-        <div className="flex items-center justify-between py-3.5 border-b border-white/10">
-          <div className="flex items-center gap-3">
-            <img src={iconDarkMode} alt="Dark Mode" className="w-[18px] h-[18px] opacity-60" />
-            <p className="text-foreground text-[14px] font-medium">Dark Mode</p>
-          </div>
-          <Switch checked={darkMode} onCheckedChange={setDarkMode} />
-        </div>
+        {/* App Preferences */}
+        <div className="px-5">
+          <p className="mt-8 mb-3.5 text-muted-foreground text-[14px] font-bold tracking-wider">
+            APP PREFERENCES
+          </p>
 
-        <button onClick={() => navigate("/")} className="w-full flex items-center justify-between py-3.5">
-          <div className="flex items-center gap-3">
-            <img src={iconLogout} alt="Log Out" className="w-[18px] h-[18px] opacity-60" />
-            <p className="text-foreground text-[14px] font-medium">Log Out</p>
+          <div className="py-3.5 border-b border-white/10">
+            <div className="flex items-center gap-3 mb-[13px]">
+              <img src={iconNotifications} alt="Notifications" className="w-[18px] h-[18px] opacity-60" />
+              <p className="text-foreground text-[14px] font-medium">Notifications</p>
+            </div>
+            <div className="ml-8 space-y-[15px]">
+              <div className="flex items-center justify-between">
+                <p className={`${pushNotifications ? "text-foreground" : "text-muted-foreground"} text-[14px] font-light`}>
+                  Push Notifications
+                </p>
+                <Switch checked={pushNotifications} onCheckedChange={setPushNotifications} />
+              </div>
+              <div className="flex items-center justify-between">
+                <p className={`${transactionAlerts ? "text-foreground" : "text-muted-foreground"} text-[14px] font-light`}>
+                  Transaction Alerts
+                </p>
+                <Switch checked={transactionAlerts} onCheckedChange={setTransactionAlerts} />
+              </div>
+            </div>
           </div>
-          <ChevronRight className="w-5 h-5 text-muted-foreground" />
-        </button>
+
+          <div className="flex items-center justify-between py-3.5 border-b border-white/10">
+            <div className="flex items-center gap-3">
+              <img src={iconDarkMode} alt="Dark Mode" className="w-[18px] h-[18px] opacity-60" />
+              <p className="text-foreground text-[14px] font-medium">Dark Mode</p>
+            </div>
+            <Switch checked={darkMode} onCheckedChange={setDarkMode} />
+          </div>
+
+          <button onClick={() => navigate("/")} className="w-full flex items-center justify-between py-3.5">
+            <div className="flex items-center gap-3">
+              <img src={iconLogout} alt="Log Out" className="w-[18px] h-[18px] opacity-60" />
+              <p className="text-foreground text-[14px] font-medium">Log Out</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-muted-foreground" />
+          </button>
+        </div>
       </div>
 
       {/* Footer Logo */}
-      <div className="flex-1" />
       <div
         className="px-5 pt-14 pb-[60px] opacity-40 font-grotesk cursor-pointer select-none"
         onMouseDown={handleLogoPress}
