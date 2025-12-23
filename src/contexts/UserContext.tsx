@@ -3,6 +3,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 interface UserState {
   phoneNumber: string;
   name: string;
+  email: string;
   profileImage: string | null;
   kycStatus: 'incomplete' | 'pending' | 'complete';
   kycSubmittedAt: number | null;
@@ -11,6 +12,7 @@ interface UserState {
 interface UserContextType extends UserState {
   setPhoneNumber: (phone: string) => void;
   setName: (name: string) => void;
+  setEmail: (email: string) => void;
   setProfileImage: (image: string | null) => void;
   setKycStatus: (status: 'incomplete' | 'pending' | 'complete') => void;
   submitKyc: () => void;
@@ -22,6 +24,7 @@ const USER_STORAGE_KEY = 'dotpe_user_state';
 const defaultState: UserState = {
   phoneNumber: '',
   name: '',
+  email: '',
   profileImage: null,
   kycStatus: 'incomplete',
   kycSubmittedAt: null,
@@ -66,6 +69,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setState(prev => ({ ...prev, name }));
   };
 
+  const setEmail = (email: string) => {
+    setState(prev => ({ ...prev, email }));
+  };
+
   const setProfileImage = (image: string | null) => {
     setState(prev => ({ ...prev, profileImage: image }));
   };
@@ -93,6 +100,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         ...state,
         setPhoneNumber,
         setName,
+        setEmail,
         setProfileImage,
         setKycStatus,
         submitKyc,

@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useUser } from "@/contexts/UserContext";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import avatarImg from "@/assets/avatar.png";
@@ -14,14 +14,44 @@ import { toast } from "sonner";
 
 const ProfileEdit = () => {
   const navigate = useNavigate();
-  const { phoneNumber, name: contextName, profileImage: contextImage, setName: setContextName, setProfileImage: setContextProfileImage } = useUser();
+  const {
+    phoneNumber,
+    name: contextName,
+    email: contextEmail,
+    profileImage: contextImage,
+    setName: setContextName,
+    setEmail: setContextEmail,
+    setProfileImage: setContextProfileImage
+  } = useUser();
+
   const [name, setName] = useState(contextName || "");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(contextEmail || "");
   const [profileImage, setProfileImage] = useState<string | null>(contextImage);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Derive isDirty state by comparing current local state with context state
+  // If context value is null/undefined, treat it as empty string for comparison
+  const isDirty =
+    name !== (contextName || "") ||
+    email !== (contextEmail || "") ||
+    profileImage !== contextImage;
+
+  // Determine Helper Text based on SAVED context image (not local preview)
+  const helperText = contextImage
+    ? "Add or update your profile photo."
+    : "Tap to add your beautiful mugshot. Or cat. We’re not picky.";
+
+  // Determine CTA Label
+  const ctaLabel = isDirty ? "Save My Identity" : "Edit My Identity";
+
   const handleSave = () => {
+    // If not dirty, we can still "save" (no-op) and go back, or just go back.
+    // The prompt implies "Edit My Identity" is the label when clean.
+    // Usually clicking "Edit" would enable inputs, but they are always enabled.
+    // We'll treat it as "Done/Save" behavior for now, or just save whatever is there.
+
     setContextName(name);
+    setContextEmail(email);
     setContextProfileImage(profileImage);
     toast.success("Profile updated successfully");
     navigate(-1);
@@ -69,23 +99,23 @@ const ProfileEdit = () => {
       <div className="px-5 mt-8">
         {/* Profile Photo Section */}
         <div className="bg-white/5 rounded-2xl p-4 flex items-center gap-4 border border-white/10 h-[101px]">
-            <img 
-              src={profileImage || avatarImg} 
-              alt="Profile" 
-              className="w-16 h-16 rounded-full object-cover" 
+            <img
+              src={profileImage || avatarImg}
+              alt="Profile"
+              className="w-16 h-16 rounded-full object-cover"
               style={{
                 border: '4px solid rgba(255, 255, 255, 0.17)'
               }}
             />
             <div className="flex-1">
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  className="hidden" 
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
                   accept="image/*"
                   onChange={handleImageUpload}
                 />
-                <button 
+                <button
                   onClick={triggerFileInput}
                   className="px-4 h-[32px] flex items-center justify-center rounded-full text-[14px] text-foreground mb-2"
                   style={{
@@ -97,7 +127,7 @@ const ProfileEdit = () => {
                     Upload Photo
                 </button>
                 <p className="text-muted-foreground text-[12px] leading-tight">
-                    Tap to add your beautiful mugshot. Or cat. We’re not picky.
+                    {helperText}
                 </p>
             </div>
         </div>
@@ -166,7 +196,7 @@ const ProfileEdit = () => {
                 onClick={handleSave}
                 className="w-full h-[48px] rounded-full text-[16px] font-medium bg-[#5260FE] hover:bg-[#5260FE]/90 text-white border-none mt-[65px]"
             >
-                Save My Identity
+                {ctaLabel}
             </Button>
             <button
                 onClick={() => navigate(-1)}
