@@ -58,7 +58,7 @@ const Settings = () => {
   };
   
   const securityConfig = getSecurityConfig(kycStatus);
-  return <div className="min-h-[100dvh] flex flex-col safe-area-top safe-area-bottom" style={{
+  return <div className="h-[100dvh] overflow-hidden flex flex-col safe-area-top safe-area-bottom" style={{
     backgroundColor: '#0a0a12',
     backgroundImage: `url(${bgDarkMode})`,
     backgroundSize: 'cover',
@@ -170,11 +170,11 @@ const Settings = () => {
           </div>
           <div className="ml-8 space-y-[15px]">
             <div className="flex items-center justify-between">
-              <p className="text-muted-foreground text-[14px] font-light">Push Notifications</p>
+              <p className={`${pushNotifications ? 'text-foreground' : 'text-muted-foreground'} text-[14px] font-light`}>Push Notifications</p>
               <Switch checked={pushNotifications} onCheckedChange={setPushNotifications} />
             </div>
             <div className="flex items-center justify-between">
-              <p className="text-muted-foreground text-[14px] font-light">Transaction Alerts</p>
+              <p className={`${transactionAlerts ? 'text-foreground' : 'text-muted-foreground'} text-[14px] font-light`}>Transaction Alerts</p>
               <Switch checked={transactionAlerts} onCheckedChange={setTransactionAlerts} />
             </div>
           </div>
@@ -200,7 +200,7 @@ const Settings = () => {
       {/* Footer Logo - Long press for demo reset */}
       <div className="flex-1" />
       <div 
-        className="px-5 pb-[69px] opacity-40 font-grotesk cursor-pointer select-none"
+        className="px-5 pb-[60px] opacity-40 font-grotesk cursor-pointer select-none"
         onMouseDown={handleLogoPress}
         onMouseUp={handleLogoRelease}
         onMouseLeave={handleLogoRelease}
