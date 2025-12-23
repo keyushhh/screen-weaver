@@ -2,12 +2,16 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 
 interface UserState {
   phoneNumber: string;
+  name: string;
+  profileImage: string | null;
   kycStatus: 'incomplete' | 'pending' | 'complete';
   kycSubmittedAt: number | null;
 }
 
 interface UserContextType extends UserState {
   setPhoneNumber: (phone: string) => void;
+  setName: (name: string) => void;
+  setProfileImage: (image: string | null) => void;
   setKycStatus: (status: 'incomplete' | 'pending' | 'complete') => void;
   submitKyc: () => void;
   resetForDemo: () => void;
@@ -17,6 +21,8 @@ const USER_STORAGE_KEY = 'dotpe_user_state';
 
 const defaultState: UserState = {
   phoneNumber: '',
+  name: '',
+  profileImage: null,
   kycStatus: 'incomplete',
   kycSubmittedAt: null,
 };
@@ -56,6 +62,14 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setState(prev => ({ ...prev, phoneNumber: phone }));
   };
 
+  const setName = (name: string) => {
+    setState(prev => ({ ...prev, name }));
+  };
+
+  const setProfileImage = (image: string | null) => {
+    setState(prev => ({ ...prev, profileImage: image }));
+  };
+
   const setKycStatus = (status: 'incomplete' | 'pending' | 'complete') => {
     setState(prev => ({ ...prev, kycStatus: status }));
   };
@@ -78,6 +92,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       value={{
         ...state,
         setPhoneNumber,
+        setName,
+        setProfileImage,
         setKycStatus,
         submitKyc,
         resetForDemo,

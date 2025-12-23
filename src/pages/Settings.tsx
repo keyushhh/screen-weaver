@@ -39,7 +39,7 @@ const triggerHaptic = () => {
 
 const Settings = () => {
   const navigate = useNavigate();
-  const { phoneNumber, kycStatus, resetForDemo } = useUser();
+  const { phoneNumber, kycStatus, resetForDemo, name, profileImage } = useUser();
   const [pushNotifications, setPushNotifications] = useState(true);
   const [transactionAlerts, setTransactionAlerts] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
@@ -99,9 +99,14 @@ const Settings = () => {
       {/* Profile */}
       <div className="px-5 mt-[42px] flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <img src={avatarImg} className="w-14 h-14 rounded-full" />
+          <img
+            src={profileImage || avatarImg}
+            className="w-14 h-14 rounded-full object-cover"
+          />
           <div>
-            <h2 className="text-foreground text-[18px] font-medium">No Name? Who are you?</h2>
+            <h2 className="text-foreground text-[18px] font-medium">
+              {name || "No Name? Who are you?"}
+            </h2>
             <div className="flex items-center gap-1">
               <span className="text-muted-foreground text-[14px]">{phoneNumber}</span>
               <span className="text-green-500">✓</span>

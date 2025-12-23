@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useUser } from "@/contexts/UserContext";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import avatarImg from "@/assets/avatar.png";
@@ -10,16 +10,41 @@ import buttonCancel from "@/assets/button-cancel.png";
 import dotPeLogo from "@/assets/dot-pe-logo.svg";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
 const ProfileEdit = () => {
   const navigate = useNavigate();
-  const { phoneNumber } = useUser();
-  const [name, setName] = useState("");
+  const { phoneNumber, name: contextName, profileImage: contextImage, setName: setContextName, setProfileImage: setContextProfileImage } = useUser();
+  const [name, setName] = useState(contextName || "");
   const [email, setEmail] = useState("");
+  const [profileImage, setProfileImage] = useState<string | null>(contextImage);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleSave = () => {
+    setContextName(name);
+    setContextProfileImage(profileImage);
+    toast.success("Profile updated successfully");
+    navigate(-1);
+  };
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
 
   return (
     <div
-      className="min-h-[100dvh] flex flex-col safe-area-top safe-area-bottom"
+      className="min-h-[100dvh] h-full flex flex-col safe-area-top safe-area-bottom"
       style={{
         backgroundColor: "#0a0a12",
         backgroundImage: `url(${bgDarkMode})`,
@@ -29,7 +54,7 @@ const ProfileEdit = () => {
       }}
     >
       {/* Header */}
-      <div className="px-5 pt-4 flex items-center justify-between">
+      <div className="px-5 pt-4 flex items-center justify-between shrink-0">
         <button
           onClick={() => navigate(-1)}
           className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center transition-colors hover:bg-white/10"
@@ -41,11 +66,11 @@ const ProfileEdit = () => {
       </div>
 
       {/* Content */}
-      <div className="flex-1 px-5 mt-8 overflow-y-auto no-scrollbar pb-10">
+      <div className="px-5 mt-8">
         {/* Profile Photo Section */}
         <div className="bg-white/5 rounded-2xl p-4 flex items-center gap-4 border border-white/10 h-[101px]">
             <img
-              src={avatarImg}
+              src={profileImage || avatarImg}
               alt="Profile"
               className="w-16 h-16 rounded-full object-cover"
               style={{
@@ -53,7 +78,15 @@ const ProfileEdit = () => {
               }}
             />
             <div className="flex-1">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                />
                 <button
+                  onClick={triggerFileInput}
                   className="px-4 h-[32px] flex items-center justify-center rounded-full text-[14px] text-foreground mb-2"
                   style={{
                     backgroundImage: 'url("/lovable-uploads/881be237-04b4-4be4-b639-b56090b04ed5.png")',
@@ -80,7 +113,7 @@ const ProfileEdit = () => {
                 placeholder="What should we call you?"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full h-[54px] rounded-full text-white placeholder:text-muted-foreground/60 px-6 border-none text-[14px]"
+                className="w-full h-[48px] rounded-full text-white placeholder:text-muted-foreground/60 px-6 border-none text-[14px]"
                 style={{
                     backgroundImage: `url(${inputFieldBg})`,
                     backgroundSize: '100% 100%',
@@ -92,7 +125,7 @@ const ProfileEdit = () => {
             {/* Phone Number (Read Only) */}
             <div className="space-y-2 mt-[21px]">
                 <div
-                    className="w-full h-[54px] rounded-full flex items-center px-6 justify-between border-none"
+                    className="w-full h-[48px] rounded-full flex items-center px-6 justify-between border-none"
                     style={{
                         backgroundImage: `url(${inputFieldBg})`,
                         backgroundSize: '100% 100%',
@@ -119,7 +152,7 @@ const ProfileEdit = () => {
                 placeholder="Drop your email, the real one."
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full h-[54px] rounded-full text-white placeholder:text-muted-foreground/60 px-6 border-none text-[14px] mt-[32px]"
+                className="w-full h-[48px] rounded-full text-white placeholder:text-muted-foreground/60 px-6 border-none text-[14px] mt-[32px]"
                  style={{
                     backgroundImage: `url(${inputFieldBg})`,
                     backgroundSize: '100% 100%',
@@ -128,9 +161,10 @@ const ProfileEdit = () => {
                 }}
             />
 
-            {/* CTA Buttons - Moved inside flow for strict spacing */}
+            {/* CTA Buttons - Pushed up by 50px (115 - 50 = 65px) */}
             <Button
-                className="w-full h-[48px] rounded-full text-[16px] font-medium bg-[#5260FE] hover:bg-[#5260FE]/90 text-white border-none mt-[115px]"
+                onClick={handleSave}
+                className="w-full h-[48px] rounded-full text-[16px] font-medium bg-[#5260FE] hover:bg-[#5260FE]/90 text-white border-none mt-[65px]"
             >
                 Save My Identity
             </Button>
@@ -146,8 +180,8 @@ const ProfileEdit = () => {
                 Cancel
             </button>
 
-            {/* Footer Info */}
-            <div className="mt-[34px] opacity-40 flex flex-col items-start">
+            {/* Footer Info - Pushed up by 20px (34 - 20 = 14px) */}
+            <div className="mt-[14px] pb-10 opacity-40 flex flex-col items-start">
                 <img src={dotPeLogo} className="h-8 mb-1" />
                 <p className="font-grotesk font-medium text-[14px] text-left">
                     App Version v1.0.0 — 100% drama compatible.
