@@ -117,41 +117,59 @@ const Homepage = () => {
         </div>
       </div>
 
-      {/* Bottom Navigation */}
-      <div className="relative">
-        {/* Background */}
-        <div className="absolute inset-0 h-full" style={{
-        backgroundImage: `url(${navbarBg})`,
-        backgroundSize: '100% 100%',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }} />
-        
-        {/* Content */}
-        <div className="relative px-5 py-3">
-          <div className="flex-row flex items-end justify-between py-[10px]">
-            <button className="flex-col gap-1 flex-1 flex items-center justify-center">
-              <img src={navHome} alt="Home" className="w-6 h-6" />
-              <span className="text-foreground text-[10px]">HOME</span>
-            </button>
-            <button className="flex-col gap-1 flex-1 flex items-center justify-center">
-              <img src={navCards} alt="Cards" className="w-6 h-6" />
-              <span className="text-muted-foreground text-[10px]">CARDS</span>
-            </button>
-            <button className="flex-1 flex items-start justify-center py-0 px-0 my-0">
-              <img src={navPlusButton} alt="Add" className="w-12 h-12" />
-            </button>
-            <button className="flex-col gap-1 flex-1 flex items-center justify-center">
-              <img src={navRewards} alt="Rewards" className="w-6 h-6" />
-              <span className="text-muted-foreground text-[10px]">REWARDS</span>
-            </button>
-            <button className="flex-col gap-1 flex-1 flex items-center justify-center">
-              <img src={navMore} alt="More" className="w-6 h-6" />
-              <span className="text-muted-foreground text-[10px]">MORE</span>
-            </button>
-          </div>
-        </div>
-      </div>
+     {/* Bottom Navigation */}
+<div className="relative">
+  {/* Background */}
+  <div
+    className="absolute inset-0 h-full"
+    style={{
+      backgroundImage: `url(${navbarBg})`,
+      backgroundSize: "100% 100%",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+    }}
+  />
+
+  {/* Floating + Button (FAB) */}
+  <button
+    className="absolute left-1/2 -translate-x-1/2 -translate-y-6 z-10 w-[64px] h-[64px] rounded-full flex items-center justify-center"
+  >
+    <img
+      src={navPlusButton}
+      alt="Add"
+      className="w-full h-full rounded-full"
+    />
+  </button>
+
+  {/* Nav Items */}
+  <div className="relative px-5 py-3">
+    <div className="flex items-end justify-between py-[10px]">
+      <button className="flex-col gap-1 flex-1 flex items-center justify-center">
+        <img src={navHome} alt="Home" className="w-6 h-6" />
+        <span className="text-foreground text-[10px]">HOME</span>
+      </button>
+
+      <button className="flex-col gap-1 flex-1 flex items-center justify-center">
+        <img src={navCards} alt="Cards" className="w-6 h-6" />
+        <span className="text-muted-foreground text-[10px]">CARDS</span>
+      </button>
+
+      {/* Spacer for FAB */}
+      <div className="flex-1" />
+
+      <button className="flex-col gap-1 flex-1 flex items-center justify-center">
+        <img src={navRewards} alt="Rewards" className="w-6 h-6" />
+        <span className="text-muted-foreground text-[10px]">REWARDS</span>
+      </button>
+
+      <button className="flex-col gap-1 flex-1 flex items-center justify-center">
+        <img src={navMore} alt="More" className="w-6 h-6" />
+        <span className="text-muted-foreground text-[10px]">MORE</span>
+      </button>
+    </div>
+  </div>
+</div>
+
     </div>;
 };
 export default Homepage;
