@@ -11,7 +11,6 @@ import iconBankAcc from "@/assets/icon-bank-acc.svg";
 import iconNotifications from "@/assets/icon-notifications.svg";
 import iconDarkMode from "@/assets/icon-dark-mode.svg";
 import iconLogout from "@/assets/icon-logout.svg";
-import buttonAddMoney from "@/assets/button-add-money.png";
 import securityIncomplete from "@/assets/security-incomplete.png";
 import securityComplete from "@/assets/security-complete.png";
 import securityPending from "@/assets/security-pending.png";
@@ -26,7 +25,6 @@ const getSecurityConfig = (status: SecurityStatus) => {
       return { bg: securityComplete, label: "Account secured", textColor: "text-green-500" };
     case "pending":
       return { bg: securityPending, label: "Pending", textColor: "text-yellow-500" };
-    case "incomplete":
     default:
       return { bg: securityIncomplete, label: "Incomplete", textColor: "text-red-400" };
   }
@@ -59,7 +57,7 @@ const Settings = () => {
 
   return (
     <div
-      className="h-[100dvh] flex flex-col safe-area-top safe-area-bottom"
+      className="min-h-[100dvh] flex flex-col safe-area-top safe-area-bottom"
       style={{
         backgroundColor: "#0a0a12",
         backgroundImage: `url(${bgDarkMode})`,
@@ -79,159 +77,127 @@ const Settings = () => {
           </button>
           <h1 className="text-foreground text-[18px] font-semibold">Settings</h1>
         </div>
-        <button
-          className="px-4 py-2 rounded-full flex items-center gap-2"
-          style={{
-            backgroundImage: 'url("/lovable-uploads/881be237-04b4-4be4-b639-b56090b04ed5.png")',
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        >
+        <button className="px-4 py-2 rounded-full">
           <span className="text-foreground text-[14px]">+ Support</span>
         </button>
       </div>
 
-      {/* Profile Section */}
+      {/* Profile */}
       <div className="px-5 mt-[42px] flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <img src={avatarImg} alt="Profile" className="w-14 h-14 rounded-full" />
+          <img src={avatarImg} className="w-14 h-14 rounded-full" />
           <div>
             <h2 className="text-foreground text-[18px] font-medium">No Name? Who are you?</h2>
             <div className="flex items-center gap-1">
-              <span className="text-muted-foreground text-[14px] font-medium">
-                {phoneNumber || "No phone number"}
-              </span>
-              {phoneNumber && <span className="text-green-500">✓</span>}
+              <span className="text-muted-foreground text-[14px]">{phoneNumber}</span>
+              <span className="text-green-500">✓</span>
             </div>
           </div>
         </div>
         <button className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center">
-          <Pencil className="w-4 h-4 text-foreground" />
+          <Pencil className="w-4 h-4" />
         </button>
       </div>
 
-      {/* Security & KYC Card */}
-      <div className="mx-5 mt-[12px]">
+      {/* Security */}
+      <div className="mx-5 mt-3">
         <div
           className="rounded-xl p-4 flex items-center justify-between"
           style={{
             backgroundImage: `url(${securityConfig.bg})`,
             backgroundSize: "cover",
-            backgroundPosition: "center",
           }}
         >
           <div className="flex items-center gap-3">
-            <img src={iconSecurity} alt="Security" className="w-10 h-10" />
+            <img src={iconSecurity} className="w-10 h-10" />
             <div>
-              <h3 className="text-foreground text-[14px] font-medium">Security & KYC</h3>
+              <p className="text-foreground text-[14px] font-medium">Security & KYC</p>
               <p className={`${securityConfig.textColor} text-[12px]`}>
                 {securityConfig.label}
               </p>
             </div>
           </div>
-          <button
-            onClick={() => navigate("/kyc-intro")}
-            className="px-4 py-2 rounded-full"
-            style={{
-              backgroundImage: 'url("/lovable-uploads/49de8f57-4936-4893-a65c-87ac5e256526.png")',
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          >
+          <button className="px-4 py-2 rounded-full">
             <span className="text-foreground text-[12px]">Check Security</span>
           </button>
         </div>
       </div>
 
-      {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto no-scrollbar">
-        {/* Payment Settings */}
-        <div className="px-5">
-          <p className="mt-8 mb-3.5 text-muted-foreground text-[14px] font-bold tracking-wider">
-            PAYMENT SETTINGS
-          </p>
+      {/* PAYMENT SETTINGS */}
+      <div className="px-5 mt-8">
+        <p className="mb-3.5 text-muted-foreground text-[14px] font-bold tracking-wider">
+          PAYMENT SETTINGS
+        </p>
 
-          <button className="w-full flex items-center justify-between py-3.5 border-b border-white/10">
+        <div className="space-y-4">
+          <div className="flex justify-between">
             <div className="flex items-start gap-3">
-              <img src={iconLinkedCards} alt="Linked Cards" className="w-[18px] h-[18px] opacity-60 mt-[2px]" />
-              <div className="text-left">
-                <p className="text-foreground text-[14px] font-medium">Linked Cards</p>
+              <img src={iconLinkedCards} className="w-[18px] mt-[2px]" />
+              <div>
+                <p className="text-foreground text-[14px]">Linked Cards</p>
                 <p className="text-muted-foreground text-[12px]">0 cards linked</p>
               </div>
             </div>
-            <ChevronRight className="w-5 h-5 text-muted-foreground" />
-          </button>
+            <ChevronRight />
+          </div>
 
-          <button className="w-full flex items-center justify-between py-3.5 border-b border-white/10">
+          <div className="flex justify-between">
             <div className="flex items-start gap-3">
-              <img src={iconBankAcc} alt="Bank Account" className="w-[18px] h-[18px] opacity-60 mt-[2px]" />
-              <div className="text-left">
-                <p className="text-foreground text-[14px] font-medium">Bank Account Info</p>
+              <img src={iconBankAcc} className="w-[18px] mt-[2px]" />
+              <div>
+                <p className="text-foreground text-[14px]">Bank Account Info</p>
                 <p className="text-muted-foreground text-[12px]">0 bank accounts linked</p>
               </div>
             </div>
-            <ChevronRight className="w-5 h-5 text-muted-foreground" />
-          </button>
+            <ChevronRight />
+          </div>
         </div>
+      </div>
 
-        {/* App Preferences */}
-        <div className="px-5">
-          <p className="mt-8 mb-3.5 text-muted-foreground text-[14px] font-bold tracking-wider">
-            APP PREFERENCES
-          </p>
+      {/* APP PREFERENCES */}
+      <div className="px-5 mt-8">
+        <p className="mb-3.5 text-muted-foreground text-[14px] font-bold tracking-wider">
+          APP PREFERENCES
+        </p>
 
-          <div className="py-3.5 border-b border-white/10">
-            <div className="flex items-center gap-3 mb-[13px]">
-              <img src={iconNotifications} alt="Notifications" className="w-[18px] h-[18px] opacity-60" />
-              <p className="text-foreground text-[14px] font-medium">Notifications</p>
-            </div>
-            <div className="ml-8 space-y-[15px]">
-              <div className="flex items-center justify-between">
-                <p className={`${pushNotifications ? "text-foreground" : "text-muted-foreground"} text-[14px] font-light`}>
-                  Push Notifications
-                </p>
+        <div className="space-y-6">
+          <div>
+            <p className="text-foreground mb-3">Notifications</p>
+            <div className="space-y-4 ml-6">
+              <div className="flex justify-between">
+                <span>Push Notifications</span>
                 <Switch checked={pushNotifications} onCheckedChange={setPushNotifications} />
               </div>
-              <div className="flex items-center justify-between">
-                <p className={`${transactionAlerts ? "text-foreground" : "text-muted-foreground"} text-[14px] font-light`}>
-                  Transaction Alerts
-                </p>
+              <div className="flex justify-between">
+                <span>Transaction Alerts</span>
                 <Switch checked={transactionAlerts} onCheckedChange={setTransactionAlerts} />
               </div>
             </div>
           </div>
 
-          <div className="flex items-center justify-between py-3.5 border-b border-white/10">
-            <div className="flex items-center gap-3">
-              <img src={iconDarkMode} alt="Dark Mode" className="w-[18px] h-[18px] opacity-60" />
-              <p className="text-foreground text-[14px] font-medium">Dark Mode</p>
-            </div>
+          <div className="flex justify-between">
+            <span>Dark Mode</span>
             <Switch checked={darkMode} onCheckedChange={setDarkMode} />
           </div>
 
-          <button onClick={() => navigate("/")} className="w-full flex items-center justify-between py-3.5">
-            <div className="flex items-center gap-3">
-              <img src={iconLogout} alt="Log Out" className="w-[18px] h-[18px] opacity-60" />
-              <p className="text-foreground text-[14px] font-medium">Log Out</p>
-            </div>
-            <ChevronRight className="w-5 h-5 text-muted-foreground" />
-          </button>
+          <div className="flex justify-between">
+            <span>Log Out</span>
+            <ChevronRight />
+          </div>
         </div>
       </div>
 
-      {/* Footer Logo */}
+      {/* Footer */}
       <div
-        className="px-5 pt-14 pb-[60px] opacity-40 font-grotesk cursor-pointer select-none"
+        className="px-5 mt-14 pb-10 opacity-40 cursor-pointer"
         onMouseDown={handleLogoPress}
         onMouseUp={handleLogoRelease}
         onMouseLeave={handleLogoRelease}
         onTouchStart={handleLogoPress}
         onTouchEnd={handleLogoRelease}
       >
-        <img src={dotPeLogo} alt="dot.pe" className="h-8" />
-        <p className="text-foreground text-sm font-medium">
-          This is not where you find love.
-        </p>
+        <img src={dotPeLogo} className="h-8" />
+        <p className="text-sm">This is not where you find love.</p>
       </div>
     </div>
   );
