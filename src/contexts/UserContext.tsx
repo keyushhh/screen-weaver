@@ -4,6 +4,7 @@ interface UserState {
   phoneNumber: string;
   name: string;
   email: string;
+  emailVerified: boolean;
   profileImage: string | null;
   kycStatus: 'incomplete' | 'pending' | 'complete';
   kycSubmittedAt: number | null;
@@ -13,6 +14,7 @@ interface UserContextType extends UserState {
   setPhoneNumber: (phone: string) => void;
   setName: (name: string) => void;
   setEmail: (email: string) => void;
+  setEmailVerified: (verified: boolean) => void;
   setProfileImage: (image: string | null) => void;
   setKycStatus: (status: 'incomplete' | 'pending' | 'complete') => void;
   submitKyc: () => void;
@@ -25,6 +27,7 @@ const defaultState: UserState = {
   phoneNumber: '',
   name: '',
   email: '',
+  emailVerified: false,
   profileImage: null,
   kycStatus: 'incomplete',
   kycSubmittedAt: null,
@@ -73,6 +76,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setState(prev => ({ ...prev, email }));
   };
 
+  const setEmailVerified = (verified: boolean) => {
+    setState(prev => ({ ...prev, emailVerified: verified }));
+  };
+
   const setProfileImage = (image: string | null) => {
     setState(prev => ({ ...prev, profileImage: image }));
   };
@@ -101,6 +108,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         setPhoneNumber,
         setName,
         setEmail,
+        setEmailVerified,
         setProfileImage,
         setKycStatus,
         submitKyc,

@@ -18,43 +18,68 @@ const ProfileEdit = () => {
     phoneNumber,
     name: contextName,
     email: contextEmail,
+    emailVerified: contextEmailVerified,
     profileImage: contextImage,
     setName: setContextName,
     setEmail: setContextEmail,
+    setEmailVerified: setContextEmailVerified,
     setProfileImage: setContextProfileImage
   } = useUser();
 
   const [name, setName] = useState(contextName || "");
   const [email, setEmail] = useState(contextEmail || "");
+  const [emailVerified, setEmailVerified] = useState(contextEmailVerified || false);
   const [profileImage, setProfileImage] = useState<string | null>(contextImage);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Derive isDirty state by comparing current local state with context state
-  // If context value is null/undefined, treat it as empty string for comparison
+  // Effect to handle email changes
+  useEffect(() => {
+    if (email !== contextEmail && contextEmailVerified) {
+      // If email changes after being verified, unverify it locally
+      setEmailVerified(false);
+    } else if (email === contextEmail && contextEmailVerified) {
+        // If reverted to original verified email, restore verified status
+        setEmailVerified(true);
+    }
+  }, [email, contextEmail, contextEmailVerified]);
+
+  // Derive isDirty state
   const isDirty =
     name !== (contextName || "") ||
     email !== (contextEmail || "") ||
+    emailVerified !== (contextEmailVerified || false) ||
     profileImage !== contextImage;
 
-  // Determine Helper Text based on SAVED context image (not local preview)
   const helperText = contextImage
     ? "Add or update your profile photo."
     : "Tap to add your beautiful mugshot. Or cat. We’re not picky.";
 
-  // Determine CTA Label
   const ctaLabel = isDirty ? "Save My Identity" : "Edit My Identity";
 
-  const handleSave = () => {
-    // If not dirty, we can still "save" (no-op) and go back, or just go back.
-    // The prompt implies "Edit My Identity" is the label when clean.
-    // Usually clicking "Edit" would enable inputs, but they are always enabled.
-    // We'll treat it as "Done/Save" behavior for now, or just save whatever is there.
+  // Determine Email UI State
+  const isEmailNonEmpty = email.trim().length > 0;
+  const isEmailModified = email !== contextEmail;
+  const wasVerified = contextEmailVerified;
 
+  let emailHelperText = "Verify your email. C’mon, do it for the plot!";
+  if (emailVerified) {
+    emailHelperText = "Nice, now we trust you. As a promise, no spams! ;)";
+  } else if (wasVerified && isEmailModified) {
+    emailHelperText = "Second thoughts? Do it for the plot (again).";
+  }
+
+  const handleSave = () => {
     setContextName(name);
     setContextEmail(email);
+    setContextEmailVerified(emailVerified);
     setContextProfileImage(profileImage);
     toast.success("Profile updated successfully");
     navigate(-1);
+  };
+
+  const handleVerify = () => {
+    setEmailVerified(true);
+    toast.success("Email verified!");
   };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -178,18 +203,46 @@ const ProfileEdit = () => {
             </div>
 
             {/* Email Input */}
-            <Input
-                placeholder="Drop your email, the real one."
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full h-[48px] rounded-full text-white placeholder:text-muted-foreground/60 px-6 border-none text-[14px] mt-[32px]"
-                 style={{
-                    backgroundImage: `url(${inputFieldBg})`,
-                    backgroundSize: '100% 100%',
-                    backgroundRepeat: 'no-repeat',
-                    backgroundColor: 'transparent'
-                }}
-            />
+            <div className="mt-[32px]">
+                <div className="relative">
+                    <Input
+                        placeholder="Drop your email, the real one."
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full h-[48px] rounded-full text-white placeholder:text-muted-foreground/60 px-6 border-none text-[14px] pr-[100px]"
+                        style={{
+                            backgroundImage: `url(${inputFieldBg})`,
+                            backgroundSize: '100% 100%',
+                            backgroundRepeat: 'no-repeat',
+                            backgroundColor: 'transparent'
+                        }}
+                    />
+
+                    {/* Verification UI */}
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                        {emailVerified ? (
+                            <div className="mr-2">
+                                <img src={verifiedIcon} alt="Verified" className="w-5 h-5 object-contain" />
+                            </div>
+                        ) : isEmailNonEmpty ? (
+                            <button
+                                onClick={handleVerify}
+                                className="px-4 h-[32px] flex items-center justify-center rounded-full text-[14px] text-foreground"
+                                style={{
+                                    backgroundImage: 'url("/lovable-uploads/881be237-04b4-4be4-b639-b56090b04ed5.png")',
+                                    backgroundSize: "cover",
+                                    backgroundPosition: "center",
+                                }}
+                            >
+                                {wasVerified ? "Change?" : "Verify"}
+                            </button>
+                        ) : null}
+                    </div>
+                </div>
+                <p className="text-[#5B5B5B] text-[14px] font-normal px-4 mt-2 font-satoshi">
+                    {emailHelperText}
+                </p>
+            </div>
 
             {/* CTA Buttons - Pushed up by 50px (115 - 50 = 65px) */}
             <Button
