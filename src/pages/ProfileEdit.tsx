@@ -30,6 +30,7 @@ const ProfileEdit = () => {
   const [email, setEmail] = useState(contextEmail || "");
   const [emailVerified, setEmailVerified] = useState(contextEmailVerified || false);
   const [profileImage, setProfileImage] = useState<string | null>(contextImage);
+  const [isEditing, setIsEditing] = useState(false); // Default to read-only
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Effect to handle email changes
@@ -43,18 +44,11 @@ const ProfileEdit = () => {
     }
   }, [email, contextEmail, contextEmailVerified]);
 
-  // Derive isDirty state
-  const isDirty =
-    name !== (contextName || "") ||
-    email !== (contextEmail || "") ||
-    emailVerified !== (contextEmailVerified || false) ||
-    profileImage !== contextImage;
-
   const helperText = contextImage
     ? "Add or update your profile photo."
     : "Tap to add your beautiful mugshot. Or cat. We’re not picky.";
 
-  const ctaLabel = isDirty ? "Save My Identity" : "Edit My Identity";
+  const ctaLabel = isEditing ? "Save My Identity" : "Edit My Identity";
 
   // Determine Email UI State
   const isEmailNonEmpty = email.trim().length > 0;
@@ -67,6 +61,14 @@ const ProfileEdit = () => {
   } else if (wasVerified && isEmailModified) {
     emailHelperText = "Second thoughts? Do it for the plot (again).";
   }
+
+  const handleCtaClick = () => {
+    if (!isEditing) {
+        setIsEditing(true);
+    } else {
+        handleSave();
+    }
+  };
 
   const handleSave = () => {
     setContextName(name);
@@ -94,7 +96,9 @@ const ProfileEdit = () => {
   };
 
   const triggerFileInput = () => {
-    fileInputRef.current?.click();
+    if (isEditing) {
+        fileInputRef.current?.click();
+    }
   };
 
   return (
@@ -139,10 +143,12 @@ const ProfileEdit = () => {
                   className="hidden"
                   accept="image/*"
                   onChange={handleImageUpload}
+                  disabled={!isEditing}
                 />
                 <button
                   onClick={triggerFileInput}
-                  className="px-4 h-[32px] flex items-center justify-center rounded-full text-[14px] text-foreground mb-2"
+                  disabled={!isEditing}
+                  className={`px-4 h-[32px] flex items-center justify-center rounded-full text-[14px] text-foreground mb-2 ${!isEditing ? 'opacity-50 cursor-not-allowed' : ''}`}
                   style={{
                     backgroundImage: 'url("/lovable-uploads/881be237-04b4-4be4-b639-b56090b04ed5.png")',
                     backgroundSize: "cover",
@@ -168,7 +174,8 @@ const ProfileEdit = () => {
                 placeholder="What should we call you?"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full h-[48px] rounded-full text-white placeholder:text-muted-foreground/60 px-6 border-none text-[14px]"
+                disabled={!isEditing}
+                className="w-full h-[48px] rounded-full text-white placeholder:text-muted-foreground/60 px-6 border-none text-[14px] disabled:opacity-70 disabled:cursor-not-allowed"
                 style={{
                     backgroundImage: `url(${inputFieldBg})`,
                     backgroundSize: '100% 100%',
@@ -180,7 +187,7 @@ const ProfileEdit = () => {
             {/* Phone Number (Read Only) */}
             <div className="space-y-2 mt-[21px]">
                 <div
-                    className="w-full h-[48px] rounded-full flex items-center px-6 justify-between border-none"
+                    className="w-full h-[48px] rounded-full flex items-center px-6 justify-between border-none opacity-70 cursor-not-allowed"
                     style={{
                         backgroundImage: `url(${inputFieldBg})`,
                         backgroundSize: '100% 100%',
@@ -208,8 +215,9 @@ const ProfileEdit = () => {
                     <Input
                         placeholder="Drop your email, the real one."
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="w-full h-[48px] rounded-full text-white placeholder:text-muted-foreground/60 px-6 border-none text-[14px] pr-[100px]"
+                        onChange={(e) => setEmail(e.target.value.toLowerCase())}
+                        disabled={!isEditing}
+                        className="w-full h-[48px] rounded-full text-white placeholder:text-muted-foreground/60 px-6 border-none text-[14px] pr-[100px] disabled:opacity-70 disabled:cursor-not-allowed"
                         style={{
                             backgroundImage: `url(${inputFieldBg})`,
                             backgroundSize: '100% 100%',
@@ -224,7 +232,7 @@ const ProfileEdit = () => {
                             <div className="mr-2">
                                 <img src={verifiedIcon} alt="Verified" className="w-5 h-5 object-contain" />
                             </div>
-                        ) : isEmailNonEmpty ? (
+                        ) : isEmailNonEmpty && isEditing ? (
                             <button
                                 onClick={handleVerify}
                                 className="px-4 h-[32px] flex items-center justify-center rounded-full text-[14px] text-foreground"
@@ -246,7 +254,7 @@ const ProfileEdit = () => {
 
             {/* CTA Buttons - Pushed up by 50px (115 - 50 = 65px) */}
             <Button
-                onClick={handleSave}
+                onClick={handleCtaClick}
                 className="w-full h-[48px] rounded-full text-[16px] font-medium bg-[#5260FE] hover:bg-[#5260FE]/90 text-white border-none mt-[65px]"
             >
                 {ctaLabel}
