@@ -84,9 +84,16 @@ const Settings = () => {
           </button>
           <h1 className="text-foreground text-[18px] font-semibold">Settings</h1>
         </div>
-        <button className="px-4 py-2 rounded-full">
-          <span className="text-foreground text-[14px]">+ Support</span>
-        </button>
+        <button
+  className="px-4 py-2 rounded-full flex items-center gap-2"
+  style={{
+    backgroundImage: 'url("/lovable-uploads/881be237-04b4-4be4-b639-b56090b04ed5.png")',
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+  }}
+>
+  <span className="text-foreground text-[14px]">+ Support</span>
+</button>
       </div>
 
       {/* Profile */}
