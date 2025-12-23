@@ -179,15 +179,15 @@ const ProfileEdit = () => {
             >
                 Cancel
             </button>
-
-            {/* Footer Info - Pushed up by 20px (34 - 20 = 14px) */}
-            <div className="mt-[14px] pb-10 opacity-40 flex flex-col items-start">
-                <img src={dotPeLogo} className="h-8 mb-1" />
-                <p className="font-grotesk font-medium text-[14px] text-left">
-                    App Version v1.0.0 — 100% drama compatible.
-                </p>
-            </div>
         </div>
+      </div>
+
+      {/* Footer Info - Matched to Settings Page structure */}
+      <div className="px-5 mt-14 pb-10 opacity-40 flex flex-col items-start">
+        <img src={dotPeLogo} className="h-8 mb-1" />
+        <p className="font-grotesk font-medium text-[14px] text-left">
+            App Version v1.0.0 — 100% drama compatible.
+        </p>
       </div>
     </div>
   );
