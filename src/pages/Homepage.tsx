@@ -141,7 +141,7 @@ const Homepage = () => {
              w-[76px] h-[76px] rounded-full
              flex items-center justify-center"
   style={{
-    bottom: "-4px", // pushed ~10px lower than before
+    bottom: "-2px", // pushed ~10px lower than before
   }}
 >
   <img
