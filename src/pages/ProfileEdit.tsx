@@ -41,9 +41,9 @@ const ProfileEdit = () => {
       </div>
 
       {/* Content */}
-      <div className="flex-1 px-5 mt-8 overflow-y-auto no-scrollbar">
+      <div className="flex-1 px-5 mt-8 overflow-y-auto no-scrollbar pb-10">
         {/* Profile Photo Section */}
-        <div className="bg-white/5 rounded-2xl p-4 flex items-center gap-4 border border-white/10">
+        <div className="bg-white/5 rounded-2xl p-4 flex items-center gap-4 border border-white/10 h-[101px]">
             <img
               src={avatarImg}
               alt="Profile"
@@ -54,7 +54,7 @@ const ProfileEdit = () => {
             />
             <div className="flex-1">
                 <button
-                  className="px-4 py-2 rounded-full text-[14px] text-foreground mb-2"
+                  className="px-4 h-[32px] flex items-center justify-center rounded-full text-[14px] text-foreground mb-2"
                   style={{
                     backgroundImage: 'url("/lovable-uploads/881be237-04b4-4be4-b639-b56090b04ed5.png")',
                     backgroundSize: "cover",
@@ -70,8 +70,8 @@ const ProfileEdit = () => {
         </div>
 
         {/* Personal Information */}
-        <div className="mt-8 space-y-6">
-            <p className="mb-3.5 text-muted-foreground text-[14px] font-bold tracking-wider">
+        <div className="mt-8">
+            <p className="mb-[10px] text-muted-foreground text-[14px] font-bold tracking-wider">
                 PERSONAL INFORMATION
             </p>
 
@@ -90,7 +90,7 @@ const ProfileEdit = () => {
             />
 
             {/* Phone Number (Read Only) */}
-            <div className="space-y-2">
+            <div className="space-y-2 mt-[21px]">
                 <div
                     className="w-full h-[54px] rounded-full flex items-center px-6 justify-between border-none"
                     style={{
@@ -119,7 +119,7 @@ const ProfileEdit = () => {
                 placeholder="Drop your email, the real one."
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full h-[54px] rounded-full text-white placeholder:text-muted-foreground/60 px-6 border-none text-[14px]"
+                className="w-full h-[54px] rounded-full text-white placeholder:text-muted-foreground/60 px-6 border-none text-[14px] mt-[32px]"
                  style={{
                     backgroundImage: `url(${inputFieldBg})`,
                     backgroundSize: '100% 100%',
@@ -127,34 +127,32 @@ const ProfileEdit = () => {
                     backgroundColor: 'transparent'
                 }}
             />
-        </div>
-      </div>
 
-      {/* Footer Buttons */}
-      <div className="px-5 pb-8 pt-4 mt-auto space-y-3 bg-gradient-to-t from-[#0a0a12] via-[#0a0a12] to-transparent">
-        <Button
-            className="w-full h-[48px] rounded-full text-[16px] font-medium bg-[#5260FE] hover:bg-[#5260FE]/90 text-white border-none"
-        >
-            Save My Identity
-        </Button>
-        <button
-            onClick={() => navigate(-1)}
-            className="w-full h-[48px] rounded-full text-[16px] font-medium text-white flex items-center justify-center transition-transform active:scale-95"
-            style={{
-                backgroundImage: `url(${buttonCancel})`,
-                backgroundSize: '100% 100%',
-                backgroundRepeat: 'no-repeat'
-            }}
-        >
-            Cancel
-        </button>
+            {/* CTA Buttons - Moved inside flow for strict spacing */}
+            <Button
+                className="w-full h-[48px] rounded-full text-[16px] font-medium bg-[#5260FE] hover:bg-[#5260FE]/90 text-white border-none mt-[115px]"
+            >
+                Save My Identity
+            </Button>
+            <button
+                onClick={() => navigate(-1)}
+                className="w-full h-[48px] rounded-full text-[16px] font-medium text-white flex items-center justify-center transition-transform active:scale-95 mt-[14px]"
+                style={{
+                    backgroundImage: `url(${buttonCancel})`,
+                    backgroundSize: '100% 100%',
+                    backgroundRepeat: 'no-repeat'
+                }}
+            >
+                Cancel
+            </button>
 
-        {/* Footer Info */}
-        <div className="px-5 mt-14 pb-10 opacity-40 flex flex-col items-center">
-            <img src={dotPeLogo} className="h-8 mb-1" />
-            <p className="font-grotesk font-medium text-[14px] text-center">
-                App Version v1.0.0 — 100% drama compatible.
-            </p>
+            {/* Footer Info */}
+            <div className="mt-[34px] opacity-40 flex flex-col items-start">
+                <img src={dotPeLogo} className="h-8 mb-1" />
+                <p className="font-grotesk font-medium text-[14px] text-left">
+                    App Version v1.0.0 — 100% drama compatible.
+                </p>
+            </div>
         </div>
       </div>
     </div>
