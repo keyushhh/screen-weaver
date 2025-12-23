@@ -133,10 +133,10 @@ const Settings = () => {
       </div>
 
       {/* Payment Settings */}
-      <div className="px-5 mt-[20px]">
-        <p className="text-muted-foreground text-[14px] font-bold tracking-wider mb-[14px]">PAYMENT SETTINGS</p>
+      <div className="px-5 mt-6">
+        <p className="text-muted-foreground text-[14px] font-bold tracking-wider mb-3.5">PAYMENT SETTINGS</p>
         
-        <button className="w-full flex items-center justify-between py-[14px] border-b border-white/10">
+        <button className="w-full flex items-center justify-between py-3.5 border-b border-white/10">
           <div className="flex items-center gap-3">
             <img src={iconLinkedCards} alt="Linked Cards" className="w-[18px] h-[18px] opacity-60" />
             <div className="text-left">
@@ -147,7 +147,7 @@ const Settings = () => {
           <ChevronRight className="w-5 h-5 text-muted-foreground" />
         </button>
 
-        <button className="w-full flex items-center justify-between py-[14px] border-b border-white/10">
+        <button className="w-full flex items-center justify-between py-3.5 border-b border-white/10">
           <div className="flex items-center gap-3">
             <img src={iconBankAcc} alt="Bank Account" className="w-[18px] h-[18px] opacity-60" />
             <div className="text-left">
@@ -160,10 +160,10 @@ const Settings = () => {
       </div>
 
       {/* App Preferences */}
-      <div className="px-5 mt-[30px]">
-        <p className="text-muted-foreground text-[14px] font-bold tracking-wider mb-[20px]">APP PREFERENCES</p>
+      <div className="px-5 mt-6">
+        <p className="text-muted-foreground text-[14px] font-bold tracking-wider mb-3.5">APP PREFERENCES</p>
         
-        <div className="pt-[14px] pb-[19px] border-b border-white/10">
+        <div className="py-3.5 border-b border-white/10">
           <div className="flex items-center gap-3 mb-[13px]">
             <img src={iconNotifications} alt="Notifications" className="w-[18px] h-[18px] opacity-60" />
             <p className="text-foreground text-[14px] font-medium">Notifications</p>
@@ -180,7 +180,7 @@ const Settings = () => {
           </div>
         </div>
 
-        <div className="flex items-center justify-between py-[14px] border-b border-white/10">
+        <div className="flex items-center justify-between py-3.5 border-b border-white/10">
           <div className="flex items-center gap-3">
             <img src={iconDarkMode} alt="Dark Mode" className="w-[18px] h-[18px] opacity-60" />
             <p className="text-foreground text-[14px] font-medium">Dark Mode</p>
@@ -188,7 +188,7 @@ const Settings = () => {
           <Switch checked={darkMode} onCheckedChange={setDarkMode} />
         </div>
 
-        <button onClick={() => navigate('/')} className="w-full flex items-center justify-between pt-[14px] pb-[16px]">
+        <button onClick={() => navigate('/')} className="w-full flex items-center justify-between py-3.5">
           <div className="flex items-center gap-3">
             <img src={iconLogout} alt="Log Out" className="w-[18px] h-[18px] opacity-60" />
             <p className="text-foreground text-[14px] font-medium">Log Out</p>
