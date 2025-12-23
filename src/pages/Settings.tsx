@@ -108,7 +108,10 @@ const Settings = () => {
             </div>
           </div>
         </div>
-        <button className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center">
+        <button
+          onClick={() => navigate("/profile-edit")}
+          className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center"
+        >
           <Pencil className="w-4 h-4" />
         </button>
       </div>
