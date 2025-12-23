@@ -20,14 +20,18 @@ const Homepage = () => {
   const navigate = useNavigate();
   const [showBalance, setShowBalance] = useState(false);
   const balance = "0.00";
-  return <div className="min-h-[100dvh] flex flex-col safe-area-top safe-area-bottom pb-[96px]">
- style={{
-    backgroundColor: '#0a0a12',
-    backgroundImage: `url(${bgDarkMode})`,
-    backgroundSize: 'cover',
-    backgroundPosition: 'top center',
-    backgroundRepeat: 'no-repeat'
-  }}>
+  return (
+  <div
+    className="min-h-[100dvh] flex flex-col safe-area-top safe-area-bottom pb-[96px]"
+    style={{
+      backgroundColor: "#0a0a12",
+      backgroundImage: `url(${bgDarkMode})`,
+      backgroundSize: "cover",
+      backgroundPosition: "top center",
+      backgroundRepeat: "no-repeat",
+    }}
+  >
+
       {/* Header */}
       <div className="px-5 pt-4 flex items-start justify-between">
         <div className="space-y-1">
@@ -178,6 +182,6 @@ const Homepage = () => {
   </div>
 </div>
 
-    </div>;
+    </div>);
 };
 export default Homepage;
