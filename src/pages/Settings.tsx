@@ -134,7 +134,7 @@ const Settings = () => {
 
       {/* Payment Settings */}
       <div className="px-5 mt-[20px]">
-        <p className="text-muted-foreground text-[14px] font-bold tracking-wider mb-4">PAYMENT SETTINGS</p>
+        <p className="text-muted-foreground text-[14px] font-bold tracking-wider mb-[14px]">PAYMENT SETTINGS</p>
         
         <button className="w-full flex items-center justify-between py-[14px] border-b border-white/10">
           <div className="flex items-center gap-3">
@@ -161,14 +161,14 @@ const Settings = () => {
 
       {/* App Preferences */}
       <div className="px-5 mt-[30px]">
-        <p className="text-muted-foreground text-[14px] font-bold tracking-wider mb-4">APP PREFERENCES</p>
+        <p className="text-muted-foreground text-[14px] font-bold tracking-wider mb-[20px]">APP PREFERENCES</p>
         
-        <div className="py-[14px] border-b border-white/10">
-          <div className="flex items-center gap-3 mb-3">
+        <div className="pt-[14px] pb-[19px] border-b border-white/10">
+          <div className="flex items-center gap-3 mb-[13px]">
             <img src={iconNotifications} alt="Notifications" className="w-[18px] h-[18px] opacity-60" />
             <p className="text-foreground text-[14px] font-medium">Notifications</p>
           </div>
-          <div className="ml-8 space-y-3">
+          <div className="ml-8 space-y-[15px]">
             <div className="flex items-center justify-between">
               <p className="text-muted-foreground text-[14px] font-light">Push Notifications</p>
               <Switch checked={pushNotifications} onCheckedChange={setPushNotifications} />
@@ -188,7 +188,7 @@ const Settings = () => {
           <Switch checked={darkMode} onCheckedChange={setDarkMode} />
         </div>
 
-        <button onClick={() => navigate('/')} className="w-full flex items-center justify-between py-[14px]">
+        <button onClick={() => navigate('/')} className="w-full flex items-center justify-between pt-[14px] pb-[16px]">
           <div className="flex items-center gap-3">
             <img src={iconLogout} alt="Log Out" className="w-[18px] h-[18px] opacity-60" />
             <p className="text-foreground text-[14px] font-medium">Log Out</p>
