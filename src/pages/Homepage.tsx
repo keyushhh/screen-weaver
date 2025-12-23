@@ -131,12 +131,12 @@ const Homepage = () => {
   />
 
   {/* Floating + Button (FAB) */}
- <button
+<button
   className="absolute left-1/2 -translate-x-1/2 z-10
-             w-[92px] h-[92px] rounded-full
+             w-[86px] h-[86px] rounded-full
              flex items-center justify-center"
   style={{
-    bottom: "8px", // pushes FAB DOWN into visual alignment
+    bottom: "-2px", // pushed ~10px lower than before
   }}
 >
   <img
@@ -145,6 +145,7 @@ const Homepage = () => {
     className="w-full h-full rounded-full"
   />
 </button>
+
 
 
   {/* Nav Items */}
