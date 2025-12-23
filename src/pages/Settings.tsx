@@ -30,6 +30,13 @@ const getSecurityConfig = (status: SecurityStatus) => {
   }
 };
 
+// 🔔 haptic helper (safe on all platforms)
+const triggerHaptic = () => {
+  if (navigator?.vibrate) {
+    navigator.vibrate(10);
+  }
+};
+
 const Settings = () => {
   const navigate = useNavigate();
   const { phoneNumber, kycStatus, resetForDemo } = useUser();
@@ -165,19 +172,52 @@ const Settings = () => {
             <p className="text-foreground mb-3">Notifications</p>
             <div className="space-y-4 ml-6">
               <div className="flex justify-between">
-                <span>Push Notifications</span>
-                <Switch checked={pushNotifications} onCheckedChange={setPushNotifications} />
+                <span
+                  className={`text-[14px] ${
+                    pushNotifications ? "text-foreground" : "text-muted-foreground"
+                  }`}
+                >
+                  Push Notifications
+                </span>
+                <Switch
+                  checked={pushNotifications}
+                  onCheckedChange={(val) => {
+                    triggerHaptic();
+                    setPushNotifications(val);
+                  }}
+                />
               </div>
+
               <div className="flex justify-between">
-                <span>Transaction Alerts</span>
-                <Switch checked={transactionAlerts} onCheckedChange={setTransactionAlerts} />
+                <span
+                  className={`text-[14px] ${
+                    transactionAlerts ? "text-foreground" : "text-muted-foreground"
+                  }`}
+                >
+                  Transaction Alerts
+                </span>
+                <Switch
+                  checked={transactionAlerts}
+                  onCheckedChange={(val) => {
+                    triggerHaptic();
+                    setTransactionAlerts(val);
+                  }}
+                />
               </div>
             </div>
           </div>
 
           <div className="flex justify-between">
-            <span>Dark Mode</span>
-            <Switch checked={darkMode} onCheckedChange={setDarkMode} />
+            <span className={darkMode ? "text-foreground" : "text-muted-foreground"}>
+              Dark Mode
+            </span>
+            <Switch
+              checked={darkMode}
+              onCheckedChange={(val) => {
+                triggerHaptic();
+                setDarkMode(val);
+              }}
+            />
           </div>
 
           <div className="flex justify-between">
