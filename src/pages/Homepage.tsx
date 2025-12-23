@@ -20,7 +20,8 @@ const Homepage = () => {
   const navigate = useNavigate();
   const [showBalance, setShowBalance] = useState(false);
   const balance = "0.00";
-  return <div className="min-h-[100dvh] flex flex-col safe-area-top safe-area-bottom" style={{
+  return <div className="min-h-[100dvh] flex flex-col safe-area-top safe-area-bottom pb-[96px]">
+ style={{
     backgroundColor: '#0a0a12',
     backgroundImage: `url(${bgDarkMode})`,
     backgroundSize: 'cover',
@@ -118,7 +119,7 @@ const Homepage = () => {
       </div>
 
      {/* Bottom Navigation */}
-<div className="relative">
+<div className="fixed bottom-0 left-0 right-0 z-50">
   {/* Background */}
   <div
     className="absolute inset-0 h-full"
