@@ -69,23 +69,23 @@ const ProfileEdit = () => {
       <div className="px-5 mt-8">
         {/* Profile Photo Section */}
         <div className="bg-white/5 rounded-2xl p-4 flex items-center gap-4 border border-white/10 h-[101px]">
-            <img
-              src={profileImage || avatarImg}
-              alt="Profile"
-              className="w-16 h-16 rounded-full object-cover"
+            <img 
+              src={profileImage || avatarImg} 
+              alt="Profile" 
+              className="w-16 h-16 rounded-full object-cover" 
               style={{
                 border: '4px solid rgba(255, 255, 255, 0.17)'
               }}
             />
             <div className="flex-1">
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  className="hidden"
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  className="hidden" 
                   accept="image/*"
                   onChange={handleImageUpload}
                 />
-                <button
+                <button 
                   onClick={triggerFileInput}
                   className="px-4 h-[32px] flex items-center justify-center rounded-full text-[14px] text-foreground mb-2"
                   style={{
@@ -161,42 +161,33 @@ const ProfileEdit = () => {
                 }}
             />
 
-           {/* CTA Buttons */}
-<Button
-  onClick={handleSave}
-  className="w-full h-[48px] rounded-full text-[16px] font-medium bg-[#5260FE] hover:bg-[#5260FE]/90 text-white border-none mt-[65px]"
->
-  Save My Identity
-</Button>
-
-<button
-  onClick={() => navigate(-1)}
-  className="w-full h-[48px] rounded-full text-[16px] font-medium text-white flex items-center justify-center transition-transform active:scale-95 mt-[14px]"
-  style={{
-    backgroundImage: `url(${buttonCancel})`,
-    backgroundSize: '100% 100%',
-    backgroundRepeat: 'no-repeat',
-  }}
->
-  Cancel
-</button>
-
-{/* Fixed visual spacing between CTA and footer */}
-<div className="mt-8" />
-
-{/* Footer Info */}
-<div className="opacity-40 flex flex-col items-start">
-  <img src={dotPeLogo} className="h-8 mb-1" />
-  <p className="font-grotesk font-medium text-[14px] text-left">
-    App Version v1.0.0 — 100% drama compatible.
-  </p>
-</div>
-
-{/* Soft spacer to push footer down if space exists */}
-<div className="flex-1" />
-
-
+            {/* CTA Buttons - Pushed up by 50px (115 - 50 = 65px) */}
+            <Button
+                onClick={handleSave}
+                className="w-full h-[48px] rounded-full text-[16px] font-medium bg-[#5260FE] hover:bg-[#5260FE]/90 text-white border-none mt-[65px]"
+            >
+                Save My Identity
+            </Button>
+            <button
+                onClick={() => navigate(-1)}
+                className="w-full h-[48px] rounded-full text-[16px] font-medium text-white flex items-center justify-center transition-transform active:scale-95 mt-[14px]"
+                style={{
+                    backgroundImage: `url(${buttonCancel})`,
+                    backgroundSize: '100% 100%',
+                    backgroundRepeat: 'no-repeat'
+                }}
+            >
+                Cancel
+            </button>
         </div>
+      </div>
+
+      {/* Footer Info - Matched to Settings Page structure */}
+      <div className="px-5 mt-14 pb-10 opacity-40 flex flex-col items-start">
+        <img src={dotPeLogo} className="h-8 mb-1" />
+        <p className="font-grotesk font-medium text-[14px] text-left">
+            App Version v1.0.0 — 100% drama compatible.
+        </p>
       </div>
     </div>
   );
