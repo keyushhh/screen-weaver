@@ -133,7 +133,7 @@ const Homepage = () => {
   {/* Floating + Button (FAB) */}
 <button
   className="absolute left-1/2 -translate-x-1/2 z-10
-             w-[84px] h-[84px] rounded-full
+             w-[82px] h-[84px] rounded-full
              flex items-center justify-center"
   style={{
     bottom: "-4px", // pushed ~10px lower than before
