@@ -1,6 +1,6 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, X } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import cameraFrame from "@/assets/camera-frame.png";
 import shutterIcon from "@/assets/shutter.png";
 import flashIcon from "@/assets/flash.png";
@@ -33,13 +33,8 @@ const CardScan = () => {
         {/* Blue dot/camera indicator simulation */}
         <div className="absolute top-4 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-blue-600 shadow-[0_0_8px_rgba(37,99,235,0.8)]"></div>
 
-        {/* Empty div for balance if needed, or close button */}
-        <button
-          onClick={() => navigate(-1)}
-          className="w-10 h-10 flex items-center justify-center"
-        >
-           {/* Placeholder for symmetry or secondary action */}
-        </button>
+        {/* Empty div for balance if needed */}
+        <div className="w-10 h-10" />
       </div>
 
       {/* Camera Viewport Simulation */}
@@ -57,9 +52,14 @@ const CardScan = () => {
             </div>
 
             {/* Text Instructions */}
-            <p className="text-white text-[16px] font-medium font-sans text-center">
-              Position your card within the frame
-            </p>
+            <div className="flex flex-col items-center gap-4">
+              <p className="text-white text-[16px] font-medium font-sans text-center">
+                Align your card
+              </p>
+              <div className="w-[256px] h-[34px] bg-[#090909] rounded-full flex items-center justify-center border border-white/5">
+                 <span className="text-white/80 text-[12px] font-normal">Avoid glare, light background</span>
+              </div>
+            </div>
           </div>
       </div>
 
