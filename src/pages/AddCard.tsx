@@ -20,10 +20,9 @@ const AddCard = () => {
   const [cvv, setCvv] = useState("");
   const [cardHolder, setCardHolder] = useState("");
   const [cardType, setCardType] = useState<"visa" | "mastercard" | "rupay" | null>(null);
-  const [showCardNumber, setShowCardNumber] = useState(false);
+  const [showCardNumber, setShowCardNumber] = useState(false); // false = masked
 
-  // Check if we returned from scan (Simulated behavior)
-  // Logic: "Card must NOT be pre-filled" initially. But if returning from Scan, we should populate.
+  // Check if we returned from scan
   useEffect(() => {
     if (location.state?.scanned) {
       setCardNumber("5244315678911203");
@@ -31,15 +30,8 @@ const AddCard = () => {
       setCvv("607");
       setCardHolder("KHUSHI KAPOOR");
       setCardType("mastercard");
-    } else {
-       // Only clear if NOT scanned (initial load)
-       // This ensures fresh state on direct navigation but preserves scan result
-       // Actually, React retains state on re-renders, but since we are mounting a new component instance on navigation,
-       // we rely on location.state to tell us if this is a "return trip".
-       // If no location.state.scanned, we assume clean slate.
     }
   }, [location.state]);
-
 
   // Card Number Logic (Formatting + Detection)
   const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,8 +48,65 @@ const AddCard = () => {
   };
 
   const formatCardNumber = (num: string) => {
-    return num.replace(/(\d{4})(?=\d)/g, "$1 ");
+    // 1. If empty -> "XXXX XXXX XXXX XXXX" (handled by placeholder)
+    if (!num) return "";
+
+    // 2. Format chunks of 4
+    const chunks = num.match(/.{1,4}/g) || [];
+    const formatted = chunks.join(" ");
+
+    // 3. If NOT showing -> Replace digits with *
+    if (!showCardNumber) {
+        return formatted.replace(/\d/g, "*");
+    }
+
+    return formatted;
   };
+
+  // Because the input value is masked (***), typing into it directly is tricky if we don't manage raw value.
+  // The 'value' prop of the input is what the user sees.
+  // We need to intercept key presses or handle change carefully if we want to support typing while masked.
+  // However, standard UX often unmasks while typing or requires unmasking to edit.
+  // The requirements say "Eye toggle behavior... Masked vs Visible".
+  // For simplicity and robustness, when masked, we display the masked string.
+  // If the user types, 'onChange' receives the new string (with asterisks). This breaks state.
+  // Solution: We separate the DISPLAY value from the logic.
+  // But wait, standard input onChange gives the full new value.
+  // If `value` is `****`, user types `1` -> `****1`.
+  // We can't recover the original numbers easily.
+  // A cleaner approach for this specific "Masking" requirement on an input field:
+  // When masked, show `text` type with asterisks? Or `password` type?
+  // Password type uses dots (bullet points). Requirement says: "Replace rounded dots with asterisks (*)".
+  // So `password` type is OUT.
+  // We MUST use `text` type and manually mask the display value.
+  // AND we must support typing.
+  // This is complex for a simple React input without a dedicated masking library.
+  // Simplification: We will only render the MASKED VIEW when not editing or focused?
+  // No, requirement says "Eye toggle works only for card number, not CVV" was an issue.
+  // Requirement: "Eye icon logic... ON -> show actual, OFF -> mask".
+
+  // Strategy:
+  // We will maintain `cardNumber` (raw).
+  // The input `value` will be `showCardNumber ? format(cardNumber) : mask(cardNumber)`.
+  // `onChange`: We need to calculate the diff.
+  // actually, if we mask the value passed to input, user edits are destructive to the raw value unless we carefully track cursor.
+  // ALTERNATIVE: Use a transparent input for typing over a visible masked span?
+  // OR: Just force "Show" mode when typing? (Common pattern).
+  // BUT requirement says "Eye toggle behavior... Masked/Visible".
+  // Given "Beginner with zero coding knowledge" persona constraints, I should likely implement the most robust simple way.
+  // Use a `div` that overlays the input when masked?
+  // Let's try: Input is always there. If masked, we show a separate `div` with the masked text ON TOP, and pass clicks to the input (which then focuses and maybe unmasks?).
+  // OR: Just assume user toggles Eye to Edit.
+  // Let's stick to the prompt: "Eye toggle... OFF -> mask values".
+  // I will make the input `readOnly` when masked? No, that prevents editing.
+  // I will just use the `password` type hack? No, "Replace rounded dots with asterisks".
+  // Okay, I will use a simple logical approach:
+  // If `!showCardNumber` (Masked), render a `div` looking like the input. If user clicks it, it focuses the real input (opacity 0) or just toggles?
+  // Let's go with: Input handles the raw value. If !showCardNumber, we style the font to be a 'security' font? No, specific asterisk font match required.
+  // Best approach for this task:
+  // Render a real `<input>` that is opaque when `showCardNumber` is TRUE.
+  // When `showCardNumber` is FALSE, render the `<input>` as opacity 0 (still focusable/typeable) and overlaid exactly on top of a `div` that renders the Asterisks.
+  // This allows typing (blindly) while maintaining the mask style.
 
   const handleExpiryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let val = e.target.value.replace(/\D/g, "");
@@ -71,6 +120,18 @@ const AddCard = () => {
   };
 
   const hasInput = cardNumber.length > 0 || expiry.length > 0 || cvv.length > 0 || cardHolder.length > 0;
+
+  // Masking Helper
+  const getMaskedCardNumber = () => {
+    if (!cardNumber) return "";
+    const chunks = cardNumber.match(/.{1,4}/g) || [];
+    return chunks.join(" ").replace(/\d/g, "*");
+  };
+
+  const getMaskedCVV = () => {
+      if (!cvv) return "";
+      return cvv.replace(/./g, "*"); // Replace all chars with *
+  };
 
   return (
     <div
@@ -107,19 +168,12 @@ const AddCard = () => {
             }}
         >
             <div className="relative w-full h-full px-[26px]">
-                {/*
-                    Top Row: Chip
-                    Top: 21px, Right: 26px
-                */}
+                {/* Top Row: Chip */}
                 <div className="absolute top-[21px] right-[26px] w-[40px] h-[30px] flex justify-end">
                     <img src={chipIcon} alt="Chip" className="h-[28px] object-contain" />
                 </div>
 
-                {/*
-                    Cardholder Name
-                    Pos: Top 26px, Left 26px
-                    Font: Satoshi Medium 16px, #FFFFFF
-                */}
+                {/* Cardholder Name */}
                 <div className="absolute top-[26px] left-[26px] right-[70px]">
                     <input
                         type="text"
@@ -130,44 +184,50 @@ const AddCard = () => {
                     />
                 </div>
 
-                {/*
-                    Card Number Label
-                    Spacing from Cardholder Name: 19px (approx top 26 + height ~20 + 19 = 65px from top)
-                */}
+                {/* Card Number Label */}
                 <div className="absolute top-[70px] left-[26px]">
                     <p className="text-[#C4C4C4] text-[13px] font-normal font-satoshi">Card Number</p>
                 </div>
 
+                {/* Card Number Value */}
                 {/*
-                    Card Number Value
-                    Spacing from label: 5px
-                    Top = 70 + 18 + 5 = 93px
-                    Font: Satoshi Bold 20px, #FFFFFF
-                    Default: XXXX XXXX XXXX XXXX
+                   Fix cropping: "Push the eye icon slightly more to the right"
+                   Layout: Use Flex to span width.
+                   The container is `absolute left-[26px] right-[26px]`.
+                   This gives full width minus padding.
                 */}
-                <div className="absolute top-[93px] left-[26px] right-[60px] flex items-center gap-3">
-                    <input
-                        type={showCardNumber ? "text" : "password"}
-                        inputMode="numeric"
-                        value={formatCardNumber(cardNumber)}
-                        onChange={handleCardNumberChange}
-                        placeholder="XXXX XXXX XXXX XXXX"
-                        className="w-full bg-transparent text-white text-[20px] font-bold placeholder:text-white focus:outline-none p-0 border-none font-satoshi tracking-widest h-[24px]"
-                    />
-                     {/* Eye Icon - using Lucide with white color */}
-                     <button
+                <div className="absolute top-[93px] left-[26px] right-[26px] flex items-center justify-between">
+                    <div className="relative flex-1 mr-4">
+                        {/* The Actual Input (Hidden when masked, Visible when shown) */}
+                        <input
+                            type="text"
+                            inputMode="numeric"
+                            value={formatCardNumber(cardNumber)}
+                            onChange={handleCardNumberChange}
+                            placeholder="XXXX XXXX XXXX XXXX"
+                            className={`w-full bg-transparent text-white text-[20px] font-bold placeholder:text-white focus:outline-none p-0 border-none font-satoshi tracking-widest h-[24px] ${!showCardNumber ? 'opacity-0 absolute inset-0 z-10' : 'relative z-10'}`}
+                        />
+
+                        {/* The Masked Overlay (Visible when masked) */}
+                        {!showCardNumber && (
+                           <div className="pointer-events-none text-white text-[20px] font-bold font-satoshi tracking-widest h-[24px]">
+                              {cardNumber.length > 0 ? getMaskedCardNumber() : <span className="text-white">XXXX XXXX XXXX XXXX</span>}
+                           </div>
+                        )}
+                    </div>
+
+                    {/* Eye Icon */}
+                    {/* Toggle: Open = Visible (showCardNumber=true), Closed = Masked */}
+                    <button
                         type="button"
                         onClick={() => setShowCardNumber(!showCardNumber)}
-                        className="text-white shrink-0"
-                      >
-                        {showCardNumber ? <EyeOff size={20} /> : <Eye size={20} />}
-                      </button>
+                        className="text-white shrink-0 z-20"
+                    >
+                        {showCardNumber ? <Eye size={20} /> : <EyeOff size={20} />}
+                    </button>
                 </div>
 
-                {/*
-                    Vertical Spacing: Card Number value -> Expiry/CVV row: 12px
-                    Top = 93 + 24 + 12 = 129px
-                */}
+                {/* Expiry & CVV Row */}
                 <div className="absolute top-[129px] left-[26px] flex gap-8">
                     {/* Expiry Group */}
                     <div className="flex flex-col gap-[5px]">
@@ -185,22 +245,45 @@ const AddCard = () => {
                     {/* CVV Group */}
                     <div className="flex flex-col gap-[5px]">
                         <label className="text-[#C4C4C4] text-[14px] font-normal font-satoshi leading-none">CVV</label>
-                         <input
-                            type="password"
-                            inputMode="numeric"
-                            maxLength={3}
-                            value={cvv}
-                            onChange={(e) => setCvv(e.target.value.replace(/\D/g, "").slice(0, 3))}
-                            placeholder="XXX"
-                            className="w-[40px] bg-transparent text-white text-[14px] font-bold placeholder:text-white focus:outline-none p-0 border-none font-satoshi leading-none"
-                        />
+
+                         {/* CVV Input with Manual Masking Logic linked to same toggle */}
+                         <div className="relative w-[40px] h-[14px]">
+                             <input
+                                type="text"
+                                inputMode="numeric"
+                                maxLength={3}
+                                value={cvv}
+                                onChange={(e) => setCvv(e.target.value.replace(/\D/g, "").slice(0, 3))}
+                                placeholder="XXX" // Placeholder is handled by div below if empty?
+                                // Actually, input placeholder works if opacity is 0? Yes.
+                                className={`w-full h-full bg-transparent text-white text-[14px] font-bold placeholder:text-white focus:outline-none p-0 border-none font-satoshi leading-none ${!showCardNumber ? 'opacity-0 absolute inset-0 z-10' : 'relative z-10'}`}
+                            />
+                             {!showCardNumber && (
+                                <div className="pointer-events-none text-white text-[14px] font-bold font-satoshi leading-none absolute top-0 left-0">
+                                    {cvv.length > 0 ? getMaskedCVV() : <span className="text-white">***</span>}
+                                </div>
+                             )}
+                             {/* Show placeholder if empty and showing? handled by input default */}
+                             {/* Wait, if !showCardNumber and empty, we want to show '***'? Or 'XXX'?
+                                 Requirement says: "When no input: CVV -> ***".
+                                 So default placeholder for masked state is ***.
+                                 For unmasked? "XXX".
+                             */}
+                             {/* Adjust placeholder logic based on toggle?
+                                 If showCardNumber is TRUE, input placeholder="XXX" is visible.
+                                 If FALSE, input is hidden. Div shows.
+                                 Div should show '***' if cvv empty.
+                             */}
+                             {!showCardNumber && cvv.length === 0 && (
+                                 <div className="pointer-events-none text-white text-[14px] font-bold font-satoshi leading-none absolute top-0 left-0">
+                                     ***
+                                 </div>
+                             )}
+                         </div>
                     </div>
                 </div>
 
-                {/*
-                    Card Network Logo
-                    Bottom: 26px, Right: 26px
-                */}
+                {/* Network Logo */}
                 <div className="absolute bottom-[26px] right-[26px] h-[24px]">
                      {cardType === "visa" && <img src={visaLogo} alt="Visa" className="h-full object-contain" />}
                      {cardType === "mastercard" && <img src={mastercardLogo} alt="Mastercard" className="h-full object-contain" />}
@@ -210,47 +293,29 @@ const AddCard = () => {
         </div>
 
         {/* Helper Texts */}
-        {/* Spacing: Card preview -> helper text block: 20px (handled by mb-[20px] on card) */}
         <div className="flex flex-col gap-[14px] mb-[28px] px-1">
+           <div className="flex flex-col">
+               <p className="text-white/60 text-[14px] leading-relaxed">
+                 Enter your details by tapping on the fields above.
+               </p>
+               <p className="text-white/60 text-[14px] leading-relaxed">
+                 Or scan your card below. Both works!
+               </p>
+           </div>
+
            <p className="text-white/60 text-[14px] leading-relaxed">
-             Enter your details by tapping on the fields above.
-           </p>
-           <p className="text-white/60 text-[14px] leading-relaxed">
-             Or scan your card below. Both works!
+             Your card info is encrypted and stored like it’s top-tier gossip — never shared.
            </p>
         </div>
 
-        {/* Scan Card Section - Solid Black Box */}
-        {/*
-            Size: 362px (w) x 184px (h)
-            Spacing: Helper text -> black box: 28px (handled by mb-[28px] above)
-        */}
+        {/* Scan Card Section */}
         <div
           className="w-full h-[184px] bg-black rounded-2xl flex items-center justify-center border border-white/5"
         >
-             {/*
-                Scan Card Button
-                Centered
-                Style: Match Upload Photo (Profile Edit)
-                Height: 32px
-
-                Note: ProfileEdit uses a hardcoded URL. I'm replacing it with a safe fallback
-                (button-biometric-bg.png looks appropriate for a button background if available,
-                otherwise a simple gradient/color matches the style).
-                However, sticking to the hardcoded URL is risky if the asset server is unreachable.
-                Given the constraints, I will use a safe local styling that mimics it if I can't guarantee the URL.
-                Actually, looking at ProfileEdit.tsx again, it uses:
-                backgroundImage: 'url("/lovable-uploads/...")'
-                I will use a solid color + border radius to mock it safely if I can't verify the URL,
-                OR better yet, reuse `button-biometric-bg.png` which I verified exists.
-             */}
             <button
               onClick={() => navigate("/cards/scan")}
               className="px-4 h-[32px] flex items-center justify-center rounded-full text-[14px] text-foreground gap-2 border border-white/10"
               style={{
-                // Fallback to a dark gradient/color if image fails, but trying to match "Upload Photo"
-                // which likely has a subtle texture.
-                // Let's use `button-biometric-bg.png` as a safe local alternative that likely fits the theme.
                 backgroundImage: 'url("/lovable-uploads/881be237-04b4-4be4-b639-b56090b04ed5.png")',
                 backgroundSize: "cover",
                 backgroundPosition: "center",
@@ -262,7 +327,6 @@ const AddCard = () => {
         </div>
 
         {/* CTA Button */}
-        {/* Spacing: Black box -> CTA: 86px */}
         <div className="mt-[86px]">
             <Button
               onClick={() => hasInput ? navigate("/cards") : null}
