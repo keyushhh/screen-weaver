@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft } from "lucide-react";
+import { X } from "lucide-react";
 import cameraFrame from "@/assets/camera-frame.png";
 import shutterIcon from "@/assets/shutter.png";
 import flashIcon from "@/assets/flash.png";
@@ -28,7 +28,7 @@ const CardScan = () => {
           onClick={() => navigate(-1)}
           className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm"
         >
-          <ChevronLeft className="w-6 h-6 text-white" />
+          <X className="w-5 h-5 text-white" />
         </button>
         {/* Blue dot/camera indicator simulation */}
         <div className="absolute top-4 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-blue-600 shadow-[0_0_8px_rgba(37,99,235,0.8)]"></div>
@@ -53,7 +53,7 @@ const CardScan = () => {
 
             {/* Text Instructions */}
             <div className="flex flex-col items-center gap-4">
-              <p className="text-white text-[16px] font-medium font-sans text-center">
+              <p className="text-white text-[20px] font-normal font-sans text-center">
                 Align your card
               </p>
               <div className="w-[256px] h-[34px] bg-[#090909] rounded-full flex items-center justify-center border border-white/5">

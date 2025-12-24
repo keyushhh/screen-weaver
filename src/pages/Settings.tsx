@@ -139,7 +139,10 @@ const Settings = () => {
               </p>
             </div>
           </div>
-          <button className="px-4 py-2 rounded-full">
+          <button
+             onClick={() => navigate("/kyc-intro")}
+             className="px-4 py-2 rounded-full"
+          >
             <span className="text-foreground text-[12px]">Check Security</span>
           </button>
         </div>
