@@ -272,7 +272,7 @@ const AddCard = () => {
         {/* CTA Button */}
         <div className="mt-[86px]">
             <Button
-              onClick={() => hasInput ? navigate("/cards") : null}
+              onClick={() => hasInput ? navigate("/cards", { state: { cardAdded: true } }) : null}
               disabled={!hasInput}
               className="w-full h-[48px] rounded-full text-[16px] font-medium bg-[#5260FE] hover:bg-[#5260FE]/90 text-white disabled:opacity-50"
             >
