@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ChevronLeft, Eye, EyeOff } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
@@ -22,6 +22,9 @@ const AddCard = () => {
   const [cardType, setCardType] = useState<"visa" | "mastercard" | "rupay" | null>(null);
   const [showCardNumber, setShowCardNumber] = useState(false); // false = masked
 
+  // Auto-mask Timer Ref
+  const maskTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   // Check if we returned from scan
   useEffect(() => {
     if (location.state?.scanned) {
@@ -32,6 +35,23 @@ const AddCard = () => {
       setCardType("mastercard");
     }
   }, [location.state]);
+
+  // Handle Auto-Masking (5s Inactivity)
+  useEffect(() => {
+     if (showCardNumber) {
+         // Clear existing timer if any
+         if (maskTimerRef.current) clearTimeout(maskTimerRef.current);
+
+         // Set new timer
+         maskTimerRef.current = setTimeout(() => {
+             setShowCardNumber(false);
+         }, 5000); // 5 seconds of inactivity -> mask
+     }
+
+     return () => {
+         if (maskTimerRef.current) clearTimeout(maskTimerRef.current);
+     };
+  }, [showCardNumber, cardNumber, cvv]); // Reset on visibility change OR typing
 
   // Card Number Logic (Formatting + Detection)
   const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,65 +68,15 @@ const AddCard = () => {
   };
 
   const formatCardNumber = (num: string) => {
-    // 1. If empty -> "XXXX XXXX XXXX XXXX" (handled by placeholder)
+    // 1. If empty -> handled by placeholder
     if (!num) return "";
 
     // 2. Format chunks of 4
     const chunks = num.match(/.{1,4}/g) || [];
     const formatted = chunks.join(" ");
 
-    // 3. If NOT showing -> Replace digits with *
-    if (!showCardNumber) {
-        return formatted.replace(/\d/g, "*");
-    }
-
     return formatted;
   };
-
-  // Because the input value is masked (***), typing into it directly is tricky if we don't manage raw value.
-  // The 'value' prop of the input is what the user sees.
-  // We need to intercept key presses or handle change carefully if we want to support typing while masked.
-  // However, standard UX often unmasks while typing or requires unmasking to edit.
-  // The requirements say "Eye toggle behavior... Masked vs Visible".
-  // For simplicity and robustness, when masked, we display the masked string.
-  // If the user types, 'onChange' receives the new string (with asterisks). This breaks state.
-  // Solution: We separate the DISPLAY value from the logic.
-  // But wait, standard input onChange gives the full new value.
-  // If `value` is `****`, user types `1` -> `****1`.
-  // We can't recover the original numbers easily.
-  // A cleaner approach for this specific "Masking" requirement on an input field:
-  // When masked, show `text` type with asterisks? Or `password` type?
-  // Password type uses dots (bullet points). Requirement says: "Replace rounded dots with asterisks (*)".
-  // So `password` type is OUT.
-  // We MUST use `text` type and manually mask the display value.
-  // AND we must support typing.
-  // This is complex for a simple React input without a dedicated masking library.
-  // Simplification: We will only render the MASKED VIEW when not editing or focused?
-  // No, requirement says "Eye toggle works only for card number, not CVV" was an issue.
-  // Requirement: "Eye icon logic... ON -> show actual, OFF -> mask".
-
-  // Strategy:
-  // We will maintain `cardNumber` (raw).
-  // The input `value` will be `showCardNumber ? format(cardNumber) : mask(cardNumber)`.
-  // `onChange`: We need to calculate the diff.
-  // actually, if we mask the value passed to input, user edits are destructive to the raw value unless we carefully track cursor.
-  // ALTERNATIVE: Use a transparent input for typing over a visible masked span?
-  // OR: Just force "Show" mode when typing? (Common pattern).
-  // BUT requirement says "Eye toggle behavior... Masked/Visible".
-  // Given "Beginner with zero coding knowledge" persona constraints, I should likely implement the most robust simple way.
-  // Use a `div` that overlays the input when masked?
-  // Let's try: Input is always there. If masked, we show a separate `div` with the masked text ON TOP, and pass clicks to the input (which then focuses and maybe unmasks?).
-  // OR: Just assume user toggles Eye to Edit.
-  // Let's stick to the prompt: "Eye toggle... OFF -> mask values".
-  // I will make the input `readOnly` when masked? No, that prevents editing.
-  // I will just use the `password` type hack? No, "Replace rounded dots with asterisks".
-  // Okay, I will use a simple logical approach:
-  // If `!showCardNumber` (Masked), render a `div` looking like the input. If user clicks it, it focuses the real input (opacity 0) or just toggles?
-  // Let's go with: Input handles the raw value. If !showCardNumber, we style the font to be a 'security' font? No, specific asterisk font match required.
-  // Best approach for this task:
-  // Render a real `<input>` that is opaque when `showCardNumber` is TRUE.
-  // When `showCardNumber` is FALSE, render the `<input>` as opacity 0 (still focusable/typeable) and overlaid exactly on top of a `div` that renders the Asterisks.
-  // This allows typing (blindly) while maintaining the mask style.
 
   const handleExpiryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let val = e.target.value.replace(/\D/g, "");
@@ -191,10 +161,7 @@ const AddCard = () => {
 
                 {/* Card Number Value */}
                 {/*
-                   Fix cropping: "Push the eye icon slightly more to the right"
                    Layout: Use Flex to span width.
-                   The container is `absolute left-[26px] right-[26px]`.
-                   This gives full width minus padding.
                 */}
                 <div className="absolute top-[93px] left-[26px] right-[26px] flex items-center justify-between">
                     <div className="relative flex-1 mr-4">
@@ -210,8 +177,8 @@ const AddCard = () => {
 
                         {/* The Masked Overlay (Visible when masked) */}
                         {!showCardNumber && (
-                           <div className="pointer-events-none text-white text-[20px] font-bold font-satoshi tracking-widest h-[24px]">
-                              {cardNumber.length > 0 ? getMaskedCardNumber() : <span className="text-white">XXXX XXXX XXXX XXXX</span>}
+                           <div className="pointer-events-none text-white text-[20px] font-bold font-satoshi tracking-widest h-[24px] whitespace-nowrap overflow-hidden">
+                              {cardNumber.length > 0 ? getMaskedCardNumber() : <span className="text-[18px] text-white">XXXX XXXX XXXX XXXX</span>}
                            </div>
                         )}
                     </div>
@@ -254,8 +221,7 @@ const AddCard = () => {
                                 maxLength={3}
                                 value={cvv}
                                 onChange={(e) => setCvv(e.target.value.replace(/\D/g, "").slice(0, 3))}
-                                placeholder="XXX" // Placeholder is handled by div below if empty?
-                                // Actually, input placeholder works if opacity is 0? Yes.
+                                placeholder="XXX"
                                 className={`w-full h-full bg-transparent text-white text-[14px] font-bold placeholder:text-white focus:outline-none p-0 border-none font-satoshi leading-none ${!showCardNumber ? 'opacity-0 absolute inset-0 z-10' : 'relative z-10'}`}
                             />
                              {!showCardNumber && (
@@ -263,17 +229,6 @@ const AddCard = () => {
                                     {cvv.length > 0 ? getMaskedCVV() : <span className="text-white">***</span>}
                                 </div>
                              )}
-                             {/* Show placeholder if empty and showing? handled by input default */}
-                             {/* Wait, if !showCardNumber and empty, we want to show '***'? Or 'XXX'?
-                                 Requirement says: "When no input: CVV -> ***".
-                                 So default placeholder for masked state is ***.
-                                 For unmasked? "XXX".
-                             */}
-                             {/* Adjust placeholder logic based on toggle?
-                                 If showCardNumber is TRUE, input placeholder="XXX" is visible.
-                                 If FALSE, input is hidden. Div shows.
-                                 Div should show '***' if cvv empty.
-                             */}
                              {!showCardNumber && cvv.length === 0 && (
                                  <div className="pointer-events-none text-white text-[14px] font-bold font-satoshi leading-none absolute top-0 left-0">
                                      ***
