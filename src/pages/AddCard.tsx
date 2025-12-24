@@ -256,7 +256,7 @@ const AddCard = () => {
           className="w-full h-[184px] bg-black rounded-2xl flex items-center justify-center border border-white/5"
         >
             <button
-              onClick={() => navigate("/cards/scan")}
+              onClick={() => navigate("/camera-page")}
               className="px-4 h-[32px] flex items-center justify-center rounded-full text-[14px] text-foreground gap-2 border border-white/10"
               style={{
                 backgroundImage: 'url("/lovable-uploads/881be237-04b4-4be4-b639-b56090b04ed5.png")',
