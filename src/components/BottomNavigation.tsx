@@ -2,7 +2,9 @@ import { useNavigate } from "react-router-dom";
 import navPlusButton from "@/assets/nav-plus-button.png";
 import navbarBg from "@/assets/navbar-bg.png";
 import navHome from "@/assets/nav-home.svg";
+import navHomeInactive from "@/assets/nav-home-inactive.png";
 import navCards from "@/assets/nav-cards.svg";
+import navCardsActive from "@/assets/nav-cards-active.png";
 import navRewards from "@/assets/nav-rewards.svg";
 import navMore from "@/assets/nav-more.svg";
 
@@ -51,7 +53,11 @@ const BottomNavigation = ({ activeTab }: BottomNavigationProps) => {
             onClick={() => navigate("/home")}
             className="flex-col gap-1 flex-1 flex items-center justify-center"
           >
-            <img src={navHome} alt="Home" className="w-6 h-6" />
+            <img
+              src={activeTab === "cards" ? navHomeInactive : navHome}
+              alt="Home"
+              className="w-6 h-6"
+            />
             <span
               className={`text-[10px] ${
                 activeTab === "home" ? "text-foreground" : "text-muted-foreground"
@@ -65,7 +71,11 @@ const BottomNavigation = ({ activeTab }: BottomNavigationProps) => {
             onClick={() => navigate("/cards")}
             className="flex-col gap-1 flex-1 flex items-center justify-center"
           >
-            <img src={navCards} alt="Cards" className="w-6 h-6" />
+            <img
+              src={activeTab === "cards" ? navCardsActive : navCards}
+              alt="Cards"
+              className="w-6 h-6"
+            />
             <span
               className={`text-[10px] ${
                 activeTab === "cards" ? "text-foreground" : "text-muted-foreground"
