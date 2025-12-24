@@ -52,8 +52,11 @@ const MyCards = () => {
             <img src={addIcon} alt="Add" className="w-5 h-5" />
           </div>
 
+          {/* Divider */}
+          <div className="h-[1px] bg-white/10 w-full mt-[15px] mb-[15px]" />
+
           {/* Subtitle */}
-          <p className="text-white/60 text-[14px] mt-2">
+          <p className="text-white/60 text-[14px]">
             You haven’t added any cards yet.
           </p>
         </div>
