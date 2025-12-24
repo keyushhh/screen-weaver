@@ -14,6 +14,7 @@ import KYCSelfie from "./pages/KYCSelfie";
 import KYCReview from "./pages/KYCReview";
 import SuccessScreen from "./pages/SuccessScreen";
 import ProfileEdit from "./pages/ProfileEdit";
+import MyCards from "./pages/MyCards";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/kyc-review" element={<KYCReview />} />
             <Route path="/kyc-success" element={<SuccessScreen />} />
             <Route path="/profile-edit" element={<ProfileEdit />} />
+            <Route path="/cards" element={<MyCards />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </HashRouter>

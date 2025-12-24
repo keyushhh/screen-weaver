@@ -152,7 +152,7 @@ const Settings = () => {
         </p>
 
         <div className="space-y-4">
-          <div className="flex justify-between">
+          <div className="flex justify-between cursor-pointer" onClick={() => navigate('/cards')}>
             <div className="flex items-start gap-3">
               <img src={iconLinkedCards} className="w-[18px] mt-[2px]" />
               <div>
