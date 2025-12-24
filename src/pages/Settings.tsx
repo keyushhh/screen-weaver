@@ -141,9 +141,14 @@ const Settings = () => {
           </div>
           <button
              onClick={() => navigate("/kyc-intro")}
-             className="px-4 py-2 rounded-full"
+             className="px-4 h-[32px] flex items-center justify-center rounded-full text-[12px] text-foreground"
+             style={{
+                backgroundImage: 'url("/lovable-uploads/881be237-04b4-4be4-b639-b56090b04ed5.png")',
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+             }}
           >
-            <span className="text-foreground text-[12px]">Check Security</span>
+             Check Security
           </button>
         </div>
       </div>
