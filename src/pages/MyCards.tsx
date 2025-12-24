@@ -49,7 +49,9 @@ const MyCards = () => {
           {/* Top Row: Title + Add Icon */}
           <div className="flex items-center justify-between">
             <h2 className="text-white text-[16px] font-medium">Saved Cards</h2>
-            <img src={addIcon} alt="Add" className="w-5 h-5" />
+            <button onClick={() => navigate("/cards/add")}>
+              <img src={addIcon} alt="Add" className="w-5 h-5" />
+            </button>
           </div>
 
           {/* Divider */}
