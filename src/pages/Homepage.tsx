@@ -8,14 +8,10 @@ import iconFxConvert from "@/assets/icon-fx-convert.png";
 import iconGift from "@/assets/icon-gift.png";
 import bannerBg from "@/assets/banner-bg-new.png";
 import bannerImage from "@/assets/banner-image.png";
-import navPlusButton from "@/assets/nav-plus-button.png";
-import navbarBg from "@/assets/navbar-bg.png";
-import navHome from "@/assets/nav-home.svg";
-import navCards from "@/assets/nav-cards.svg";
-import navRewards from "@/assets/nav-rewards.svg";
-import navMore from "@/assets/nav-more.svg";
 import buttonAddMoney from "@/assets/button-add-money.png";
 import avatarImg from "@/assets/avatar.png";
+import BottomNavigation from "@/components/BottomNavigation";
+
 const Homepage = () => {
   const navigate = useNavigate();
   const [showBalance, setShowBalance] = useState(false);
@@ -122,65 +118,8 @@ const Homepage = () => {
         </div>
       </div>
 
-     {/* Bottom Navigation */}
-<div className="fixed bottom-0 left-0 right-0 z-50">
-  {/* Background */}
-  <div
-    className="absolute inset-0 h-full"
-    style={{
-      backgroundImage: `url(${navbarBg})`,
-      backgroundSize: "100% 100%",
-      backgroundPosition: "center",
-      backgroundRepeat: "no-repeat",
-    }}
-  />
-
-  {/* Floating + Button (FAB) */}
-<button
-  className="absolute left-1/2 -translate-x-1/2 z-10
-             w-[76px] h-[76px] rounded-full
-             flex items-center justify-center"
-  style={{
-    bottom: "-2px", // pushed ~10px lower than before
-  }}
->
-  <img
-    src={navPlusButton}
-    alt="Add"
-    className="w-full h-full rounded-full"
-  />
-</button>
-
-
-
-  {/* Nav Items */}
-  <div className="relative px-5 py-3">
-    <div className="flex items-end justify-between py-[10px]">
-      <button className="flex-col gap-1 flex-1 flex items-center justify-center">
-        <img src={navHome} alt="Home" className="w-6 h-6" />
-        <span className="text-foreground text-[10px]">HOME</span>
-      </button>
-
-      <button className="flex-col gap-1 flex-1 flex items-center justify-center">
-        <img src={navCards} alt="Cards" className="w-6 h-6" />
-        <span className="text-muted-foreground text-[10px]">CARDS</span>
-      </button>
-
-      {/* Spacer for FAB */}
-      <div className="flex-1" />
-
-      <button className="flex-col gap-1 flex-1 flex items-center justify-center">
-        <img src={navRewards} alt="Rewards" className="w-6 h-6" />
-        <span className="text-muted-foreground text-[10px]">REWARDS</span>
-      </button>
-
-      <button className="flex-col gap-1 flex-1 flex items-center justify-center">
-        <img src={navMore} alt="More" className="w-6 h-6" />
-        <span className="text-muted-foreground text-[10px]">MORE</span>
-      </button>
-    </div>
-  </div>
-</div>
+      {/* Bottom Navigation */}
+      <BottomNavigation activeTab="home" />
 
     </div>);
 };
