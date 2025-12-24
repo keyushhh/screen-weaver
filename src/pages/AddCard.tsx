@@ -20,7 +20,15 @@ const AddCard = () => {
   const [cvv, setCvv] = useState("");
   const [cardHolder, setCardHolder] = useState("");
   const [cardType, setCardType] = useState<"visa" | "mastercard" | "rupay" | null>(null);
-  const [showCardNumber, setShowCardNumber] = useState(false); // false = masked
+
+  // Visibility States
+  // isPermanentlyVisible: Controlled by Eye toggle. If true, stays true.
+  // isTempVisible: Controlled by typing/interaction. Resets after 5s.
+  const [isPermanentlyVisible, setIsPermanentlyVisible] = useState(false);
+  const [isTempVisible, setIsTempVisible] = useState(false);
+
+  // Derived state for rendering
+  const isVisible = isPermanentlyVisible || isTempVisible;
 
   // Auto-mask Timer Ref
   const maskTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -36,25 +44,48 @@ const AddCard = () => {
     }
   }, [location.state]);
 
-  // Handle Auto-Masking (5s Inactivity)
+  // Handle Activity (Typing or Focus)
+  const handleActivity = () => {
+    // If permanently visible, do nothing (timer irrelevant)
+    if (isPermanentlyVisible) return;
+
+    // Set temp visible
+    setIsTempVisible(true);
+
+    // Reset timer
+    if (maskTimerRef.current) clearTimeout(maskTimerRef.current);
+    maskTimerRef.current = setTimeout(() => {
+      setIsTempVisible(false);
+    }, 5000); // 5 seconds inactivity -> mask
+  };
+
+  // Toggle Eye
+  const toggleEye = () => {
+    const newState = !isPermanentlyVisible;
+    setIsPermanentlyVisible(newState);
+
+    if (newState) {
+       // Turning ON: Clear any auto-mask timer
+       if (maskTimerRef.current) clearTimeout(maskTimerRef.current);
+       setIsTempVisible(false); // Clean up temp state, we are perma-visible
+    } else {
+       // Turning OFF: Immediately mask?
+       // "When toggled OFF -> show masked values"
+       setIsTempVisible(false);
+       if (maskTimerRef.current) clearTimeout(maskTimerRef.current);
+    }
+  };
+
+  // Cleanup timer
   useEffect(() => {
-     if (showCardNumber) {
-         // Clear existing timer if any
-         if (maskTimerRef.current) clearTimeout(maskTimerRef.current);
-
-         // Set new timer
-         maskTimerRef.current = setTimeout(() => {
-             setShowCardNumber(false);
-         }, 5000); // 5 seconds of inactivity -> mask
-     }
-
-     return () => {
-         if (maskTimerRef.current) clearTimeout(maskTimerRef.current);
-     };
-  }, [showCardNumber, cardNumber, cvv]); // Reset on visibility change OR typing
+    return () => {
+      if (maskTimerRef.current) clearTimeout(maskTimerRef.current);
+    };
+  }, []);
 
   // Card Number Logic (Formatting + Detection)
   const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleActivity(); // Trigger visibility
     let val = e.target.value.replace(/\D/g, "");
     if (val.length > 16) val = val.slice(0, 16);
 
@@ -67,18 +98,24 @@ const AddCard = () => {
     setCardNumber(val);
   };
 
+  const handleCVVChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      handleActivity();
+      setCvv(e.target.value.replace(/\D/g, "").slice(0, 3));
+  };
+
   const formatCardNumber = (num: string) => {
-    // 1. If empty -> handled by placeholder
     if (!num) return "";
-
-    // 2. Format chunks of 4
     const chunks = num.match(/.{1,4}/g) || [];
-    const formatted = chunks.join(" ");
-
-    return formatted;
+    return chunks.join(" ");
   };
 
   const handleExpiryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Expiry change technically is activity too, but usually it's always visible?
+    // Requirement implies "no input" globally masks "both fields".
+    // So yes, typing anywhere should probably keep things alive?
+    // "After 5-10 seconds of no input: Automatically mask both fields"
+    // I'll add activity trigger here too for good UX.
+    handleActivity();
     let val = e.target.value.replace(/\D/g, "");
     if (val.length > 4) val = val.slice(0, 4);
 
@@ -100,7 +137,7 @@ const AddCard = () => {
 
   const getMaskedCVV = () => {
       if (!cvv) return "";
-      return cvv.replace(/./g, "*"); // Replace all chars with *
+      return cvv.replace(/./g, "*");
   };
 
   return (
@@ -148,7 +185,10 @@ const AddCard = () => {
                     <input
                         type="text"
                         value={cardHolder}
-                        onChange={(e) => setCardHolder(e.target.value.toUpperCase())}
+                        onChange={(e) => {
+                            handleActivity();
+                            setCardHolder(e.target.value.toUpperCase());
+                        }}
                         placeholder="CARDHOLDER NAME"
                         className="w-full bg-transparent text-white text-[16px] font-medium placeholder:text-white focus:outline-none uppercase p-0 border-none font-satoshi"
                     />
@@ -165,18 +205,21 @@ const AddCard = () => {
                 */}
                 <div className="absolute top-[93px] left-[26px] right-[26px] flex items-center justify-between">
                     <div className="relative flex-1 mr-4">
-                        {/* The Actual Input (Hidden when masked, Visible when shown) */}
+                        {/* The Actual Input (Hidden when masked, Visible when shown/typing) */}
                         <input
                             type="text"
                             inputMode="numeric"
                             value={formatCardNumber(cardNumber)}
                             onChange={handleCardNumberChange}
                             placeholder="XXXX XXXX XXXX XXXX"
-                            className={`w-full bg-transparent text-white text-[20px] font-bold placeholder:text-white focus:outline-none p-0 border-none font-satoshi tracking-widest h-[24px] ${!showCardNumber ? 'opacity-0 absolute inset-0 z-10' : 'relative z-10'}`}
+                            // If isVisible, show input normally. If !isVisible, hide input (opacity 0) but keep interaction for focus?
+                            // Actually, if !isVisible, we want user to TAP to start typing (which triggers handleActivity -> shows input).
+                            // So input must be clickable.
+                            className={`w-full bg-transparent text-white text-[20px] font-bold placeholder:text-white focus:outline-none p-0 border-none font-satoshi tracking-widest h-[24px] ${!isVisible ? 'opacity-0 absolute inset-0 z-10' : 'relative z-10'}`}
                         />
 
                         {/* The Masked Overlay (Visible when masked) */}
-                        {!showCardNumber && (
+                        {!isVisible && (
                            <div className="pointer-events-none text-white text-[20px] font-bold font-satoshi tracking-widest h-[24px] whitespace-nowrap overflow-hidden">
                               {cardNumber.length > 0 ? getMaskedCardNumber() : <span className="text-[18px] text-white">XXXX XXXX XXXX XXXX</span>}
                            </div>
@@ -184,13 +227,12 @@ const AddCard = () => {
                     </div>
 
                     {/* Eye Icon */}
-                    {/* Toggle: Open = Visible (showCardNumber=true), Closed = Masked */}
                     <button
                         type="button"
-                        onClick={() => setShowCardNumber(!showCardNumber)}
+                        onClick={toggleEye}
                         className="text-white shrink-0 z-20"
                     >
-                        {showCardNumber ? <Eye size={20} /> : <EyeOff size={20} />}
+                        {isPermanentlyVisible ? <Eye size={20} /> : <EyeOff size={20} />}
                     </button>
                 </div>
 
@@ -213,23 +255,23 @@ const AddCard = () => {
                     <div className="flex flex-col gap-[5px]">
                         <label className="text-[#C4C4C4] text-[14px] font-normal font-satoshi leading-none">CVV</label>
 
-                         {/* CVV Input with Manual Masking Logic linked to same toggle */}
+                         {/* CVV Input with Visibility Logic */}
                          <div className="relative w-[40px] h-[14px]">
                              <input
                                 type="text"
                                 inputMode="numeric"
                                 maxLength={3}
                                 value={cvv}
-                                onChange={(e) => setCvv(e.target.value.replace(/\D/g, "").slice(0, 3))}
+                                onChange={handleCVVChange}
                                 placeholder="XXX"
-                                className={`w-full h-full bg-transparent text-white text-[14px] font-bold placeholder:text-white focus:outline-none p-0 border-none font-satoshi leading-none ${!showCardNumber ? 'opacity-0 absolute inset-0 z-10' : 'relative z-10'}`}
+                                className={`w-full h-full bg-transparent text-white text-[14px] font-bold placeholder:text-white focus:outline-none p-0 border-none font-satoshi leading-none ${!isVisible ? 'opacity-0 absolute inset-0 z-10' : 'relative z-10'}`}
                             />
-                             {!showCardNumber && (
+                             {!isVisible && (
                                 <div className="pointer-events-none text-white text-[14px] font-bold font-satoshi leading-none absolute top-0 left-0">
                                     {cvv.length > 0 ? getMaskedCVV() : <span className="text-white">***</span>}
                                 </div>
                              )}
-                             {!showCardNumber && cvv.length === 0 && (
+                             {!isVisible && cvv.length === 0 && (
                                  <div className="pointer-events-none text-white text-[14px] font-bold font-satoshi leading-none absolute top-0 left-0">
                                      ***
                                  </div>
