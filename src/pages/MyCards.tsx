@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, Menu } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
-import savedCardsBg from "@/assets/saved-cards-bg.png";
-import addIcon from "@/assets/add-icon.png";
+import savedCardsBg from "@/assets/saved-card-bg.png";
+import addIcon from "@/assets/add.png";
 import BottomNavigation from "@/components/BottomNavigation";
 
 const MyCards = () => {
@@ -49,8 +49,10 @@ const MyCards = () => {
           {/* Top Row: Title + Add Icon */}
           <div className="flex items-center justify-between">
             <h2 className="text-white text-[16px] font-medium">Saved Cards</h2>
-            {/* Disabled logic for now as per requirements */}
-            <button className="opacity-100">
+            <button
+              onClick={() => navigate("/cards/add")}
+              className="opacity-100 active:opacity-70 transition-opacity"
+            >
               <img src={addIcon} alt="Add" className="w-5 h-5" />
             </button>
           </div>
