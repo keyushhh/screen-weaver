@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { ChevronLeft, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import savedCardsBg from "@/assets/saved-card-bg.png";
 import addIcon from "@/assets/my-cards-add-icon.png";
@@ -50,8 +50,6 @@ const MyCards = () => {
       navigate("/cards/add");
     } else {
       setIsFabExpanded(true);
-      // Auto-collapse after some time if no action? No, let user decide or click away.
-      // But standard "click outside" would be nice. For now simple toggle.
     }
   };
 
@@ -88,19 +86,11 @@ const MyCards = () => {
     >
       {/* Main Content with conditional blur */}
       <div className={`flex flex-col flex-1 transition-all duration-300 ${showSuccessModal ? 'blur-sm brightness-50' : ''}`}>
-        {/* Header */}
+        {/* Header - Back Button Removed */}
         <div className="px-5 pt-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-            <button
-                onClick={() => navigate(-1)}
-                className=""
-            >
-                <ChevronLeft className="w-6 h-6 text-foreground" />
-            </button>
             <h1 className="text-foreground text-[20px] font-medium">My Cards</h1>
-            </div>
             <button>
-            <Menu className="w-6 h-6 text-foreground" />
+                <Menu className="w-6 h-6 text-foreground" />
             </button>
         </div>
 
@@ -141,11 +131,6 @@ const MyCards = () => {
                 /* List View */
                 <div className="flex flex-col gap-4">
                     {cards.map((card, index) => {
-                        // Use modulo to cycle backgrounds. Note: card.backgroundIndex is 1-based.
-                        // Or just use index. Let's use index for visual variety even if reordered (though we don't reorder).
-                        // Actually, let's use the one stored in card if available, else index.
-                        // Since we just implemented the storage to save backgroundIndex, let's use it.
-                        // Wait, backgroundIndex is 1-based, array is 0-based.
                         const bgSrc = cardBackgrounds[(card.backgroundIndex - 1) % 6];
 
                         return (
@@ -159,9 +144,17 @@ const MyCards = () => {
                                 }}
                             >
                                 <div className="relative w-full h-full px-[26px]">
-                                    {/* Default Tag */}
+                                    {/* Default Tag - Fixed styling */}
                                     {card.isDefault && (
-                                        <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-black/64 backdrop-blur-sm px-3 py-1 rounded-b-lg">
+                                        <div
+                                            className="absolute top-0 left-1/2 -translate-x-1/2 flex items-center justify-center rounded-b-[8px] z-10"
+                                            style={{
+                                                backgroundColor: 'rgba(0, 0, 0, 0.64)',
+                                                height: '24px',
+                                                paddingLeft: '12px',
+                                                paddingRight: '12px',
+                                            }}
+                                        >
                                             <span className="text-white text-[10px] font-medium uppercase tracking-wider">Default</span>
                                         </div>
                                     )}
@@ -208,6 +201,13 @@ const MyCards = () => {
                             </div>
                         );
                     })}
+
+                    {/* Cards Count - Added */}
+                    <div className="w-full flex items-center justify-center mt-2">
+                         <p className="text-white/60 text-[14px] font-satoshi">
+                             Cards added: {cards.length}
+                         </p>
+                    </div>
                 </div>
             )}
         </div>
@@ -225,25 +225,13 @@ const MyCards = () => {
             width: isFabExpanded ? "180px" : "56px",
         }}
       >
-          {/*
-            Gradient Border Simulation:
-            We need a gradient border.
-            Outer container has the gradient.
-            Inner container has the fill.
-          */}
           <button
              onClick={handleFabClick}
              className="w-full h-full relative rounded-full flex items-center justify-center overflow-hidden"
              style={{
-                 background: "#5260FE", // Fill color
+                 background: "#5260FE",
              }}
           >
-              {/* Gradient Border Overlay using pseudo-element technique or just an SVG ring?
-                  CSS `border-image` is tricky on rounded corners.
-                  Best way: Parent has gradient bg and padding 1px, Child has content bg.
-                  But here we need the fill to be blue.
-                  Let's try a simpler approach: Box shadow or an absolute overlay for the border.
-              */}
               <div
                 className="absolute inset-0 rounded-full pointer-events-none"
                 style={{
@@ -255,7 +243,6 @@ const MyCards = () => {
                 }}
               />
 
-              {/* Icon / Content */}
               <div className="flex items-center justify-center w-full h-full px-4">
                   {isFabExpanded ? (
                       <span className="text-white text-[14px] font-medium whitespace-nowrap animate-in fade-in slide-in-from-right-4 duration-300">
@@ -276,7 +263,6 @@ const MyCards = () => {
       {/* Success Modal */}
       {showSuccessModal && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center p-6">
-          {/* Popup Box */}
           <div
             className="relative rounded-2xl p-6 max-w-[320px] w-full z-10 flex flex-col items-center text-center border border-white/10"
             style={{
