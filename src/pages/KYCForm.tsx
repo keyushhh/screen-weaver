@@ -43,7 +43,7 @@ const KYCForm = () => {
       {/* Header */}
       <div className="flex items-center justify-between px-5 pt-4 pb-2">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/kyc-intro")}
           className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center transition-colors hover:bg-white/10"
         >
           <ChevronLeft className="w-5 h-5 text-foreground" />
