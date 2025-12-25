@@ -10,6 +10,7 @@ import visaLogo from "@/assets/visa-logo.png";
 import rupayLogo from "@/assets/rupay-logo.png";
 import { Button } from "@/components/ui/button";
 import { useSensitiveInput } from "@/hooks/useSensitiveInput";
+import { addCard } from "@/utils/cardUtils";
 
 const AddCard = () => {
   const navigate = useNavigate();
@@ -72,13 +73,6 @@ const AddCard = () => {
   };
 
   const handleExpiryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Activity anywhere keeps visibility alive?
-    // Requirement implies "inactivity" of 5-10s. Usually this means user is idle.
-    // The useSensitiveInput handles its own timer.
-    // Should typing expiry refresh the card/cvv timers?
-    // "After 5-10 seconds of no input" -> implies global input?
-    // "After typing stops: After 5-10 seconds of inactivity, auto-mask the values"
-    // I'll stick to local activity for the hook for now, as it's cleaner.
     let val = e.target.value.replace(/\D/g, "");
     if (val.length > 4) val = val.slice(0, 4);
 
@@ -87,6 +81,19 @@ const AddCard = () => {
     } else {
       setExpiry(val);
     }
+  };
+
+  const handleSaveCard = () => {
+    if (!hasInput) return;
+
+    addCard({
+      number: cardNumberProps.value,
+      holder: cardHolder,
+      expiry: expiry,
+      type: cardType,
+    });
+
+    navigate("/cards", { state: { cardAdded: true } });
   };
 
   const hasInput = cardNumberProps.value.length > 0 || expiry.length > 0 || cvvProps.value.length > 0 || cardHolder.length > 0;
@@ -148,9 +155,6 @@ const AddCard = () => {
                 </div>
 
                 {/* Card Number Value */}
-                {/*
-                   Layout: Use Flex to span width.
-                */}
                 <div className="absolute top-[93px] left-[26px] right-[26px] flex items-center justify-between">
                     <div className="relative flex-1 mr-4">
                         {/* The Actual Input (Hidden when masked, Visible when shown/typing) */}
@@ -160,7 +164,6 @@ const AddCard = () => {
                             value={formatCardNumber(cardNumberProps.value)}
                             onChange={handleCardNumberChange}
                             placeholder="XXXX XXXX XXXX XXXX"
-                            // If !isVisible, hide input (opacity 0) but keep interaction
                             className={`w-full bg-transparent text-white text-[20px] font-bold placeholder:text-white focus:outline-none p-0 border-none font-satoshi tracking-widest h-[24px] ${!cardNumberProps.isVisible ? 'opacity-0 absolute inset-0 z-10' : 'relative z-10'}`}
                         />
 
@@ -272,7 +275,7 @@ const AddCard = () => {
         {/* CTA Button */}
         <div className="mt-[86px]">
             <Button
-              onClick={() => hasInput ? navigate("/cards", { state: { cardAdded: true } }) : null}
+              onClick={handleSaveCard}
               disabled={!hasInput}
               className="w-full h-[48px] rounded-full text-[16px] font-medium bg-[#5260FE] hover:bg-[#5260FE]/90 text-white disabled:opacity-50"
             >
