@@ -60,6 +60,13 @@ const Settings = () => {
     }
   };
 
+  const handleLogout = () => {
+      // Clear session/state
+      localStorage.clear();
+      // Navigate to authentication screen (Index)
+      navigate("/");
+  };
+
   const securityConfig = getSecurityConfig(kycStatus);
 
   return (
@@ -243,7 +250,10 @@ const Settings = () => {
             />
           </div>
 
-          <div className="flex justify-between">
+          <div
+            className="flex justify-between cursor-pointer"
+            onClick={handleLogout}
+          >
             <span>Log Out</span>
             <ChevronRight />
           </div>
