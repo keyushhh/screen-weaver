@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Menu, X, Eye, EyeOff, ChevronLeft } from "lucide-react";
+import { Menu, X, Eye, EyeOff } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import savedCardsBg from "@/assets/saved-card-bg.png";
 import addIcon from "@/assets/my-cards-add-icon.png";
@@ -57,11 +57,7 @@ const MyCards = () => {
 
   const handleFabClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (isStacked) {
-        navigate("/cards/add");
-        return;
-    }
-
+    // Always expand first, then navigate
     if (isFabExpanded) {
       navigate("/cards/add");
     } else {
@@ -73,13 +69,13 @@ const MyCards = () => {
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
         const target = e.target as HTMLElement;
-        if (!target.closest("#fab-container") && isFabExpanded && !isStacked) {
+        if (!target.closest("#fab-container") && isFabExpanded) {
             setIsFabExpanded(false);
         }
     };
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
-  }, [isFabExpanded, isStacked]);
+  }, [isFabExpanded]);
 
   const toggleCardVisibility = (id: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent stack expansion when clicking eye
@@ -120,14 +116,9 @@ const MyCards = () => {
     >
       {/* Main Content with conditional blur */}
       <div className={`flex flex-col flex-1 transition-all duration-300 ${showSuccessModal ? 'blur-sm brightness-50' : ''}`}>
-        {/* Header */}
+        {/* Header - Back Button Removed */}
         <div className="px-5 pt-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-                <button onClick={() => navigate(-1)} className="text-white">
-                    <ChevronLeft className="w-6 h-6" />
-                </button>
-                <h1 className="text-foreground text-[20px] font-medium">My Cards</h1>
-            </div>
+            <h1 className="text-foreground text-[20px] font-medium">My Cards</h1>
             <button>
                 <Menu className="w-6 h-6 text-foreground" />
             </button>
@@ -278,7 +269,9 @@ const MyCards = () => {
                                     >
                                         <div className="flex flex-col gap-[5px]">
                                             <label className="text-[#C4C4C4] text-[14px] font-normal font-satoshi leading-none">Expiry Date</label>
-                                            <p className="text-white text-[13px] font-bold font-satoshi leading-none">**/**</p>
+                                            <p className="text-white text-[13px] font-bold font-satoshi leading-none">
+                                                {card.expiry || "**/**"}
+                                            </p>
                                         </div>
                                         <div className="flex flex-col gap-[5px]">
                                             <label className="text-[#C4C4C4] text-[14px] font-normal font-satoshi leading-none">CVV</label>
@@ -337,13 +330,10 @@ const MyCards = () => {
         className={`fixed z-50 transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) flex items-center overflow-hidden ${showSuccessModal ? 'blur-sm brightness-50 pointer-events-none' : ''}`}
         style={{
             bottom: "100px",
-            // If stacked: Wide button logic (100% - 40px margin).
-            // If not stacked: standard FAB logic (56px or 180px).
-            width: isStacked ? "calc(100% - 40px)" : (isFabExpanded ? "180px" : "56px"),
-            left: isStacked ? "20px" : "auto",
             right: "20px",
             height: "56px",
-            borderRadius: isStacked ? "100px" : "999px",
+            width: isFabExpanded ? "180px" : "56px",
+            borderRadius: "999px", // Always fully rounded
         }}
       >
           <button
@@ -363,28 +353,18 @@ const MyCards = () => {
               />
 
               <div className="flex items-center w-full h-full px-4 relative z-10">
-                  {/* Logic for Wide Button (Stacked) vs FAB (Expanded) */}
-                  {isStacked ? (
-                       <div className="w-full flex items-center justify-between animate-in fade-in zoom-in duration-300">
-                           {/* Invisible spacer to center text if needed, or just standard flex */}
-                           <span className="w-6" /> {/* Spacer to balance icon */}
-                           <span className="text-white text-[16px] font-medium font-satoshi">Add New Card</span>
-                           <img src={fabPlus} alt="+" className="w-6 h-6 object-contain" />
-                       </div>
-                  ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                          {isFabExpanded ? (
-                              <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4 duration-300">
-                                  <img src={fabPlus} alt="+" className="w-6 h-6 object-contain" />
-                                  <span className="text-white text-[14px] font-medium whitespace-nowrap">
-                                      Add New Card
-                                  </span>
-                              </div>
-                          ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                      {isFabExpanded ? (
+                          <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4 duration-300">
                               <img src={fabPlus} alt="+" className="w-6 h-6 object-contain" />
-                          )}
-                      </div>
-                  )}
+                              <span className="text-white text-[14px] font-medium whitespace-nowrap">
+                                  Add New Card
+                              </span>
+                          </div>
+                      ) : (
+                          <img src={fabPlus} alt="+" className="w-6 h-6 object-contain" />
+                      )}
+                  </div>
               </div>
           </button>
       </div>
