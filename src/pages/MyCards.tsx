@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Eye, EyeOff } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import savedCardsBg from "@/assets/saved-card-bg.png";
 import addIcon from "@/assets/my-cards-add-icon.png";
@@ -31,6 +31,9 @@ const MyCards = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [cards, setCards] = useState<Card[]>([]);
   const [isFabExpanded, setIsFabExpanded] = useState(false);
+
+  // Track visibility per card
+  const [visibleCardIds, setVisibleCardIds] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     // Load cards on mount
@@ -65,10 +68,21 @@ const MyCards = () => {
     return () => document.removeEventListener("click", handleClickOutside);
   }, [isFabExpanded]);
 
+  const toggleCardVisibility = (id: string) => {
+    setVisibleCardIds(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
+
+  const formatCardNumber = (num: string) => {
+    if (!num) return "";
+    const chunks = num.match(/.{1,4}/g) || [];
+    return chunks.join(" ");
+  };
 
   const getMaskedCardNumber = (num: string) => {
     if (!num) return "";
-    // Show last 4 only
     const last4 = num.slice(-4);
     return `**** **** **** ${last4}`;
   };
@@ -130,8 +144,24 @@ const MyCards = () => {
             ) : (
                 /* List View */
                 <div className="flex flex-col gap-4">
-                    {cards.map((card, index) => {
+                    {cards.map((card) => {
                         const bgSrc = cardBackgrounds[(card.backgroundIndex - 1) % 6];
+                        const isDefault = card.isDefault;
+                        const isVisible = visibleCardIds[card.id] || false;
+
+                        // Layout Shifts for Default Card
+                        // Chip moves down 10px, others move down 16px
+                        const chipTop = isDefault ? 31 : 21; // 21 + 10
+                        const nameTop = isDefault ? 42 : 26; // 26 + 16
+                        const labelTop = isDefault ? 86 : 70; // 70 + 16
+                        const numberTop = isDefault ? 109 : 93; // 93 + 16
+                        const expiryTop = isDefault ? 145 : 129; // 129 + 16
+                        // For bottom anchored Logo, we reduce the bottom distance by 16px to effectively push it down relative to top?
+                        // No, "Think of it as shifting the entire card content block downward".
+                        // If I have a fixed height container (192px), shifting content down pushes it closer to bottom.
+                        // So bottom offset should decrease.
+                        // Original bottom: 26px. New bottom: 10px (26 - 16).
+                        const logoBottom = isDefault ? 10 : 26;
 
                         return (
                             <div
@@ -143,56 +173,99 @@ const MyCards = () => {
                                     backgroundPosition: 'center',
                                 }}
                             >
-                                <div className="relative w-full h-full px-[26px]">
-                                    {/* Default Tag - Fixed styling */}
-                                    {card.isDefault && (
-                                        <div
-                                            className="absolute top-0 left-1/2 -translate-x-1/2 flex items-center justify-center rounded-b-[8px] z-10"
-                                            style={{
-                                                backgroundColor: 'rgba(0, 0, 0, 0.64)',
-                                                height: '24px',
-                                                paddingLeft: '12px',
-                                                paddingRight: '12px',
-                                            }}
-                                        >
-                                            <span className="text-white text-[10px] font-medium uppercase tracking-wider">Default</span>
-                                        </div>
-                                    )}
+                                {/* Default Tag - Full Width Banner */}
+                                {isDefault && (
+                                    <div
+                                        className="absolute top-0 left-0 w-full h-[24px] flex items-center justify-center z-10"
+                                        style={{
+                                            backgroundColor: 'rgba(0, 0, 0, 0.64)',
+                                        }}
+                                    >
+                                        <span className="text-white text-[10px] font-medium uppercase tracking-wider">DEFAULT</span>
+                                    </div>
+                                )}
 
+                                <div className="relative w-full h-full px-[26px]">
                                     {/* Top Row: Chip */}
-                                    <div className="absolute top-[21px] right-[26px] w-[40px] h-[30px] flex justify-end">
+                                    <div
+                                        className="absolute right-[26px] w-[40px] h-[30px] flex justify-end transition-all"
+                                        style={{ top: `${chipTop}px` }}
+                                    >
                                         <img src={chipIcon} alt="Chip" className="h-[28px] object-contain" />
                                     </div>
 
                                     {/* Cardholder Name */}
-                                    <div className="absolute top-[26px] left-[26px] right-[70px]">
+                                    <div
+                                        className="absolute left-[26px] right-[70px] transition-all"
+                                        style={{ top: `${nameTop}px` }}
+                                    >
                                         <p className="text-white text-[16px] font-medium uppercase font-satoshi truncate">
                                             {card.holder || "NO NAME"}
                                         </p>
                                     </div>
 
                                     {/* Card Number Label */}
-                                    <div className="absolute top-[70px] left-[26px]">
+                                    <div
+                                        className="absolute left-[26px] transition-all"
+                                        style={{ top: `${labelTop}px` }}
+                                    >
                                         <p className="text-[#C4C4C4] text-[13px] font-normal font-satoshi">Card Number</p>
                                     </div>
 
-                                    {/* Card Number Value */}
-                                    <div className="absolute top-[93px] left-[26px]">
-                                        <p className="text-white text-[20px] font-bold font-satoshi tracking-widest">
-                                            {getMaskedCardNumber(card.number)}
-                                        </p>
+                                    {/* Card Number Value + Eye Icon */}
+                                    <div
+                                        className="absolute left-[26px] right-[26px] flex items-center justify-between transition-all"
+                                        style={{ top: `${numberTop}px` }}
+                                    >
+                                         <div className="relative flex-1 mr-4">
+                                            {isVisible ? (
+                                                 <p className="text-white text-[20px] font-bold font-satoshi tracking-widest h-[24px]">
+                                                     {formatCardNumber(card.number)}
+                                                 </p>
+                                            ) : (
+                                                 <p className="text-white text-[20px] font-bold font-satoshi tracking-widest h-[24px]">
+                                                     {getMaskedCardNumber(card.number)}
+                                                 </p>
+                                            )}
+                                         </div>
+
+                                         {/* Eye Icon */}
+                                        <button
+                                            type="button"
+                                            onClick={() => toggleCardVisibility(card.id)}
+                                            className="text-white shrink-0 z-20"
+                                        >
+                                            {isVisible ? <Eye size={20} /> : <EyeOff size={20} />}
+                                        </button>
                                     </div>
 
-                                    {/* Expiry */}
-                                    <div className="absolute top-[129px] left-[26px] flex flex-col gap-[5px]">
-                                        <label className="text-[#C4C4C4] text-[14px] font-normal font-satoshi leading-none">Expiry Date</label>
-                                        <p className="text-white text-[13px] font-bold font-satoshi leading-none">
-                                            {card.expiry}
-                                        </p>
+                                    {/* Expiry & CVV Row */}
+                                    <div
+                                        className="absolute left-[26px] flex gap-8 transition-all"
+                                        style={{ top: `${expiryTop}px` }}
+                                    >
+                                        {/* Expiry Group */}
+                                        <div className="flex flex-col gap-[5px]">
+                                            <label className="text-[#C4C4C4] text-[14px] font-normal font-satoshi leading-none">Expiry Date</label>
+                                            <p className="text-white text-[13px] font-bold font-satoshi leading-none">
+                                                {card.expiry}
+                                            </p>
+                                        </div>
+
+                                        {/* CVV Group */}
+                                        <div className="flex flex-col gap-[5px]">
+                                            <label className="text-[#C4C4C4] text-[14px] font-normal font-satoshi leading-none">CVV</label>
+                                            <p className="text-white text-[14px] font-bold font-satoshi leading-none">
+                                                {isVisible ? (card.cvv || "123") : "***"}
+                                            </p>
+                                        </div>
                                     </div>
 
                                     {/* Network Logo */}
-                                    <div className="absolute bottom-[26px] right-[26px] h-[24px]">
+                                    <div
+                                        className="absolute right-[26px] h-[24px] transition-all"
+                                        style={{ bottom: `${logoBottom}px` }}
+                                    >
                                         {card.type === "visa" && <img src={visaLogo} alt="Visa" className="h-full object-contain" />}
                                         {card.type === "mastercard" && <img src={mastercardLogo} alt="Mastercard" className="h-full object-contain" />}
                                         {card.type === "rupay" && <img src={rupayLogo} alt="Rupay" className="h-full object-contain" />}
@@ -202,7 +275,7 @@ const MyCards = () => {
                         );
                     })}
 
-                    {/* Cards Count - Added */}
+                    {/* Cards Count */}
                     <div className="w-full flex items-center justify-center mt-2">
                          <p className="text-white/60 text-[14px] font-satoshi">
                              Cards added: {cards.length}
