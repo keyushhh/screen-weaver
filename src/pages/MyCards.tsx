@@ -201,7 +201,7 @@ const MyCards = () => {
                                     e.stopPropagation();
                                     if (isStacked) setIsStacked(false);
                                 }}
-                                className={`relative w-full rounded-[16px] overflow-hidden shrink-0 transition-all duration-500 ${isStacked ? 'ease-in hover:brightness-110' : 'ease-[cubic-bezier(0.34,1.56,0.64,1)]'}`}
+                                className={`relative w-full rounded-[16px] overflow-hidden shrink-0 transition-all duration-[250ms] ease-in-out ${isStacked ? 'hover:brightness-110' : ''}`}
                                 style={{
                                     height: cardHeight,
                                     backgroundImage: `url(${bgSrc})`,
