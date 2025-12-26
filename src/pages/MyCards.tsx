@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Menu, X, Eye, EyeOff } from "lucide-react";
+import { Menu, X, Eye, EyeOff, ChevronLeft } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import savedCardsBg from "@/assets/saved-card-bg.png";
 import addIcon from "@/assets/my-cards-add-icon.png";
@@ -31,18 +31,25 @@ const MyCards = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [cards, setCards] = useState<Card[]>([]);
   const [isFabExpanded, setIsFabExpanded] = useState(false);
+  const [isStacked, setIsStacked] = useState(true);
 
   // Track visibility per card
   const [visibleCardIds, setVisibleCardIds] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     // Load cards on mount
-    setCards(getCards());
+    const loadedCards = getCards();
+    setCards(loadedCards);
+
+    // Default to stacked only if we have cards
+    setIsStacked(loadedCards.length > 0);
 
     if (location.state?.cardAdded) {
       // Reload cards to get the new one
-      setCards(getCards());
+      const refreshedCards = getCards();
+      setCards(refreshedCards);
       setShowSuccessModal(true);
+      setIsStacked(refreshedCards.length > 0);
       // Clean up state so refresh doesn't trigger it again
       window.history.replaceState({}, document.title);
     }
@@ -50,6 +57,11 @@ const MyCards = () => {
 
   const handleFabClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (isStacked) {
+        navigate("/cards/add");
+        return;
+    }
+
     if (isFabExpanded) {
       navigate("/cards/add");
     } else {
@@ -61,15 +73,16 @@ const MyCards = () => {
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
         const target = e.target as HTMLElement;
-        if (!target.closest("#fab-container") && isFabExpanded) {
+        if (!target.closest("#fab-container") && isFabExpanded && !isStacked) {
             setIsFabExpanded(false);
         }
     };
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
-  }, [isFabExpanded]);
+  }, [isFabExpanded, isStacked]);
 
-  const toggleCardVisibility = (id: string) => {
+  const toggleCardVisibility = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent stack expansion when clicking eye
     setVisibleCardIds(prev => ({
       ...prev,
       [id]: !prev[id]
@@ -88,6 +101,12 @@ const MyCards = () => {
     return `**** **** **** ${last4}`;
   };
 
+  // Sort cards: Default first
+  const sortedCards = [...cards].sort((a, b) => {
+    if (a.isDefault === b.isDefault) return 0;
+    return a.isDefault ? -1 : 1;
+  });
+
   return (
     <div
       className="min-h-[100dvh] flex flex-col safe-area-top safe-area-bottom pb-[96px] relative"
@@ -101,16 +120,21 @@ const MyCards = () => {
     >
       {/* Main Content with conditional blur */}
       <div className={`flex flex-col flex-1 transition-all duration-300 ${showSuccessModal ? 'blur-sm brightness-50' : ''}`}>
-        {/* Header - Back Button Removed */}
+        {/* Header */}
         <div className="px-5 pt-4 flex items-center justify-between">
-            <h1 className="text-foreground text-[20px] font-medium">My Cards</h1>
+            <div className="flex items-center gap-3">
+                <button onClick={() => navigate(-1)} className="text-white">
+                    <ChevronLeft className="w-6 h-6" />
+                </button>
+                <h1 className="text-foreground text-[20px] font-medium">My Cards</h1>
+            </div>
             <button>
                 <Menu className="w-6 h-6 text-foreground" />
             </button>
         </div>
 
         {/* Content */}
-        <div className="px-5 mt-8 flex-1 overflow-y-auto pb-24"> {/* Added pb-24 for FAB space */}
+        <div className="px-5 mt-8 flex-1 overflow-y-auto pb-24 scrollbar-hide">
 
             {cards.length === 0 ? (
                 /* Empty State */
@@ -123,7 +147,6 @@ const MyCards = () => {
                     height: "140px",
                 }}
                 >
-                {/* Top Row: Title + Add Icon */}
                 <div className="flex items-center justify-between">
                     <h2 className="text-white text-[16px] font-medium">Saved Cards</h2>
                     <button
@@ -133,60 +156,77 @@ const MyCards = () => {
                     <img src={addIcon} alt="Add" className="w-5 h-5" />
                     </button>
                 </div>
-
-                {/* Divider */}
                 <div className="h-[1px] bg-white/10 w-full mt-[15px] mb-[15px]" />
-
-                {/* Subtitle */}
                 <p className="text-white/60 text-[14px]">
                     You haven’t added any cards yet.
                 </p>
                 </div>
             ) : (
-                /* List View */
-                <div className="flex flex-col gap-4">
-                    {cards.map((card) => {
+                /* Cards View (Stacked or List) */
+                <div className={`transition-all duration-500 ease-in-out ${isStacked ? 'mt-4 relative h-[320px] w-full mx-auto' : 'flex flex-col gap-4'}`}>
+                    {sortedCards.map((card, index) => {
                         const bgSrc = cardBackgrounds[(card.backgroundIndex - 1) % 6];
                         const isDefault = card.isDefault;
                         const isVisible = visibleCardIds[card.id] || false;
 
-                        // Layout Shifts for Default Card
-                        // Chip moves down 10px relative to the Default tag (24px height) -> 24 + 10 = 34px
+                        // Layout constants
                         const chipTop = isDefault ? 34 : 21;
-                        const nameTop = isDefault ? 42 : 26; // 26 + 16
-                        const labelTop = isDefault ? 86 : 70; // 70 + 16
-                        const numberTop = isDefault ? 109 : 93; // 93 + 16
-                        const expiryTop = isDefault ? 145 : 129; // 129 + 16
-
-                        // Default cards are taller (212px) to accommodate the banner, so standard bottom padding (26px) applies
+                        const nameTop = isDefault ? 42 : 26;
+                        const labelTop = isDefault ? 86 : 70;
+                        const numberTop = isDefault ? 109 : 93;
+                        const expiryTop = isDefault ? 145 : 129;
                         const logoBottom = 26;
                         const cardHeight = isDefault ? "212px" : "192px";
+
+                        // Stacking Logic
+                        // We want "Fan Up" effect: Back cards peek from TOP.
+                        // Index 0 (Front): Lowest visually (Highest Top value).
+                        // Index N (Back): Highest visually (Lowest Top value).
+                        // Offset: 15px.
+                        // i=0: Top = (Total-1-0)*15
+                        // i=1: Top = (Total-1-1)*15
+                        const stackOffset = 15;
+                        const stackScale = 0.05;
+
+                        const stackedStyle = isStacked ? {
+                            position: "absolute" as const,
+                            // (cards.length - 1 - index) gives the reverse index.
+                            // i=0 (Front) -> Max Value -> Max Top -> Bottom of stack
+                            top: `${(sortedCards.length - 1 - index) * stackOffset}px`,
+                            left: 0,
+                            right: 0,
+                            zIndex: sortedCards.length - index, // Front = High Z
+                            transform: `scale(${1 - (index * stackScale)})`,
+                            transformOrigin: "top center",
+                            cursor: "pointer",
+                            boxShadow: "0px -4px 20px rgba(0,0,0,0.4)" // Shadow to separate
+                        } : {};
 
                         return (
                             <div
                                 key={card.id}
-                                className="relative w-full rounded-[16px] overflow-hidden shrink-0"
+                                onClick={() => isStacked && setIsStacked(false)}
+                                className={`relative w-full rounded-[16px] overflow-hidden shrink-0 transition-all duration-500 ease-out ${isStacked ? 'hover:brightness-110' : ''}`}
                                 style={{
                                     height: cardHeight,
                                     backgroundImage: `url(${bgSrc})`,
                                     backgroundSize: 'cover',
                                     backgroundPosition: 'center',
+                                    ...stackedStyle
                                 }}
                             >
-                                {/* Default Tag - Full Width Banner */}
+                                {/* Default Tag */}
                                 {isDefault && (
                                     <div
                                         className="absolute top-0 left-0 w-full h-[24px] flex items-center justify-center z-10"
-                                        style={{
-                                            backgroundColor: 'rgba(0, 0, 0, 0.64)',
-                                        }}
+                                        style={{ backgroundColor: 'rgba(0, 0, 0, 0.64)' }}
                                     >
                                         <span className="text-white text-[10px] font-medium uppercase tracking-wider">DEFAULT</span>
                                     </div>
                                 )}
 
                                 <div className="relative w-full h-full px-[26px]">
-                                    {/* Top Row: Chip */}
+                                    {/* Chip */}
                                     <div
                                         className="absolute right-[26px] w-[40px] h-[30px] flex justify-end transition-all"
                                         style={{ top: `${chipTop}px` }}
@@ -194,7 +234,7 @@ const MyCards = () => {
                                         <img src={chipIcon} alt="Chip" className="h-[28px] object-contain" />
                                     </div>
 
-                                    {/* Cardholder Name */}
+                                    {/* Name */}
                                     <div
                                         className="absolute left-[26px] right-[70px] transition-all"
                                         style={{ top: `${nameTop}px` }}
@@ -204,7 +244,7 @@ const MyCards = () => {
                                         </p>
                                     </div>
 
-                                    {/* Card Number Label */}
+                                    {/* Label */}
                                     <div
                                         className="absolute left-[26px] transition-all"
                                         style={{ top: `${labelTop}px` }}
@@ -212,47 +252,34 @@ const MyCards = () => {
                                         <p className="text-[#C4C4C4] text-[13px] font-normal font-satoshi">Card Number</p>
                                     </div>
 
-                                    {/* Card Number Value + Eye Icon */}
+                                    {/* Number + Eye */}
                                     <div
                                         className="absolute left-[26px] right-[26px] flex items-center justify-between transition-all"
                                         style={{ top: `${numberTop}px` }}
                                     >
                                          <div className="relative flex-1 mr-4">
-                                            {isVisible ? (
-                                                 <p className="text-white text-[20px] font-bold font-satoshi tracking-widest h-[24px]">
-                                                     {formatCardNumber(card.number)}
-                                                 </p>
-                                            ) : (
-                                                 <p className="text-white text-[20px] font-bold font-satoshi tracking-widest h-[24px]">
-                                                     {getMaskedCardNumber(card.number)}
-                                                 </p>
-                                            )}
+                                            <p className="text-white text-[20px] font-bold font-satoshi tracking-widest h-[24px]">
+                                                {isVisible ? formatCardNumber(card.number) : getMaskedCardNumber(card.number)}
+                                            </p>
                                          </div>
-
-                                         {/* Eye Icon */}
                                         <button
                                             type="button"
-                                            onClick={() => toggleCardVisibility(card.id)}
-                                            className="text-white shrink-0 z-20"
+                                            onClick={(e) => toggleCardVisibility(card.id, e)}
+                                            className="text-white shrink-0 z-20 hover:text-white/80"
                                         >
                                             {isVisible ? <Eye size={20} /> : <EyeOff size={20} />}
                                         </button>
                                     </div>
 
-                                    {/* Expiry & CVV Row */}
+                                    {/* Expiry & CVV */}
                                     <div
                                         className="absolute left-[26px] flex gap-8 transition-all"
                                         style={{ top: `${expiryTop}px` }}
                                     >
-                                        {/* Expiry Group */}
                                         <div className="flex flex-col gap-[5px]">
                                             <label className="text-[#C4C4C4] text-[14px] font-normal font-satoshi leading-none">Expiry Date</label>
-                                            <p className="text-white text-[13px] font-bold font-satoshi leading-none">
-                                                **/**
-                                            </p>
+                                            <p className="text-white text-[13px] font-bold font-satoshi leading-none">**/**</p>
                                         </div>
-
-                                        {/* CVV Group */}
                                         <div className="flex flex-col gap-[5px]">
                                             <label className="text-[#C4C4C4] text-[14px] font-normal font-satoshi leading-none">CVV</label>
                                             <p className="text-white text-[14px] font-bold font-satoshi leading-none">
@@ -275,38 +302,57 @@ const MyCards = () => {
                         );
                     })}
 
-                    {/* Cards Count */}
-                    <div className="w-full flex items-center justify-center mt-2">
-                         <p className="text-white/60 text-[14px] font-satoshi">
-                             Cards added: {cards.length}
-                         </p>
-                    </div>
+                    {/* Cards Count (Only in Stacked View) */}
+                    {isStacked && (
+                        <div
+                            className="absolute w-full flex items-center justify-center transition-all duration-300 delay-100"
+                            style={{
+                                // Position below the front card. Front card top is approx 30-45px + 212px height.
+                                // Formula: (N-1)*15 + 212 + 20px padding
+                                top: `${(sortedCards.length - 1) * 15 + 212 + 24}px`
+                            }}
+                        >
+                            <p className="text-white/60 text-[14px] font-satoshi">
+                                Cards added: {cards.length}
+                            </p>
+                        </div>
+                    )}
+
+                    {/* Cards Count (In List View, standard flow) */}
+                    {!isStacked && (
+                        <div className="w-full flex items-center justify-center mt-2">
+                             <p className="text-white/60 text-[14px] font-satoshi">
+                                 Cards added: {cards.length}
+                             </p>
+                        </div>
+                    )}
                 </div>
             )}
         </div>
       </div>
 
-      {/* Floating Action Button (FAB) */}
+      {/* FAB / Add Button */}
       <div
         id="fab-container"
-        className={`fixed z-50 transition-all duration-300 ease-in-out flex items-center justify-end overflow-hidden ${showSuccessModal ? 'blur-sm brightness-50 pointer-events-none' : ''}`}
+        className={`fixed z-50 transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) flex items-center overflow-hidden ${showSuccessModal ? 'blur-sm brightness-50 pointer-events-none' : ''}`}
         style={{
-            bottom: "100px", // Above bottom nav
+            bottom: "100px",
+            // If stacked: Wide button logic (100% - 40px margin).
+            // If not stacked: standard FAB logic (56px or 180px).
+            width: isStacked ? "calc(100% - 40px)" : (isFabExpanded ? "180px" : "56px"),
+            left: isStacked ? "20px" : "auto",
             right: "20px",
             height: "56px",
-            // Width expands based on state
-            width: isFabExpanded ? "180px" : "56px",
+            borderRadius: isStacked ? "100px" : "999px",
         }}
       >
           <button
              onClick={handleFabClick}
-             className="w-full h-full relative rounded-full flex items-center justify-center overflow-hidden"
-             style={{
-                 background: "#5260FE",
-             }}
+             className="w-full h-full relative flex items-center justify-center overflow-hidden"
+             style={{ background: "#5260FE" }}
           >
               <div
-                className="absolute inset-0 rounded-full pointer-events-none"
+                className="absolute inset-0 pointer-events-none"
                 style={{
                     border: "1px solid transparent",
                     background: "linear-gradient(to top right, rgba(255,255,255,0.12), rgba(0,0,0,0.20)) border-box",
@@ -316,16 +362,28 @@ const MyCards = () => {
                 }}
               />
 
-              <div className="flex items-center justify-center w-full h-full px-4">
-                  {isFabExpanded ? (
-                      <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4 duration-300">
-                          <img src={fabPlus} alt="+" className="w-6 h-6 object-contain" />
-                          <span className="text-white text-[14px] font-medium whitespace-nowrap">
-                              Add New Card
-                          </span>
-                      </div>
+              <div className="flex items-center w-full h-full px-4 relative z-10">
+                  {/* Logic for Wide Button (Stacked) vs FAB (Expanded) */}
+                  {isStacked ? (
+                       <div className="w-full flex items-center justify-between animate-in fade-in zoom-in duration-300">
+                           {/* Invisible spacer to center text if needed, or just standard flex */}
+                           <span className="w-6" /> {/* Spacer to balance icon */}
+                           <span className="text-white text-[16px] font-medium font-satoshi">Add New Card</span>
+                           <img src={fabPlus} alt="+" className="w-6 h-6 object-contain" />
+                       </div>
                   ) : (
-                      <img src={fabPlus} alt="+" className="w-6 h-6 object-contain" />
+                      <div className="w-full h-full flex items-center justify-center">
+                          {isFabExpanded ? (
+                              <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4 duration-300">
+                                  <img src={fabPlus} alt="+" className="w-6 h-6 object-contain" />
+                                  <span className="text-white text-[14px] font-medium whitespace-nowrap">
+                                      Add New Card
+                                  </span>
+                              </div>
+                          ) : (
+                              <img src={fabPlus} alt="+" className="w-6 h-6 object-contain" />
+                          )}
+                      </div>
                   )}
               </div>
           </button>
@@ -348,18 +406,13 @@ const MyCards = () => {
             }}
           >
              <img src={popupCardIcon} alt="Card Success" className="w-8 h-8 mb-4 object-contain" />
-
-             <h2 className="text-white text-[18px] font-semibold mb-4">
-               Card Added Successfully
-             </h2>
-
+             <h2 className="text-white text-[18px] font-semibold mb-4">Card Added Successfully</h2>
              <div className="bg-black rounded-xl w-full px-[12px] py-[11px]">
                 <p className="text-white text-[14px] leading-relaxed text-left">
                   Your card has been saved successfully. You can now use this card for withdrawals and payments.
                 </p>
              </div>
           </div>
-
           <button
             onClick={() => setShowSuccessModal(false)}
             className="relative z-10 mt-6 px-8 py-3 rounded-full flex items-center justify-center gap-2"
