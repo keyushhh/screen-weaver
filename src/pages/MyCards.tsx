@@ -150,24 +150,23 @@ const MyCards = () => {
                         const isVisible = visibleCardIds[card.id] || false;
 
                         // Layout Shifts for Default Card
-                        // Chip moves down 10px, others move down 16px
-                        const chipTop = isDefault ? 31 : 21; // 21 + 10
+                        // Chip moves down 10px relative to the Default tag (24px height) -> 24 + 10 = 34px
+                        const chipTop = isDefault ? 34 : 21;
                         const nameTop = isDefault ? 42 : 26; // 26 + 16
                         const labelTop = isDefault ? 86 : 70; // 70 + 16
                         const numberTop = isDefault ? 109 : 93; // 93 + 16
                         const expiryTop = isDefault ? 145 : 129; // 129 + 16
-                        // For bottom anchored Logo, we reduce the bottom distance by 16px to effectively push it down relative to top?
-                        // No, "Think of it as shifting the entire card content block downward".
-                        // If I have a fixed height container (192px), shifting content down pushes it closer to bottom.
-                        // So bottom offset should decrease.
-                        // Original bottom: 26px. New bottom: 10px (26 - 16).
-                        const logoBottom = isDefault ? 10 : 26;
+
+                        // Default cards are taller (212px) to accommodate the banner, so standard bottom padding (26px) applies
+                        const logoBottom = 26;
+                        const cardHeight = isDefault ? "212px" : "192px";
 
                         return (
                             <div
                                 key={card.id}
-                                className="relative w-full h-[192px] rounded-[16px] overflow-hidden shrink-0"
+                                className="relative w-full rounded-[16px] overflow-hidden shrink-0"
                                 style={{
+                                    height: cardHeight,
                                     backgroundImage: `url(${bgSrc})`,
                                     backgroundSize: 'cover',
                                     backgroundPosition: 'center',
@@ -248,7 +247,7 @@ const MyCards = () => {
                                         <div className="flex flex-col gap-[5px]">
                                             <label className="text-[#C4C4C4] text-[14px] font-normal font-satoshi leading-none">Expiry Date</label>
                                             <p className="text-white text-[13px] font-bold font-satoshi leading-none">
-                                                {card.expiry}
+                                                **/**
                                             </p>
                                         </div>
 
