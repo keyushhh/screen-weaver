@@ -48,7 +48,8 @@ const MyCards = () => {
     }
   }, [location.state]);
 
-  const handleFabClick = () => {
+  const handleFabClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (isFabExpanded) {
       navigate("/cards/add");
     } else {
@@ -288,7 +289,7 @@ const MyCards = () => {
       {/* Floating Action Button (FAB) */}
       <div
         id="fab-container"
-        className={`fixed z-40 transition-all duration-300 ease-in-out flex items-center justify-end overflow-hidden ${showSuccessModal ? 'blur-sm brightness-50 pointer-events-none' : ''}`}
+        className={`fixed z-50 transition-all duration-300 ease-in-out flex items-center justify-end overflow-hidden ${showSuccessModal ? 'blur-sm brightness-50 pointer-events-none' : ''}`}
         style={{
             bottom: "100px", // Above bottom nav
             right: "20px",
@@ -317,9 +318,12 @@ const MyCards = () => {
 
               <div className="flex items-center justify-center w-full h-full px-4">
                   {isFabExpanded ? (
-                      <span className="text-white text-[14px] font-medium whitespace-nowrap animate-in fade-in slide-in-from-right-4 duration-300">
-                          + Add New Card
-                      </span>
+                      <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4 duration-300">
+                          <img src={fabPlus} alt="+" className="w-6 h-6 object-contain" />
+                          <span className="text-white text-[14px] font-medium whitespace-nowrap">
+                              Add New Card
+                          </span>
+                      </div>
                   ) : (
                       <img src={fabPlus} alt="+" className="w-6 h-6 object-contain" />
                   )}
