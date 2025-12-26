@@ -113,6 +113,7 @@ const MyCards = () => {
         backgroundPosition: "top center",
         backgroundRepeat: "no-repeat",
       }}
+      onClick={() => !isStacked && setIsStacked(true)}
     >
       {/* Main Content with conditional blur */}
       <div className={`flex flex-col flex-1 transition-all duration-300 ${showSuccessModal ? 'blur-sm brightness-50' : ''}`}>
@@ -196,8 +197,11 @@ const MyCards = () => {
                         return (
                             <div
                                 key={card.id}
-                                onClick={() => isStacked && setIsStacked(false)}
-                                className={`relative w-full rounded-[16px] overflow-hidden shrink-0 transition-all duration-500 ease-out ${isStacked ? 'hover:brightness-110' : ''}`}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (isStacked) setIsStacked(false);
+                                }}
+                                className={`relative w-full rounded-[16px] overflow-hidden shrink-0 transition-all duration-500 ${isStacked ? 'ease-in hover:brightness-110' : 'ease-[cubic-bezier(0.34,1.56,0.64,1)]'}`}
                                 style={{
                                     height: cardHeight,
                                     backgroundImage: `url(${bgSrc})`,
@@ -270,7 +274,7 @@ const MyCards = () => {
                                         <div className="flex flex-col gap-[5px]">
                                             <label className="text-[#C4C4C4] text-[14px] font-normal font-satoshi leading-none">Expiry Date</label>
                                             <p className="text-white text-[13px] font-bold font-satoshi leading-none">
-                                                {card.expiry || "**/**"}
+                                                {card.expiry}
                                             </p>
                                         </div>
                                         <div className="flex flex-col gap-[5px]">
