@@ -18,7 +18,7 @@ import deleteIcon from "@/assets/delete-icon.png";
 import expandContainerBg from "@/assets/expand-container-bg.png";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import buttonRemoveCard from "@/assets/button-remove-card.png";
-import buttonSetDefault from "@/assets/button-primary-wide.png";
+import buttonSetDefault from "@/assets/button-set-default.png";
 import buttonCancelWide from "@/assets/button-cancel-wide.png";
 import { getCards, Card } from "@/utils/cardUtils";
 
@@ -545,12 +545,14 @@ const MyCards = () => {
             : "Are you sure you want to set this card as your Default card? This will replace your current default card."
         }
         primaryButtonSrc={confirmAction === 'remove' ? buttonRemoveCard : buttonSetDefault}
+        primaryText={confirmAction === 'remove' ? "Remove Card" : "Set as Default"}
         onPrimaryClick={() => {
             // Currently no-op as requested
             console.log(confirmAction === 'remove' ? "Remove confirmed" : "Set Default confirmed");
             closeConfirmation();
         }}
         secondaryButtonSrc={buttonCancelWide}
+        secondaryText="Cancel"
       />
 
       {/* Success Modal */}
