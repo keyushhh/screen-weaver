@@ -163,7 +163,7 @@ const MyCards = () => {
 
   return (
     <div
-      className="min-h-[100dvh] flex flex-col safe-area-top safe-area-bottom pb-[96px] relative"
+      className="min-h-[100dvh] flex flex-col safe-area-top safe-area-bottom relative"
       style={{
         backgroundColor: "#0a0a12",
         backgroundImage: `url(${bgDarkMode})`,
@@ -188,7 +188,8 @@ const MyCards = () => {
         </div>
 
         {/* Content */}
-        <div className="px-5 mt-8 flex-1 overflow-y-auto pb-24 scrollbar-hide">
+        {/* REMOVED pb-24 to satisfy "list should scroll behind the bottom navbar" */}
+        <div className="px-5 mt-8 flex-1 overflow-y-auto scrollbar-hide pb-0">
 
             {cards.length === 0 ? (
                 /* Empty State */
@@ -375,40 +376,44 @@ const MyCards = () => {
                                             backgroundSize: 'cover',
                                             backgroundPosition: 'center',
                                             marginTop: '-12px', // Pull it up to "connect" behind
-                                            paddingTop: '12px', // Compensate content push
+                                            // Padding adjustments handled inside flex container below
                                             zIndex: 1, // Behind card
                                         }}
                                         onClick={(e) => e.stopPropagation()}
                                     >
-                                        <div className="w-full h-full flex items-center justify-center pt-2">
-                                        {/* pt-2 to vertically align center within the ~48px visible area */}
+                                        <div className="w-full h-full flex items-end justify-center pb-[14px]">
+                                        {/* Added items-end + pb-[14px] to position actions from bottom */}
 
                                         {/* Default Card: Remove Only */}
                                         {isDefault ? (
                                             <button
-                                              className="flex items-center gap-2 px-4 h-full w-full justify-center opacity-80 hover:opacity-100 transition-opacity"
+                                              className="flex items-center gap-2 px-4 w-full justify-center opacity-80 hover:opacity-100 transition-opacity"
                                             >
                                                 <img src={deleteIcon} alt="Remove" className="w-[18px] h-[18px] object-contain" />
-                                                <span className="text-white text-[14px] font-medium">Remove Card</span>
+                                                <span className="text-[#FF3B30] text-[14px] font-medium">Remove Card</span>
                                             </button>
                                         ) : (
-                                            /* Non-Default: Set Default | Remove */
-                                            <div className="w-full h-full flex items-center">
+                                            /* Non-Default: Remove (First) | Set Default (Second) */
+                                            <div className="w-full flex items-center h-[24px]">
+                                                {/* Fixed height for the row to contain text/icons properly if needed, but flex handles it.
+                                                    The divider needs to stretch within THIS container.
+                                                */}
+
                                                 <button
-                                                  className="flex-1 h-full flex items-center justify-center gap-2 opacity-80 hover:opacity-100 transition-opacity"
+                                                  className="flex-1 flex items-center justify-center gap-2 opacity-80 hover:opacity-100 transition-opacity"
+                                                >
+                                                    <img src={deleteIcon} alt="Remove" className="w-[18px] h-[18px] object-contain" />
+                                                    <span className="text-[#FF3B30] text-[14px] font-medium">Remove Card</span>
+                                                </button>
+
+                                                {/* Divider - Self Stretch to fill height of the row */}
+                                                <div className="w-[1.5px] bg-[#2A2A2A] self-stretch" />
+
+                                                <button
+                                                  className="flex-1 flex items-center justify-center gap-2 opacity-80 hover:opacity-100 transition-opacity"
                                                 >
                                                     <img src={defaultIcon} alt="Default" className="w-[18px] h-[18px] object-contain" />
                                                     <span className="text-white text-[14px] font-medium">Set as Default?</span>
-                                                </button>
-
-                                                {/* Divider */}
-                                                <div className="w-[1.5px] h-[24px] bg-[#2A2A2A]" />
-
-                                                <button
-                                                  className="flex-1 h-full flex items-center justify-center gap-2 opacity-80 hover:opacity-100 transition-opacity"
-                                                >
-                                                    <img src={deleteIcon} alt="Remove" className="w-[18px] h-[18px] object-contain" />
-                                                    <span className="text-white text-[14px] font-medium">Remove Card</span>
                                                 </button>
                                             </div>
                                         )}
@@ -437,7 +442,16 @@ const MyCards = () => {
 
                     {/* Cards Count (In List View, standard flow) */}
                     {!isStacked && (
-                        <div className="w-full flex items-center justify-center mt-2">
+                        <div className="w-full flex items-center justify-center mt-2 pb-[100px]">
+                            {/* Added pb-[100px] here to ensure this text itself isn't hidden if it's the last thing?
+                                User said "Do NOT add bottom padding equal to navbar height on the list".
+                                The list container has pb-0.
+                                So content might be hidden.
+                                "It should NOT overlay or float above the navbar".
+                                Navbar is fixed.
+                                List is z-0 (default). Navbar z-50.
+                                So List is behind. Correct.
+                            */}
                              <p className="text-white/60 text-[14px] font-satoshi">
                                  Cards added: {cards.length}
                              </p>
