@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ChevronLeft, Eye, EyeOff } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
@@ -11,6 +11,7 @@ import rupayLogo from "@/assets/rupay-logo.png";
 import { Button } from "@/components/ui/button";
 import { useSensitiveInput } from "@/hooks/useSensitiveInput";
 import { addCard } from "@/utils/cardUtils";
+import { luhnCheck, validateExpiry, validateCVV } from "@/utils/validationUtils";
 
 const AddCard = () => {
   const navigate = useNavigate();
@@ -20,6 +21,15 @@ const AddCard = () => {
   const [expiry, setExpiry] = useState("");
   const [cardHolder, setCardHolder] = useState("");
   const [cardType, setCardType] = useState<"visa" | "mastercard" | "rupay" | null>(null);
+
+  // Validation State
+  const [errors, setErrors] = useState<{ [key: string]: string | null }>({});
+
+  // Refs for focusing back after error click
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const numberInputRef = useRef<HTMLInputElement>(null);
+  const expiryInputRef = useRef<HTMLInputElement>(null);
+  const cvvInputRef = useRef<HTMLInputElement>(null);
 
   // Visibility (Eye Toggle)
   const [isEyeOpen, setIsEyeOpen] = useState(false);
@@ -45,8 +55,16 @@ const AddCard = () => {
     }
   }, [location.state]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Clear specific error on change
+  const clearError = (field: string) => {
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: null }));
+    }
+  };
+
   // Card Number Logic (Formatting + Detection)
   const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    clearError("cardNumber");
     let val = e.target.value.replace(/\D/g, "");
     if (val.length > 16) val = val.slice(0, 16);
 
@@ -73,6 +91,7 @@ const AddCard = () => {
   };
 
   const handleExpiryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    clearError("expiry");
     let val = e.target.value.replace(/\D/g, "");
     if (val.length > 4) val = val.slice(0, 4);
 
@@ -83,8 +102,66 @@ const AddCard = () => {
     }
   };
 
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    clearError("cardHolder");
+    setCardHolder(e.target.value.toUpperCase());
+  };
+
+  const handleCvvChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+     clearError("cvv");
+     cvvProps.handleChange(e.target.value.replace(/\D/g, "").slice(0, 3));
+  };
+
+  const validateForm = () => {
+    const newErrors: { [key: string]: string | null } = {};
+    let isValid = true;
+
+    // Name Validation
+    if (!cardHolder.trim()) {
+      newErrors.cardHolder = "Enter the name as it appears on your card.";
+      isValid = false;
+    }
+
+    // Number Validation
+    if (!cardNumberProps.value) {
+      newErrors.cardNumber = "Card number is required.";
+      isValid = false;
+    } else if (cardNumberProps.value.length < 13 || !luhnCheck(cardNumberProps.value)) {
+       // Using generic message or specific one? Requirement says "implement Luhn...".
+       // If empty -> "Card number is required."
+       // If invalid -> "Card number is required." (As per screenshot, explicitly matches that text even for invalid?
+       // actually screenshot implies the error for the field.
+       // I'll use "Card number is required." for empty, and a clearer message for invalid if possible,
+       // but strictly following screenshot might mean using that text.
+       // Let's use "Card number is required." for empty and "Enter a valid card number." for invalid for better UX,
+       // unless "Card number is required" was intended as a catch-all.)
+       // Screenshot specifically showed "Card number is required." in red.
+       newErrors.cardNumber = "Card number is required."; // Or "Invalid card number."
+       isValid = false;
+    }
+
+    // Expiry Validation
+    const expiryError = validateExpiry(expiry);
+    if (expiryError) {
+      newErrors.expiry = expiryError;
+      isValid = false;
+    }
+
+    // CVV Validation
+    const cvvError = validateCVV(cvvProps.value, cardType);
+    if (cvvError) {
+      newErrors.cvv = cvvError;
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
   const handleSaveCard = () => {
-    if (!hasInput) return;
+    // We allow validation check even if hasInput is true (which means at least ONE field has input)
+    // But logically we should check everything.
+    if (!validateForm()) return;
 
     addCard({
       number: cardNumberProps.value,
@@ -97,6 +174,13 @@ const AddCard = () => {
   };
 
   const hasInput = cardNumberProps.value.length > 0 || expiry.length > 0 || cvvProps.value.length > 0 || cardHolder.length > 0;
+  const hasErrors = Object.values(errors).some(val => val !== null);
+
+  // Helper to focus input when error is clicked
+  const handleErrorClick = (field: string, ref: React.RefObject<HTMLInputElement>) => {
+    clearError(field);
+    setTimeout(() => ref.current?.focus(), 0);
+  };
 
   return (
     <div
@@ -125,7 +209,7 @@ const AddCard = () => {
         {/* Interactive Card Preview */}
         {/* Size: 360 x 192 px, Padding L/R: 26px */}
         <div
-            className="relative w-full max-w-[360px] h-[192px] mx-auto mb-[20px] rounded-[16px] overflow-hidden shrink-0"
+            className={`relative w-full max-w-[360px] h-[192px] mx-auto mb-[20px] rounded-[16px] overflow-hidden shrink-0 transition-colors duration-300 ${hasErrors ? 'border border-[#FF3B30]' : ''}`}
             style={{
                 backgroundImage: `url(${cardPreviewBg})`,
                 backgroundSize: 'cover',
@@ -139,14 +223,24 @@ const AddCard = () => {
                 </div>
 
                 {/* Cardholder Name */}
-                <div className="absolute top-[26px] left-[26px] right-[70px]">
-                    <input
-                        type="text"
-                        value={cardHolder}
-                        onChange={(e) => setCardHolder(e.target.value.toUpperCase())}
-                        placeholder="CARDHOLDER NAME"
-                        className="w-full bg-transparent text-white text-[16px] font-medium placeholder:text-white focus:outline-none uppercase p-0 border-none font-satoshi"
-                    />
+                <div className="absolute top-[26px] left-[26px] right-[70px] h-[22px]">
+                    {errors.cardHolder ? (
+                        <p
+                          onClick={() => handleErrorClick('cardHolder', nameInputRef)}
+                          className="text-[#FF3B30] text-[13px] italic font-normal font-satoshi leading-snug cursor-text"
+                        >
+                          {errors.cardHolder}
+                        </p>
+                    ) : (
+                        <input
+                            ref={nameInputRef}
+                            type="text"
+                            value={cardHolder}
+                            onChange={handleNameChange}
+                            placeholder="CARDHOLDER NAME"
+                            className="w-full bg-transparent text-white text-[16px] font-medium placeholder:text-white focus:outline-none uppercase p-0 border-none font-satoshi"
+                        />
+                    )}
                 </div>
 
                 {/* Card Number Label */}
@@ -155,23 +249,35 @@ const AddCard = () => {
                 </div>
 
                 {/* Card Number Value */}
-                <div className="absolute top-[93px] left-[26px] right-[26px] flex items-center justify-between">
-                    <div className="relative flex-1 mr-4">
-                        {/* The Actual Input (Hidden when masked, Visible when shown/typing) */}
-                        <input
-                            type="text"
-                            inputMode="numeric"
-                            value={formatCardNumber(cardNumberProps.value)}
-                            onChange={handleCardNumberChange}
-                            placeholder="XXXX XXXX XXXX XXXX"
-                            className={`w-full bg-transparent text-white text-[20px] font-bold placeholder:text-white focus:outline-none p-0 border-none font-satoshi tracking-widest h-[24px] ${!cardNumberProps.isVisible ? 'opacity-0 absolute inset-0 z-10' : 'relative z-10'}`}
-                        />
+                <div className="absolute top-[93px] left-[26px] right-[26px] flex items-center justify-between h-[24px]">
+                    <div className="relative flex-1 mr-4 h-full">
+                        {errors.cardNumber ? (
+                            <p
+                              onClick={() => handleErrorClick('cardNumber', numberInputRef)}
+                              className="text-[#FF3B30] text-[13px] italic font-normal font-satoshi leading-none cursor-text mt-1"
+                            >
+                              {errors.cardNumber}
+                            </p>
+                        ) : (
+                            <>
+                                {/* The Actual Input (Hidden when masked, Visible when shown/typing) */}
+                                <input
+                                    ref={numberInputRef}
+                                    type="text"
+                                    inputMode="numeric"
+                                    value={formatCardNumber(cardNumberProps.value)}
+                                    onChange={handleCardNumberChange}
+                                    placeholder="XXXX XXXX XXXX XXXX"
+                                    className={`w-full bg-transparent text-white text-[20px] font-bold placeholder:text-white focus:outline-none p-0 border-none font-satoshi tracking-widest h-[24px] ${!cardNumberProps.isVisible ? 'opacity-0 absolute inset-0 z-10' : 'relative z-10'}`}
+                                />
 
-                        {/* The Masked Overlay (Visible when masked) */}
-                        {!cardNumberProps.isVisible && (
-                           <div className="pointer-events-none text-white text-[20px] font-bold font-satoshi tracking-widest h-[24px] whitespace-nowrap overflow-hidden">
-                              {cardNumberProps.value.length > 0 ? getMaskedCardNumber() : <span className="text-[18px] text-white">XXXX XXXX XXXX XXXX</span>}
-                           </div>
+                                {/* The Masked Overlay (Visible when masked) */}
+                                {!cardNumberProps.isVisible && (
+                                   <div className="pointer-events-none text-white text-[20px] font-bold font-satoshi tracking-widest h-[24px] whitespace-nowrap overflow-hidden">
+                                      {cardNumberProps.value.length > 0 ? getMaskedCardNumber() : <span className="text-[18px] text-white">XXXX XXXX XXXX XXXX</span>}
+                                   </div>
+                                )}
+                            </>
                         )}
                     </div>
 
@@ -188,42 +294,66 @@ const AddCard = () => {
                 {/* Expiry & CVV Row */}
                 <div className="absolute top-[129px] left-[26px] flex gap-8">
                     {/* Expiry Group */}
-                    <div className="flex flex-col gap-[5px]">
+                    <div className="flex flex-col gap-[5px] w-[90px]">
                         <label className="text-[#C4C4C4] text-[14px] font-normal font-satoshi leading-none">Expiry Date</label>
-                        <input
-                            type="text"
-                            inputMode="numeric"
-                            value={expiry}
-                            onChange={handleExpiryChange}
-                            placeholder="MM/YY"
-                            className="w-[60px] bg-transparent text-white text-[13px] font-bold placeholder:text-white focus:outline-none p-0 border-none font-satoshi leading-none"
-                        />
+                        <div className="h-[28px] relative">
+                            {errors.expiry ? (
+                                <p
+                                  onClick={() => handleErrorClick('expiry', expiryInputRef)}
+                                  className="text-[#FF3B30] text-[13px] italic font-normal font-satoshi leading-tight cursor-text w-[120px] absolute top-0 left-0"
+                                >
+                                  {errors.expiry}
+                                </p>
+                            ) : (
+                                <input
+                                    ref={expiryInputRef}
+                                    type="text"
+                                    inputMode="numeric"
+                                    value={expiry}
+                                    onChange={handleExpiryChange}
+                                    placeholder="MM/YY"
+                                    className="w-[60px] bg-transparent text-white text-[13px] font-bold placeholder:text-white focus:outline-none p-0 border-none font-satoshi leading-none"
+                                />
+                            )}
+                        </div>
                     </div>
 
                     {/* CVV Group */}
-                    <div className="flex flex-col gap-[5px]">
+                    <div className="flex flex-col gap-[5px] ml-6">
                         <label className="text-[#C4C4C4] text-[14px] font-normal font-satoshi leading-none">CVV</label>
 
                          {/* CVV Input with Visibility Logic */}
-                         <div className="relative w-[40px] h-[14px]">
-                             <input
-                                type="text"
-                                inputMode="numeric"
-                                maxLength={3}
-                                value={cvvProps.value}
-                                onChange={(e) => cvvProps.handleChange(e.target.value.replace(/\D/g, "").slice(0, 3))}
-                                placeholder="XXX"
-                                className={`w-full h-full bg-transparent text-white text-[14px] font-bold placeholder:text-white focus:outline-none p-0 border-none font-satoshi leading-none ${!cvvProps.isVisible ? 'opacity-0 absolute inset-0 z-10' : 'relative z-10'}`}
-                            />
-                             {!cvvProps.isVisible && (
-                                <div className="pointer-events-none text-white text-[14px] font-bold font-satoshi leading-none absolute top-0 left-0">
-                                    {cvvProps.value.length > 0 ? cvvProps.value.replace(/./g, "*") : <span className="text-white">***</span>}
-                                </div>
-                             )}
-                             {!cvvProps.isVisible && cvvProps.value.length === 0 && (
-                                 <div className="pointer-events-none text-white text-[14px] font-bold font-satoshi leading-none absolute top-0 left-0">
-                                     ***
-                                 </div>
+                         <div className="relative w-[100px] h-[28px]">
+                             {errors.cvv ? (
+                                <p
+                                  onClick={() => handleErrorClick('cvv', cvvInputRef)}
+                                  className="text-[#FF3B30] text-[13px] italic font-normal font-satoshi leading-tight cursor-text absolute top-0 left-0"
+                                >
+                                  {errors.cvv}
+                                </p>
+                             ) : (
+                                 <>
+                                     <input
+                                        ref={cvvInputRef}
+                                        type="text"
+                                        inputMode="numeric"
+                                        maxLength={3}
+                                        value={cvvProps.value}
+                                        onChange={handleCvvChange}
+                                        placeholder="XXX"
+                                        className={`w-[40px] h-[14px] bg-transparent text-white text-[14px] font-bold placeholder:text-white focus:outline-none p-0 border-none font-satoshi leading-none ${!cvvProps.isVisible ? 'opacity-0 absolute inset-0 z-10' : 'relative z-10'}`}
+                                    />
+                                     {!cvvProps.isVisible && (
+                                        <div className="pointer-events-none text-white text-[14px] font-bold font-satoshi leading-none absolute top-0 left-0">
+                                            {cvvProps.value.length > 0 ? cvvProps.value.replace(/./g, "*") : <span className="text-white">***</span>}
+                                        </div>
+                                     )}
+                                     {!cvvProps.isVisible && cvvProps.value.length === 0 && (
+                                         <div className="pointer-events-none text-white text-[14px] font-bold font-satoshi leading-none absolute top-0 left-0">
+                                             ***
+                                         </div>
+                                     )}
+                                 </>
                              )}
                          </div>
                     </div>
