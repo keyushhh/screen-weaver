@@ -1,9 +1,14 @@
 import { useNavigate } from "react-router-dom";
-import { Home, CreditCard, ScanLine, User } from "lucide-react";
 import navPlusButton from "@/assets/nav-plus-button.png";
+import navHome from "@/assets/nav-home.svg";
+import navHomeInactive from "@/assets/nav-home-inactive.png";
+import navCards from "@/assets/nav-cards.svg";
+import navCardsActive from "@/assets/nav-cards-active.png";
+import navRewards from "@/assets/nav-rewards.svg";
+import navMore from "@/assets/nav-more.svg";
 
 interface BottomNavigationProps {
-  activeTab: "home" | "cards" | "scan" | "profile";
+  activeTab: "home" | "cards" | "rewards" | "more";
 }
 
 const BottomNavigation = ({ activeTab }: BottomNavigationProps) => {
@@ -11,14 +16,15 @@ const BottomNavigation = ({ activeTab }: BottomNavigationProps) => {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 h-[80px] z-50 flex items-center justify-between px-6 backdrop-blur-md bg-black/80 border-t border-white/5">
+      {/* Home */}
       <button
         onClick={() => navigate("/home")}
         className="flex flex-col items-center gap-1 min-w-[60px]"
       >
-        <Home
-          className={`w-6 h-6 ${
-            activeTab === "home" ? "text-[#5260FE]" : "text-white/40"
-          }`}
+        <img
+            src={activeTab === "home" ? navHome : navHomeInactive}
+            alt="Home"
+            className="w-6 h-6 object-contain"
         />
         <span
           className={`text-[11px] font-medium ${
@@ -29,21 +35,22 @@ const BottomNavigation = ({ activeTab }: BottomNavigationProps) => {
         </span>
       </button>
 
+      {/* Cards */}
       <button
         onClick={() => navigate("/cards")}
         className="flex flex-col items-center gap-1 min-w-[60px]"
       >
-        <CreditCard
-          className={`w-6 h-6 ${
-            activeTab === "cards" ? "text-[#5260FE]" : "text-white/40"
-          }`}
+        <img
+            src={activeTab === "cards" ? navCardsActive : navCards}
+            alt="Cards"
+            className="w-6 h-6 object-contain"
         />
         <span
           className={`text-[11px] font-medium ${
             activeTab === "cards" ? "text-[#5260FE]" : "text-white/40"
           }`}
         >
-          My Cards
+          Cards
         </span>
       </button>
 
@@ -58,43 +65,44 @@ const BottomNavigation = ({ activeTab }: BottomNavigationProps) => {
                 backgroundPosition: 'center',
             }}
           >
-             {/* FAB Icon or visual is in the bg image */}
           </button>
       </div>
 
+      {/* Rewards */}
       <button
-        onClick={() => navigate("/camera-page")}
+        // Assuming rewards route exists or does nothing for now
         className="flex flex-col items-center gap-1 min-w-[60px]"
       >
-        <ScanLine
-          className={`w-6 h-6 ${
-            activeTab === "scan" ? "text-[#5260FE]" : "text-white/40"
-          }`}
+        <img
+            src={navRewards}
+            alt="Rewards"
+            className={`w-6 h-6 object-contain ${activeTab === "rewards" ? "" : "opacity-40 grayscale"}`}
         />
         <span
           className={`text-[11px] font-medium ${
-            activeTab === "scan" ? "text-[#5260FE]" : "text-white/40"
+            activeTab === "rewards" ? "text-[#5260FE]" : "text-white/40"
           }`}
         >
-          Scan
+          Rewards
         </span>
       </button>
 
+      {/* More */}
       <button
-        onClick={() => navigate("/settings")}
+        // Assuming more route exists or does nothing for now
         className="flex flex-col items-center gap-1 min-w-[60px]"
       >
-        <User
-          className={`w-6 h-6 ${
-            activeTab === "profile" ? "text-[#5260FE]" : "text-white/40"
-          }`}
+        <img
+            src={navMore}
+            alt="More"
+            className={`w-6 h-6 object-contain ${activeTab === "more" ? "" : "opacity-40 grayscale"}`}
         />
         <span
           className={`text-[11px] font-medium ${
-            activeTab === "profile" ? "text-[#5260FE]" : "text-white/40"
+            activeTab === "more" ? "text-[#5260FE]" : "text-white/40"
           }`}
         >
-          Profile
+          More
         </span>
       </button>
     </div>
