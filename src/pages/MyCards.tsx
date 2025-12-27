@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Menu, X, Eye, EyeOff } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import savedCardsBg from "@/assets/saved-card-bg.png";
@@ -13,7 +13,10 @@ import chipIcon from "@/assets/card-chip.png";
 import mastercardLogo from "@/assets/mastercard-logo.png";
 import visaLogo from "@/assets/visa-logo.png";
 import rupayLogo from "@/assets/rupay-logo.png";
-import { getCards, Card } from "@/utils/cardUtils";
+import defaultIcon from "@/assets/default-icon.png";
+import deleteIcon from "@/assets/delete-icon.png";
+import expandContainerBg from "@/assets/expand-container-bg.png";
+import { getCards, removeCard, setDefaultCard, Card } from "@/utils/cardUtils";
 
 // Import all saved card backgrounds
 import savedCard1 from "@/assets/saved-card-1.png";
@@ -32,9 +35,14 @@ const MyCards = () => {
   const [cards, setCards] = useState<Card[]>([]);
   const [isFabExpanded, setIsFabExpanded] = useState(false);
   const [isStacked, setIsStacked] = useState(true);
+  const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
 
   // Track visibility per card
   const [visibleCardIds, setVisibleCardIds] = useState<Record<string, boolean>>({});
+
+  // Long press refs
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const isLongPressRef = useRef(false);
 
   useEffect(() => {
     // Load cards on mount
@@ -65,17 +73,20 @@ const MyCards = () => {
     }
   };
 
-  // Click outside to collapse FAB
+  // Click outside to collapse FAB or Close Menu
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
         const target = e.target as HTMLElement;
         if (!target.closest("#fab-container") && isFabExpanded) {
             setIsFabExpanded(false);
         }
+        if (!target.closest(".card-container") && selectedCardId) {
+            setSelectedCardId(null);
+        }
     };
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
-  }, [isFabExpanded]);
+  }, [isFabExpanded, selectedCardId]);
 
   const toggleCardVisibility = (id: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent stack expansion when clicking eye
@@ -97,6 +108,60 @@ const MyCards = () => {
     return `**** **** **** ${last4}`;
   };
 
+  // --- Long Press Handlers ---
+  const startPress = (id: string) => {
+    if (isStacked) return; // Only enable long press in expanded view? Assumption: Yes.
+    isLongPressRef.current = false;
+    timerRef.current = setTimeout(() => {
+      isLongPressRef.current = true;
+      setSelectedCardId(id);
+    }, 500);
+  };
+
+  const endPress = () => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+  };
+
+  const handleCardClick = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    // If it was a long press, ignore the click (handled by timer)
+    if (isLongPressRef.current) {
+        isLongPressRef.current = false;
+        return;
+    }
+
+    if (isStacked) {
+        setIsStacked(false);
+    } else {
+        // If menu is open on this card, maybe toggle it off? Or do nothing?
+        // Requirement: "Tap outside to collapse". Tapping the card itself is arguably "inside".
+        // If another card selected, select this one? No, click usually does nothing or expands details.
+        // For now, if clicking the SAME card that is selected, we keep it selected or deselect?
+        // Let's assume click on selected card deselects it for better UX.
+        if (selectedCardId === id) {
+            setSelectedCardId(null);
+        } else if (selectedCardId) {
+            setSelectedCardId(null); // Clicked another card while one is open -> Close open one
+        }
+    }
+  };
+
+  // --- Action Handlers ---
+  const onSetDefault = (id: string) => {
+      setDefaultCard(id);
+      setCards(getCards()); // Refresh
+      setSelectedCardId(null);
+  };
+
+  const onRemoveCard = (id: string) => {
+      removeCard(id);
+      setCards(getCards()); // Refresh
+      setSelectedCardId(null);
+  };
+
   // Sort cards: Default first
   const sortedCards = [...cards].sort((a, b) => {
     if (a.isDefault === b.isDefault) return 0;
@@ -113,7 +178,12 @@ const MyCards = () => {
         backgroundPosition: "top center",
         backgroundRepeat: "no-repeat",
       }}
-      onClick={() => !isStacked && setIsStacked(true)}
+      onClick={() => {
+          if (!isStacked) {
+            // Check if not clicking inside a card (handled by stopPropagation there)
+             setIsStacked(true);
+          }
+      }}
     >
       {/* Main Content with conditional blur */}
       <div className={`flex flex-col flex-1 transition-all duration-300 ${showSuccessModal ? 'blur-sm brightness-50' : ''}`}>
@@ -160,6 +230,7 @@ const MyCards = () => {
                         const bgSrc = cardBackgrounds[(card.backgroundIndex - 1) % 6];
                         const isDefault = card.isDefault;
                         const isVisible = visibleCardIds[card.id] || false;
+                        const isSelected = selectedCardId === card.id;
 
                         // Layout constants
                         const chipTop = isDefault ? 34 : 21;
@@ -195,106 +266,157 @@ const MyCards = () => {
                         } : {};
 
                         return (
-                            <div
-                                key={card.id}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (isStacked) setIsStacked(false);
-                                }}
-                                className={`relative w-full rounded-[16px] overflow-hidden shrink-0 transition-all duration-[250ms] ease-in-out ${isStacked ? 'hover:brightness-110' : ''}`}
-                                style={{
-                                    height: cardHeight,
-                                    backgroundImage: `url(${bgSrc})`,
-                                    backgroundSize: 'cover',
-                                    backgroundPosition: 'center',
-                                    ...stackedStyle
-                                }}
-                            >
-                                {/* Default Tag */}
-                                {isDefault && (
-                                    <div
-                                        className="absolute top-0 left-0 w-full h-[24px] flex items-center justify-center z-10"
-                                        style={{ backgroundColor: 'rgba(0, 0, 0, 0.64)' }}
-                                    >
-                                        <span className="text-white text-[10px] font-medium uppercase tracking-wider">DEFAULT</span>
-                                    </div>
-                                )}
-
-                                <div className="relative w-full h-full px-[26px]">
-                                    {/* Chip */}
-                                    <div
-                                        className="absolute right-[26px] w-[40px] h-[30px] flex justify-end transition-all"
-                                        style={{ top: `${chipTop}px` }}
-                                    >
-                                        <img src={chipIcon} alt="Chip" className="h-[28px] object-contain" />
-                                    </div>
-
-                                    {/* Name */}
-                                    <div
-                                        className="absolute left-[26px] right-[70px] transition-all"
-                                        style={{ top: `${nameTop}px` }}
-                                    >
-                                        <p className="text-white text-[16px] font-medium uppercase font-satoshi truncate">
-                                            {card.holder || "NO NAME"}
-                                        </p>
-                                    </div>
-
-                                    {/* Label */}
-                                    <div
-                                        className="absolute left-[26px] transition-all"
-                                        style={{ top: `${labelTop}px` }}
-                                    >
-                                        <p className="text-[#C4C4C4] text-[13px] font-normal font-satoshi">Card Number</p>
-                                    </div>
-
-                                    {/* Number + Eye */}
-                                    <div
-                                        className="absolute left-[26px] right-[26px] flex items-center justify-between transition-all"
-                                        style={{ top: `${numberTop}px` }}
-                                    >
-                                         <div className="relative flex-1 mr-4">
-                                            <p className="text-white text-[20px] font-bold font-satoshi tracking-widest h-[24px]">
-                                                {isVisible ? formatCardNumber(card.number) : getMaskedCardNumber(card.number)}
-                                            </p>
-                                         </div>
-                                        <button
-                                            type="button"
-                                            onClick={(e) => toggleCardVisibility(card.id, e)}
-                                            className="text-white shrink-0 z-20 hover:text-white/80"
+                            <div key={card.id} className="flex flex-col card-container">
+                                <div
+                                    onMouseDown={() => startPress(card.id)}
+                                    onMouseUp={endPress}
+                                    onMouseLeave={endPress}
+                                    onTouchStart={() => startPress(card.id)}
+                                    onTouchEnd={endPress}
+                                    onClick={(e) => handleCardClick(e, card.id)}
+                                    className={`relative w-full rounded-[16px] overflow-hidden shrink-0 transition-all duration-[250ms] ease-in-out ${isStacked ? 'hover:brightness-110' : ''}`}
+                                    style={{
+                                        height: cardHeight,
+                                        backgroundImage: `url(${bgSrc})`,
+                                        backgroundSize: 'cover',
+                                        backgroundPosition: 'center',
+                                        // Apply white stroke if selected
+                                        border: isSelected ? '2px solid white' : 'none',
+                                        ...stackedStyle
+                                    }}
+                                >
+                                    {/* Default Tag */}
+                                    {isDefault && (
+                                        <div
+                                            className="absolute top-0 left-0 w-full h-[24px] flex items-center justify-center z-10"
+                                            style={{ backgroundColor: 'rgba(0, 0, 0, 0.64)' }}
                                         >
-                                            {isVisible ? <Eye size={20} /> : <EyeOff size={20} />}
-                                        </button>
-                                    </div>
+                                            <span className="text-white text-[10px] font-medium uppercase tracking-wider">DEFAULT</span>
+                                        </div>
+                                    )}
 
-                                    {/* Expiry & CVV */}
-                                    <div
-                                        className="absolute left-[26px] flex gap-8 transition-all"
-                                        style={{ top: `${expiryTop}px` }}
-                                    >
-                                        <div className="flex flex-col gap-[5px]">
-                                            <label className="text-[#C4C4C4] text-[14px] font-normal font-satoshi leading-none">Expiry Date</label>
-                                            <p className="text-white text-[13px] font-bold font-satoshi leading-none">
-                                                {card.expiry}
+                                    <div className="relative w-full h-full px-[26px]">
+                                        {/* Chip */}
+                                        <div
+                                            className="absolute right-[26px] w-[40px] h-[30px] flex justify-end transition-all"
+                                            style={{ top: `${chipTop}px` }}
+                                        >
+                                            <img src={chipIcon} alt="Chip" className="h-[28px] object-contain" />
+                                        </div>
+
+                                        {/* Name */}
+                                        <div
+                                            className="absolute left-[26px] right-[70px] transition-all"
+                                            style={{ top: `${nameTop}px` }}
+                                        >
+                                            <p className="text-white text-[16px] font-medium uppercase font-satoshi truncate">
+                                                {card.holder || "NO NAME"}
                                             </p>
                                         </div>
-                                        <div className="flex flex-col gap-[5px]">
-                                            <label className="text-[#C4C4C4] text-[14px] font-normal font-satoshi leading-none">CVV</label>
-                                            <p className="text-white text-[14px] font-bold font-satoshi leading-none">
-                                                {isVisible ? (card.cvv || "123") : "***"}
-                                            </p>
-                                        </div>
-                                    </div>
 
-                                    {/* Network Logo */}
-                                    <div
-                                        className="absolute right-[26px] h-[24px] transition-all"
-                                        style={{ bottom: `${logoBottom}px` }}
-                                    >
-                                        {card.type === "visa" && <img src={visaLogo} alt="Visa" className="h-full object-contain" />}
-                                        {card.type === "mastercard" && <img src={mastercardLogo} alt="Mastercard" className="h-full object-contain" />}
-                                        {card.type === "rupay" && <img src={rupayLogo} alt="Rupay" className="h-full object-contain" />}
+                                        {/* Label */}
+                                        <div
+                                            className="absolute left-[26px] transition-all"
+                                            style={{ top: `${labelTop}px` }}
+                                        >
+                                            <p className="text-[#C4C4C4] text-[13px] font-normal font-satoshi">Card Number</p>
+                                        </div>
+
+                                        {/* Number + Eye */}
+                                        <div
+                                            className="absolute left-[26px] right-[26px] flex items-center justify-between transition-all"
+                                            style={{ top: `${numberTop}px` }}
+                                        >
+                                             <div className="relative flex-1 mr-4">
+                                                <p className="text-white text-[20px] font-bold font-satoshi tracking-widest h-[24px]">
+                                                    {isVisible ? formatCardNumber(card.number) : getMaskedCardNumber(card.number)}
+                                                </p>
+                                             </div>
+                                            <button
+                                                type="button"
+                                                onClick={(e) => toggleCardVisibility(card.id, e)}
+                                                className="text-white shrink-0 z-20 hover:text-white/80"
+                                            >
+                                                {isVisible ? <Eye size={20} /> : <EyeOff size={20} />}
+                                            </button>
+                                        </div>
+
+                                        {/* Expiry & CVV */}
+                                        <div
+                                            className="absolute left-[26px] flex gap-8 transition-all"
+                                            style={{ top: `${expiryTop}px` }}
+                                        >
+                                            <div className="flex flex-col gap-[5px]">
+                                                <label className="text-[#C4C4C4] text-[14px] font-normal font-satoshi leading-none">Expiry Date</label>
+                                                <p className="text-white text-[13px] font-bold font-satoshi leading-none">
+                                                    {card.expiry}
+                                                </p>
+                                            </div>
+                                            <div className="flex flex-col gap-[5px]">
+                                                <label className="text-[#C4C4C4] text-[14px] font-normal font-satoshi leading-none">CVV</label>
+                                                <p className="text-white text-[14px] font-bold font-satoshi leading-none">
+                                                    {isVisible ? (card.cvv || "123") : "***"}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {/* Network Logo */}
+                                        <div
+                                            className="absolute right-[26px] h-[24px] transition-all"
+                                            style={{ bottom: `${logoBottom}px` }}
+                                        >
+                                            {card.type === "visa" && <img src={visaLogo} alt="Visa" className="h-full object-contain" />}
+                                            {card.type === "mastercard" && <img src={mastercardLogo} alt="Mastercard" className="h-full object-contain" />}
+                                            {card.type === "rupay" && <img src={rupayLogo} alt="Rupay" className="h-full object-contain" />}
+                                        </div>
                                     </div>
                                 </div>
+
+                                {/* Action Menu (Only in Expanded View & Selected) */}
+                                {!isStacked && isSelected && (
+                                    <div
+                                        className="w-full h-[48px] mt-4 flex items-center justify-center rounded-lg relative overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200"
+                                        style={{
+                                            backgroundImage: `url(${expandContainerBg})`,
+                                            backgroundSize: 'cover',
+                                            backgroundPosition: 'center',
+                                        }}
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        {/* Default Card: Remove Only */}
+                                        {isDefault ? (
+                                            <button
+                                              onClick={() => onRemoveCard(card.id)}
+                                              className="flex items-center gap-2 px-4 h-full"
+                                            >
+                                                <img src={deleteIcon} alt="Remove" className="w-[18px] h-[18px] object-contain" />
+                                                <span className="text-white text-[14px] font-medium">Remove Card</span>
+                                            </button>
+                                        ) : (
+                                            /* Non-Default: Set Default | Remove */
+                                            <div className="w-full h-full flex items-center">
+                                                <button
+                                                  onClick={() => onSetDefault(card.id)}
+                                                  className="flex-1 h-full flex items-center justify-center gap-2 hover:bg-white/5 transition-colors"
+                                                >
+                                                    <img src={defaultIcon} alt="Default" className="w-[18px] h-[18px] object-contain" />
+                                                    <span className="text-white text-[14px] font-medium">Set as Default</span>
+                                                </button>
+
+                                                {/* Divider */}
+                                                <div className="w-[1.5px] h-[24px] bg-[#2A2A2A]" />
+
+                                                <button
+                                                  onClick={() => onRemoveCard(card.id)}
+                                                  className="flex-1 h-full flex items-center justify-center gap-2 hover:bg-white/5 transition-colors"
+                                                >
+                                                    <img src={deleteIcon} alt="Remove" className="w-[18px] h-[18px] object-contain" />
+                                                    <span className="text-white text-[14px] font-medium">Remove Card</span>
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         );
                     })}
