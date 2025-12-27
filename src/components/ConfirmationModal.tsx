@@ -1,5 +1,4 @@
 import React from 'react';
-import { cn } from '../lib/utils';
 import popupBg from '../assets/popup-bg-remove.png';
 
 interface ConfirmationModalProps {
@@ -8,8 +7,10 @@ interface ConfirmationModalProps {
   title: string;
   description: string;
   primaryButtonSrc: string;
+  primaryText: string;
   onPrimaryClick: () => void;
   secondaryButtonSrc: string; // The Cancel button
+  secondaryText: string;
 }
 
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
@@ -18,13 +19,15 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   title,
   description,
   primaryButtonSrc,
+  primaryText,
   onPrimaryClick,
   secondaryButtonSrc,
+  secondaryText,
 }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center">
+    <div className="fixed inset-0 z-[60] flex items-end justify-center pb-[32px]">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-md"
@@ -34,8 +37,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         }}
       />
 
-      {/* Modal Content - positioned slightly from bottom or centered based on design.
-          The screenshot showed it near bottom but floating. */}
+      {/* Modal Content */}
       <div className="relative z-10 w-[360px] max-w-[90%] flex flex-col items-center">
         {/* Card Background Container */}
         <div
@@ -63,13 +65,16 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                 e.stopPropagation();
                 onPrimaryClick();
               }}
-              className="w-full active:scale-95 transition-transform"
+              className="w-full h-[48px] relative active:scale-95 transition-transform flex items-center justify-center"
             >
               <img
                 src={primaryButtonSrc}
                 alt="Primary Action"
-                className="w-full h-[48px] object-contain"
+                className="absolute inset-0 w-full h-full object-contain pointer-events-none"
               />
+              <span className="relative z-10 text-white text-[16px] font-bold font-satoshi">
+                {primaryText}
+              </span>
             </button>
 
             <button
@@ -77,13 +82,16 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                 e.stopPropagation();
                 onClose();
               }}
-              className="w-full active:scale-95 transition-transform"
+              className="w-full h-[48px] relative active:scale-95 transition-transform flex items-center justify-center"
             >
               <img
                 src={secondaryButtonSrc}
                 alt="Cancel"
-                className="w-full h-[48px] object-contain"
+                className="absolute inset-0 w-full h-full object-contain pointer-events-none"
               />
+              <span className="relative z-10 text-white text-[16px] font-bold font-satoshi">
+                {secondaryText}
+              </span>
             </button>
           </div>
         </div>
