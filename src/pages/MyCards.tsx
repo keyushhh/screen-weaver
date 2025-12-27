@@ -16,6 +16,10 @@ import rupayLogo from "@/assets/rupay-logo.png";
 import defaultIcon from "@/assets/default-icon.png";
 import deleteIcon from "@/assets/delete-icon.png";
 import expandContainerBg from "@/assets/expand-container-bg.png";
+import ConfirmationModal from "@/components/ConfirmationModal";
+import buttonRemoveCard from "@/assets/button-remove-card.png";
+import buttonSetDefault from "@/assets/button-primary-wide.png";
+import buttonCancelWide from "@/assets/button-cancel-wide.png";
 import { getCards, Card } from "@/utils/cardUtils";
 
 // Import all saved card backgrounds
@@ -36,6 +40,9 @@ const MyCards = () => {
   const [isFabExpanded, setIsFabExpanded] = useState(false);
   const [isStacked, setIsStacked] = useState(true);
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+
+  // Confirmation Modal State
+  const [confirmAction, setConfirmAction] = useState<'remove' | 'default' | null>(null);
 
   // Track visibility per card
   const [visibleCardIds, setVisibleCardIds] = useState<Record<string, boolean>>({});
@@ -97,6 +104,18 @@ const MyCards = () => {
       ...prev,
       [id]: !prev[id]
     }));
+  };
+
+  const handleRemoveClick = () => {
+    setConfirmAction('remove');
+  };
+
+  const handleDefaultClick = () => {
+    setConfirmAction('default');
+  };
+
+  const closeConfirmation = () => {
+    setConfirmAction(null);
   };
 
   const formatCardNumber = (num: string) => {
@@ -387,6 +406,7 @@ const MyCards = () => {
                                         {/* Default Card: Remove Only */}
                                         {isDefault ? (
                                             <button
+                                              onClick={(e) => { e.stopPropagation(); handleRemoveClick(); }}
                                               className="flex items-center gap-2 px-4 w-full justify-center opacity-80 hover:opacity-100 transition-opacity"
                                             >
                                                 <img src={deleteIcon} alt="Remove" className="w-[18px] h-[18px] object-contain" />
@@ -400,6 +420,7 @@ const MyCards = () => {
                                                 */}
 
                                                 <button
+                                                  onClick={(e) => { e.stopPropagation(); handleRemoveClick(); }}
                                                   className="flex-1 flex items-center justify-center gap-2 opacity-80 hover:opacity-100 transition-opacity"
                                                 >
                                                     <img src={deleteIcon} alt="Remove" className="w-[18px] h-[18px] object-contain" />
@@ -410,6 +431,7 @@ const MyCards = () => {
                                                 <div className="w-[1.5px] bg-[#2A2A2A] self-stretch" />
 
                                                 <button
+                                                  onClick={(e) => { e.stopPropagation(); handleDefaultClick(); }}
                                                   className="flex-1 flex items-center justify-center gap-2 opacity-80 hover:opacity-100 transition-opacity"
                                                 >
                                                     <img src={defaultIcon} alt="Default" className="w-[18px] h-[18px] object-contain" />
@@ -511,6 +533,25 @@ const MyCards = () => {
       <div className={showSuccessModal ? 'blur-sm brightness-50' : ''}>
          <BottomNavigation activeTab="cards" />
       </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={confirmAction !== null}
+        onClose={closeConfirmation}
+        title={confirmAction === 'remove' ? "Remove Card?" : "Set as Default Card?"}
+        description={
+            confirmAction === 'remove'
+            ? "Are you sure you want to remove this card? This action is irreversible."
+            : "Are you sure you want to set this card as your Default card? This will replace your current default card."
+        }
+        primaryButtonSrc={confirmAction === 'remove' ? buttonRemoveCard : buttonSetDefault}
+        onPrimaryClick={() => {
+            // Currently no-op as requested
+            console.log(confirmAction === 'remove' ? "Remove confirmed" : "Set Default confirmed");
+            closeConfirmation();
+        }}
+        secondaryButtonSrc={buttonCancelWide}
+      />
 
       {/* Success Modal */}
       {showSuccessModal && (
