@@ -16,7 +16,7 @@ import rupayLogo from "@/assets/rupay-logo.png";
 import defaultIcon from "@/assets/default-icon.png";
 import deleteIcon from "@/assets/delete-icon.png";
 import expandContainerBg from "@/assets/expand-container-bg.png";
-import { getCards, removeCard, setDefaultCard, Card } from "@/utils/cardUtils";
+import { getCards, Card } from "@/utils/cardUtils";
 
 // Import all saved card backgrounds
 import savedCard1 from "@/assets/saved-card-1.png";
@@ -80,7 +80,10 @@ const MyCards = () => {
         if (!target.closest("#fab-container") && isFabExpanded) {
             setIsFabExpanded(false);
         }
-        if (!target.closest(".card-container") && selectedCardId) {
+
+        // If clicking outside the currently selected card wrapper, clear selection
+        const selectedWrapper = document.getElementById(`card-wrapper-${selectedCardId}`);
+        if (selectedCardId && (!target.closest(".card-wrapper") || (selectedWrapper && !selectedWrapper.contains(target)))) {
             setSelectedCardId(null);
         }
     };
@@ -110,7 +113,7 @@ const MyCards = () => {
 
   // --- Long Press Handlers ---
   const startPress = (id: string) => {
-    if (isStacked) return; // Only enable long press in expanded view? Assumption: Yes.
+    if (isStacked) return;
     isLongPressRef.current = false;
     timerRef.current = setTimeout(() => {
       isLongPressRef.current = true;
@@ -127,7 +130,7 @@ const MyCards = () => {
 
   const handleCardClick = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    // If it was a long press, ignore the click (handled by timer)
+    // If it was a long press, ignore the click
     if (isLongPressRef.current) {
         isLongPressRef.current = false;
         return;
@@ -136,31 +139,21 @@ const MyCards = () => {
     if (isStacked) {
         setIsStacked(false);
     } else {
-        // If menu is open on this card, maybe toggle it off? Or do nothing?
-        // Requirement: "Tap outside to collapse". Tapping the card itself is arguably "inside".
-        // If another card selected, select this one? No, click usually does nothing or expands details.
-        // For now, if clicking the SAME card that is selected, we keep it selected or deselect?
-        // Let's assume click on selected card deselects it for better UX.
+        // Toggle selection logic
         if (selectedCardId === id) {
-            setSelectedCardId(null);
-        } else if (selectedCardId) {
-            setSelectedCardId(null); // Clicked another card while one is open -> Close open one
+             setSelectedCardId(null);
+        } else {
+            setSelectedCardId(id);
         }
     }
   };
 
-  // --- Action Handlers ---
-  const onSetDefault = (id: string) => {
-      setDefaultCard(id);
-      setCards(getCards()); // Refresh
-      setSelectedCardId(null);
-  };
-
-  const onRemoveCard = (id: string) => {
-      removeCard(id);
-      setCards(getCards()); // Refresh
-      setSelectedCardId(null);
-  };
+  // Reset selection when stack state changes
+  useEffect(() => {
+      if (isStacked) {
+          setSelectedCardId(null);
+      }
+  }, [isStacked]);
 
   // Sort cards: Default first
   const sortedCards = [...cards].sort((a, b) => {
@@ -180,7 +173,6 @@ const MyCards = () => {
       }}
       onClick={() => {
           if (!isStacked) {
-            // Check if not clicking inside a card (handled by stopPropagation there)
              setIsStacked(true);
           }
       }}
@@ -239,50 +231,52 @@ const MyCards = () => {
                         const numberTop = isDefault ? 109 : 93;
                         const expiryTop = isDefault ? 145 : 129;
                         const logoBottom = 26;
-                        const cardHeight = isDefault ? "212px" : "192px";
+                        const cardHeightValue = isDefault ? 212 : 192;
+                        const cardHeight = `${cardHeightValue}px`;
 
                         // Stacking Logic
-                        // We want "Fan Up" effect: Back cards peek from TOP.
-                        // Index 0 (Front): Lowest visually (Highest Top value).
-                        // Index N (Back): Highest visually (Lowest Top value).
-                        // Offset: 15px.
-                        // i=0: Top = (Total-1-0)*15
-                        // i=1: Top = (Total-1-1)*15
                         const stackOffset = 15;
                         const stackScale = 0.05;
 
                         const stackedStyle = isStacked ? {
                             position: "absolute" as const,
-                            // (cards.length - 1 - index) gives the reverse index.
-                            // i=0 (Front) -> Max Value -> Max Top -> Bottom of stack
                             top: `${(sortedCards.length - 1 - index) * stackOffset}px`,
                             left: 0,
                             right: 0,
-                            zIndex: sortedCards.length - index, // Front = High Z
+                            zIndex: sortedCards.length - index,
                             transform: `scale(${1 - (index * stackScale)})`,
                             transformOrigin: "top center",
                             cursor: "pointer",
-                            boxShadow: "0px -4px 20px rgba(0,0,0,0.4)" // Shadow to separate
-                        } : {};
+                            boxShadow: "0px -4px 20px rgba(0,0,0,0.4)"
+                        } : {
+                            position: "relative" as const,
+                            zIndex: isSelected ? 50 : 1, // Bring selected to front
+                        };
 
                         return (
-                            <div key={card.id} className="flex flex-col card-container">
+                            <div
+                                key={card.id}
+                                id={`card-wrapper-${card.id}`}
+                                className={`card-wrapper transition-all duration-300 ease-in-out flex flex-col items-center w-full`}
+                                onMouseDown={() => startPress(card.id)}
+                                onMouseUp={endPress}
+                                onMouseLeave={endPress}
+                                onTouchStart={() => startPress(card.id)}
+                                onTouchEnd={endPress}
+                                onClick={(e) => handleCardClick(e, card.id)}
+                                style={stackedStyle}
+                            >
+                                {/* The Card Visual */}
                                 <div
-                                    onMouseDown={() => startPress(card.id)}
-                                    onMouseUp={endPress}
-                                    onMouseLeave={endPress}
-                                    onTouchStart={() => startPress(card.id)}
-                                    onTouchEnd={endPress}
-                                    onClick={(e) => handleCardClick(e, card.id)}
                                     className={`relative w-full rounded-[16px] overflow-hidden shrink-0 transition-all duration-[250ms] ease-in-out ${isStacked ? 'hover:brightness-110' : ''}`}
                                     style={{
                                         height: cardHeight,
                                         backgroundImage: `url(${bgSrc})`,
                                         backgroundSize: 'cover',
                                         backgroundPosition: 'center',
-                                        // Apply white stroke if selected
+                                        // White stroke on the card visual itself
                                         border: isSelected ? '2px solid white' : 'none',
-                                        ...stackedStyle
+                                        zIndex: 2, // Above the menu
                                     }}
                                 >
                                     {/* Default Tag */}
@@ -372,22 +366,27 @@ const MyCards = () => {
                                     </div>
                                 </div>
 
-                                {/* Action Menu (Only in Expanded View & Selected) */}
+                                {/* Action Menu (Extending from behind) */}
                                 {!isStacked && isSelected && (
                                     <div
-                                        className="w-full h-[48px] mt-4 flex items-center justify-center rounded-lg relative overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200"
+                                        className="w-full h-[60px] rounded-b-[16px] relative overflow-hidden animate-in slide-in-from-top-4 fade-in duration-300"
                                         style={{
                                             backgroundImage: `url(${expandContainerBg})`,
                                             backgroundSize: 'cover',
                                             backgroundPosition: 'center',
+                                            marginTop: '-12px', // Pull it up to "connect" behind
+                                            paddingTop: '12px', // Compensate content push
+                                            zIndex: 1, // Behind card
                                         }}
                                         onClick={(e) => e.stopPropagation()}
                                     >
+                                        <div className="w-full h-full flex items-center justify-center pt-2">
+                                        {/* pt-2 to vertically align center within the ~48px visible area */}
+
                                         {/* Default Card: Remove Only */}
                                         {isDefault ? (
                                             <button
-                                              onClick={() => onRemoveCard(card.id)}
-                                              className="flex items-center gap-2 px-4 h-full"
+                                              className="flex items-center gap-2 px-4 h-full w-full justify-center opacity-80 hover:opacity-100 transition-opacity"
                                             >
                                                 <img src={deleteIcon} alt="Remove" className="w-[18px] h-[18px] object-contain" />
                                                 <span className="text-white text-[14px] font-medium">Remove Card</span>
@@ -396,25 +395,24 @@ const MyCards = () => {
                                             /* Non-Default: Set Default | Remove */
                                             <div className="w-full h-full flex items-center">
                                                 <button
-                                                  onClick={() => onSetDefault(card.id)}
-                                                  className="flex-1 h-full flex items-center justify-center gap-2 hover:bg-white/5 transition-colors"
+                                                  className="flex-1 h-full flex items-center justify-center gap-2 opacity-80 hover:opacity-100 transition-opacity"
                                                 >
                                                     <img src={defaultIcon} alt="Default" className="w-[18px] h-[18px] object-contain" />
-                                                    <span className="text-white text-[14px] font-medium">Set as Default</span>
+                                                    <span className="text-white text-[14px] font-medium">Set as Default?</span>
                                                 </button>
 
                                                 {/* Divider */}
                                                 <div className="w-[1.5px] h-[24px] bg-[#2A2A2A]" />
 
                                                 <button
-                                                  onClick={() => onRemoveCard(card.id)}
-                                                  className="flex-1 h-full flex items-center justify-center gap-2 hover:bg-white/5 transition-colors"
+                                                  className="flex-1 h-full flex items-center justify-center gap-2 opacity-80 hover:opacity-100 transition-opacity"
                                                 >
                                                     <img src={deleteIcon} alt="Remove" className="w-[18px] h-[18px] object-contain" />
                                                     <span className="text-white text-[14px] font-medium">Remove Card</span>
                                                 </button>
                                             </div>
                                         )}
+                                        </div>
                                     </div>
                                 )}
                             </div>
