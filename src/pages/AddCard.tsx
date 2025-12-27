@@ -406,7 +406,7 @@ const AddCard = () => {
         <div className="mt-[86px]">
             <Button
               onClick={handleSaveCard}
-              disabled={!hasInput}
+              disabled={!hasInput || hasErrors}
               className="w-full h-[48px] rounded-full text-[16px] font-medium bg-[#5260FE] hover:bg-[#5260FE]/90 text-white disabled:opacity-50"
             >
               {hasInput ? "Save Card" : "Proceed"}
