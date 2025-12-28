@@ -37,3 +37,18 @@ export const addCard = (card: Omit<Card, "id" | "isDefault" | "backgroundIndex">
   localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedCards));
   return newCard;
 };
+
+export const removeCard = (id: string): void => {
+  const currentCards = getCards();
+  const cardToRemove = currentCards.find(c => c.id === id);
+  if (!cardToRemove) return;
+
+  const remainingCards = currentCards.filter(c => c.id !== id);
+
+  // If we removed the default card, assign default to the first remaining card
+  if (cardToRemove.isDefault && remainingCards.length > 0) {
+    remainingCards[0].isDefault = true;
+  }
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(remainingCards));
+};
