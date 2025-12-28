@@ -20,7 +20,7 @@ import ConfirmationModal from "@/components/ConfirmationModal";
 import buttonRemoveCard from "@/assets/button-remove-card.png";
 import buttonSetDefault from "@/assets/button-set-default.png";
 import buttonCancelWide from "@/assets/button-cancel-wide.png";
-import { getCards, Card, removeCard } from "@/utils/cardUtils";
+import { getCards, Card, removeCard, setDefaultCard } from "@/utils/cardUtils";
 
 // Import all saved card backgrounds
 import savedCard1 from "@/assets/saved-card-1.png";
@@ -552,9 +552,11 @@ const MyCards = () => {
                 const last4 = card ? card.number.slice(-4) : 'XXXX';
                 removeCard(selectedCardId);
                 navigate("/card-remove-success", { state: { last4 } });
-            } else {
-                console.log("Set Default confirmed");
-                // TODO: Implement set default logic if needed later
+            } else if (confirmAction === 'default' && selectedCardId) {
+                setDefaultCard(selectedCardId);
+                // Refresh local state to reflect change immediately
+                setCards(getCards());
+                setSelectedCardId(null);
                 closeConfirmation();
             }
         }}
