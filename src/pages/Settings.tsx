@@ -190,7 +190,7 @@ const Settings = () => {
             <ChevronRight />
           </div>
 
-          <div className="flex justify-between">
+          <div className="flex justify-between cursor-pointer" onClick={() => navigate('/banking')}>
             <div className="flex items-start gap-3">
               <img src={iconBankAcc} className="w-[18px] mt-[2px]" />
               <div>

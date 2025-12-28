@@ -18,6 +18,8 @@ import MyCards from "./pages/MyCards";
 import AddCard from "./pages/AddCard";
 import CardRemoveSuccess from "./pages/CardRemoveSuccess";
 import CameraPage from "./pages/CameraPage";
+import Banking from "./pages/Banking";
+import AddBank from "./pages/AddBank";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +46,8 @@ const App = () => (
             <Route path="/cards/add" element={<AddCard />} />
             <Route path="/card-remove-success" element={<CardRemoveSuccess />} />
             <Route path="/camera-page" element={<CameraPage />} />
+            <Route path="/banking" element={<Banking />} />
+            <Route path="/banking/add" element={<AddBank />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </HashRouter>
