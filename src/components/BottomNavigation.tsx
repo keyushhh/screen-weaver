@@ -28,7 +28,7 @@ const BottomNavigation = ({ activeTab }: BottomNavigationProps) => {
         />
         <span
           className={`text-[11px] font-medium ${
-            activeTab === "home" ? "text-[#5260FE]" : "text-white/40"
+            activeTab === "home" ? "text-white" : "text-white/40"
           }`}
         >
           Home
@@ -47,7 +47,7 @@ const BottomNavigation = ({ activeTab }: BottomNavigationProps) => {
         />
         <span
           className={`text-[11px] font-medium ${
-            activeTab === "cards" ? "text-[#5260FE]" : "text-white/40"
+            activeTab === "cards" ? "text-white" : "text-white/40"
           }`}
         >
           Cards
@@ -80,7 +80,7 @@ const BottomNavigation = ({ activeTab }: BottomNavigationProps) => {
         />
         <span
           className={`text-[11px] font-medium ${
-            activeTab === "rewards" ? "text-[#5260FE]" : "text-white/40"
+            activeTab === "rewards" ? "text-white" : "text-white/40"
           }`}
         >
           Rewards
@@ -99,7 +99,7 @@ const BottomNavigation = ({ activeTab }: BottomNavigationProps) => {
         />
         <span
           className={`text-[11px] font-medium ${
-            activeTab === "more" ? "text-[#5260FE]" : "text-white/40"
+            activeTab === "more" ? "text-white" : "text-white/40"
           }`}
         >
           More
