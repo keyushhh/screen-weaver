@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
-import { Menu, X, Eye, EyeOff } from "lucide-react";
+import { X, Eye, EyeOff } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import savedCardsBg from "@/assets/saved-card-bg.png";
 import addIcon from "@/assets/my-cards-add-icon.png";
@@ -201,9 +201,6 @@ const MyCards = () => {
         {/* Header - Back Button Removed */}
         <div className="px-5 pt-4 flex items-center justify-between">
             <h1 className="text-foreground text-[20px] font-medium">My Cards</h1>
-            <button>
-                <Menu className="w-6 h-6 text-foreground" />
-            </button>
         </div>
 
         {/* Content */}
