@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Pencil } from "lucide-react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useUser } from "@/contexts/UserContext";
+import { getCards } from "@/utils/cardUtils";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import avatarImg from "@/assets/avatar.png";
 import dotPeLogo from "@/assets/dot-pe-logo.svg";
@@ -43,8 +44,13 @@ const Settings = () => {
   const [pushNotifications, setPushNotifications] = useState(true);
   const [transactionAlerts, setTransactionAlerts] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
+  const [cardCount, setCardCount] = useState(0);
 
   const longPressTimer = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    setCardCount(getCards().length);
+  }, []);
 
   const handleLogoPress = () => {
     longPressTimer.current = setTimeout(() => {
@@ -172,7 +178,13 @@ const Settings = () => {
               <img src={iconLinkedCards} className="w-[18px] mt-[2px]" />
               <div>
                 <p className="text-foreground text-[14px]">Linked Cards</p>
-                <p className="text-muted-foreground text-[12px]">0 cards linked</p>
+                <p className="text-muted-foreground text-[12px]">
+                  {cardCount === 0
+                    ? "0 cards saved"
+                    : cardCount === 1
+                    ? "1 card linked"
+                    : `${cardCount} cards linked`}
+                </p>
               </div>
             </div>
             <ChevronRight />
