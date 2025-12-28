@@ -127,16 +127,7 @@ const AddCard = () => {
       newErrors.cardNumber = "Card number is required.";
       isValid = false;
     } else if (cardNumberProps.value.length < 13 || !luhnCheck(cardNumberProps.value)) {
-       // Using generic message or specific one? Requirement says "implement Luhn...".
-       // If empty -> "Card number is required."
-       // If invalid -> "Card number is required." (As per screenshot, explicitly matches that text even for invalid?
-       // actually screenshot implies the error for the field.
-       // I'll use "Card number is required." for empty, and a clearer message for invalid if possible,
-       // but strictly following screenshot might mean using that text.
-       // Let's use "Card number is required." for empty and "Enter a valid card number." for invalid for better UX,
-       // unless "Card number is required" was intended as a catch-all.)
-       // Screenshot specifically showed "Card number is required." in red.
-       newErrors.cardNumber = "Card number is required."; // Or "Invalid card number."
+       newErrors.cardNumber = "Invalid card number.";
        isValid = false;
     }
 
@@ -297,24 +288,15 @@ const AddCard = () => {
                     <div className="flex flex-col gap-[5px] w-[90px]">
                         <label className="text-[#C4C4C4] text-[14px] font-normal font-satoshi leading-none">Expiry Date</label>
                         <div className="h-[28px] relative">
-                            {errors.expiry ? (
-                                <p
-                                  onClick={() => handleErrorClick('expiry', expiryInputRef)}
-                                  className="text-[#FF3B30] text-[13px] italic font-normal font-satoshi leading-tight cursor-text w-[120px] absolute top-0 left-0"
-                                >
-                                  {errors.expiry}
-                                </p>
-                            ) : (
-                                <input
-                                    ref={expiryInputRef}
-                                    type="text"
-                                    inputMode="numeric"
-                                    value={expiry}
-                                    onChange={handleExpiryChange}
-                                    placeholder="MM/YY"
-                                    className="w-[60px] bg-transparent text-white text-[13px] font-bold placeholder:text-white focus:outline-none p-0 border-none font-satoshi leading-none"
-                                />
-                            )}
+                            <input
+                                ref={expiryInputRef}
+                                type="text"
+                                inputMode="numeric"
+                                value={expiry}
+                                onChange={handleExpiryChange}
+                                placeholder="MM/YY"
+                                className="w-[60px] bg-transparent text-white text-[13px] font-bold placeholder:text-white focus:outline-none p-0 border-none font-satoshi leading-none"
+                            />
                         </div>
                     </div>
 
@@ -367,6 +349,14 @@ const AddCard = () => {
                 </div>
             </div>
         </div>
+
+        {errors.expiry && (
+            <div className="px-1 mb-[14px]">
+                <p className="text-[#FF3B30] text-[14px] font-normal leading-relaxed">
+                    {errors.expiry}
+                </p>
+            </div>
+        )}
 
         {/* Helper Texts */}
         <div className="flex flex-col gap-[14px] mb-[28px] px-1">
