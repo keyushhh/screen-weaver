@@ -16,6 +16,7 @@ import SuccessScreen from "./pages/SuccessScreen";
 import ProfileEdit from "./pages/ProfileEdit";
 import MyCards from "./pages/MyCards";
 import AddCard from "./pages/AddCard";
+import CardRemoveSuccess from "./pages/CardRemoveSuccess";
 import CameraPage from "./pages/CameraPage";
 import NotFound from "./pages/NotFound";
 
@@ -41,6 +42,7 @@ const App = () => (
             <Route path="/profile-edit" element={<ProfileEdit />} />
             <Route path="/cards" element={<MyCards />} />
             <Route path="/cards/add" element={<AddCard />} />
+            <Route path="/card-remove-success" element={<CardRemoveSuccess />} />
             <Route path="/camera-page" element={<CameraPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
