@@ -102,6 +102,13 @@ const AddCard = () => {
     }
   };
 
+  const handleExpiryKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace" && expiry.length === 3 && expiry.endsWith("/")) {
+      e.preventDefault();
+      setExpiry(expiry.slice(0, 2));
+    }
+  };
+
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     clearError("cardHolder");
     setCardHolder(e.target.value.toUpperCase());
@@ -294,6 +301,7 @@ const AddCard = () => {
                                 inputMode="numeric"
                                 value={expiry}
                                 onChange={handleExpiryChange}
+                                onKeyDown={handleExpiryKeyDown}
                                 placeholder="MM/YY"
                                 className="w-[60px] bg-transparent text-white text-[13px] font-bold placeholder:text-white focus:outline-none p-0 border-none font-satoshi leading-none"
                             />
