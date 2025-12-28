@@ -52,3 +52,12 @@ export const removeCard = (id: string): void => {
 
   localStorage.setItem(STORAGE_KEY, JSON.stringify(remainingCards));
 };
+
+export const setDefaultCard = (id: string): void => {
+  const currentCards = getCards();
+  const updatedCards = currentCards.map(card => ({
+    ...card,
+    isDefault: card.id === id
+  }));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedCards));
+};
