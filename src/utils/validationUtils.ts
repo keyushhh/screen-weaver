@@ -46,7 +46,7 @@ export const validateExpiry = (expiry: string): string | null => {
     return "This card is expired.";
   }
 
-  if (year === currentYear && month < currentMonth) {
+  if (year === currentYear && month <= currentMonth) {
      return "This card is expired.";
   }
 
