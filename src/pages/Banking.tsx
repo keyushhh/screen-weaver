@@ -106,9 +106,6 @@ const Banking = () => {
   };
 
   const getMaskedAccountNumber = (num: string) => {
-      // Show full asterisks per UI req? Or keep it like MyCards?
-      // "Masked Account Number (with eye toggle)" was requested.
-      // Screenshot shows "****************" (16 asterisks)
       return "****************";
   };
 
@@ -227,17 +224,10 @@ const Banking = () => {
                         const accountHeightValue = isDefault ? 212 : 192;
                         const accountHeight = `${accountHeightValue}px`;
 
-                        // Relative positioning values for content
-                        // Aligning with card logic but adapting for content
-                        // TIGHTENED SPACING to prevent overlap with bottom content
-                        const pillTop = isDefault ? 38 : 20;
-                        const labelTop = isDefault ? 53 : 35;
-                        const numberTop = isDefault ? 72 : 52;
-                        const ifscTop = isDefault ? 108 : 88;
-
-                        // Bottom Position for Branch + Logo (Fixed to 26px from bottom)
-                        // This applies to BOTH default and non-default cards as per "bottom padding" requirement
-                        const bottomPos = 26;
+                        // Top Start Position for Content
+                        // Default (212px): Top ~38px
+                        // Normal (192px): Top ~20px (Difference 18px)
+                        const contentTop = isDefault ? 38 : 20;
 
                         // Stacking Logic
                         const stackOffset = 15;
@@ -292,14 +282,17 @@ const Banking = () => {
                                         </div>
                                     )}
 
-                                    {/* Card Content */}
-                                    <div className="relative w-full h-full px-[26px]">
+                                    {/* Card Content Container */}
+                                    {/* Using Flex Column for 18px Spacing */}
+                                    <div
+                                        className="absolute left-[26px] right-[26px]"
+                                        style={{ top: `${contentTop}px` }}
+                                    >
 
-                                        {/* Savings Account Pill */}
+                                        {/* Savings Account Pill (Absolute Right) */}
                                         <div
-                                            className="absolute right-[26px] bg-white/10 rounded-full backdrop-blur-sm transition-all flex items-center justify-center"
+                                            className="absolute right-0 top-0 bg-white/10 rounded-full backdrop-blur-sm transition-all flex items-center justify-center"
                                             style={{
-                                                top: `${pillTop}px`,
                                                 width: '92px',
                                                 height: '22px',
                                                 padding: '5px 7px'
@@ -310,61 +303,58 @@ const Banking = () => {
                                             </span>
                                         </div>
 
-                                        {/* Account Number Label */}
-                                        <div
-                                            className="absolute left-[26px] transition-all"
-                                            style={{ top: `${labelTop}px` }}
-                                        >
-                                            <p className="text-[#C4C4C4] text-[13px] font-normal font-satoshi">Account Number</p>
-                                        </div>
+                                        {/* Left Column Content */}
+                                        <div className="flex flex-col gap-[18px] w-full">
 
-                                        {/* Account Number Value + Eye */}
-                                        <div
-                                            className="absolute left-[26px] right-[26px] flex items-center gap-4 transition-all"
-                                            style={{ top: `${numberTop}px` }}
-                                        >
-                                            <p className="text-white text-[18px] font-bold font-satoshi tracking-wider truncate">
-                                                {isVisible ? formatAccountNumber(account.accountNumber) : getMaskedAccountNumber(account.accountNumber)}
-                                            </p>
-                                            <button
-                                                type="button"
-                                                onClick={(e) => toggleAccountVisibility(account.id, e)}
-                                                className="text-white/80 hover:text-white shrink-0"
-                                            >
-                                                {isVisible ? <Eye size={18} /> : <EyeOff size={18} />}
-                                            </button>
-                                        </div>
+                                            {/* Group 1: Account Number */}
+                                            {/* Label aligns top with Pill via Flex container top */}
+                                            <div className="w-full">
+                                                <p className="text-[#C4C4C4] text-[13px] font-normal font-satoshi leading-none h-[22px] flex items-center">
+                                                    Account Number
+                                                </p>
+                                                <div className="flex items-center gap-4 mt-[4px]">
+                                                    <p className="text-white text-[18px] font-bold font-satoshi tracking-wider truncate">
+                                                        {isVisible ? formatAccountNumber(account.accountNumber) : getMaskedAccountNumber(account.accountNumber)}
+                                                    </p>
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => toggleAccountVisibility(account.id, e)}
+                                                        className="text-white/80 hover:text-white shrink-0"
+                                                    >
+                                                        {isVisible ? <Eye size={18} /> : <EyeOff size={18} />}
+                                                    </button>
+                                                </div>
+                                            </div>
 
-                                        {/* IFSC Code */}
-                                        <div
-                                            className="absolute left-[26px] transition-all"
-                                            style={{ top: `${ifscTop}px` }}
-                                        >
-                                            <p className="text-[#C4C4C4] text-[13px] font-normal font-satoshi mb-0.5">IFSC Code</p>
-                                            <p className="text-white text-[15px] font-medium font-satoshi">
-                                                {account.ifsc}
-                                            </p>
-                                        </div>
+                                            {/* Group 2: IFSC Code */}
+                                            <div className="w-full">
+                                                <p className="text-[#C4C4C4] text-[13px] font-normal font-satoshi mb-0.5">IFSC Code</p>
+                                                <p className="text-white text-[15px] font-medium font-satoshi">
+                                                    {account.ifsc}
+                                                </p>
+                                            </div>
 
-                                        {/* Branch + Logo (Fixed Bottom Position) */}
-                                        <div
-                                            className="absolute left-[26px] right-[26px] flex items-end justify-between transition-all"
-                                            style={{ bottom: `${bottomPos}px` }}
-                                        >
-                                            <div className="max-w-[70%]">
+                                            {/* Group 3: Branch */}
+                                            <div className="w-full max-w-[70%]">
                                                 <p className="text-[#C4C4C4] text-[13px] font-normal font-satoshi mb-0.5">Branch</p>
                                                 <p className="text-white text-[14px] font-medium font-satoshi leading-tight truncate">
                                                     {account.branch}
                                                 </p>
                                             </div>
 
-                                            {/* Bank Logo - No White Background */}
-                                            <div className="w-[48px] h-[48px] flex items-center justify-end">
-                                                <img src={account.logo} alt="Bank" className="h-[32px] w-auto object-contain" />
-                                            </div>
                                         </div>
 
+                                        {/* Bank Logo (Fixed Bottom Right of Card) */}
+                                        {/* We position it absolute relative to the card container, not this inner flex wrapper */}
                                     </div>
+
+                                    {/* Bank Logo - Positioned Absolute to Card */}
+                                    <div
+                                        className="absolute right-[26px] bottom-[26px] w-[48px] h-[48px] flex items-center justify-end"
+                                    >
+                                        <img src={account.logo} alt="Bank" className="h-[32px] w-auto object-contain" />
+                                    </div>
+
                                 </div>
 
                                 {/* Action Menu */}

@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Pencil } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useUser } from "@/contexts/UserContext";
 import { getCards } from "@/utils/cardUtils";
+import { getBankAccounts } from "@/utils/bankUtils";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import avatarImg from "@/assets/avatar.png";
 import dotPeLogo from "@/assets/dot-pe-logo.svg";
@@ -45,11 +46,13 @@ const Settings = () => {
   const [transactionAlerts, setTransactionAlerts] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
   const [cardCount, setCardCount] = useState(0);
+  const [bankAccountCount, setBankAccountCount] = useState(0);
 
   const longPressTimer = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     setCardCount(getCards().length);
+    setBankAccountCount(getBankAccounts().length);
   }, []);
 
   const handleLogoPress = () => {
@@ -195,7 +198,13 @@ const Settings = () => {
               <img src={iconBankAcc} className="w-[18px] mt-[2px]" />
               <div>
                 <p className="text-foreground text-[14px]">Bank Account Info</p>
-                <p className="text-muted-foreground text-[12px]">0 bank accounts linked</p>
+                <p className="text-muted-foreground text-[12px]">
+                  {bankAccountCount === 0
+                    ? "0 bank accounts linked"
+                    : bankAccountCount === 1
+                    ? "1 bank account linked"
+                    : `${bankAccountCount} bank accounts linked`}
+                </p>
               </div>
             </div>
             <ChevronRight />
