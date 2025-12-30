@@ -280,7 +280,7 @@ const Banking = () => {
                                     {/* Content Container (Flex) */}
                                     <div className={`absolute inset-0 px-[22px] flex flex-col justify-center ${isDefault ? 'pt-[44px]' : 'py-[20px]'}`}>
 
-                                        <div className="flex flex-col gap-[15px] w-full">
+                                        <div className="flex flex-col gap-[10px] w-full">
 
                                             {/* Block 1: Account Number Section */}
                                             <div className="w-full">
