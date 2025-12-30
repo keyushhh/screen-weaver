@@ -278,7 +278,7 @@ const Banking = () => {
                                     )}
 
                                     {/* Content Container (Flex) */}
-                                    <div className={`absolute inset-0 px-[22px] flex flex-col justify-start ${isDefault ? 'pt-[44px] pb-[20px]' : 'py-[20px]'}`}>
+                                    <div className={`absolute inset-0 px-[22px] flex flex-col justify-start ${isDefault ? 'pt-[44px] pb-[40px]' : 'pt-[20px] pb-[40px]'}`}>
 
                                         <div className="flex flex-col gap-[10px] w-full">
 
