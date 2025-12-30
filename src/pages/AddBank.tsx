@@ -30,6 +30,7 @@ const AddBank = () => {
   // Manual Flow State
   const [accountNumber, setAccountNumber] = useState("");
   const [confirmAccountNumber, setConfirmAccountNumber] = useState("");
+  const [touchedConfirm, setTouchedConfirm] = useState(false);
   const [ifscCode, setIfscCode] = useState("");
   const [bankName, setBankName] = useState("");
 
@@ -47,7 +48,7 @@ const AddBank = () => {
   useEffect(() => {
     // Simple mock: if length > 4, show bank name
     if (ifscCode.length >= 4) {
-      setBankName("HDFC Bank");
+      setBankName("HDFC Bank, Kormanagala Branch 1234");
     } else {
       setBankName("");
     }
@@ -77,7 +78,7 @@ const AddBank = () => {
 
   const handleManualVerify = () => {
     console.log("Verify Bank Account clicked");
-    // No navigation as per instructions for now, or maybe just log
+    // No navigation as per instructions for now
   };
 
   const isButtonDisabled = () => {
@@ -109,7 +110,18 @@ const AddBank = () => {
     }
   };
 
-  const showMatchError = selection === 'manual' && confirmAccountNumber.length > 0 && accountNumber !== confirmAccountNumber;
+  const handleMaskedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    // Handle masking: assumes typing/deleting at end of string
+    if (val.length < accountNumber.length) {
+      setAccountNumber(prev => prev.slice(0, val.length));
+    } else {
+      const newChars = val.slice(accountNumber.length);
+      setAccountNumber(prev => prev + newChars);
+    }
+  };
+
+  const showMatchError = touchedConfirm && confirmAccountNumber.length > 0 && accountNumber !== confirmAccountNumber;
 
   return (
     <div
@@ -302,25 +314,26 @@ const AddBank = () => {
             {/* Account Number */}
             <div className="space-y-4">
               <input
-                type="password"
+                type="text"
                 placeholder="Account Number"
-                value={accountNumber}
-                onChange={(e) => setAccountNumber(e.target.value)}
-                className="w-full h-[48px] bg-[#191919]/30 border-[0.65px] border-white/20 rounded-2xl px-5 text-white placeholder:text-white/40 text-[14px] font-normal font-sans outline-none focus:border-white/40 transition-colors"
+                value={"*".repeat(accountNumber.length)}
+                onChange={handleMaskedChange}
+                className="w-full h-[48px] bg-[#191919]/30 border-[0.65px] border-white/20 rounded-full px-5 text-white placeholder:text-white/40 text-[14px] font-normal font-sans outline-none focus:border-white/40 transition-colors"
               />
 
-              <div className="relative">
+              <div className="flex flex-col gap-1">
                 <input
                   type="text"
                   placeholder="Confirm Account Number"
                   value={confirmAccountNumber}
                   onChange={(e) => setConfirmAccountNumber(e.target.value)}
-                  className={`w-full h-[48px] bg-[#191919]/30 border-[0.65px] rounded-2xl px-5 text-white placeholder:text-white/40 text-[14px] font-normal font-sans outline-none transition-colors ${
+                  onBlur={() => setTouchedConfirm(true)}
+                  className={`w-full h-[48px] bg-[#191919]/30 border-[0.65px] rounded-full px-5 text-white placeholder:text-white/40 text-[14px] font-normal font-sans outline-none transition-colors ${
                     showMatchError ? "border-red-500/50 focus:border-red-500" : "border-white/20 focus:border-white/40"
                   }`}
                 />
                 {showMatchError && (
-                  <p className="absolute left-1 -bottom-5 text-red-500 text-[11px] ml-4">
+                  <p className="text-red-500 text-[11px] ml-5">
                     Account numbers do not match
                   </p>
                 )}
@@ -333,7 +346,7 @@ const AddBank = () => {
                   value={ifscCode}
                   onChange={(e) => setIfscCode(e.target.value.toUpperCase())}
                   maxLength={11}
-                  className="w-full h-[48px] bg-[#191919]/30 border-[0.65px] border-white/20 rounded-2xl pl-5 pr-24 text-white placeholder:text-white/40 text-[14px] font-normal font-sans outline-none focus:border-white/40 transition-colors uppercase"
+                  className="w-full h-[48px] bg-[#191919]/30 border-[0.65px] border-white/20 rounded-full pl-5 pr-24 text-white placeholder:text-white/40 text-[14px] font-normal font-sans outline-none focus:border-white/40 transition-colors uppercase"
                 />
                 <button
                   className="absolute right-5 top-1/2 -translate-y-1/2 text-[#5260FE] text-[13px] font-medium hover:text-[#5260FE]/80 transition-colors"
@@ -344,9 +357,9 @@ const AddBank = () => {
 
                 {/* Bank Name Success State */}
                 {bankName && (
-                  <div className="flex items-center gap-2 mt-2 ml-1">
-                     <span className="text-white/60 text-[12px]">{bankName}</span>
-                     <img src={verifiedIcon} alt="verified" className="w-[14px] h-[14px]" />
+                  <div className="flex items-center gap-2 mt-4 ml-1">
+                     <span className="text-white font-bold text-[16px] leading-snug">{bankName}</span>
+                     <img src={verifiedIcon} alt="verified" className="w-[18px] h-[18px]" />
                   </div>
                 )}
               </div>

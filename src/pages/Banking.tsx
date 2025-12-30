@@ -1,5 +1,5 @@
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
 import { ChevronLeft, X, Eye, EyeOff } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import savedCardsBg from "@/assets/saved-card-bg.png";
