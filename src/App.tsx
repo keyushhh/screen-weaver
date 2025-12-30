@@ -20,6 +20,7 @@ import CardRemoveSuccess from "./pages/CardRemoveSuccess";
 import CameraPage from "./pages/CameraPage";
 import Banking from "./pages/Banking";
 import AddBank from "./pages/AddBank";
+import LinkedAccounts from "./pages/LinkedAccounts";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ const App = () => (
             <Route path="/camera-page" element={<CameraPage />} />
             <Route path="/banking" element={<Banking />} />
             <Route path="/banking/add" element={<AddBank />} />
+            <Route path="/banking/linked-accounts" element={<LinkedAccounts />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </HashRouter>
