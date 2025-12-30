@@ -3,20 +3,20 @@ import idfcLogo from "@/assets/idfc-bank.png";
 
 export interface BankAccount {
   id: string;
-  bankName: string; // e.g., "HDFC Bank"
-  accountType: string; // e.g., "Savings Account"
-  accountNumber: string; // Full account number
+  bankName: string;
+  accountType: string;
+  accountNumber: string;
   ifsc: string;
   branch: string;
   logo: string;
   isDefault: boolean;
-  backgroundIndex?: number; // For future multi-bg support, currently default only
+  backgroundIndex?: number;
 }
 
 const STORAGE_KEY = "dotpe_user_bank_accounts";
 
-// Mock data for initial population
-const MOCK_ACCOUNTS: BankAccount[] = [
+// Export available banks for the Linked Accounts flow
+export const AVAILABLE_BANKS: BankAccount[] = [
   {
     id: "1",
     bankName: "HDFC Bank",
@@ -25,7 +25,7 @@ const MOCK_ACCOUNTS: BankAccount[] = [
     ifsc: "HDFC0001234",
     branch: "HDFC Bank, Koramangala Branch",
     logo: hdfcLogo,
-    isDefault: true,
+    isDefault: false, // Default status handled by logic
   },
   {
     id: "2",
@@ -36,16 +36,6 @@ const MOCK_ACCOUNTS: BankAccount[] = [
     branch: "IDFC Bank, Indiranagar Branch",
     logo: idfcLogo,
     isDefault: false,
-  },
-  {
-      id: "3",
-      bankName: "HDFC Bank",
-      accountType: "Savings Account",
-      accountNumber: "56789012345678",
-      ifsc: "HDFC0001234",
-      branch: "HDFC Bank, Koramangala Branch",
-      logo: hdfcLogo,
-      isDefault: false,
   }
 ];
 
@@ -58,21 +48,29 @@ export const saveBankAccounts = (accounts: BankAccount[]) => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(accounts));
 };
 
-export const addMockAccounts = () => {
-    // Only add if empty to prevent duplicates on re-runs
-    const existing = getBankAccounts();
-    if (existing.length === 0) {
-        saveBankAccounts(MOCK_ACCOUNTS);
-        return MOCK_ACCOUNTS;
-    }
-    return existing;
+export const addSelectedAccounts = (newAccounts: BankAccount[]) => {
+  const existing = getBankAccounts();
+
+  // Filter out duplicates based on ID
+  const uniqueNew = newAccounts.filter(na => !existing.some(ea => ea.id === na.id));
+
+  if (uniqueNew.length === 0) return existing;
+
+  const updated = [...existing, ...uniqueNew];
+
+  // Ensure one default exists if we have accounts
+  if (updated.length > 0 && !updated.some(a => a.isDefault)) {
+      updated[0].isDefault = true;
+  }
+
+  saveBankAccounts(updated);
+  return updated;
 };
 
 export const removeBankAccount = (id: string) => {
   const accounts = getBankAccounts();
   const updated = accounts.filter((acc) => acc.id !== id);
 
-  // If we removed the default account, make the first one default
   if (updated.length > 0 && accounts.find(a => a.id === id)?.isDefault) {
       updated[0].isDefault = true;
   }
