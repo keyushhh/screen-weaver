@@ -221,7 +221,7 @@ const Banking = () => {
                         const isSelected = selectedAccountId === account.id;
 
                         // Layout adjustments for Default vs Normal
-                        const accountHeightValue = isDefault ? 212 : 192;
+                        const accountHeightValue = isDefault ? 218 : 192;
                         const accountHeight = `${accountHeightValue}px`;
 
                         // Stacking Logic
@@ -278,9 +278,9 @@ const Banking = () => {
                                     )}
 
                                     {/* Content Container (Flex) */}
-                                    <div className={`absolute inset-0 px-[26px] flex flex-col justify-center ${isDefault ? 'pt-[22px]' : ''}`}>
+                                    <div className={`absolute inset-0 px-[22px] flex flex-col justify-center ${isDefault ? 'pt-[44px]' : ''}`}>
 
-                                        <div className="flex flex-col gap-[18px] w-full">
+                                        <div className="flex flex-col gap-[15px] w-full">
 
                                             {/* Block 1: Account Number Section */}
                                             <div className="w-full">
@@ -291,11 +291,12 @@ const Banking = () => {
                                                     </p>
                                                     {/* Savings Account Pill */}
                                                     <div
-                                                        className="bg-white/10 rounded-full backdrop-blur-sm flex items-center justify-center"
+                                                        className="rounded-full flex items-center justify-center"
                                                         style={{
                                                             width: '92px',
                                                             height: '22px',
-                                                            padding: '5px 7px'
+                                                            padding: '5px 7px',
+                                                            backgroundColor: 'rgba(6, 6, 6, 0.51)'
                                                         }}
                                                     >
                                                         <span className="text-[#C4C4C4] text-[10px] font-medium whitespace-nowrap">
@@ -398,7 +399,7 @@ const Banking = () => {
                     {/* Count */}
                      <div className={`w-full flex items-center justify-center transition-all duration-300 ${isStacked ? 'absolute' : 'mt-2 pb-[100px]'}`}
                         style={isStacked ? {
-                            top: `${(sortedAccounts.length - 1) * 15 + 212 + 24}px`
+                            top: `${(sortedAccounts.length - 1) * 15 + 218 + 24}px`
                         } : {}}
                      >
                         <p className="text-white/60 text-[14px] font-satoshi">
