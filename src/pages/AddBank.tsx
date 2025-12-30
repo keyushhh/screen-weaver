@@ -9,6 +9,7 @@ import radioEmpty from "@/assets/radio-empty.png";
 import recommendedBadge from "@/assets/recommended.png";
 import otpInputField from "@/assets/otp-input-field.png";
 import awaitingOtp from "@/assets/awaiting-otp.png";
+import verifiedIcon from "@/assets/verified.png";
 import { Button } from "@/components/ui/button";
 import { PhoneInput } from "@/components/PhoneInput";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
@@ -18,13 +19,21 @@ type Selection = "auto" | "manual";
 const AddBank = () => {
   const navigate = useNavigate();
   const [selection, setSelection] = useState<Selection>("auto");
+
+  // Auto Flow State
   const [mobile, setMobile] = useState("");
   const [showOtpInput, setShowOtpInput] = useState(false);
   const [otp, setOtp] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
 
-  // Timer logic
+  // Manual Flow State
+  const [accountNumber, setAccountNumber] = useState("");
+  const [confirmAccountNumber, setConfirmAccountNumber] = useState("");
+  const [ifscCode, setIfscCode] = useState("");
+  const [bankName, setBankName] = useState("");
+
+  // Timer logic for OTP
   useEffect(() => {
     if (resendTimer > 0) {
       const interval = setInterval(() => {
@@ -33,6 +42,16 @@ const AddBank = () => {
       return () => clearInterval(interval);
     }
   }, [resendTimer]);
+
+  // Mock IFSC Validation
+  useEffect(() => {
+    // Simple mock: if length > 4, show bank name
+    if (ifscCode.length >= 4) {
+      setBankName("HDFC Bank");
+    } else {
+      setBankName("");
+    }
+  }, [ifscCode]);
 
   const handleRequestOTP = async () => {
     if (mobile.length < 10) return;
@@ -45,7 +64,7 @@ const AddBank = () => {
     setResendTimer(30);
   };
 
-  const handleContinue = async () => {
+  const handleVerifyOtp = async () => {
     if (otp !== "123456") return; // Simple validation
 
     setIsLoading(true);
@@ -53,16 +72,44 @@ const AddBank = () => {
     await new Promise((resolve) => setTimeout(resolve, 1500));
     setIsLoading(false);
 
-    // For now, just log or navigate back since no specific destination was given
-    console.log("Bank account verified");
     navigate("/banking/linked-accounts", { state: { mobile } });
   };
 
-  const isButtonDisabled = () => {
-    if (isLoading) return true;
-    if (!showOtpInput) return mobile.length < 10;
-    return otp.length < 6;
+  const handleManualVerify = () => {
+    console.log("Verify Bank Account clicked");
+    // No navigation as per instructions for now, or maybe just log
   };
+
+  const isButtonDisabled = () => {
+    if (selection === "auto") {
+      if (isLoading) return true;
+      if (!showOtpInput) return mobile.length < 10;
+      return otp.length < 6;
+    } else {
+      // Manual flow validation
+      const accountsMatch = accountNumber && confirmAccountNumber && accountNumber === confirmAccountNumber;
+      const isIfscValid = ifscCode.length >= 4; // Mock validation
+      return !accountsMatch || !isIfscValid;
+    }
+  };
+
+  const getButtonText = () => {
+    if (selection === "auto") {
+      if (isLoading) return showOtpInput ? "Verifying..." : "Requesting...";
+      return showOtpInput ? "Continue" : "Request OTP";
+    }
+    return "Verify Bank Account";
+  };
+
+  const handleButtonClick = () => {
+    if (selection === "auto") {
+      showOtpInput ? handleVerifyOtp() : handleRequestOTP();
+    } else {
+      handleManualVerify();
+    }
+  };
+
+  const showMatchError = selection === 'manual' && confirmAccountNumber.length > 0 && accountNumber !== confirmAccountNumber;
 
   return (
     <div
@@ -188,60 +235,121 @@ const AddBank = () => {
           </div>
         </div>
 
-        {/* Input Section */}
-        <div className="mt-10 animate-fade-in">
-          <label className="text-white text-[15px] font-medium font-sans mb-4 block">
-            Bank-registered mobile number
-          </label>
-          <PhoneInput
-            value={mobile}
-            onChange={setMobile}
-            countryCode="+91"
-            placeholder="Enter your mobile number"
-            disabled={showOtpInput}
-          />
-        </div>
+        {/* Input Section - Conditional Rendering */}
+        {selection === 'auto' ? (
+          <div className="mt-10 animate-fade-in">
+            <label className="text-white text-[15px] font-medium font-sans mb-4 block">
+              Bank-registered mobile number
+            </label>
+            <PhoneInput
+              value={mobile}
+              onChange={setMobile}
+              countryCode="+91"
+              placeholder="Enter your mobile number"
+              disabled={showOtpInput}
+            />
 
-        {/* OTP Section */}
-        {showOtpInput && (
-          <div className="mt-8 animate-fade-in space-y-4">
-            <p className="text-white/60 text-[14px]">
-              An OTP has been sent to your registered mobile number.
-            </p>
+            {/* OTP Section */}
+            {showOtpInput && (
+              <div className="mt-8 animate-fade-in space-y-4">
+                <p className="text-white/60 text-[14px]">
+                  An OTP has been sent to your registered mobile number.
+                </p>
 
-            <InputOTP maxLength={6} value={otp} onChange={setOtp} autoFocus>
-              <InputOTPGroup className="gap-2 w-full justify-between">
-                {[0, 1, 2, 3, 4, 5].map((index) => (
-                  <InputOTPSlot
-                    key={index}
-                    index={index}
-                    className="h-[52px] w-12 rounded-[7px] border-none text-xl font-semibold text-white transition-all bg-cover bg-center ring-1 ring-white/10"
-                    style={{
-                      backgroundImage: `url(${otpInputField})`,
-                      backgroundColor: 'transparent'
+                <InputOTP maxLength={6} value={otp} onChange={setOtp} autoFocus>
+                  <InputOTPGroup className="gap-2 w-full justify-between">
+                    {[0, 1, 2, 3, 4, 5].map((index) => (
+                      <InputOTPSlot
+                        key={index}
+                        index={index}
+                        className="h-[52px] w-12 rounded-[7px] border-none text-xl font-semibold text-white transition-all bg-cover bg-center ring-1 ring-white/10"
+                        style={{
+                          backgroundImage: `url(${otpInputField})`,
+                          backgroundColor: 'transparent'
+                        }}
+                      />
+                    ))}
+                  </InputOTPGroup>
+                </InputOTP>
+
+                <div className="flex items-center justify-between mt-4">
+                  <div className="flex items-center gap-2">
+                    <img src={awaitingOtp} alt="pending" className="w-5 h-5" />
+                    <span className="text-white/60 text-[13px]">Awaiting OTP verification</span>
+                  </div>
+                  <button
+                    onClick={() => {
+                       if (resendTimer === 0) {
+                         setResendTimer(30);
+                       }
                     }}
-                  />
-                ))}
-              </InputOTPGroup>
-            </InputOTP>
-
-            <div className="flex items-center justify-between mt-4">
-              <div className="flex items-center gap-2">
-                <img src={awaitingOtp} alt="pending" className="w-5 h-5" />
-                <span className="text-white/60 text-[13px]">Awaiting OTP verification</span>
+                    disabled={resendTimer > 0}
+                    className="text-white/60 text-[13px] hover:text-white transition-colors disabled:opacity-50"
+                  >
+                    {resendTimer > 0 ? `Resend in ${resendTimer}s` : "Didn't receive OTP?"}
+                  </button>
+                </div>
               </div>
-              <button
-                onClick={() => {
-                   if (resendTimer === 0) {
-                     setResendTimer(30);
-                     // Logic to resend OTP could go here
-                   }
-                }}
-                disabled={resendTimer > 0}
-                className="text-white/60 text-[13px] hover:text-white transition-colors disabled:opacity-50"
-              >
-                {resendTimer > 0 ? `Resend in ${resendTimer}s` : "Didn't receive OTP?"}
-              </button>
+            )}
+          </div>
+        ) : (
+          /* Manual Entry Form */
+          <div className="mt-10 animate-fade-in space-y-6">
+            <h2 className="text-white text-[15px] font-medium font-sans">
+              Enter your account details:
+            </h2>
+
+            {/* Account Number */}
+            <div className="space-y-4">
+              <input
+                type="password"
+                placeholder="Account Number"
+                value={accountNumber}
+                onChange={(e) => setAccountNumber(e.target.value)}
+                className="w-full h-[48px] bg-[#191919]/30 border-[0.65px] border-white/20 rounded-2xl px-5 text-white placeholder:text-white/40 text-[14px] font-normal font-sans outline-none focus:border-white/40 transition-colors"
+              />
+
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Confirm Account Number"
+                  value={confirmAccountNumber}
+                  onChange={(e) => setConfirmAccountNumber(e.target.value)}
+                  className={`w-full h-[48px] bg-[#191919]/30 border-[0.65px] rounded-2xl px-5 text-white placeholder:text-white/40 text-[14px] font-normal font-sans outline-none transition-colors ${
+                    showMatchError ? "border-red-500/50 focus:border-red-500" : "border-white/20 focus:border-white/40"
+                  }`}
+                />
+                {showMatchError && (
+                  <p className="absolute left-1 -bottom-5 text-red-500 text-[11px] ml-4">
+                    Account numbers do not match
+                  </p>
+                )}
+              </div>
+
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="IFSC Code"
+                  value={ifscCode}
+                  onChange={(e) => setIfscCode(e.target.value.toUpperCase())}
+                  maxLength={11}
+                  className="w-full h-[48px] bg-[#191919]/30 border-[0.65px] border-white/20 rounded-2xl pl-5 pr-24 text-white placeholder:text-white/40 text-[14px] font-normal font-sans outline-none focus:border-white/40 transition-colors uppercase"
+                />
+                <button
+                  className="absolute right-5 top-1/2 -translate-y-1/2 text-[#5260FE] text-[13px] font-medium hover:text-[#5260FE]/80 transition-colors"
+                  onClick={() => window.open("https://www.rbi.org.in/Scripts/IFSC_Code.aspx", "_blank")}
+                >
+                  Search IFSC?
+                </button>
+
+                {/* Bank Name Success State */}
+                {bankName && (
+                  <div className="flex items-center gap-2 mt-2 ml-1">
+                     <span className="text-white/60 text-[12px]">{bankName}</span>
+                     <img src={verifiedIcon} alt="verified" className="w-[14px] h-[14px]" />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -251,8 +359,8 @@ const AddBank = () => {
       <div className="absolute bottom-10 left-0 w-full px-5 flex justify-center z-20">
         <Button
           variant="gradient"
-          className="w-full h-[48px] rounded-full text-[18px] font-medium"
-          onClick={showOtpInput ? handleContinue : handleRequestOTP}
+          className="w-full h-[48px] rounded-full text-[18px] font-medium transition-all duration-200"
+          onClick={handleButtonClick}
           disabled={isButtonDisabled()}
         >
           {isLoading ? (
@@ -261,10 +369,10 @@ const AddBank = () => {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
-                {showOtpInput ? "Verifying..." : "Requesting..."}
+                {getButtonText().replace("...", "")}...
              </span>
           ) : (
-            showOtpInput ? "Continue" : "Request OTP"
+            getButtonText()
           )}
         </Button>
       </div>
