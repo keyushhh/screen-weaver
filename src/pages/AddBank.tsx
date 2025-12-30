@@ -55,7 +55,7 @@ const AddBank = () => {
 
     // For now, just log or navigate back since no specific destination was given
     console.log("Bank account verified");
-    navigate("/banking");
+    navigate("/banking/linked-accounts", { state: { mobile } });
   };
 
   const isButtonDisabled = () => {
