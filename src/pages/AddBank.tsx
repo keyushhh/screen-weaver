@@ -8,7 +8,7 @@ import radioFilled from "@/assets/radio-filled.png";
 import radioEmpty from "@/assets/radio-empty.png";
 import recommendedBadge from "@/assets/recommended.png";
 import otpInputField from "@/assets/otp-input-field.png";
-import securityPending from "@/assets/security-pending.png";
+import awaitingOtp from "@/assets/awaiting-otp.png";
 import { Button } from "@/components/ui/button";
 import { PhoneInput } from "@/components/PhoneInput";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
@@ -227,7 +227,7 @@ const AddBank = () => {
 
             <div className="flex items-center justify-between mt-4">
               <div className="flex items-center gap-2">
-                <img src={securityPending} alt="pending" className="w-5 h-5 rounded-full" />
+                <img src={awaitingOtp} alt="pending" className="w-5 h-5" />
                 <span className="text-white/60 text-[13px]">Awaiting OTP verification</span>
               </div>
               <button
