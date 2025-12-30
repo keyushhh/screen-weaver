@@ -7,8 +7,8 @@ import manualEntryBg from "@/assets/manual-entry.png";
 import radioFilled from "@/assets/radio-filled.png";
 import radioEmpty from "@/assets/radio-empty.png";
 import recommendedBadge from "@/assets/recommended.png";
-import inputFieldBg from "@/assets/input-field-bg.png";
-import buttonPrimaryWide from "@/assets/button-primary-wide.png";
+import { Button } from "@/components/ui/button";
+import { PhoneInput } from "@/components/PhoneInput";
 
 type Selection = "auto" | "manual";
 
@@ -52,7 +52,7 @@ const AddBank = () => {
         <div className="space-y-4">
           {/* Auto Fetch */}
           <div
-            className={`relative rounded-2xl p-5 border transition-all duration-200 overflow-hidden ${
+            className={`relative rounded-2xl p-[12px] border transition-all duration-200 overflow-hidden ${
               selection === "auto"
                 ? "border-white/20 bg-white/5"
                 : "border-white/10 bg-black/20"
@@ -70,28 +70,37 @@ const AddBank = () => {
             />
 
             {/* Content Layer */}
-            <div className="relative z-10 flex items-start gap-4">
-              <img
-                src={selection === "auto" ? radioFilled : radioEmpty}
-                alt="radio"
-                className="w-5 h-5 mt-0.5 shrink-0"
-              />
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-4">
+                  <img
+                    src={selection === "auto" ? radioFilled : radioEmpty}
+                    alt="radio"
+                    className="w-5 h-5 shrink-0"
+                  />
                   <span className="text-white text-[15px] font-medium">
                     Auto-fetch bank accounts
                   </span>
-                  <img
-                    src={recommendedBadge}
-                    alt="Recommended"
-                    className="h-[22px] w-auto"
-                  />
                 </div>
+                {/* Recommended Badge */}
+                <div
+                  className="flex items-center justify-center"
+                  style={{
+                    width: '109px',
+                    height: '25px',
+                    backgroundImage: `url(${recommendedBadge})`,
+                    backgroundSize: 'cover'
+                  }}
+                >
+                  <span className="text-white text-[12px] font-medium mb-[1px]">Recommended</span>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="pl-9">
                 <p className="text-white/60 text-[13px] leading-relaxed">
-                  Let Anumati do the digging. We’ll fetch your linked
-                  <br />
-                  accounts in a snap.
-                  <br />
+                  Let Anumati do the digging. We’ll fetch your linked<br />
+                  accounts in a snap.<br />
                   Safe, fast, and totally RBI-approved.
                 </p>
               </div>
@@ -100,7 +109,7 @@ const AddBank = () => {
 
           {/* Manual Entry */}
           <div
-            className={`relative rounded-2xl p-5 border transition-all duration-200 overflow-hidden flex items-center ${
+            className={`relative rounded-2xl p-[12px] border transition-all duration-200 overflow-hidden flex items-center ${
               selection === "manual"
                 ? "border-white/20 bg-white/5"
                 : "border-white/10 bg-black/20"
@@ -137,50 +146,24 @@ const AddBank = () => {
           <label className="text-white text-[15px] font-medium font-sans mb-4 block">
             Bank-registered mobile number
           </label>
-          <div className="relative w-full h-[48px]">
-            {/* Input Background */}
-            <img
-              src={inputFieldBg}
-              alt="Input Bg"
-              className="absolute inset-0 w-full h-full object-fill rounded-full pointer-events-none"
-            />
-
-            {/* Input Content */}
-            <div className="absolute inset-0 flex items-center px-6">
-              <span className="text-white text-[14px] font-medium mr-4">
-                + 91
-              </span>
-              <div className="w-[1px] h-4 bg-white/20 mr-4" />
-              <input
-                type="tel"
-                value={mobile}
-                onChange={(e) => {
-                  const val = e.target.value.replace(/\D/g, ""); // numeric only
-                  if (val.length <= 10) setMobile(val);
-                }}
-                placeholder="Enter your mobile number"
-                className="bg-transparent border-none outline-none text-white placeholder-white/40 text-[14px] font-medium w-full"
-              />
-            </div>
-          </div>
+          <PhoneInput
+            value={mobile}
+            onChange={setMobile}
+            countryCode="+91"
+            placeholder="Enter your mobile number"
+          />
         </div>
       </div>
 
       {/* Footer */}
       <div className="absolute bottom-10 left-0 w-full px-5 flex justify-center z-20">
-        <button
-          className="relative w-[362px] h-[48px] flex items-center justify-center transition-transform active:scale-95"
+        <Button
+          variant="gradient"
+          className="w-full h-[48px] rounded-full text-[18px] font-medium"
           onClick={() => {}} // No-op
         >
-          <img
-            src={buttonPrimaryWide}
-            alt="Request OTP"
-            className="absolute inset-0 w-full h-full object-contain pointer-events-none"
-          />
-          <span className="relative z-10 text-white text-[15px] font-medium">
-            Request OTP
-          </span>
-        </button>
+          Request OTP
+        </Button>
       </div>
     </div>
   );
