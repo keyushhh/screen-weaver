@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
@@ -7,8 +7,11 @@ import manualEntryBg from "@/assets/manual-entry.png";
 import radioFilled from "@/assets/radio-filled.png";
 import radioEmpty from "@/assets/radio-empty.png";
 import recommendedBadge from "@/assets/recommended.png";
+import otpInputField from "@/assets/otp-input-field.png";
+import securityPending from "@/assets/security-pending.png";
 import { Button } from "@/components/ui/button";
 import { PhoneInput } from "@/components/PhoneInput";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
 type Selection = "auto" | "manual";
 
@@ -16,6 +19,50 @@ const AddBank = () => {
   const navigate = useNavigate();
   const [selection, setSelection] = useState<Selection>("auto");
   const [mobile, setMobile] = useState("");
+  const [showOtpInput, setShowOtpInput] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [resendTimer, setResendTimer] = useState(0);
+
+  // Timer logic
+  useEffect(() => {
+    if (resendTimer > 0) {
+      const interval = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [resendTimer]);
+
+  const handleRequestOTP = async () => {
+    if (mobile.length < 10) return;
+
+    setIsLoading(true);
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    setIsLoading(false);
+    setShowOtpInput(true);
+    setResendTimer(30);
+  };
+
+  const handleContinue = async () => {
+    if (otp !== "123456") return; // Simple validation
+
+    setIsLoading(true);
+    // Simulate verification
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    setIsLoading(false);
+
+    // For now, just log or navigate back since no specific destination was given
+    console.log("Bank account verified");
+    navigate("/banking");
+  };
+
+  const isButtonDisabled = () => {
+    if (isLoading) return true;
+    if (!showOtpInput) return mobile.length < 10;
+    return otp.length < 6;
+  };
 
   return (
     <div
@@ -142,7 +189,7 @@ const AddBank = () => {
         </div>
 
         {/* Input Section */}
-        <div className="mt-10">
+        <div className="mt-10 animate-fade-in">
           <label className="text-white text-[15px] font-medium font-sans mb-4 block">
             Bank-registered mobile number
           </label>
@@ -151,8 +198,53 @@ const AddBank = () => {
             onChange={setMobile}
             countryCode="+91"
             placeholder="Enter your mobile number"
+            disabled={showOtpInput}
           />
         </div>
+
+        {/* OTP Section */}
+        {showOtpInput && (
+          <div className="mt-8 animate-fade-in space-y-4">
+            <p className="text-white/60 text-[14px]">
+              An OTP has been sent to your registered mobile number.
+            </p>
+
+            <InputOTP maxLength={6} value={otp} onChange={setOtp} autoFocus>
+              <InputOTPGroup className="gap-2 w-full justify-between">
+                {[0, 1, 2, 3, 4, 5].map((index) => (
+                  <InputOTPSlot
+                    key={index}
+                    index={index}
+                    className="h-[52px] w-12 rounded-[7px] border-none text-xl font-semibold text-white transition-all bg-cover bg-center ring-1 ring-white/10"
+                    style={{
+                      backgroundImage: `url(${otpInputField})`,
+                      backgroundColor: 'transparent'
+                    }}
+                  />
+                ))}
+              </InputOTPGroup>
+            </InputOTP>
+
+            <div className="flex items-center justify-between mt-4">
+              <div className="flex items-center gap-2">
+                <img src={securityPending} alt="pending" className="w-5 h-5 rounded-full" />
+                <span className="text-white/60 text-[13px]">Awaiting OTP verification</span>
+              </div>
+              <button
+                onClick={() => {
+                   if (resendTimer === 0) {
+                     setResendTimer(30);
+                     // Logic to resend OTP could go here
+                   }
+                }}
+                disabled={resendTimer > 0}
+                className="text-white/60 text-[13px] hover:text-white transition-colors disabled:opacity-50"
+              >
+                {resendTimer > 0 ? `Resend in ${resendTimer}s` : "Didn't receive OTP?"}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Footer */}
@@ -160,9 +252,20 @@ const AddBank = () => {
         <Button
           variant="gradient"
           className="w-full h-[48px] rounded-full text-[18px] font-medium"
-          onClick={() => {}} // No-op
+          onClick={showOtpInput ? handleContinue : handleRequestOTP}
+          disabled={isButtonDisabled()}
         >
-          Request OTP
+          {isLoading ? (
+             <span className="flex items-center gap-2">
+                <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                {showOtpInput ? "Verifying..." : "Requesting..."}
+             </span>
+          ) : (
+            showOtpInput ? "Continue" : "Request OTP"
+          )}
         </Button>
       </div>
     </div>
