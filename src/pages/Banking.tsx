@@ -20,7 +20,7 @@ import bankDefaultCardBg from "@/assets/bank-default-card.png";
 
 import {
     getBankAccounts,
-    addMockAccounts,
+    addSelectedAccounts,
     removeBankAccount,
     setDefaultBankAccount,
     BankAccount
@@ -47,8 +47,9 @@ const Banking = () => {
 
   useEffect(() => {
     // Check if we came from LinkedAccounts flow
-    if (location.state?.accountsAdded) {
-        const newAccounts = addMockAccounts();
+    if (location.state?.accountsAdded && location.state?.selectedAccounts) {
+        const selected = location.state.selectedAccounts;
+        const newAccounts = addSelectedAccounts(selected);
         setAccounts(newAccounts);
         setShowSuccessModal(true);
         setIsStacked(newAccounts.length > 0);
@@ -101,12 +102,13 @@ const Banking = () => {
 
   // --- Masking Logic ---
   const formatAccountNumber = (num: string) => {
-      // Just show it spaced or as is? Usually as is for bank accounts, maybe spaced by 4
       return num.match(/.{1,4}/g)?.join(" ") || num;
   };
 
   const getMaskedAccountNumber = (num: string) => {
-      // Show full asterisks
+      // Show full asterisks per UI req? Or keep it like MyCards?
+      // "Masked Account Number (with eye toggle)" was requested.
+      // Screenshot shows "****************" (16 asterisks)
       return "****************";
   };
 
@@ -227,11 +229,15 @@ const Banking = () => {
 
                         // Relative positioning values for content
                         // Aligning with card logic but adapting for content
-                        const pillTop = isDefault ? 40 : 25;
-                        const labelTop = isDefault ? 55 : 40;
-                        const numberTop = isDefault ? 75 : 60;
-                        const ifscTop = isDefault ? 115 : 100;
-                        const branchTop = isDefault ? 155 : 140;
+                        // TIGHTENED SPACING to prevent overlap with bottom content
+                        const pillTop = isDefault ? 38 : 20;
+                        const labelTop = isDefault ? 53 : 35;
+                        const numberTop = isDefault ? 72 : 52;
+                        const ifscTop = isDefault ? 108 : 88;
+
+                        // Bottom Position for Branch + Logo (Fixed to 26px from bottom)
+                        // This applies to BOTH default and non-default cards as per "bottom padding" requirement
+                        const bottomPos = 26;
 
                         // Stacking Logic
                         const stackOffset = 15;
@@ -291,10 +297,15 @@ const Banking = () => {
 
                                         {/* Savings Account Pill */}
                                         <div
-                                            className="absolute right-[26px] bg-white/10 px-3 py-1 rounded-full backdrop-blur-sm transition-all"
-                                            style={{ top: `${pillTop}px` }}
+                                            className="absolute right-[26px] bg-white/10 rounded-full backdrop-blur-sm transition-all flex items-center justify-center"
+                                            style={{
+                                                top: `${pillTop}px`,
+                                                width: '92px',
+                                                height: '22px',
+                                                padding: '5px 7px'
+                                            }}
                                         >
-                                            <span className="text-white/80 text-[10px] font-medium">
+                                            <span className="text-[#C4C4C4] text-[10px] font-medium whitespace-nowrap">
                                                 {account.accountType}
                                             </span>
                                         </div>
@@ -335,10 +346,10 @@ const Banking = () => {
                                             </p>
                                         </div>
 
-                                        {/* Branch + Logo */}
+                                        {/* Branch + Logo (Fixed Bottom Position) */}
                                         <div
                                             className="absolute left-[26px] right-[26px] flex items-end justify-between transition-all"
-                                            style={{ top: `${branchTop}px` }}
+                                            style={{ bottom: `${bottomPos}px` }}
                                         >
                                             <div className="max-w-[70%]">
                                                 <p className="text-[#C4C4C4] text-[13px] font-normal font-satoshi mb-0.5">Branch</p>
@@ -347,9 +358,9 @@ const Banking = () => {
                                                 </p>
                                             </div>
 
-                                            {/* Bank Logo */}
-                                            <div className="w-[48px] h-[48px] bg-white rounded-lg flex items-center justify-center p-1">
-                                                <img src={account.logo} alt="Bank" className="w-full h-full object-contain" />
+                                            {/* Bank Logo - No White Background */}
+                                            <div className="w-[48px] h-[48px] flex items-center justify-end">
+                                                <img src={account.logo} alt="Bank" className="h-[32px] w-auto object-contain" />
                                             </div>
                                         </div>
 
@@ -465,16 +476,6 @@ const Banking = () => {
 
       {/* Bottom Nav */}
       <div className={showSuccessModal ? 'blur-sm brightness-50' : ''}>
-         {/* Assuming 'home' or maybe 'settings' active? Or no active tab if it's a subpage.
-             However, design usually keeps bottom nav. Previous "Banking" screen had no bottom nav changes.
-             MyCards uses 'cards'.
-             If this is "Banking", it might not have a dedicated tab.
-             I'll use no active tab for now to avoid highlighting wrong one.
-             Or if it's accessed via Settings, maybe no nav bar is better?
-             Wait, original Banking plan said "No bottom navigation changes", implying it exists.
-             But this page mimics MyCards.
-             I'll leave it in.
-         */}
          <BottomNavigation activeTab="" />
       </div>
 

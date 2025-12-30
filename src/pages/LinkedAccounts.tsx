@@ -6,40 +6,16 @@ import { Button } from "@/components/ui/button";
 // Assets
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import bankContainerBg from "@/assets/bank-acc-containers.png";
-import hdfcLogo from "@/assets/hdfc-bank.png";
-import idfcLogo from "@/assets/idfc-bank.png";
 import checkBoxSelected from "@/assets/check-box-selected.png";
 import checkBoxBlank from "@/assets/check-box-outline-blank.png";
 
-interface Account {
-  id: string;
-  bankName: string;
-  accountType: string;
-  last4: string;
-  logo: string;
-}
-
-const MOCK_ACCOUNTS: Account[] = [
-  {
-    id: "1",
-    bankName: "HDFC Bank",
-    accountType: "Savings Account",
-    last4: "8723",
-    logo: hdfcLogo,
-  },
-  {
-    id: "2",
-    bankName: "IDFC Bank",
-    accountType: "Current Account",
-    last4: "8723",
-    logo: idfcLogo,
-  },
-];
+// Utils
+import { AVAILABLE_BANKS } from "@/utils/bankUtils";
 
 const LinkedAccounts = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
+  const [selectedAccountIds, setSelectedAccountIds] = useState<string[]>([]);
 
   const mobile = location.state?.mobile || "9876543210";
 
@@ -51,24 +27,25 @@ const LinkedAccounts = () => {
   };
 
   const toggleAccount = (id: string) => {
-    setSelectedAccounts((prev) =>
+    setSelectedAccountIds((prev) =>
       prev.includes(id) ? prev.filter((accId) => accId !== id) : [...prev, id]
     );
   };
 
   const toggleAll = () => {
-    if (selectedAccounts.length === MOCK_ACCOUNTS.length) {
-      setSelectedAccounts([]);
+    if (selectedAccountIds.length === AVAILABLE_BANKS.length) {
+      setSelectedAccountIds([]);
     } else {
-      setSelectedAccounts(MOCK_ACCOUNTS.map((acc) => acc.id));
+      setSelectedAccountIds(AVAILABLE_BANKS.map((acc) => acc.id));
     }
   };
 
   const handleAddAccounts = () => {
-    navigate("/banking", { state: { accountsAdded: true } });
+    const accountsToAdd = AVAILABLE_BANKS.filter(acc => selectedAccountIds.includes(acc.id));
+    navigate("/banking", { state: { accountsAdded: true, selectedAccounts: accountsToAdd } });
   };
 
-  const isAllSelected = selectedAccounts.length === MOCK_ACCOUNTS.length && MOCK_ACCOUNTS.length > 0;
+  const isAllSelected = selectedAccountIds.length === AVAILABLE_BANKS.length && AVAILABLE_BANKS.length > 0;
 
   return (
     <div
@@ -113,7 +90,7 @@ const LinkedAccounts = () => {
           {/* Container Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
             <span className="text-white text-[16px] font-medium">
-              Linked Bank Accounts ({MOCK_ACCOUNTS.length})
+              Linked Bank Accounts ({AVAILABLE_BANKS.length})
             </span>
             <img
               src={isAllSelected ? checkBoxSelected : checkBoxBlank}
@@ -125,8 +102,11 @@ const LinkedAccounts = () => {
 
           {/* Account List */}
           <div>
-            {MOCK_ACCOUNTS.map((account, index) => {
-              const isSelected = selectedAccounts.includes(account.id);
+            {AVAILABLE_BANKS.map((account, index) => {
+              const isSelected = selectedAccountIds.includes(account.id);
+              // Calculate last 4 for display
+              const last4 = account.accountNumber.slice(-4);
+
               return (
                 <div key={account.id}>
                   <div
@@ -155,12 +135,12 @@ const LinkedAccounts = () => {
                         {account.bankName} | {account.accountType}
                       </h3>
                       <p className="text-white/40 text-[13px] mt-0.5">
-                        Account number ending with {account.last4}
+                        Account number ending with {last4}
                       </p>
                     </div>
                   </div>
                   {/* Divider (except for last item) */}
-                  {index < MOCK_ACCOUNTS.length - 1 && (
+                  {index < AVAILABLE_BANKS.length - 1 && (
                     <div className="h-[1px] bg-white/10 mx-5" />
                   )}
                 </div>
@@ -175,7 +155,7 @@ const LinkedAccounts = () => {
         <Button
           variant="gradient"
           className="w-full h-[48px] rounded-full text-[18px] font-medium transition-opacity duration-200"
-          disabled={selectedAccounts.length === 0}
+          disabled={selectedAccountIds.length === 0}
           onClick={handleAddAccounts}
         >
           Add Bank Account
