@@ -52,13 +52,13 @@ const Banking = () => {
         const newAccounts = addSelectedAccounts(selected);
         setAccounts(newAccounts);
         setShowSuccessModal(true);
-        setIsStacked(newAccounts.length > 0);
+        setIsStacked(newAccounts.length > 1);
         // Clean up state
         window.history.replaceState({}, document.title);
     } else {
         const loadedAccounts = getBankAccounts();
         setAccounts(loadedAccounts);
-        setIsStacked(loadedAccounts.length > 0);
+        setIsStacked(loadedAccounts.length > 1);
     }
   }, [location.state]);
 
@@ -164,7 +164,7 @@ const Banking = () => {
         backgroundRepeat: "no-repeat",
       }}
       onClick={() => {
-          if (!isStacked) setIsStacked(true);
+          if (!isStacked && accounts.length > 1) setIsStacked(true);
       }}
     >
       {/* Main Content */}
@@ -278,7 +278,7 @@ const Banking = () => {
                                     )}
 
                                     {/* Content Container (Flex) */}
-                                    <div className={`absolute inset-0 px-[22px] flex flex-col justify-center ${isDefault ? 'pt-[44px]' : 'py-[20px]'}`}>
+                                    <div className={`absolute inset-0 px-[22px] flex flex-col justify-start ${isDefault ? 'pt-[44px] pb-[20px]' : 'py-[20px]'}`}>
 
                                         <div className="flex flex-col gap-[10px] w-full">
 
