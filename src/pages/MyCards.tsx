@@ -57,14 +57,14 @@ const MyCards = () => {
     setCards(loadedCards);
 
     // Default to stacked only if we have cards
-    setIsStacked(loadedCards.length > 0);
+    setIsStacked(loadedCards.length > 1);
 
     if (location.state?.cardAdded) {
       // Reload cards to get the new one
       const refreshedCards = getCards();
       setCards(refreshedCards);
       setShowSuccessModal(true);
-      setIsStacked(refreshedCards.length > 0);
+      setIsStacked(refreshedCards.length > 1);
       // Clean up state so refresh doesn't trigger it again
       window.history.replaceState({}, document.title);
     }
@@ -191,7 +191,7 @@ const MyCards = () => {
         backgroundRepeat: "no-repeat",
       }}
       onClick={() => {
-          if (!isStacked) {
+          if (!isStacked && cards.length > 1) {
              setIsStacked(true);
           }
       }}
