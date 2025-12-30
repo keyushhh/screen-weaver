@@ -221,7 +221,7 @@ const Banking = () => {
                         const isSelected = selectedAccountId === account.id;
 
                         // Layout adjustments for Default vs Normal
-                        const accountHeightValue = isDefault ? 218 : 192;
+                        const accountHeightValue = isDefault ? 218 : 194;
                         const accountHeight = `${accountHeightValue}px`;
 
                         // Stacking Logic
@@ -278,7 +278,7 @@ const Banking = () => {
                                     )}
 
                                     {/* Content Container (Flex) */}
-                                    <div className={`absolute inset-0 px-[22px] flex flex-col justify-center ${isDefault ? 'pt-[44px]' : ''}`}>
+                                    <div className={`absolute inset-0 px-[22px] flex flex-col justify-center ${isDefault ? 'pt-[44px]' : 'py-[20px]'}`}>
 
                                         <div className="flex flex-col gap-[15px] w-full">
 
