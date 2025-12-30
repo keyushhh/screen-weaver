@@ -224,11 +224,6 @@ const Banking = () => {
                         const accountHeightValue = isDefault ? 212 : 192;
                         const accountHeight = `${accountHeightValue}px`;
 
-                        // Top Start Position for Content
-                        // Default (212px): Top ~38px
-                        // Normal (192px): Top ~20px (Difference 18px)
-                        const contentTop = isDefault ? 38 : 20;
-
                         // Stacking Logic
                         const stackOffset = 15;
                         const stackScale = 0.05;
@@ -282,36 +277,34 @@ const Banking = () => {
                                         </div>
                                     )}
 
-                                    {/* Card Content Container */}
-                                    {/* Using Flex Column for 18px Spacing */}
-                                    <div
-                                        className="absolute left-[26px] right-[26px]"
-                                        style={{ top: `${contentTop}px` }}
-                                    >
+                                    {/* Content Container (Flex) */}
+                                    <div className={`absolute inset-0 px-[26px] flex flex-col justify-center ${isDefault ? 'pt-[22px]' : ''}`}>
 
-                                        {/* Savings Account Pill (Absolute Right) */}
-                                        <div
-                                            className="absolute right-0 top-0 bg-white/10 rounded-full backdrop-blur-sm transition-all flex items-center justify-center"
-                                            style={{
-                                                width: '92px',
-                                                height: '22px',
-                                                padding: '5px 7px'
-                                            }}
-                                        >
-                                            <span className="text-[#C4C4C4] text-[10px] font-medium whitespace-nowrap">
-                                                {account.accountType}
-                                            </span>
-                                        </div>
-
-                                        {/* Left Column Content */}
                                         <div className="flex flex-col gap-[18px] w-full">
 
-                                            {/* Group 1: Account Number */}
-                                            {/* Label aligns top with Pill via Flex container top */}
+                                            {/* Block 1: Account Number Section */}
                                             <div className="w-full">
-                                                <p className="text-[#C4C4C4] text-[13px] font-normal font-satoshi leading-none h-[22px] flex items-center">
-                                                    Account Number
-                                                </p>
+                                                {/* Header Row: Label + Pill */}
+                                                <div className="flex items-center justify-between h-[22px]">
+                                                    <p className="text-[#C4C4C4] text-[13px] font-normal font-satoshi leading-none">
+                                                        Account Number
+                                                    </p>
+                                                    {/* Savings Account Pill */}
+                                                    <div
+                                                        className="bg-white/10 rounded-full backdrop-blur-sm flex items-center justify-center"
+                                                        style={{
+                                                            width: '92px',
+                                                            height: '22px',
+                                                            padding: '5px 7px'
+                                                        }}
+                                                    >
+                                                        <span className="text-[#C4C4C4] text-[10px] font-medium whitespace-nowrap">
+                                                            {account.accountType}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Account Number Value */}
                                                 <div className="flex items-center gap-4 mt-[4px]">
                                                     <p className="text-white text-[18px] font-bold font-satoshi tracking-wider truncate">
                                                         {isVisible ? formatAccountNumber(account.accountNumber) : getMaskedAccountNumber(account.accountNumber)}
@@ -326,7 +319,7 @@ const Banking = () => {
                                                 </div>
                                             </div>
 
-                                            {/* Group 2: IFSC Code */}
+                                            {/* Block 2: IFSC Code Section */}
                                             <div className="w-full">
                                                 <p className="text-[#C4C4C4] text-[13px] font-normal font-satoshi mb-0.5">IFSC Code</p>
                                                 <p className="text-white text-[15px] font-medium font-satoshi">
@@ -334,25 +327,22 @@ const Banking = () => {
                                                 </p>
                                             </div>
 
-                                            {/* Group 3: Branch */}
-                                            <div className="w-full max-w-[70%]">
-                                                <p className="text-[#C4C4C4] text-[13px] font-normal font-satoshi mb-0.5">Branch</p>
-                                                <p className="text-white text-[14px] font-medium font-satoshi leading-tight truncate">
-                                                    {account.branch}
-                                                </p>
+                                            {/* Block 3: Footer Section (Branch + Logo) */}
+                                            <div className="w-full flex items-end justify-between">
+                                                <div className="max-w-[70%]">
+                                                    <p className="text-[#C4C4C4] text-[13px] font-normal font-satoshi mb-0.5">Branch</p>
+                                                    <p className="text-white text-[14px] font-medium font-satoshi leading-tight truncate">
+                                                        {account.branch}
+                                                    </p>
+                                                </div>
+
+                                                {/* Bank Logo */}
+                                                <div className="w-[48px] h-[48px] flex items-center justify-end">
+                                                    <img src={account.logo} alt="Bank" className="h-[32px] w-auto object-contain" />
+                                                </div>
                                             </div>
 
                                         </div>
-
-                                        {/* Bank Logo (Fixed Bottom Right of Card) */}
-                                        {/* We position it absolute relative to the card container, not this inner flex wrapper */}
-                                    </div>
-
-                                    {/* Bank Logo - Positioned Absolute to Card */}
-                                    <div
-                                        className="absolute right-[26px] bottom-[26px] w-[48px] h-[48px] flex items-center justify-end"
-                                    >
-                                        <img src={account.logo} alt="Bank" className="h-[32px] w-auto object-contain" />
                                     </div>
 
                                 </div>
