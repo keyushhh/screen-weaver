@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,15 +23,15 @@ const MOCK_ACCOUNTS: Account[] = [
   {
     id: "1",
     bankName: "HDFC Bank",
-    accountType: "Savings A/c",
-    last4: "8899",
+    accountType: "Savings Account",
+    last4: "8723",
     logo: hdfcLogo,
   },
   {
     id: "2",
     bankName: "IDFC Bank",
-    accountType: "Savings A/c",
-    last4: "4455",
+    accountType: "Current Account",
+    last4: "8723",
     logo: idfcLogo,
   },
 ];
@@ -41,12 +41,10 @@ const LinkedAccounts = () => {
   const location = useLocation();
   const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
 
-  // Default to a placeholder if accessed directly (though typically accessed via AddBank)
   const mobile = location.state?.mobile || "9876543210";
 
   const maskMobile = (num: string) => {
     if (!num || num.length < 7) return num;
-    // Mask 5 digits starting from index 2 (3rd digit)
     const prefix = num.substring(0, 2);
     const suffix = num.substring(7);
     return `${prefix}*****${suffix}`;
@@ -58,10 +56,19 @@ const LinkedAccounts = () => {
     );
   };
 
+  const toggleAll = () => {
+    if (selectedAccounts.length === MOCK_ACCOUNTS.length) {
+      setSelectedAccounts([]);
+    } else {
+      setSelectedAccounts(MOCK_ACCOUNTS.map((acc) => acc.id));
+    }
+  };
+
   const handleAddAccounts = () => {
-    // Navigate to Banking list (simulating success)
     navigate("/banking", { state: { accountsAdded: true } });
   };
+
+  const isAllSelected = selectedAccounts.length === MOCK_ACCOUNTS.length && MOCK_ACCOUNTS.length > 0;
 
   return (
     <div
@@ -85,7 +92,7 @@ const LinkedAccounts = () => {
         <h1 className="text-foreground text-[18px] font-semibold">
           Linked Bank Accounts
         </h1>
-        <div className="w-10" /> {/* Spacer */}
+        <div className="w-10" />
       </div>
 
       {/* Content */}
@@ -94,51 +101,72 @@ const LinkedAccounts = () => {
           Linked accounts found for +91 {maskMobile(mobile)}. Pick your primary bank account — or select all and let us handle the rest.
         </p>
 
-        <div className="space-y-4">
-          {MOCK_ACCOUNTS.map((account) => {
-            const isSelected = selectedAccounts.includes(account.id);
-            return (
-              <div
-                key={account.id}
-                className="relative h-[88px] w-full rounded-2xl flex items-center px-4"
-                style={{
-                  backgroundImage: `url(${bankContainerBg})`,
-                  backgroundSize: "cover", // Or "100% 100%" if strict dimensions needed
-                  backgroundPosition: "center",
-                }}
-                onClick={() => toggleAccount(account.id)}
-              >
-                {/* Logo Container */}
-                <div className="w-[42px] h-[42px] bg-white rounded-full flex items-center justify-center shrink-0 overflow-hidden z-10">
-                  <img
-                    src={account.logo}
-                    alt={account.bankName}
-                    className="w-full h-full object-contain p-1"
-                  />
+        {/* Unified Container */}
+        <div
+          className="relative w-full rounded-2xl overflow-hidden"
+          style={{
+            backgroundImage: `url(${bankContainerBg})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        >
+          {/* Container Header */}
+          <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+            <span className="text-white text-[16px] font-medium">
+              Linked Bank Accounts ({MOCK_ACCOUNTS.length})
+            </span>
+            <img
+              src={isAllSelected ? checkBoxSelected : checkBoxBlank}
+              alt="select all"
+              className="w-6 h-6 cursor-pointer"
+              onClick={toggleAll}
+            />
+          </div>
+
+          {/* Account List */}
+          <div>
+            {MOCK_ACCOUNTS.map((account, index) => {
+              const isSelected = selectedAccounts.includes(account.id);
+              return (
+                <div key={account.id}>
+                  <div
+                    className="flex items-center px-5 py-4 cursor-pointer"
+                    onClick={() => toggleAccount(account.id)}
+                  >
+                     {/* Checkbox */}
+                    <img
+                      src={isSelected ? checkBoxSelected : checkBoxBlank}
+                      alt="checkbox"
+                      className="w-6 h-6 shrink-0 mr-4"
+                    />
+
+                    {/* Logo */}
+                    <div className="w-[42px] h-[42px] bg-white rounded-[10px] flex items-center justify-center shrink-0 overflow-hidden mr-4">
+                      <img
+                        src={account.logo}
+                        alt={account.bankName}
+                        className="w-full h-full object-contain p-1"
+                      />
+                    </div>
+
+                    {/* Details */}
+                    <div className="flex-1">
+                      <h3 className="text-white text-[15px] font-medium">
+                        {account.bankName} | {account.accountType}
+                      </h3>
+                      <p className="text-white/40 text-[13px] mt-0.5">
+                        Account number ending with {account.last4}
+                      </p>
+                    </div>
+                  </div>
+                  {/* Divider (except for last item) */}
+                  {index < MOCK_ACCOUNTS.length - 1 && (
+                    <div className="h-[1px] bg-white/10 mx-5" />
+                  )}
                 </div>
-
-                {/* Divider */}
-                <div className="h-[40px] w-[1px] bg-white/10 mx-4 shrink-0" />
-
-                {/* Details */}
-                <div className="flex-1">
-                  <h3 className="text-white text-[16px] font-bold">
-                    {account.bankName}
-                  </h3>
-                  <p className="text-white/60 text-[13px]">
-                    {account.accountType} ... {account.last4}
-                  </p>
-                </div>
-
-                {/* Checkbox */}
-                <img
-                  src={isSelected ? checkBoxSelected : checkBoxBlank}
-                  alt="checkbox"
-                  className="w-6 h-6 shrink-0 transition-opacity duration-200"
-                />
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
 
