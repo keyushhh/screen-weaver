@@ -1,5 +1,7 @@
-import hdfcLogo from "@/assets/hdfc-bank.png";
-import idfcLogo from "@/assets/idfc-bank.png";
+import hdfcLogo from "@/assets/hdfc-bank-logo.png";
+import idfcLogo from "@/assets/idfc-bank-logo.png";
+import axisLogo from "@/assets/axis-bank-logo.png";
+import kotakLogo from "@/assets/kotak-bank-logo.png";
 
 export interface BankAccount {
   id: string;
@@ -35,6 +37,26 @@ export const AVAILABLE_BANKS: BankAccount[] = [
     ifsc: "IDFC0004321",
     branch: "IDFC Bank, Indiranagar Branch",
     logo: idfcLogo,
+    isDefault: false,
+  },
+  {
+    id: "3",
+    bankName: "Axis Bank",
+    accountType: "Savings Account",
+    accountNumber: "45612378901234",
+    ifsc: "UTIB0001234",
+    branch: "Axis Bank, Indiranagar Branch",
+    logo: axisLogo,
+    isDefault: false,
+  },
+  {
+    id: "4",
+    bankName: "Kotak Bank",
+    accountType: "Savings Account",
+    accountNumber: "78901234561234",
+    ifsc: "KKBK0001234",
+    branch: "Kotak Mahindra Bank, Koramangala Branch",
+    logo: kotakLogo,
     isDefault: false,
   }
 ];
