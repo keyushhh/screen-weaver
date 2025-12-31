@@ -89,6 +89,46 @@ export const addSelectedAccounts = (newAccounts: BankAccount[]) => {
   return updated;
 };
 
+export const fetchBankDetails = async (ifsc: string) => {
+  try {
+    const response = await fetch(`https://ifsc.razorpay.com/${ifsc}`);
+    if (!response.ok) throw new Error("Invalid IFSC");
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching bank details:", error);
+    return null;
+  }
+};
+
+export const getBankLogo = (bankName: string) => {
+  const name = bankName.toLowerCase();
+  if (name.includes("hdfc")) return hdfcLogo;
+  if (name.includes("idfc")) return idfcLogo;
+  if (name.includes("axis")) return axisLogo;
+  if (name.includes("kotak")) return kotakLogo;
+  // Fallback to HDFC logo for demo purposes if no match, or a generic one if available.
+  // Using HDFC as a safe fallback for now as per "official png logos" request constraint.
+  return hdfcLogo;
+};
+
+export const addManualAccount = (account: BankAccount) => {
+  const existing = getBankAccounts();
+
+  // Check for duplicates
+  if (existing.some(acc => acc.accountNumber === account.accountNumber && acc.ifsc === account.ifsc)) {
+    return existing;
+  }
+
+  // If this is the first account, make it default
+  if (existing.length === 0) {
+    account.isDefault = true;
+  }
+
+  const updated = [...existing, account];
+  saveBankAccounts(updated);
+  return updated;
+};
+
 export const removeBankAccount = (id: string) => {
   const accounts = getBankAccounts();
   const updated = accounts.filter((acc) => acc.id !== id);
