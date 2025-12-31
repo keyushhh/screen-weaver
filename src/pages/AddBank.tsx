@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
@@ -104,7 +104,11 @@ const AddBank = () => {
 
   const handleButtonClick = () => {
     if (selection === "auto") {
-      showOtpInput ? handleVerifyOtp() : handleRequestOTP();
+      if (showOtpInput) {
+        handleVerifyOtp();
+      } else {
+        handleRequestOTP();
+      }
     } else {
       handleManualVerify();
     }
@@ -249,7 +253,7 @@ const AddBank = () => {
 
         {/* Input Section - Conditional Rendering */}
         {selection === 'auto' ? (
-          <div className="mt-10 animate-fade-in">
+          <div className="mt-[18px] animate-fade-in">
             <label className="text-white text-[15px] font-medium font-sans mb-4 block">
               Bank-registered mobile number
             </label>
@@ -306,7 +310,7 @@ const AddBank = () => {
           </div>
         ) : (
           /* Manual Entry Form */
-          <div className="mt-10 animate-fade-in space-y-6">
+          <div className="mt-[18px] animate-fade-in space-y-6">
             <h2 className="text-white text-[15px] font-medium font-sans">
               Enter your account details:
             </h2>
@@ -318,7 +322,7 @@ const AddBank = () => {
                 placeholder="Account Number"
                 value={"*".repeat(accountNumber.length)}
                 onChange={handleMaskedChange}
-                className="w-full h-[48px] bg-[#191919]/30 border-[0.65px] border-white/20 rounded-full px-5 text-white placeholder:text-white/40 text-[14px] font-normal font-sans outline-none focus:border-white/40 transition-colors"
+                className="w-full h-[48px] bg-[#191919]/30 border-[0.65px] border-white/20 rounded-full px-5 text-white placeholder:text-white/40 text-[14px] font-normal font-mono outline-none focus:border-white/40 transition-colors"
               />
 
               <div className="flex flex-col gap-1">
@@ -326,7 +330,10 @@ const AddBank = () => {
                   type="text"
                   placeholder="Confirm Account Number"
                   value={confirmAccountNumber}
-                  onChange={(e) => setConfirmAccountNumber(e.target.value)}
+                  onChange={(e) => {
+                    setConfirmAccountNumber(e.target.value);
+                    setTouchedConfirm(false);
+                  }}
                   onBlur={() => setTouchedConfirm(true)}
                   className={`w-full h-[48px] bg-[#191919]/30 border-[0.65px] rounded-full px-5 text-white placeholder:text-white/40 text-[14px] font-normal font-sans outline-none transition-colors ${
                     showMatchError ? "border-red-500/50 focus:border-red-500" : "border-white/20 focus:border-white/40"
@@ -359,7 +366,7 @@ const AddBank = () => {
                   </button>
                 </div>
 
-                {/* Bank Name Success State - Outside the relative input container to avoid moving the button */}
+                {/* Bank Name Success State */}
                 {bankName && (
                   <div className="flex items-center gap-2 mt-4 ml-1">
                      <span className="text-white font-bold text-[16px] leading-snug">{bankName}</span>
