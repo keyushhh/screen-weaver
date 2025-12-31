@@ -474,12 +474,16 @@ const Banking = () => {
         primaryText={confirmAction === 'remove' ? "Remove Account" : "Set as Default"}
         onPrimaryClick={() => {
             if (confirmAction === 'remove' && selectedAccountId) {
+                // Find account to get last 4 digits
+                const accountToRemove = accounts.find(a => a.id === selectedAccountId);
+                const last4 = accountToRemove ? accountToRemove.accountNumber.slice(-4) : 'XXXX';
+
                 // Implementation for removal
-                const updated = removeBankAccount(selectedAccountId);
-                setAccounts(updated);
-                setIsStacked(updated.length > 0);
-                setSelectedAccountId(null);
+                removeBankAccount(selectedAccountId);
+
+                // Navigate to success page
                 closeConfirmation();
+                navigate("/bank-remove-success", { state: { last4 } });
             } else if (confirmAction === 'default' && selectedAccountId) {
                 // Implementation for default
                 const updated = setDefaultBankAccount(selectedAccountId);
