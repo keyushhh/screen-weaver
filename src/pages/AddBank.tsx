@@ -346,7 +346,9 @@ const AddBank = () => {
                 )}
               </div>
 
-              <div>
+              {/* IFSC Code Section - Wrapped in a parent div */}
+              <div className="flex flex-col">
+                {/* Input Container - Relative for the search button */}
                 <div className="relative">
                   <input
                     type="text"
