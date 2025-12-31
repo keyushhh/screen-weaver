@@ -20,6 +20,8 @@ import ConfirmationModal from "@/components/ConfirmationModal";
 import buttonRemoveCard from "@/assets/button-remove-card.png";
 import buttonSetDefault from "@/assets/button-set-default.png";
 import buttonCancelWide from "@/assets/button-cancel-wide.png";
+import tutorialTap from "@/assets/tutorial-tap.png";
+import tutorialLongPress from "@/assets/tutorial-long-press.png";
 import { getCards, Card, removeCard, setDefaultCard } from "@/utils/cardUtils";
 
 // Import all saved card backgrounds
@@ -41,6 +43,9 @@ const MyCards = () => {
   const [isStacked, setIsStacked] = useState(true);
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
 
+  // Tutorial State: 0 = none, 1 = tap, 2 = long press
+  const [tutorialStep, setTutorialStep] = useState(0);
+
   // Confirmation Modal State
   const [confirmAction, setConfirmAction] = useState<'remove' | 'default' | null>(null);
 
@@ -59,16 +64,37 @@ const MyCards = () => {
     // Default to stacked only if we have cards
     setIsStacked(loadedCards.length > 1);
 
+    // Check for tutorial
+    const hasSeenTutorial = localStorage.getItem("dotpe_stack_tutorial_seen");
+    if (!hasSeenTutorial && loadedCards.length > 1) {
+        setTutorialStep(1);
+    }
+
     if (location.state?.cardAdded) {
       // Reload cards to get the new one
       const refreshedCards = getCards();
       setCards(refreshedCards);
       setShowSuccessModal(true);
       setIsStacked(refreshedCards.length > 1);
+
+      // If we just added a card and now have >1, we might need to show tutorial if not seen
+      if (!hasSeenTutorial && refreshedCards.length > 1) {
+          setTutorialStep(1);
+      }
+
       // Clean up state so refresh doesn't trigger it again
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
+
+  const handleTutorialClick = () => {
+      if (tutorialStep === 1) {
+          setTutorialStep(2);
+      } else if (tutorialStep === 2) {
+          setTutorialStep(0);
+          localStorage.setItem("dotpe_stack_tutorial_seen", "true");
+      }
+  };
 
   const handleFabClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -180,6 +206,9 @@ const MyCards = () => {
     return a.isDefault ? -1 : 1;
   });
 
+  // Calculate blur class based on modals OR tutorial
+  const contentBlurClass = showSuccessModal || tutorialStep > 0 ? 'blur-sm brightness-50' : '';
+
   return (
     <div
       className="min-h-[100dvh] flex flex-col safe-area-top safe-area-bottom relative"
@@ -197,14 +226,13 @@ const MyCards = () => {
       }}
     >
       {/* Main Content with conditional blur */}
-      <div className={`flex flex-col flex-1 transition-all duration-300 ${showSuccessModal ? 'blur-sm brightness-50' : ''}`}>
+      <div className={`flex flex-col flex-1 transition-all duration-300 ${contentBlurClass}`}>
         {/* Header - Back Button Removed */}
         <div className="px-5 pt-4 flex items-center justify-between">
             <h1 className="text-foreground text-[20px] font-medium">My Cards</h1>
         </div>
 
         {/* Content */}
-        {/* REMOVED pb-24 to satisfy "list should scroll behind the bottom navbar" */}
         <div className="px-5 mt-8 flex-1 overflow-y-auto scrollbar-hide pb-0">
 
             {cards.length === 0 ? (
@@ -462,15 +490,6 @@ const MyCards = () => {
                     {/* Cards Count (In List View, standard flow) */}
                     {!isStacked && (
                         <div className="w-full flex items-center justify-center mt-2 pb-[100px]">
-                            {/* Added pb-[100px] here to ensure this text itself isn't hidden if it's the last thing?
-                                User said "Do NOT add bottom padding equal to navbar height on the list".
-                                The list container has pb-0.
-                                So content might be hidden.
-                                "It should NOT overlay or float above the navbar".
-                                Navbar is fixed.
-                                List is z-0 (default). Navbar z-50.
-                                So List is behind. Correct.
-                            */}
                              <p className="text-white/60 text-[14px] font-satoshi">
                                  Cards added: {cards.length}
                              </p>
@@ -484,7 +503,7 @@ const MyCards = () => {
       {/* FAB / Add Button */}
       <div
         id="fab-container"
-        className={`fixed z-50 transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) flex items-center overflow-hidden ${showSuccessModal ? 'blur-sm brightness-50 pointer-events-none' : ''}`}
+        className={`fixed z-50 transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) flex items-center overflow-hidden ${contentBlurClass} ${tutorialStep > 0 ? 'pointer-events-none' : ''}`}
         style={{
             bottom: "100px",
             right: "20px",
@@ -527,7 +546,7 @@ const MyCards = () => {
       </div>
 
       {/* Bottom Navigation */}
-      <div className={showSuccessModal ? 'blur-sm brightness-50' : ''}>
+      <div className={contentBlurClass}>
          <BottomNavigation activeTab="cards" />
       </div>
 
@@ -593,6 +612,42 @@ const MyCards = () => {
             <span className="text-foreground text-[14px]">Close</span>
           </button>
         </div>
+      )}
+
+      {/* Tutorial Overlay */}
+      {tutorialStep > 0 && (
+          <div
+            className="fixed inset-0 z-[60] flex flex-col items-center justify-center p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
+            onClick={handleTutorialClick}
+          >
+             {/* Content */}
+             <div className="flex flex-col items-center text-center max-w-[320px] pb-32 animate-in zoom-in-95 duration-300">
+                 {tutorialStep === 1 && (
+                     <>
+                        <img
+                            src={tutorialTap}
+                            alt="Tap"
+                            className="w-[60px] h-[60px] object-contain mb-4"
+                        />
+                        <p className="text-white text-[15px] font-medium leading-relaxed">
+                            Single tap to expand the cards list.
+                        </p>
+                     </>
+                 )}
+                 {tutorialStep === 2 && (
+                     <>
+                        <img
+                            src={tutorialLongPress}
+                            alt="Long Press"
+                            className="w-[60px] h-[60px] object-contain mb-4"
+                        />
+                        <p className="text-white text-[15px] font-medium leading-relaxed">
+                            Long press the card to expand additional actions such as deleting card, making card primary.
+                        </p>
+                     </>
+                 )}
+             </div>
+          </div>
       )}
     </div>
   );

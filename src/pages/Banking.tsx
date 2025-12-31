@@ -17,6 +17,8 @@ import buttonRemoveCard from "@/assets/button-remove-card.png";
 import buttonSetDefault from "@/assets/button-set-default.png";
 import buttonCancelWide from "@/assets/button-cancel-wide.png";
 import bankDefaultCardBg from "@/assets/bank-default-card.png";
+import tutorialTap from "@/assets/tutorial-tap.png";
+import tutorialLongPress from "@/assets/tutorial-long-press.png";
 
 import {
     getBankAccounts,
@@ -35,6 +37,9 @@ const Banking = () => {
   const [isStacked, setIsStacked] = useState(true);
   const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
 
+  // Tutorial State: 0 = none, 1 = tap, 2 = long press
+  const [tutorialStep, setTutorialStep] = useState(0);
+
   // Confirmation Modal State
   const [confirmAction, setConfirmAction] = useState<'remove' | 'default' | null>(null);
 
@@ -47,20 +52,36 @@ const Banking = () => {
 
   useEffect(() => {
     // Check if we came from LinkedAccounts flow
+    let currentAccounts = getBankAccounts();
+
     if (location.state?.accountsAdded && location.state?.selectedAccounts) {
         const selected = location.state.selectedAccounts;
-        const newAccounts = addSelectedAccounts(selected);
-        setAccounts(newAccounts);
+        currentAccounts = addSelectedAccounts(selected);
+        setAccounts(currentAccounts);
         setShowSuccessModal(true);
-        setIsStacked(newAccounts.length > 1);
+        setIsStacked(currentAccounts.length > 1);
         // Clean up state
         window.history.replaceState({}, document.title);
     } else {
-        const loadedAccounts = getBankAccounts();
-        setAccounts(loadedAccounts);
-        setIsStacked(loadedAccounts.length > 1);
+        setAccounts(currentAccounts);
+        setIsStacked(currentAccounts.length > 1);
+    }
+
+    // Check for tutorial
+    const hasSeenTutorial = localStorage.getItem("dotpe_stack_tutorial_seen");
+    if (!hasSeenTutorial && currentAccounts.length > 1) {
+        setTutorialStep(1);
     }
   }, [location.state]);
+
+  const handleTutorialClick = () => {
+      if (tutorialStep === 1) {
+          setTutorialStep(2);
+      } else if (tutorialStep === 2) {
+          setTutorialStep(0);
+          localStorage.setItem("dotpe_stack_tutorial_seen", "true");
+      }
+  };
 
   const handleFabClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -153,6 +174,9 @@ const Banking = () => {
     return a.isDefault ? -1 : 1;
   });
 
+  // Calculate blur class
+  const contentBlurClass = showSuccessModal || tutorialStep > 0 ? 'blur-sm brightness-50' : '';
+
   return (
     <div
       className="min-h-[100dvh] flex flex-col safe-area-top safe-area-bottom relative"
@@ -168,7 +192,7 @@ const Banking = () => {
       }}
     >
       {/* Main Content */}
-      <div className={`flex flex-col flex-1 transition-all duration-300 ${showSuccessModal ? 'blur-sm brightness-50' : ''}`}>
+      <div className={`flex flex-col flex-1 transition-all duration-300 ${contentBlurClass}`}>
 
         {/* Header */}
         <div className="px-5 pt-4 flex items-center justify-between shrink-0">
@@ -414,7 +438,7 @@ const Banking = () => {
       {/* FAB */}
       <div
         id="fab-container"
-        className={`fixed z-50 transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) flex items-center overflow-hidden ${showSuccessModal ? 'blur-sm brightness-50 pointer-events-none' : ''}`}
+        className={`fixed z-50 transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) flex items-center overflow-hidden ${contentBlurClass} ${tutorialStep > 0 ? 'pointer-events-none' : ''}`}
         style={{
             bottom: "100px",
             right: "20px",
@@ -456,7 +480,7 @@ const Banking = () => {
       </div>
 
       {/* Bottom Nav */}
-      <div className={showSuccessModal ? 'blur-sm brightness-50' : ''}>
+      <div className={contentBlurClass}>
          <BottomNavigation activeTab="" />
       </div>
 
@@ -529,6 +553,42 @@ const Banking = () => {
             <span className="text-foreground text-[14px]">Close</span>
           </button>
         </div>
+      )}
+
+      {/* Tutorial Overlay */}
+      {tutorialStep > 0 && (
+          <div
+            className="fixed inset-0 z-[60] flex flex-col items-center justify-center p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
+            onClick={handleTutorialClick}
+          >
+             {/* Content */}
+             <div className="flex flex-col items-center text-center max-w-[320px] pb-32 animate-in zoom-in-95 duration-300">
+                 {tutorialStep === 1 && (
+                     <>
+                        <img
+                            src={tutorialTap}
+                            alt="Tap"
+                            className="w-[60px] h-[60px] object-contain mb-4"
+                        />
+                        <p className="text-white text-[15px] font-medium leading-relaxed">
+                            Single tap to expand the cards list.
+                        </p>
+                     </>
+                 )}
+                 {tutorialStep === 2 && (
+                     <>
+                        <img
+                            src={tutorialLongPress}
+                            alt="Long Press"
+                            className="w-[60px] h-[60px] object-contain mb-4"
+                        />
+                        <p className="text-white text-[15px] font-medium leading-relaxed">
+                            Long press the card to expand additional actions such as deleting card, making card primary.
+                        </p>
+                     </>
+                 )}
+             </div>
+          </div>
       )}
     </div>
   );
