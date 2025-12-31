@@ -65,14 +65,6 @@ const AddBank = () => {
           // Branch code from last 4 digits of IFSC
           const branchCode = ifscCode.slice(-4);
 
-          // Helper to title case string (e.g. "GUWAHATI" -> "Guwahati")
-          const toTitleCase = (str: string) => {
-            return str.replace(
-              /\w\S*/g,
-              (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
-            );
-          };
-
           const formattedBranch = toTitleCase(details.BRANCH);
           setBankName(`${details.BANK}, ${formattedBranch} ${branchCode}`);
         } else {
@@ -111,8 +103,18 @@ const AddBank = () => {
     navigate("/banking/linked-accounts", { state: { mobile } });
   };
 
+  // Helper to title case string (e.g. "GUWAHATI" -> "Guwahati")
+  const toTitleCase = (str: string) => {
+    return str.replace(
+      /\w\S*/g,
+      (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+    );
+  };
+
   const handleManualVerify = () => {
     if (!bankDetails) return;
+
+    const formattedBranch = toTitleCase(bankDetails.BRANCH);
 
     const newAccount: BankAccount = {
       id: Date.now().toString(), // Generate unique ID
@@ -120,7 +122,7 @@ const AddBank = () => {
       accountType: "Savings Account", // Default
       accountNumber: accountNumber,
       ifsc: ifscCode,
-      branch: `${bankDetails.BANK}, ${bankDetails.BRANCH}`, // Store fuller details
+      branch: `${bankDetails.BANK}, ${formattedBranch}`, // Store fuller details
       logo: getBankLogo(bankDetails.BANK),
       isDefault: false, // handled by addManualAccount
     };
@@ -371,7 +373,9 @@ const AddBank = () => {
                 placeholder="Account Number"
                 value={"*".repeat(accountNumber.length)}
                 onChange={handleMaskedChange}
-                className="w-full h-[48px] bg-[#191919]/30 border-[0.65px] border-white/20 rounded-full px-5 text-white placeholder:text-white/40 text-[14px] font-normal font-mono outline-none focus:border-white/40 transition-colors"
+                className={`w-full h-[48px] bg-[#191919]/30 border-[0.65px] border-white/20 rounded-full px-5 text-white placeholder:text-white/40 text-[14px] font-normal font-sans outline-none focus:border-white/40 transition-colors ${
+                  accountNumber.length > 0 ? "tracking-widest" : ""
+                }`}
               />
 
               <div className="flex flex-col gap-1">
@@ -385,6 +389,8 @@ const AddBank = () => {
                   }}
                   onBlur={() => setTouchedConfirm(true)}
                   className={`w-full h-[48px] bg-[#191919]/30 border-[0.65px] rounded-full px-5 text-white placeholder:text-white/40 text-[14px] font-normal font-sans outline-none transition-colors ${
+                    confirmAccountNumber.length > 0 ? "tracking-widest" : ""
+                  } ${
                     showMatchError ? "border-red-500/50 focus:border-red-500" : "border-white/20 focus:border-white/40"
                   }`}
                 />
@@ -407,7 +413,7 @@ const AddBank = () => {
                   />
                   <button
                     className="absolute right-5 top-1/2 -translate-y-1/2 text-[#5260FE] text-[13px] font-medium hover:text-[#5260FE]/80 transition-colors"
-                    onClick={() => window.open("https://www.ifsccodebank.com/search-by-IFSC-code.aspx", "_blank")}
+                    onClick={() => window.open("https://www.ifsccodebank.com/search-by-IFSC-code.aspx", "_blank", "noopener,noreferrer")}
                   >
                     Search IFSC?
                   </button>

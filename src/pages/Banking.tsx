@@ -221,7 +221,7 @@ const Banking = () => {
                         const isSelected = selectedAccountId === account.id;
 
                         // Layout adjustments for Default vs Normal
-                        const accountHeightValue = isDefault ? 218 : 194;
+                        const accountHeightValue = isDefault ? 234 : 210;
                         const accountHeight = `${accountHeightValue}px`;
 
                         // Stacking Logic
@@ -399,7 +399,7 @@ const Banking = () => {
                     {/* Count */}
                      <div className={`w-full flex items-center justify-center transition-all duration-300 ${isStacked ? 'absolute' : 'mt-2 pb-[100px]'}`}
                         style={isStacked ? {
-                            top: `${(sortedAccounts.length - 1) * 15 + 218 + 24}px`
+                            top: `${(sortedAccounts.length - 1) * 15 + 234 + 24}px`
                         } : {}}
                      >
                         <p className="text-white/60 text-[14px] font-satoshi">
