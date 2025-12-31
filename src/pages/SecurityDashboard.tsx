@@ -7,6 +7,7 @@ import bannerIncomplete from "@/assets/banner-incomplete.png";
 import bannerPending from "@/assets/banner-pending.png";
 import bannerComplete from "@/assets/banner-complete.png";
 import kycAlertIcon from "@/assets/kyc-alert-icon.png";
+import kycIconMenu from "@/assets/kyc-icon-menu.png";
 import biometricIcon from "@/assets/biometric-icon-menu.png";
 import mpinIcon from "@/assets/mpin-icon.png";
 import deleteAccountIcon from "@/assets/delete-account-icon.png";
@@ -77,6 +78,61 @@ const SecurityDashboard = () => {
     }
   };
 
+  const renderKycMenuItem = () => {
+    const commonClasses = "flex items-center justify-between p-4 rounded-xl border";
+
+    if (kycStatus === "incomplete") {
+      return (
+        <div
+          className={`${commonClasses} bg-[#381111] border-[#FF3B30]/30 cursor-pointer`}
+          onClick={() => navigate("/kyc-intro")}
+        >
+            <div className="flex items-center gap-4">
+                <img src={kycAlertIcon} alt="KYC Alert" className="w-6 h-6 object-contain" />
+                <div className="flex flex-col">
+                    <span className="text-[#FF3B30] text-[16px] font-medium font-sans">KYC</span>
+                    <span className="text-[#FF3B30]/80 text-[12px] font-sans">KYC also unlocks wallet limits, faster refunds, and your inner peace.</span>
+                </div>
+            </div>
+            <ChevronRight className="text-[#FF3B30] w-5 h-5" />
+        </div>
+      );
+    }
+
+    if (kycStatus === "pending") {
+      return (
+        <div
+          className={`${commonClasses} bg-[#342805] border-[#FFCC00]/30 cursor-pointer`}
+        >
+            <div className="flex items-center gap-4">
+                <img src={kycIconMenu} alt="KYC Pending" className="w-6 h-6 object-contain opacity-80" style={{ filter: 'sepia(1) hue-rotate(5deg) saturate(5)' }} />
+                <div className="flex flex-col">
+                    <span className="text-[#FFCC00] text-[16px] font-medium font-sans">KYC</span>
+                    <span className="text-[#FFCC00]/80 text-[12px] font-sans">KYC also unlocks wallet limits, faster refunds, and your inner peace.</span>
+                </div>
+            </div>
+            <ChevronRight className="text-[#FFCC00] w-5 h-5" />
+        </div>
+      );
+    }
+
+    // Complete
+    return (
+        <div
+          className={`${commonClasses} bg-white/5 border-white/10 cursor-pointer`}
+        >
+            <div className="flex items-center gap-4">
+                <img src={kycIconMenu} alt="KYC" className="w-6 h-6 object-contain" />
+                <div className="flex flex-col">
+                    <span className="text-white text-[16px] font-medium font-sans">KYC</span>
+                    <span className="text-white/60 text-[12px] font-sans">KYC also unlocks wallet limits, faster refunds, and your inner peace.</span>
+                </div>
+            </div>
+            <ChevronRight className="text-white/40 w-5 h-5" />
+        </div>
+    );
+  };
+
   return (
     <div
       className="min-h-[100dvh] flex flex-col safe-area-top safe-area-bottom"
@@ -119,11 +175,17 @@ const SecurityDashboard = () => {
         {/* Menu Items */}
         <div className="flex flex-col gap-4">
 
+            {/* KYC Menu Item */}
+            {renderKycMenuItem()}
+
             {/* Change MPIN */}
             <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10">
                 <div className="flex items-center gap-4">
                     <img src={mpinIcon} alt="MPIN" className="w-6 h-6 object-contain" />
-                    <span className="text-white text-[16px] font-medium font-sans">Change MPIN</span>
+                    <div className="flex flex-col">
+                        <span className="text-white text-[16px] font-medium font-sans">Change MPIN</span>
+                        <span className="text-white/60 text-[12px] font-sans">No birthdays, no 1234. We're judging you silently.</span>
+                    </div>
                 </div>
                 <ChevronRight className="text-white/40 w-5 h-5" />
             </div>
@@ -132,7 +194,10 @@ const SecurityDashboard = () => {
             <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10">
                 <div className="flex items-center gap-4">
                     <img src={biometricIcon} alt="Biometric" className="w-6 h-6 object-contain" />
-                    <span className="text-white text-[16px] font-medium font-sans">Biometric Unlock</span>
+                    <div className="flex flex-col">
+                        <span className="text-white text-[16px] font-medium font-sans">Biometric Unlock</span>
+                        <span className="text-white/60 text-[12px] font-sans max-w-[200px]">Don't worry, your face/finger data stays on your phone.</span>
+                    </div>
                 </div>
                 <Switch
                     checked={biometricEnabled}
@@ -144,7 +209,10 @@ const SecurityDashboard = () => {
             <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10">
                 <div className="flex items-center gap-4">
                     <img src={deleteAccountIcon} alt="Delete" className="w-6 h-6 object-contain" />
-                    <span className="text-white text-[16px] font-medium font-sans">Delete Account</span>
+                    <div className="flex flex-col">
+                        <span className="text-white text-[16px] font-medium font-sans">Delete Account</span>
+                        <span className="text-white/60 text-[12px] font-sans">Thinking of leaving? It's okay, we can handle heartbreak.</span>
+                    </div>
                 </div>
                 <ChevronRight className="text-white/40 w-5 h-5" />
             </div>
