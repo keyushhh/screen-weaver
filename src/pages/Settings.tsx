@@ -156,7 +156,7 @@ const Settings = () => {
             </div>
           </div>
           <button
-             onClick={() => navigate("/kyc-intro")}
+             onClick={() => navigate("/security-dashboard")}
              className="px-4 h-[32px] flex items-center justify-center rounded-full text-[12px] text-foreground"
              style={{
                 backgroundImage: 'url("/lovable-uploads/881be237-04b4-4be4-b639-b56090b04ed5.png")',
