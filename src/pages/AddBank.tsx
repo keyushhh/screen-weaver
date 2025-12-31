@@ -104,7 +104,11 @@ const AddBank = () => {
 
   const handleButtonClick = () => {
     if (selection === "auto") {
-      showOtpInput ? handleVerifyOtp() : handleRequestOTP();
+      if (showOtpInput) {
+        handleVerifyOtp();
+      } else {
+        handleRequestOTP();
+      }
     } else {
       handleManualVerify();
     }
@@ -318,7 +322,7 @@ const AddBank = () => {
                 placeholder="Account Number"
                 value={"*".repeat(accountNumber.length)}
                 onChange={handleMaskedChange}
-                className="w-full h-[48px] bg-[#191919]/30 border-[0.65px] border-white/20 rounded-full px-5 text-white placeholder:text-white/40 text-[14px] font-normal font-sans outline-none focus:border-white/40 transition-colors"
+                className="w-full h-[48px] bg-[#191919]/30 border-[0.65px] border-white/20 rounded-full px-5 text-white placeholder:text-white/40 text-[14px] font-normal font-mono outline-none focus:border-white/40 transition-colors"
               />
 
               <div className="flex flex-col gap-1">
@@ -326,7 +330,10 @@ const AddBank = () => {
                   type="text"
                   placeholder="Confirm Account Number"
                   value={confirmAccountNumber}
-                  onChange={(e) => setConfirmAccountNumber(e.target.value)}
+                  onChange={(e) => {
+                    setConfirmAccountNumber(e.target.value);
+                    setTouchedConfirm(false);
+                  }}
                   onBlur={() => setTouchedConfirm(true)}
                   className={`w-full h-[48px] bg-[#191919]/30 border-[0.65px] rounded-full px-5 text-white placeholder:text-white/40 text-[14px] font-normal font-sans outline-none transition-colors ${
                     showMatchError ? "border-red-500/50 focus:border-red-500" : "border-white/20 focus:border-white/40"
@@ -339,21 +346,23 @@ const AddBank = () => {
                 )}
               </div>
 
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="IFSC Code"
-                  value={ifscCode}
-                  onChange={(e) => setIfscCode(e.target.value.toUpperCase())}
-                  maxLength={11}
-                  className="w-full h-[48px] bg-[#191919]/30 border-[0.65px] border-white/20 rounded-full pl-5 pr-24 text-white placeholder:text-white/40 text-[14px] font-normal font-sans outline-none focus:border-white/40 transition-colors uppercase"
-                />
-                <button
-                  className="absolute right-5 top-1/2 -translate-y-1/2 text-[#5260FE] text-[13px] font-medium hover:text-[#5260FE]/80 transition-colors"
-                  onClick={() => window.open("https://www.rbi.org.in/Scripts/IFSC_Code.aspx", "_blank")}
-                >
-                  Search IFSC?
-                </button>
+              <div>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="IFSC Code"
+                    value={ifscCode}
+                    onChange={(e) => setIfscCode(e.target.value.toUpperCase())}
+                    maxLength={11}
+                    className="w-full h-[48px] bg-[#191919]/30 border-[0.65px] border-white/20 rounded-full pl-5 pr-24 text-white placeholder:text-white/40 text-[14px] font-normal font-sans outline-none focus:border-white/40 transition-colors uppercase"
+                  />
+                  <button
+                    className="absolute right-5 top-1/2 -translate-y-1/2 text-[#5260FE] text-[13px] font-medium hover:text-[#5260FE]/80 transition-colors"
+                    onClick={() => window.open("https://www.ifsccodebank.com/search-by-IFSC-code.aspx", "_blank")}
+                  >
+                    Search IFSC?
+                  </button>
+                </div>
 
                 {/* Bank Name Success State */}
                 {bankName && (
