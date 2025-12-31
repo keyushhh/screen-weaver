@@ -13,8 +13,17 @@ import verifiedIcon from "@/assets/verified.png";
 import { Button } from "@/components/ui/button";
 import { PhoneInput } from "@/components/PhoneInput";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { fetchBankDetails, getBankLogo, addManualAccount, BankAccount } from "@/utils/bankUtils";
 
 type Selection = "auto" | "manual";
+
+interface RazorpayBankDetails {
+  BANK: string;
+  BRANCH: string;
+  CITY: string;
+  IFSC: string;
+  // Add other fields if needed
+}
 
 const AddBank = () => {
   const navigate = useNavigate();
@@ -33,6 +42,7 @@ const AddBank = () => {
   const [touchedConfirm, setTouchedConfirm] = useState(false);
   const [ifscCode, setIfscCode] = useState("");
   const [bankName, setBankName] = useState("");
+  const [bankDetails, setBankDetails] = useState<RazorpayBankDetails | null>(null); // To store fetched details
 
   // Timer logic for OTP
   useEffect(() => {
@@ -44,14 +54,32 @@ const AddBank = () => {
     }
   }, [resendTimer]);
 
-  // Mock IFSC Validation
+  // IFSC Validation
   useEffect(() => {
-    // Simple mock: if length > 4, show bank name
-    if (ifscCode.length >= 4) {
-      setBankName("HDFC Bank, Kormanagala Branch 1234");
-    } else {
-      setBankName("");
-    }
+    const fetchDetails = async () => {
+      if (ifscCode.length === 11) {
+        const details = await fetchBankDetails(ifscCode);
+        if (details) {
+          setBankDetails(details);
+          // Format: {Bank Name}, {Branch Name} {Branch Code}
+          // Branch code from last 4 digits of IFSC
+          const branchCode = ifscCode.slice(-4);
+          // Format branch name to be Title Case roughly (mock) or use API directly.
+          // API returns uppercase usually.
+          const formattedBranch = details.BRANCH.replace(/\b\w/g, (c: string) => c.toUpperCase());
+          setBankName(`${details.BANK}, ${formattedBranch} ${branchCode}`);
+        } else {
+          setBankName("");
+          setBankDetails(null);
+        }
+      } else {
+        setBankName("");
+        setBankDetails(null);
+      }
+    };
+
+    const timeoutId = setTimeout(fetchDetails, 500); // Debounce
+    return () => clearTimeout(timeoutId);
   }, [ifscCode]);
 
   const handleRequestOTP = async () => {
@@ -77,8 +105,22 @@ const AddBank = () => {
   };
 
   const handleManualVerify = () => {
-    console.log("Verify Bank Account clicked");
-    // No navigation as per instructions for now
+    if (!bankDetails) return;
+
+    const newAccount: BankAccount = {
+      id: Date.now().toString(), // Generate unique ID
+      bankName: bankDetails.BANK,
+      accountType: "Savings Account", // Default
+      accountNumber: accountNumber,
+      ifsc: ifscCode,
+      branch: `${bankDetails.BANK}, ${bankDetails.BRANCH}`, // Store fuller details
+      logo: getBankLogo(bankDetails.BANK),
+      isDefault: false, // handled by addManualAccount
+    };
+
+    addManualAccount(newAccount);
+    // Pass state to show success modal if needed, or just standard navigation
+    navigate("/banking", { state: { accountsAdded: true, selectedAccounts: [newAccount] } });
   };
 
   const isButtonDisabled = () => {
@@ -89,7 +131,7 @@ const AddBank = () => {
     } else {
       // Manual flow validation
       const accountsMatch = accountNumber && confirmAccountNumber && accountNumber === confirmAccountNumber;
-      const isIfscValid = ifscCode.length >= 4; // Mock validation
+      const isIfscValid = ifscCode.length === 11 && bankName.length > 0;
       return !accountsMatch || !isIfscValid;
     }
   };
@@ -346,9 +388,7 @@ const AddBank = () => {
                 )}
               </div>
 
-              {/* IFSC Code Section - Wrapped in a parent div */}
-              <div className="flex flex-col">
-                {/* Input Container - Relative for the search button */}
+              <div>
                 <div className="relative">
                   <input
                     type="text"
