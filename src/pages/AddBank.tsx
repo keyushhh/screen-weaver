@@ -64,9 +64,16 @@ const AddBank = () => {
           // Format: {Bank Name}, {Branch Name} {Branch Code}
           // Branch code from last 4 digits of IFSC
           const branchCode = ifscCode.slice(-4);
-          // Format branch name to be Title Case roughly (mock) or use API directly.
-          // API returns uppercase usually.
-          const formattedBranch = details.BRANCH.replace(/\b\w/g, (c: string) => c.toUpperCase());
+
+          // Helper to title case string (e.g. "GUWAHATI" -> "Guwahati")
+          const toTitleCase = (str: string) => {
+            return str.replace(
+              /\w\S*/g,
+              (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+            );
+          };
+
+          const formattedBranch = toTitleCase(details.BRANCH);
           setBankName(`${details.BANK}, ${formattedBranch} ${branchCode}`);
         } else {
           setBankName("");
