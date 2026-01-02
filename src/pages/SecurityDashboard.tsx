@@ -216,11 +216,12 @@ const SecurityDashboard = () => {
 
       {/* Radar Animation Section */}
       <div className="flex-1 flex flex-col items-center justify-center min-h-[300px] relative">
-        <div className="w-[390px] h-[390px] flex items-center justify-center relative">
+        <div className="w-[254px] h-[254px] flex items-center justify-center relative">
           <Lottie
             animationData={getRadarAnimation()}
             loop={true}
             className="w-full h-full"
+            style={{ transform: "scale(1.6)" }}
           />
         </div>
       </div>
