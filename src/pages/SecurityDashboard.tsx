@@ -221,7 +221,7 @@ const SecurityDashboard = () => {
             animationData={getRadarAnimation()}
             loop={true}
             className="w-full h-full"
-            style={{ transform: "scale(1.6)" }}
+            style={{ transform: "scale(2.3)" }}
           />
         </div>
       </div>
