@@ -216,7 +216,7 @@ const SecurityDashboard = () => {
 
       {/* Radar Animation Section */}
       <div className="flex-1 flex flex-col items-center justify-center min-h-[300px] relative">
-        <div className="w-[200px] h-[200px] flex items-center justify-center relative">
+        <div className="w-[320px] h-[320px] flex items-center justify-center relative">
           <Lottie
             animationData={getRadarAnimation()}
             loop={true}
