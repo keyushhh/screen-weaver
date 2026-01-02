@@ -12,8 +12,8 @@ import kycIconMenu from "@/assets/kyc-icon-menu.png";
 import biometricIcon from "@/assets/biometric-icon-menu.png";
 import mpinIcon from "@/assets/mpin-icon.png";
 import deleteAccountIcon from "@/assets/delete-account-icon.png";
-import toggleOn from "@/assets/toggle-on.svg";
-import toggleOff from "@/assets/toggle-off.svg";
+import toggleActive from "@/assets/toggle-active.png";
+import toggleInactive from "@/assets/toggle-inactive.png";
 
 const SecurityDashboard = () => {
   const navigate = useNavigate();
@@ -146,10 +146,14 @@ const SecurityDashboard = () => {
                         <span className={subTextClass}>Don’t worry, your face/finger data stays on your phone. We don’t want it. Promise</span>
                     </div>
                 </div>
-                <div className="mr-[12px] cursor-pointer" onClick={() => setBiometricEnabled(!biometricEnabled)}>
+                {/* Toggle Wrapper: 16x16px container */}
+                <div
+                  className="mr-[28px] cursor-pointer w-[16px] h-[16px] flex items-center justify-center"
+                  onClick={() => setBiometricEnabled(!biometricEnabled)}
+                >
                     <img
-                        src={biometricEnabled ? toggleOn : toggleOff}
-                        className="h-[22px] w-auto" // Assuming ~22px height based on prev prompt
+                        src={biometricEnabled ? toggleActive : toggleInactive}
+                        className="w-[16px] h-[10px] object-contain" // Icon inside: 16x10px
                         alt="Toggle"
                     />
                 </div>
