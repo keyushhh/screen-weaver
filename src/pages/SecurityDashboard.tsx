@@ -14,6 +14,8 @@ import mpinIcon from "@/assets/mpin-icon.png";
 import deleteAccountIcon from "@/assets/delete-account-icon.png";
 import toggleActive from "@/assets/toggle-active.png";
 import toggleInactive from "@/assets/toggle-inactive.png";
+import Lottie from "lottie-react";
+import dotpeRadarAnimation from "@/assets/dotpe-radar.json";
 
 const SecurityDashboard = () => {
   const navigate = useNavigate();
@@ -199,12 +201,12 @@ const SecurityDashboard = () => {
 
       {/* Radar Animation Section */}
       <div className="flex-1 flex flex-col items-center justify-center min-h-[300px] relative">
-         {/* Placeholder Radar */}
-        <div className="w-[200px] h-[200px] rounded-full border border-white/10 flex items-center justify-center relative">
-            <div className="absolute w-full h-full rounded-full border border-[#5260FE]/30 animate-pulse"></div>
-            <div className="w-[140px] h-[140px] rounded-full bg-[#5260FE]/10 flex items-center justify-center">
-                 <div className="w-[10px] h-[10px] bg-[#5260FE] rounded-full shadow-[0_0_20px_#5260FE]"></div>
-            </div>
+        <div className="w-[200px] h-[200px] flex items-center justify-center relative">
+          <Lottie
+            animationData={dotpeRadarAnimation}
+            loop={true}
+            className="w-full h-full"
+          />
         </div>
       </div>
 
