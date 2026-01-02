@@ -12,7 +12,8 @@ import kycIconMenu from "@/assets/kyc-icon-menu.png";
 import biometricIcon from "@/assets/biometric-icon-menu.png";
 import mpinIcon from "@/assets/mpin-icon.png";
 import deleteAccountIcon from "@/assets/delete-account-icon.png";
-import { Switch } from "@/components/ui/switch";
+import toggleOn from "@/assets/toggle-on.svg";
+import toggleOff from "@/assets/toggle-off.svg";
 
 const SecurityDashboard = () => {
   const navigate = useNavigate();
@@ -21,7 +22,8 @@ const SecurityDashboard = () => {
 
   const getStatusBanner = () => {
     // Height 80px, Badge Icon, Centered Header, Secondary Text
-    const commonClasses = "w-full h-[80px] rounded-xl flex items-center justify-between px-4 cursor-pointer relative overflow-hidden";
+    // Padding: top 17px, left 17px, bottom 15px
+    const commonClasses = "w-full h-[80px] rounded-xl flex items-center justify-between px-4 cursor-pointer relative overflow-hidden pt-[17px] pl-[17px] pb-[15px]";
     const bgStyle = (img: string) => ({
       backgroundImage: `url(${img})`,
       backgroundSize: "cover",
@@ -39,12 +41,11 @@ const SecurityDashboard = () => {
             {/* Flex Column for Text */}
             <div className="flex flex-col justify-center w-full h-full">
                <div className="flex items-center gap-2">
-                  <img src={kycBadge} className="w-5 h-5 object-contain" alt="Badge" />
-                  <span className="text-white text-[16px] font-medium font-sans">Security Breach-ish.</span>
+                  <img src={kycBadge} className="w-[24px] h-[24px] object-contain" alt="Badge" />
+                  <span className="text-white text-[18px] font-medium font-sans">Security Breach-ish.</span>
                </div>
-               <span className="text-[#7E7E7E] text-[16px] font-normal font-sans mt-[2px]">Some settings need your attention. Give ‘em a tap.</span>
+               <span className="text-[#7E7E7E] text-[13px] font-normal font-sans mt-[2px]">Some settings need your attention. Give ‘em a tap.</span>
             </div>
-            {/* Right Arrow? User didn't ask for one in the new banner spec, but previous had it. Leaving it out as spec didn't mention it. */}
           </div>
         );
       case "pending":
@@ -55,10 +56,10 @@ const SecurityDashboard = () => {
           >
             <div className="flex flex-col justify-center w-full h-full">
                <div className="flex items-center gap-2">
-                  <img src={kycBadge} className="w-5 h-5 object-contain" alt="Badge" />
-                  <span className="text-white text-[16px] font-medium font-sans">In Progress…</span>
+                  <img src={kycBadge} className="w-[24px] h-[24px] object-contain" alt="Badge" />
+                  <span className="text-white text-[18px] font-medium font-sans">In Progress…</span>
                </div>
-               <span className="text-[#7E7E7E] text-[16px] font-normal font-sans mt-[2px]">We’re working our magic. Check back soon.</span>
+               <span className="text-[#7E7E7E] text-[13px] font-normal font-sans mt-[2px]">We’re working our magic. Check back soon.</span>
             </div>
           </div>
         );
@@ -70,10 +71,10 @@ const SecurityDashboard = () => {
           >
             <div className="flex flex-col justify-center w-full h-full">
                <div className="flex items-center gap-2">
-                  <img src={kycBadge} className="w-5 h-5 object-contain" alt="Badge" />
-                  <span className="text-white text-[16px] font-medium font-sans">Looks Good!</span>
+                  <img src={kycBadge} className="w-[24px] h-[24px] object-contain" alt="Badge" />
+                  <span className="text-white text-[18px] font-medium font-sans">Looks Good!</span>
                </div>
-               <span className="text-[#7E7E7E] text-[16px] font-normal font-sans mt-[2px]">Your security setup looks good and completed.</span>
+               <span className="text-[#7E7E7E] text-[13px] font-normal font-sans mt-[2px]">Your security setup looks good and completed.</span>
             </div>
           </div>
         );
@@ -83,13 +84,19 @@ const SecurityDashboard = () => {
   };
 
   const renderSubmenu = () => {
+    // Menu Config
     const rowHeight = "h-[68px]";
-    const chevronClass = "text-[#7E7E7E] w-5 h-5 mr-[10px]"; // Adjusted mr to visually align with '26px from right' including padding
+    const paddingClass = "pt-[7px] pb-[7px] pl-[18px]"; // Padding: top 7, bottom 7, left 18
+    const chevronClass = "text-[#7E7E7E] w-5 h-5 mr-[10px]";
+    const iconClass = "w-[20px] h-[20px] object-contain"; // Icon 20x20
+    const headerClass = "text-white text-[14px] font-medium font-sans"; // Header Medium 14
+    const subTextClass = "text-[#7E7E7E] text-[12px] font-normal font-sans leading-tight"; // Sub Regular 12
+    const textGap = "gap-[9px]"; // Space between header and sub-text
+    const textWrapperClass = "flex flex-col justify-center pr-[56px]"; // Line break 56px from right
 
     // KYC Row Logic
     let kycBg = "#0B0B0B";
     let kycIcon = kycIconMenu;
-    let kycIconClass = "w-6 h-6 object-contain";
 
     // Incomplete specific overrides
     if (kycStatus === "incomplete") {
@@ -97,8 +104,6 @@ const SecurityDashboard = () => {
         kycIcon = kycAlertIcon;
     } else if (kycStatus === "pending") {
         kycBg = "rgba(250, 204, 21, 0.12)";
-        // kycIcon remains kycIconMenu but might need tint? Spec didn't say tint icon, just container.
-        // User said "Use the 'kyc' icon for this"
     }
 
     return (
@@ -106,57 +111,57 @@ const SecurityDashboard = () => {
 
             {/* ROW 1: KYC */}
             <div
-                className={`w-full ${rowHeight} flex items-center justify-between px-4 cursor-pointer rounded-t-xl rounded-b-none`}
+                className={`w-full ${rowHeight} flex items-center justify-between ${paddingClass} cursor-pointer rounded-t-xl rounded-b-none`}
                 style={{ backgroundColor: kycBg }}
                 onClick={() => kycStatus === 'incomplete' && navigate("/kyc-intro")}
             >
-                <div className="flex items-center gap-4">
-                    <img src={kycIcon} alt="KYC" className={kycIconClass} />
-                    <div className="flex flex-col justify-center">
-                        <span className="text-white text-[14px] font-medium font-sans">KYC</span>
-                        <span className="text-[#7E7E7E] text-[12px] font-normal font-sans leading-tight">KYC also unlocks wallet limits, faster refunds, and your inner peace.</span>
+                <div className="flex items-center gap-4 w-full">
+                    <img src={kycIcon} alt="KYC" className={iconClass} />
+                    <div className={`${textWrapperClass} ${textGap} w-full`}>
+                        <span className={headerClass}>KYC</span>
+                        <span className={subTextClass}>KYC also unlocks wallet limits, faster refunds, and your inner peace.</span>
                     </div>
                 </div>
                 <ChevronRight className={chevronClass} />
             </div>
 
             {/* ROW 2: MPIN */}
-            <div className={`w-full ${rowHeight} flex items-center justify-between px-4 bg-[#0B0B0B] cursor-pointer`}>
-                 <div className="flex items-center gap-4">
-                    <img src={mpinIcon} alt="MPIN" className="w-6 h-6 object-contain" />
-                    <div className="flex flex-col justify-center">
-                        <span className="text-white text-[14px] font-medium font-sans">MPIN</span>
-                        <span className="text-[#7E7E7E] text-[12px] font-normal font-sans leading-tight">No birthdays, no 1234. We're judging you silently.</span>
+            <div className={`w-full ${rowHeight} flex items-center justify-between ${paddingClass} bg-[#0B0B0B] cursor-pointer`}>
+                 <div className="flex items-center gap-4 w-full">
+                    <img src={mpinIcon} alt="MPIN" className={iconClass} />
+                    <div className={`${textWrapperClass} ${textGap} w-full`}>
+                        <span className={headerClass}>MPIN</span>
+                        <span className={subTextClass}>No birthdays, no 1234. We're judging you silently.</span>
                     </div>
                 </div>
                 <ChevronRight className={chevronClass} />
             </div>
 
             {/* ROW 3: Biometric */}
-            <div className={`w-full ${rowHeight} flex items-center justify-between px-4 bg-[#0B0B0B]`}>
-                 <div className="flex items-center gap-4">
-                    <img src={biometricIcon} alt="Biometric" className="w-6 h-6 object-contain" />
-                    <div className="flex flex-col justify-center">
-                        <span className="text-white text-[14px] font-medium font-sans">Biometric Unlock</span>
-                        <span className="text-[#7E7E7E] text-[12px] font-normal font-sans leading-tight max-w-[240px]">Don’t worry, your face/finger data stays on your phone. We don’t want it. Promise</span>
+            <div className={`w-full ${rowHeight} flex items-center justify-between ${paddingClass} bg-[#0B0B0B]`}>
+                 <div className="flex items-center gap-4 w-full">
+                    <img src={biometricIcon} alt="Biometric" className={iconClass} />
+                    <div className={`${textWrapperClass} ${textGap} w-full`}>
+                        <span className={headerClass}>Biometric Unlock</span>
+                        <span className={subTextClass}>Don’t worry, your face/finger data stays on your phone. We don’t want it. Promise</span>
                     </div>
                 </div>
-                <div className="mr-[12px]">
-                    <Switch
-                        checked={biometricEnabled}
-                        onCheckedChange={setBiometricEnabled}
-                        className="data-[state=checked]:bg-[#5260FE]"
+                <div className="mr-[12px] cursor-pointer" onClick={() => setBiometricEnabled(!biometricEnabled)}>
+                    <img
+                        src={biometricEnabled ? toggleOn : toggleOff}
+                        className="h-[22px] w-auto" // Assuming ~22px height based on prev prompt
+                        alt="Toggle"
                     />
                 </div>
             </div>
 
             {/* ROW 4: Delete Account */}
-            <div className={`w-full ${rowHeight} flex items-center justify-between px-4 bg-[#0B0B0B] cursor-pointer rounded-t-none rounded-b-xl`}>
-                 <div className="flex items-center gap-4">
-                    <img src={deleteAccountIcon} alt="Delete" className="w-6 h-6 object-contain" />
-                    <div className="flex flex-col justify-center">
-                        <span className="text-white text-[14px] font-medium font-sans">Delete Account</span>
-                        <span className="text-[#7E7E7E] text-[12px] font-normal font-sans leading-tight">Thinking of leaving? It's okay, we can handle heartbreak.</span>
+            <div className={`w-full ${rowHeight} flex items-center justify-between ${paddingClass} bg-[#0B0B0B] cursor-pointer rounded-t-none rounded-b-xl`}>
+                 <div className="flex items-center gap-4 w-full">
+                    <img src={deleteAccountIcon} alt="Delete" className={iconClass} />
+                    <div className={`${textWrapperClass} ${textGap} w-full`}>
+                        <span className={headerClass}>Delete Account</span>
+                        <span className={subTextClass}>Thinking of leaving? It's okay, we can handle heartbreak.</span>
                     </div>
                 </div>
                 <ChevronRight className={chevronClass} />
