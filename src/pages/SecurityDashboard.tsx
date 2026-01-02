@@ -204,7 +204,7 @@ const SecurityDashboard = () => {
       }}
     >
       {/* Header */}
-      <div className="px-5 pt-4 flex items-center gap-3">
+      <div className="px-5 pt-4 flex items-center gap-3 relative z-50">
         <button
           onClick={() => navigate("/settings")}
           className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center bg-black/20 backdrop-blur-md"
