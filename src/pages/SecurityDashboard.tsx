@@ -145,19 +145,19 @@ const SecurityDashboard = () => {
             <div className={`w-full ${rowHeight} flex items-center justify-between ${paddingClass} bg-[#0B0B0B]`}>
                  <div className="flex items-center gap-4 w-full">
                     <img src={biometricIcon} alt="Biometric" className={iconClass} />
-                    <div className={`${textWrapperClass} ${textGap} w-full`}>
+                    <div className={`flex flex-col justify-center ${textGap} w-full`}>
                         <span className={headerClass}>Biometric Unlock</span>
                         <span className={subTextClass}>Don’t worry, your face/finger data stays on your phone. We don’t want it. Promise</span>
                     </div>
                 </div>
-                {/* Toggle Wrapper: 16x16px container */}
+                {/* Toggle Wrapper: Increased size and adjusted margin */}
                 <div
-                  className="mr-[28px] cursor-pointer w-[16px] h-[16px] flex items-center justify-center"
+                  className="mr-[10px] cursor-pointer w-[34px] h-[20px] flex items-center justify-center shrink-0"
                   onClick={() => setBiometricEnabled(!biometricEnabled)}
                 >
                     <img
                         src={biometricEnabled ? toggleActive : toggleInactive}
-                        className="w-[16px] h-[10px] object-contain" // Icon inside: 16x10px
+                        className="w-full h-full object-contain"
                         alt="Toggle"
                     />
                 </div>
