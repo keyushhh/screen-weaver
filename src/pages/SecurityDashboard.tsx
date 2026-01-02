@@ -16,6 +16,8 @@ import toggleActive from "@/assets/toggle-active.png";
 import toggleInactive from "@/assets/toggle-inactive.png";
 import Lottie from "lottie-react";
 import dotpeRadarAnimation from "@/assets/dotpe-radar.json";
+import errorRadarAnimation from "@/assets/error.json";
+import inProgressRadarAnimation from "@/assets/in-progress.json";
 
 const SecurityDashboard = () => {
   const navigate = useNavigate();
@@ -177,6 +179,19 @@ const SecurityDashboard = () => {
     );
   };
 
+  const getRadarAnimation = () => {
+    switch (kycStatus) {
+      case "incomplete":
+        return errorRadarAnimation;
+      case "pending":
+        return inProgressRadarAnimation;
+      case "complete":
+        return dotpeRadarAnimation;
+      default:
+        return dotpeRadarAnimation;
+    }
+  };
+
   return (
     <div
       className="min-h-[100dvh] flex flex-col safe-area-top safe-area-bottom"
@@ -203,7 +218,7 @@ const SecurityDashboard = () => {
       <div className="flex-1 flex flex-col items-center justify-center min-h-[300px] relative">
         <div className="w-[200px] h-[200px] flex items-center justify-center relative">
           <Lottie
-            animationData={dotpeRadarAnimation}
+            animationData={getRadarAnimation()}
             loop={true}
             className="w-full h-full"
           />
