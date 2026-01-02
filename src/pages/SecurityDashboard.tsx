@@ -91,7 +91,7 @@ const SecurityDashboard = () => {
     const iconClass = "w-[20px] h-[20px] object-contain"; // Icon 20x20
     const headerClass = "text-white text-[14px] font-medium font-sans"; // Header Medium 14
     const subTextClass = "text-[#7E7E7E] text-[12px] font-normal font-sans leading-tight"; // Sub Regular 12
-    const textGap = "gap-[9px]"; // Space between header and sub-text
+    const textGap = "gap-[5px]"; // Space between header and sub-text
     const textWrapperClass = "flex flex-col justify-center pr-[56px]"; // Line break 56px from right
 
     // KYC Row Logic
