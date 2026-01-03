@@ -243,7 +243,7 @@ const MpinSheet = ({ onClose, mode = 'verify', onSuccess }: MpinSheetProps) => {
                              {/* Section 1: Create */}
                              <div className="flex flex-col items-center gap-2 w-full">
                                 <span className="text-white text-[16px] font-normal font-sans">Create a secure 4 digit MPIN</span>
-                                <span className="text-[#7E7E7E] text-[13px] font-normal font-sans text-center max-w-[300px] leading-tight">
+                                <span className="text-[#545454] text-[14px] font-normal font-sans text-center whitespace-nowrap">
                                     No birthdays, 0000s or '6969' please. We've seen it all.
                                 </span>
 
