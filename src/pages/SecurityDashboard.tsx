@@ -112,7 +112,7 @@ const SecurityDashboard = () => {
     }
 
     const handleKycClick = () => {
-        if (kycStatus === 'incomplete') {
+        if (kycStatus === 'incomplete' || kycStatus === 'pending') {
             navigate("/kyc-intro");
         } else if (kycStatus === 'complete') {
             navigate("/kyc-status-complete");
