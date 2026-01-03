@@ -176,7 +176,10 @@ const SecurityDashboard = () => {
             </div>
 
             {/* ROW 4: Delete Account */}
-            <div className={`w-full ${rowHeight} flex items-center justify-between ${paddingClass} bg-[#0B0B0B] cursor-pointer rounded-t-none rounded-b-xl`}>
+            <div
+                className={`w-full ${rowHeight} flex items-center justify-between ${paddingClass} bg-[#0B0B0B] cursor-pointer rounded-t-none rounded-b-xl`}
+                onClick={() => navigate("/delete-account")}
+            >
                  <div className="flex items-center gap-4 w-full">
                     <img src={deleteAccountIcon} alt="Delete" className={iconClass} />
                     <div className={`${textWrapperClass} ${textGap} w-full`}>

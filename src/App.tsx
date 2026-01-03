@@ -24,6 +24,7 @@ import LinkedAccounts from "./pages/LinkedAccounts";
 import BankRemoveSuccess from "./pages/BankRemoveSuccess";
 import SecurityDashboard from "./pages/SecurityDashboard";
 import KYCStatusComplete from "./pages/KYCStatusComplete";
+import DeleteAccount from "./pages/DeleteAccount";
 import MpinSettings from "./pages/MpinSettings";
 import ForgotMpin from "./pages/ForgotMpin";
 import NotFound from "./pages/NotFound";
@@ -58,6 +59,7 @@ const App = () => (
             <Route path="/bank-remove-success" element={<BankRemoveSuccess />} />
             <Route path="/security-dashboard" element={<SecurityDashboard />} />
             <Route path="/kyc-status-complete" element={<KYCStatusComplete />} />
+            <Route path="/delete-account" element={<DeleteAccount />} />
             <Route path="/security/mpin-settings" element={<MpinSettings />} />
             <Route path="/forgot-mpin" element={<ForgotMpin />} />
             <Route path="*" element={<NotFound />} />
