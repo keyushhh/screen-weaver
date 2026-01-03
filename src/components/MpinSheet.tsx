@@ -27,22 +27,36 @@ const MaskedInputOTPSlot = ({ index, className, style }: { index: number; classN
 
 interface MpinSheetProps {
   onClose: () => void;
+  mode?: 'verify' | 'change';
+  onSuccess?: () => void;
 }
 
-const MpinSheet = ({ onClose }: MpinSheetProps) => {
+const MpinSheet = ({ onClose, mode = 'verify', onSuccess }: MpinSheetProps) => {
   const { mpin: storedMpin } = useUser();
   const [enteredMpin, setEnteredMpin] = useState("");
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
+  const title = mode === 'change' ? "Change MPIN" : "Enter MPIN";
+  const subText = mode === 'change' ? "Enter your current MPIN" : "Enter your MPIN";
+
   // Verify MPIN when 4 digits are entered
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
     if (enteredMpin.length === 4) {
       if (enteredMpin === storedMpin) {
         setStatus('success');
-        // Do nothing further for now as requested
+
+        // Wait briefly for visual success then call callback
+        timeoutId = setTimeout(() => {
+             if (onSuccess) {
+                 onSuccess();
+             }
+        }, 300);
+
       } else {
         setStatus('error');
-        setTimeout(() => {
+        timeoutId = setTimeout(() => {
             setEnteredMpin("");
             setStatus('idle');
         }, 500);
@@ -50,7 +64,9 @@ const MpinSheet = ({ onClose }: MpinSheetProps) => {
     } else {
         setStatus('idle');
     }
-  }, [enteredMpin, storedMpin]);
+
+    return () => clearTimeout(timeoutId);
+  }, [enteredMpin, storedMpin, onSuccess]);
 
   const handleKeyPress = (key: string) => {
     if (enteredMpin.length < 4) {
@@ -91,7 +107,7 @@ const MpinSheet = ({ onClose }: MpinSheetProps) => {
                 {/* Header */}
                 <div className="px-5 pt-4 flex items-center justify-between relative z-50">
                     <div className="w-[40px]" /> {/* Spacer */}
-                    <h1 className="text-white text-[18px] font-medium font-sans">Enter MPIN</h1>
+                    <h1 className="text-white text-[18px] font-medium font-sans">{title}</h1>
                     <button
                     onClick={onClose}
                     className="w-[40px] h-[40px] flex items-center justify-center rounded-full bg-[#1C1C1E] active:bg-[#2C2C2E] transition-colors"
@@ -102,7 +118,7 @@ const MpinSheet = ({ onClose }: MpinSheetProps) => {
 
                 {/* Content Area */}
                 <div className="flex-1 flex flex-col items-center pt-[60px] gap-8">
-                    <span className="text-white text-[16px] font-normal font-sans">Enter your MPIN</span>
+                    <span className="text-white text-[16px] font-normal font-sans">{subText}</span>
 
                     <InputOTP maxLength={4} value={enteredMpin} readOnly>
                         <InputOTPGroup className="gap-4">
