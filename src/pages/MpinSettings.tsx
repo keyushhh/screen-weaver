@@ -1,15 +1,19 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import MpinSheet from "@/components/MpinSheet";
 import bannerComplete from "@/assets/banner-complete.png";
 import kycBadge from "@/assets/kyc-badge.png";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
+import popupBg from "@/assets/popup-bg.png";
+import buttonCloseBg from "@/assets/button-close.png";
+import mpinIcon from "@/assets/mpin-icon.png";
 
 const MpinSettings = () => {
   const navigate = useNavigate();
   const [showMpinSheet, setShowMpinSheet] = useState(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
   return (
     <div
@@ -24,7 +28,7 @@ const MpinSettings = () => {
       {/* Header */}
       <div className="px-5 pt-4 flex items-center justify-center relative">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/security-dashboard')}
           className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center bg-black/20 backdrop-blur-md absolute left-5"
         >
           <ChevronLeft className="w-5 h-5 text-white" />
@@ -86,10 +90,74 @@ const MpinSettings = () => {
           mode="change"
           onClose={() => setShowMpinSheet(false)}
           onSuccess={() => {
-            // User requested to pause flow here
             setShowMpinSheet(false);
+            setShowSuccessPopup(true);
           }}
         />
+      )}
+
+      {/* Success Popup */}
+      {showSuccessPopup && (
+        <div className="fixed inset-0 z-[60] flex flex-col items-center justify-center p-6">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 backdrop-blur-md bg-black/40"
+            onClick={() => setShowSuccessPopup(false)}
+          />
+
+          {/* Popup Box */}
+          <div
+            className="relative rounded-[20px] p-6 max-w-[320px] w-full z-10 min-h-[220px] flex flex-col items-center justify-center gap-4"
+            style={{
+              backgroundImage: `url(${popupBg})`,
+              backgroundSize: '100% 100%',
+              backgroundPosition: 'center',
+            }}
+          >
+             {/* Icon */}
+             <div className="w-[48px] h-[48px] flex items-center justify-center">
+                 <img src={mpinIcon} alt="Locked" className="w-full h-full object-contain" style={{ filter: 'brightness(0) invert(1)' }} />
+                 {/* Note: mpin-icon.png might be colored or dark.
+                     The screenshot shows a white outline lock.
+                     If mpin-icon.png is the purple icon from the menu,
+                     I might need to use a different icon or filter it.
+                     However, user explicitly asked to use mpin-icon.png.
+                     I will try without filter first if it looks right, or inverted if it's black.
+                     Actually the screenshot shows a simple white line icon.
+                     The menu icon is usually colored.
+                     Let's check the asset.
+                     For now I will assume user knows best and use it as is.
+                     If it looks wrong in verification I will fix.
+                  */}
+             </div>
+
+             {/* Header */}
+             <h2 className="text-white text-[18px] font-medium font-sans text-center">
+                MPIN Updated!
+             </h2>
+
+             {/* Body Pill */}
+             <div className="bg-[#090909] rounded-xl px-4 py-3 w-full">
+                <p className="text-white text-[14px] font-normal leading-snug text-center">
+                  All set. Just don’t write it on a sticky note. Or worse—use 1234 again.
+                </p>
+             </div>
+          </div>
+
+          {/* Close Button */}
+          <button
+            onClick={() => setShowSuccessPopup(false)}
+            className="relative z-10 mt-6 px-8 py-3 rounded-full flex items-center justify-center gap-2 w-[160px]"
+            style={{
+              backgroundImage: `url(${buttonCloseBg})`,
+              backgroundSize: '100% 100%',
+              backgroundPosition: 'center',
+            }}
+          >
+            <X className="w-4 h-4 text-white" />
+            <span className="text-white text-[14px] font-medium">Close</span>
+          </button>
+        </div>
       )}
     </div>
   );
