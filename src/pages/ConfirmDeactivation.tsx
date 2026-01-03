@@ -58,10 +58,7 @@ const ConfirmDeactivation = () => {
   const handleDeactivate = () => {
     if (!isValid) return;
 
-    // Simulate Account Deactivation
-    console.log("Account Deactivated");
-    localStorage.clear(); // Clear all user data
-    navigate("/"); // Redirect to index
+    navigate("/account-deactivated");
   };
 
   const handleBack = () => {
