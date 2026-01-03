@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { useUser } from "@/contexts/UserContext";
 import { X } from "lucide-react";
 import backspaceIcon from "@/assets/backspace.png";
@@ -34,6 +35,7 @@ interface MpinSheetProps {
 }
 
 const MpinSheet = ({ onClose, mode = 'verify', onSuccess }: MpinSheetProps) => {
+  const navigate = useNavigate();
   const { mpin: storedMpin, setMpin: saveMpin } = useUser();
 
   // State for steps
@@ -218,25 +220,34 @@ const MpinSheet = ({ onClose, mode = 'verify', onSuccess }: MpinSheetProps) => {
                                 {mode === 'change' ? "Enter your current MPIN" : "Enter your MPIN"}
                             </span>
 
-                            <InputOTP maxLength={4} value={verifyMpin} readOnly>
-                                <InputOTPGroup className="gap-4">
-                                    {[0, 1, 2, 3].map(index => (
-                                        <MaskedInputOTPSlot
-                                            key={index}
-                                            index={index}
-                                            className={`flex items-center justify-center h-[54px] w-[81px] rounded-[12px] border-none text-[32px] font-bold text-white transition-all bg-cover bg-center ring-1 ${
-                                                verifyStatus === 'error' ? 'ring-red-500' :
-                                                verifyStatus === 'success' ? 'ring-green-500' : 'ring-white/10'
-                                            }`}
-                                            style={{
-                                                backgroundColor: 'rgba(26, 26, 46, 0.5)',
-                                                backgroundImage: verifyStatus === 'error' ? `url(${mpinInputError})` :
-                                                            verifyStatus === 'success' ? `url(${mpinInputSuccess})` : undefined
-                                            }}
-                                        />
-                                    ))}
-                                </InputOTPGroup>
-                            </InputOTP>
+                            <div className="flex flex-col gap-4">
+                              <InputOTP maxLength={4} value={verifyMpin} readOnly>
+                                  <InputOTPGroup className="gap-4">
+                                      {[0, 1, 2, 3].map(index => (
+                                          <MaskedInputOTPSlot
+                                              key={index}
+                                              index={index}
+                                              className={`flex items-center justify-center h-[54px] w-[81px] rounded-[12px] border-none text-[32px] font-bold text-white transition-all bg-cover bg-center ring-1 ${
+                                                  verifyStatus === 'error' ? 'ring-red-500' :
+                                                  verifyStatus === 'success' ? 'ring-green-500' : 'ring-white/10'
+                                              }`}
+                                              style={{
+                                                  backgroundColor: 'rgba(26, 26, 46, 0.5)',
+                                                  backgroundImage: verifyStatus === 'error' ? `url(${mpinInputError})` :
+                                                              verifyStatus === 'success' ? `url(${mpinInputSuccess})` : undefined
+                                              }}
+                                          />
+                                      ))}
+                                  </InputOTPGroup>
+                              </InputOTP>
+
+                              <button
+                                onClick={() => navigate('/forgot-mpin')}
+                                className="text-[#5260FE]/80 text-[14px] underline underline-offset-2 self-start"
+                              >
+                                Forgot MPIN?
+                              </button>
+                            </div>
                         </>
                     )}
 

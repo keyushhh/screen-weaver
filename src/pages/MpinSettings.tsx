@@ -72,13 +72,6 @@ const MpinSettings = () => {
                     <img src={kycBadge} alt="Secure" className="w-6 h-6 object-contain" />
                     <span className="text-white text-[18px] font-medium">MPIN Set</span>
                 </div>
-                {/* Forgot MPIN: White color */}
-                <button
-                  onClick={() => navigate('/forgot-mpin')}
-                  className="text-white text-[13px] font-normal underline decoration-white/30 underline-offset-2"
-                >
-                    Forgot MPIN?
-                </button>
                 </div>
                 <p className="text-[#7E7E7E] text-[13px] font-normal leading-tight mt-1">
                 Your MPIN’s set. Want to update it? Tap ‘Change MPIN’ below.
