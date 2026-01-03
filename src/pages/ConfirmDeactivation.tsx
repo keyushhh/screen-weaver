@@ -6,14 +6,23 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import buttonRemoveCard from "@/assets/button-remove-card.png";
 import buttonCancel from "@/assets/button-cancel-wide.png";
+import mpinInputSuccess from "@/assets/mpin-input-success.png";
+import mpinInputError from "@/assets/mpin-input-error.png";
 
-// Custom Slot to handle masking and styling
-const MaskedSlot = ({ char, hasFakeCaret, isActive, isError }: { char: string | null; hasFakeCaret: boolean; isActive: boolean; isError: boolean }) => {
+// Custom Slot to handle masking and styling - matching MpinSheet
+const MaskedSlot = ({ char, hasFakeCaret, isActive, isError, isValid }: { char: string | null; hasFakeCaret: boolean; isActive: boolean; isError: boolean, isValid: boolean }) => {
   return (
     <div
-      className={`relative w-[60px] h-[60px] flex items-center justify-center text-[24px] font-bold text-white transition-all rounded-[12px] bg-[#191919]/50 border ${
-        isError ? "border-red-500" : isActive ? "border-[#5260FE]" : "border-white/10"
+      className={`relative flex items-center justify-center h-[54px] w-[81px] rounded-[12px] border-none text-[32px] font-bold text-white transition-all bg-cover bg-center ring-1 ${
+        isError ? 'ring-red-500' :
+        isValid ? 'ring-green-500' :
+        isActive ? 'ring-[#5260FE]' : 'ring-white/10'
       }`}
+      style={{
+          backgroundColor: 'rgba(26, 26, 46, 0.5)',
+          backgroundImage: isError ? `url(${mpinInputError})` :
+                           isValid ? `url(${mpinInputSuccess})` : undefined
+      }}
     >
       {char ? "*" : ""}
       {hasFakeCaret && (
@@ -111,6 +120,7 @@ const ConfirmDeactivation = () => {
                                 hasFakeCaret={slot.hasFakeCaret}
                                 isActive={slot.isActive}
                                 isError={isError}
+                                isValid={isValid}
                             />
                         ))}
                     </div>
