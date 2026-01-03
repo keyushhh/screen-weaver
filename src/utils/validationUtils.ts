@@ -1,70 +1,72 @@
-export const luhnCheck = (val: string): boolean => {
-  let checksum = 0;
-  let j = 1;
 
-  for (let i = val.length - 1; i >= 0; i--) {
-    let calc = 0;
-    calc = Number(val.charAt(i)) * j;
-
-    if (calc > 9) {
-      checksum = checksum + 1;
-      calc = calc - 10;
+// Basic Luhn Algorithm for Card Number Validation
+export const luhnCheck = (val: string) => {
+    let sum = 0;
+    for (let i = 0; i < val.length; i++) {
+        let intVal = parseInt(val.substr(i, 1));
+        if (i % 2 === 0) {
+            intVal *= 2;
+            if (intVal > 9) {
+                intVal = 1 + (intVal % 10);
+            }
+        }
+        sum += intVal;
     }
-
-    checksum = checksum + calc;
-
-    if (j === 1) {
-      j = 2;
-    } else {
-      j = 1;
-    }
-  }
-
-  return (checksum % 10) === 0;
+    return (sum % 10) === 0;
 };
 
-export const validateExpiry = (expiry: string): string | null => {
-  // Expected format MM/YY
-  if (!expiry || expiry.length !== 5 || !expiry.includes('/')) {
-    return "Enter a valid month (01—12).";
-  }
+// Validate Expiry Date (MM/YY)
+export const validateExpiry = (val: string): string | null => {
+    if (val.length !== 5) return "Invalid date."; // Needs MM/YY length
+    const parts = val.split('/');
+    if (parts.length !== 2) return "Invalid format.";
 
-  const [monthStr, yearStr] = expiry.split('/');
-  const month = parseInt(monthStr, 10);
-  const year = parseInt(yearStr, 10);
+    const month = parseInt(parts[0], 10);
+    const year = parseInt(parts[1], 10);
 
-  if (isNaN(month) || isNaN(year) || month < 1 || month > 12) {
-    return "Enter a valid month (01—12).";
-  }
+    if (isNaN(month) || isNaN(year)) return "Invalid numbers.";
+    if (month < 1 || month > 12) return "Invalid month.";
 
-  // Check if expired
-  // Assume 20xx
-  const currentYear = new Date().getFullYear() % 100; // e.g. 25
-  const currentMonth = new Date().getMonth() + 1; // 1-12
+    const currentYear = new Date().getFullYear() % 100; // Get last 2 digits of year
+    const currentMonth = new Date().getMonth() + 1;
 
-  if (year < currentYear) {
-    return "This card is expired.";
-  }
-
-  if (year === currentYear && month <= currentMonth) {
-     return "This card is expired.";
-  }
-
-  return null; // Valid
-};
-
-export const validateCVV = (cvv: string, cardType: string | null): string | null => {
-    // Basic check for now as per requirements: "CVV must be 3 digits"
-    // If we support Amex later, we can check cardType === 'amex'
-    if (!cvv || (cvv.length !== 3 && cvv.length !== 4)) {
-        return "CVV must be 3 digits."; // Keeping message generic for now as requested
-    }
-
-    // Strict 3 digits for Visa/Master/Rupay if strictly required, but usually 3.
-    // The requirement says "CVV must be 3 digits", so I will enforce 3.
-    if (cvv.length !== 3) {
-        return "CVV must be 3 digits.";
+    // Check if expired
+    if (year < currentYear || (year === currentYear && month <= currentMonth)) {
+        return "This card is expired.";
     }
 
     return null;
+};
+
+// Validate CVV based on Card Type
+export const validateCVV = (val: string, cardType: string | null): string | null => {
+    if (!val) return "CVV is required.";
+    const len = val.length;
+
+    // Amex is usually 4, others 3. But for this app, we mainly see 3.
+    // If we support Amex later, we can adjust.
+    // Standard check: 3 digits.
+    if (len < 3) return "Invalid CVV.";
+    if (len > 4) return "Invalid CVV."; // Just in case
+
+    return null;
+};
+
+// Validate MPIN Weakness
+export const isWeakMpin = (pin: string): { weak: boolean; reason?: 'predictable' } => {
+  if (pin.length !== 4) return { weak: false };
+
+  // Check for all same digits (0000, 1111, 2222, etc.)
+  if (/^(\d)\1{3}$/.test(pin)) return { weak: true, reason: 'predictable' };
+
+  // Check for sequential ascending (1234, 2345, 0123, etc.)
+  const digits = pin.split('').map(Number);
+  const isAscending = digits.every((d, i) => i === 0 || d === digits[i - 1] + 1);
+  if (isAscending) return { weak: true, reason: 'predictable' };
+
+  // Common weak PINs blocklist
+  const weakPins = ['1212', '2121', '1122', '2211', '1221', '2020', '6969', '1010', '0101', '1357', '2468'];
+  if (weakPins.includes(pin)) return { weak: true, reason: 'predictable' };
+
+  return { weak: false };
 };

@@ -17,6 +17,7 @@ import mpinInputSuccess from "@/assets/mpin-input-success.png";
 import mpinInputError from "@/assets/mpin-input-error.png";
 import buttonBiometricBg from "@/assets/button-biometric-bg.png";
 import biometricIcon from "@/assets/biometric-icon.png";
+import { isWeakMpin } from "@/utils/validationUtils";
 
 const OnboardingScreen = () => {
   const navigate = useNavigate();
@@ -48,25 +49,6 @@ const OnboardingScreen = () => {
       return () => clearInterval(interval);
     }
   }, [resendTimer]);
-
-  // Helper function to detect weak/predictable MPINs
-  const isWeakMpin = (pin: string): { weak: boolean; reason?: 'predictable' } => {
-    if (pin.length !== 4) return { weak: false };
-    
-    // Check for all same digits (0000, 1111, 2222, etc.)
-    if (/^(\d)\1{3}$/.test(pin)) return { weak: true, reason: 'predictable' };
-    
-    // Check for sequential ascending (1234, 2345, 0123, etc.)
-    const digits = pin.split('').map(Number);
-    const isAscending = digits.every((d, i) => i === 0 || d === digits[i - 1] + 1);
-    if (isAscending) return { weak: true, reason: 'predictable' };
-    
-    // Common weak PINs blocklist
-    const weakPins = ['1212', '2121', '1122', '2211', '1221', '2020', '6969', '1010', '0101', '1357', '2468'];
-    if (weakPins.includes(pin)) return { weak: true, reason: 'predictable' };
-    
-    return { weak: false };
-  };
 
   // Validation Logic
   useEffect(() => {

@@ -2,12 +2,14 @@ import React, { useState, useEffect, useContext } from "react";
 import { useUser } from "@/contexts/UserContext";
 import { X } from "lucide-react";
 import backspaceIcon from "@/assets/backspace.png";
+import { isWeakMpin } from "@/utils/validationUtils";
 
 // Reusing InputOTP components from shadcn/ui
 import { InputOTP, InputOTPGroup } from "@/components/ui/input-otp";
 import { OTPInputContext } from "input-otp";
 import mpinInputSuccess from "@/assets/mpin-input-success.png";
 import mpinInputError from "@/assets/mpin-input-error.png";
+import { Button } from "@/components/ui/button";
 
 // Custom Slot to handle masking
 const MaskedInputOTPSlot = ({ index, className, style }: { index: number; className?: string; style?: React.CSSProperties }) => {
@@ -32,50 +34,133 @@ interface MpinSheetProps {
 }
 
 const MpinSheet = ({ onClose, mode = 'verify', onSuccess }: MpinSheetProps) => {
-  const { mpin: storedMpin } = useUser();
-  const [enteredMpin, setEnteredMpin] = useState("");
-  const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const { mpin: storedMpin, setMpin: saveMpin } = useUser();
 
-  const title = mode === 'change' ? "Change MPIN" : "Enter MPIN";
-  const subText = mode === 'change' ? "Enter your current MPIN" : "Enter your MPIN";
+  // State for steps
+  type Step = 'VERIFY_OLD' | 'CREATE_NEW' | 'SUCCESS';
+  const [step, setStep] = useState<Step>(mode === 'change' ? 'VERIFY_OLD' : 'VERIFY_OLD');
 
-  // Verify MPIN when 4 digits are entered
+  // Verify State
+  const [verifyMpin, setVerifyMpin] = useState("");
+  const [verifyStatus, setVerifyStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  // Create State
+  const [newMpin, setNewMpin] = useState("");
+  const [confirmMpin, setConfirmMpin] = useState("");
+  const [activeField, setActiveField] = useState<'new' | 'confirm'>('new');
+  const [createError, setCreateError] = useState("");
+  const [createSuccess, setCreateSuccess] = useState(false);
+
+  const title = step === 'CREATE_NEW' ? "Change MPIN" : "Enter MPIN";
+
+  // --- Step 1: Verify Logic ---
   useEffect(() => {
+    if (step !== 'VERIFY_OLD') return;
+
     let timeoutId: NodeJS.Timeout;
 
-    if (enteredMpin.length === 4) {
-      if (enteredMpin === storedMpin) {
-        setStatus('success');
+    if (verifyMpin.length === 4) {
+      if (verifyMpin === storedMpin) {
+        setVerifyStatus('success');
 
-        // Wait briefly for visual success then call callback
         timeoutId = setTimeout(() => {
-             if (onSuccess) {
-                 onSuccess();
+             if (mode === 'change') {
+                 setStep('CREATE_NEW');
+                 // Reset create state just in case
+                 setNewMpin("");
+                 setConfirmMpin("");
+                 setCreateError("");
+                 setCreateSuccess(false);
+                 setActiveField('new');
+             } else {
+                 if (onSuccess) onSuccess();
+                 // If simple verify mode, we might want to close or let parent handle
              }
         }, 300);
 
       } else {
-        setStatus('error');
+        setVerifyStatus('error');
         timeoutId = setTimeout(() => {
-            setEnteredMpin("");
-            setStatus('idle');
+            setVerifyMpin("");
+            setVerifyStatus('idle');
         }, 500);
       }
     } else {
-        setStatus('idle');
+        setVerifyStatus('idle');
     }
 
     return () => clearTimeout(timeoutId);
-  }, [enteredMpin, storedMpin, onSuccess]);
+  }, [verifyMpin, storedMpin, onSuccess, mode, step]);
 
+  // --- Step 2: Create Logic ---
+  useEffect(() => {
+    if (step !== 'CREATE_NEW') return;
+
+    setCreateSuccess(false);
+    setCreateError("");
+
+    // 1. Check New MPIN Weakness (only if complete)
+    if (newMpin.length === 4) {
+        const check = isWeakMpin(newMpin);
+        if (check.weak) {
+            setCreateError("Let's stop you right there, try something less predictable?");
+            return;
+        }
+    }
+
+    // 2. Check Match (only if both complete)
+    if (newMpin.length === 4 && confirmMpin.length === 4) {
+        if (newMpin !== confirmMpin) {
+            setCreateError("Bro... seriously? That's not even close.");
+        } else {
+            // Success!
+            setCreateSuccess(true);
+        }
+    } else {
+        // If typing new mpin and it's valid so far, clear error
+        if (newMpin.length === 4 && !isWeakMpin(newMpin).weak) {
+            setCreateError("");
+        }
+    }
+
+  }, [newMpin, confirmMpin, step]);
+
+
+  // --- Input Handlers ---
   const handleKeyPress = (key: string) => {
-    if (enteredMpin.length < 4) {
-      setEnteredMpin(prev => prev + key);
+    if (step === 'VERIFY_OLD') {
+        if (verifyMpin.length < 4) setVerifyMpin(prev => prev + key);
+    } else if (step === 'CREATE_NEW') {
+        if (activeField === 'new') {
+            if (newMpin.length < 4) {
+                const next = newMpin + key;
+                setNewMpin(next);
+                // Auto-switch focus if filled
+                if (next.length === 4) setActiveField('confirm');
+            }
+        } else {
+            if (confirmMpin.length < 4) setConfirmMpin(prev => prev + key);
+        }
     }
   };
 
   const handleBackspace = () => {
-    setEnteredMpin(prev => prev.slice(0, -1));
+    if (step === 'VERIFY_OLD') {
+        setVerifyMpin(prev => prev.slice(0, -1));
+    } else if (step === 'CREATE_NEW') {
+        if (activeField === 'new') {
+            setNewMpin(prev => prev.slice(0, -1));
+        } else {
+            setConfirmMpin(prev => prev.slice(0, -1));
+            // Optional: Auto-switch back if empty? No, usually annoying.
+        }
+    }
+  };
+
+  const handleSave = () => {
+      saveMpin(newMpin);
+      if (onSuccess) onSuccess();
+      onClose();
   };
 
   const KeypadButton = ({ label, onClick, icon }: { label?: string; onClick?: () => void; icon?: React.ReactNode }) => (
@@ -86,6 +171,10 @@ const MpinSheet = ({ onClose, mode = 'verify', onSuccess }: MpinSheetProps) => {
       {icon ? icon : <span className="text-white font-bold font-sans text-[32px]">{label}</span>}
     </button>
   );
+
+  const isPredictableError = createError.includes("predictable");
+  const isMismatchError = createError.includes("close");
+
 
   return (
     <div className="fixed inset-0 z-50 flex items-end">
@@ -117,61 +206,150 @@ const MpinSheet = ({ onClose, mode = 'verify', onSuccess }: MpinSheetProps) => {
                 </div>
 
                 {/* Content Area */}
-                <div className="flex-1 flex flex-col items-center pt-[60px] gap-8">
-                    <span className="text-white text-[16px] font-normal font-sans">{subText}</span>
+                <div className="flex-1 flex flex-col items-center pt-[60px] gap-8 overflow-y-auto">
 
-                    <InputOTP maxLength={4} value={enteredMpin} readOnly>
-                        <InputOTPGroup className="gap-4">
-                            {[0, 1, 2, 3].map(index => (
-                                <MaskedInputOTPSlot
-                                    key={index}
-                                    index={index}
-                                    className={`flex items-center justify-center h-[54px] w-[81px] rounded-[12px] border-none text-[32px] font-bold text-white transition-all bg-cover bg-center ring-1 ${
-                                        status === 'error' ? 'ring-red-500' :
-                                        status === 'success' ? 'ring-green-500' : 'ring-white/10'
-                                    }`}
-                                    style={{
-                                        backgroundColor: '#1C1C1E',
-                                        backgroundImage: status === 'error' ? `url(${mpinInputError})` :
-                                                    status === 'success' ? `url(${mpinInputSuccess})` : undefined
-                                    }}
-                                />
-                            ))}
-                        </InputOTPGroup>
-                    </InputOTP>
+                    {/* STEP 1: VERIFY OLD */}
+                    {step === 'VERIFY_OLD' && (
+                        <>
+                            <span className="text-white text-[16px] font-normal font-sans">
+                                {mode === 'change' ? "Enter your current MPIN" : "Enter your MPIN"}
+                            </span>
+
+                            <InputOTP maxLength={4} value={verifyMpin} readOnly>
+                                <InputOTPGroup className="gap-4">
+                                    {[0, 1, 2, 3].map(index => (
+                                        <MaskedInputOTPSlot
+                                            key={index}
+                                            index={index}
+                                            className={`flex items-center justify-center h-[54px] w-[81px] rounded-[12px] border-none text-[32px] font-bold text-white transition-all bg-cover bg-center ring-1 ${
+                                                verifyStatus === 'error' ? 'ring-red-500' :
+                                                verifyStatus === 'success' ? 'ring-green-500' : 'ring-white/10'
+                                            }`}
+                                            style={{
+                                                backgroundColor: 'rgba(26, 26, 46, 0.5)',
+                                                backgroundImage: verifyStatus === 'error' ? `url(${mpinInputError})` :
+                                                            verifyStatus === 'success' ? `url(${mpinInputSuccess})` : undefined
+                                            }}
+                                        />
+                                    ))}
+                                </InputOTPGroup>
+                            </InputOTP>
+                        </>
+                    )}
+
+                    {/* STEP 2: CREATE NEW */}
+                    {step === 'CREATE_NEW' && (
+                        <div className="flex flex-col items-center w-full px-6 gap-6">
+                             {/* Section 1: Create */}
+                             <div className="flex flex-col items-center gap-2 w-full">
+                                <span className="text-white text-[16px] font-normal font-sans">Create a secure 4 digit MPIN</span>
+                                <span className="text-[#7E7E7E] text-[13px] font-normal font-sans text-center max-w-[300px] leading-tight">
+                                    No birthdays, 0000s or '6969' please. We've seen it all.
+                                </span>
+
+                                <div onClick={() => setActiveField('new')} className="mt-2 cursor-pointer">
+                                    <InputOTP maxLength={4} value={newMpin} readOnly>
+                                        <InputOTPGroup className="gap-4">
+                                            {[0, 1, 2, 3].map(index => (
+                                                <MaskedInputOTPSlot
+                                                    key={index}
+                                                    index={index}
+                                                    className={`flex items-center justify-center h-[54px] w-[81px] rounded-[12px] border-none text-[32px] font-bold text-white transition-all bg-cover bg-center ring-1 ${
+                                                        isPredictableError ? 'ring-red-500' :
+                                                        activeField === 'new' ? 'ring-[#5260FE]' : 'ring-white/10'
+                                                    }`}
+                                                    style={{
+                                                        backgroundColor: 'rgba(26, 26, 46, 0.5)',
+                                                        backgroundImage: isPredictableError ? `url(${mpinInputError})` : undefined
+                                                    }}
+                                                />
+                                            ))}
+                                        </InputOTPGroup>
+                                    </InputOTP>
+                                </div>
+                             </div>
+
+                             {/* Section 2: Re-enter */}
+                             <div className="flex flex-col items-center gap-2 w-full">
+                                <span className="text-white text-[16px] font-normal font-sans">Re-enter MPIN</span>
+
+                                <div onClick={() => setActiveField('confirm')} className="cursor-pointer">
+                                    <InputOTP maxLength={4} value={confirmMpin} readOnly>
+                                        <InputOTPGroup className="gap-4">
+                                            {[0, 1, 2, 3].map(index => (
+                                                <MaskedInputOTPSlot
+                                                    key={index}
+                                                    index={index}
+                                                    className={`flex items-center justify-center h-[54px] w-[81px] rounded-[12px] border-none text-[32px] font-bold text-white transition-all bg-cover bg-center ring-1 ${
+                                                        isMismatchError ? 'ring-red-500' :
+                                                        createSuccess ? 'ring-green-500' :
+                                                        activeField === 'confirm' ? 'ring-[#5260FE]' : 'ring-white/10'
+                                                    }`}
+                                                    style={{
+                                                        backgroundColor: 'rgba(26, 26, 46, 0.5)',
+                                                        backgroundImage: isMismatchError ? `url(${mpinInputError})` :
+                                                                        createSuccess ? `url(${mpinInputSuccess})` : undefined
+                                                    }}
+                                                />
+                                            ))}
+                                        </InputOTPGroup>
+                                    </InputOTP>
+                                </div>
+
+                                {(createError) && (
+                                    <p className="text-red-500 text-[14px] font-normal text-center mt-1">{createError}</p>
+                                )}
+                             </div>
+                        </div>
+                    )}
+
                 </div>
 
-                {/* Keypad Section - Reverted to Original Styling */}
+                {/* Footer / Keypad */}
                 <div className="bg-[#05050B] rounded-t-[30px] p-[20px] pb-[40px]">
-                    <div className="flex flex-col gap-[10px] items-center">
-                        {/* Row 1 */}
-                        <div className="flex gap-[10px]">
-                            <KeypadButton label="1" onClick={() => handleKeyPress("1")} />
-                            <KeypadButton label="2" onClick={() => handleKeyPress("2")} />
-                            <KeypadButton label="3" onClick={() => handleKeyPress("3")} />
+
+                    {/* Save Button (Success State) */}
+                    {step === 'CREATE_NEW' && createSuccess ? (
+                        <div className="flex flex-col gap-4 w-full h-[300px] justify-center">
+                            <Button
+                                onClick={handleSave}
+                                className="w-full h-[48px] bg-[#5260FE] hover:bg-[#5260FE]/90 text-white rounded-full text-[16px] font-medium"
+                            >
+                                Save Changes
+                            </Button>
                         </div>
-                        {/* Row 2 */}
-                        <div className="flex gap-[10px]">
-                            <KeypadButton label="4" onClick={() => handleKeyPress("4")} />
-                            <KeypadButton label="5" onClick={() => handleKeyPress("5")} />
-                            <KeypadButton label="6" onClick={() => handleKeyPress("6")} />
+                    ) : (
+                        /* Keypad */
+                        <div className="flex flex-col gap-[10px] items-center">
+                            {/* Row 1 */}
+                            <div className="flex gap-[10px]">
+                                <KeypadButton label="1" onClick={() => handleKeyPress("1")} />
+                                <KeypadButton label="2" onClick={() => handleKeyPress("2")} />
+                                <KeypadButton label="3" onClick={() => handleKeyPress("3")} />
+                            </div>
+                            {/* Row 2 */}
+                            <div className="flex gap-[10px]">
+                                <KeypadButton label="4" onClick={() => handleKeyPress("4")} />
+                                <KeypadButton label="5" onClick={() => handleKeyPress("5")} />
+                                <KeypadButton label="6" onClick={() => handleKeyPress("6")} />
+                            </div>
+                            {/* Row 3 */}
+                            <div className="flex gap-[10px]">
+                                <KeypadButton label="7" onClick={() => handleKeyPress("7")} />
+                                <KeypadButton label="8" onClick={() => handleKeyPress("8")} />
+                                <KeypadButton label="9" onClick={() => handleKeyPress("9")} />
+                            </div>
+                            {/* Row 4 */}
+                            <div className="flex gap-[10px]">
+                                <div className="w-[113px] h-[65px]" /> {/* Empty */}
+                                <KeypadButton label="0" onClick={() => handleKeyPress("0")} />
+                                <KeypadButton
+                                    onClick={handleBackspace}
+                                    icon={<img src={backspaceIcon} alt="Backspace" className="w-[18px] h-[18px] object-contain" />}
+                                />
+                            </div>
                         </div>
-                        {/* Row 3 */}
-                        <div className="flex gap-[10px]">
-                            <KeypadButton label="7" onClick={() => handleKeyPress("7")} />
-                            <KeypadButton label="8" onClick={() => handleKeyPress("8")} />
-                            <KeypadButton label="9" onClick={() => handleKeyPress("9")} />
-                        </div>
-                        {/* Row 4 */}
-                        <div className="flex gap-[10px]">
-                            <div className="w-[113px] h-[65px]" /> {/* Empty */}
-                            <KeypadButton label="0" onClick={() => handleKeyPress("0")} />
-                            <KeypadButton
-                                onClick={handleBackspace}
-                                icon={<img src={backspaceIcon} alt="Backspace" className="w-[18px] h-[18px] object-contain" />}
-                            />
-                        </div>
-                    </div>
+                    )}
                 </div>
             </div>
         </div>
