@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
-import Button from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import MpinSheet from "@/components/MpinSheet";
 import bannerComplete from "@/assets/banner-complete.png";
 import kycBadge from "@/assets/kyc-badge.png";
