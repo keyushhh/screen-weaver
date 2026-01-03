@@ -244,7 +244,14 @@ const SecurityDashboard = () => {
 
       {/* MPIN Sheet Modal */}
       {showMpinSheet && (
-        <MpinSheet onClose={() => setShowMpinSheet(false)} />
+        <MpinSheet
+          onClose={() => setShowMpinSheet(false)}
+          mode="verify"
+          onSuccess={() => {
+            setShowMpinSheet(false);
+            navigate('/security/mpin-settings');
+          }}
+        />
       )}
     </div>
   );
