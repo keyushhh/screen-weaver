@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ChevronLeft, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import MpinSheet from "@/components/MpinSheet";
@@ -12,8 +12,19 @@ import mpinIcon from "@/assets/mpin-icon.png";
 
 const MpinSettings = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [showMpinSheet, setShowMpinSheet] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [sheetMode, setSheetMode] = useState<'change' | 'reset'>('change');
+
+  useEffect(() => {
+    if (location.state?.resetMpin) {
+        setSheetMode('reset');
+        setShowMpinSheet(true);
+        // Clean up state
+        window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   return (
     <div
@@ -62,7 +73,10 @@ const MpinSettings = () => {
                     <span className="text-white text-[18px] font-medium">MPIN Set</span>
                 </div>
                 {/* Forgot MPIN: White color */}
-                <button className="text-white text-[13px] font-normal underline decoration-white/30 underline-offset-2">
+                <button
+                  onClick={() => navigate('/forgot-mpin')}
+                  className="text-white text-[13px] font-normal underline decoration-white/30 underline-offset-2"
+                >
                     Forgot MPIN?
                 </button>
                 </div>
@@ -77,7 +91,10 @@ const MpinSettings = () => {
       {/* Bottom CTA */}
       <div className="mt-auto px-5 pb-10">
         <Button
-          onClick={() => setShowMpinSheet(true)}
+          onClick={() => {
+            setSheetMode('change');
+            setShowMpinSheet(true);
+          }}
           className="w-full h-[48px] bg-[#5260FE] hover:bg-[#5260FE]/90 text-white rounded-full text-[16px] font-medium"
         >
           Change MPIN
@@ -87,7 +104,7 @@ const MpinSettings = () => {
       {/* MPIN Sheet in 'change' mode */}
       {showMpinSheet && (
         <MpinSheet
-          mode="change"
+          mode={sheetMode}
           onClose={() => setShowMpinSheet(false)}
           onSuccess={() => {
             setShowMpinSheet(false);

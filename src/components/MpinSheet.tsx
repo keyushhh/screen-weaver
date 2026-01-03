@@ -29,7 +29,7 @@ const MaskedInputOTPSlot = ({ index, className, style }: { index: number; classN
 
 interface MpinSheetProps {
   onClose: () => void;
-  mode?: 'verify' | 'change';
+  mode?: 'verify' | 'change' | 'reset';
   onSuccess?: () => void;
 }
 
@@ -38,7 +38,10 @@ const MpinSheet = ({ onClose, mode = 'verify', onSuccess }: MpinSheetProps) => {
 
   // State for steps
   type Step = 'VERIFY_OLD' | 'CREATE_NEW' | 'SUCCESS';
-  const [step, setStep] = useState<Step>(mode === 'change' ? 'VERIFY_OLD' : 'VERIFY_OLD');
+  const [step, setStep] = useState<Step>(() => {
+    if (mode === 'reset') return 'CREATE_NEW';
+    return mode === 'change' ? 'VERIFY_OLD' : 'VERIFY_OLD';
+  });
 
   // Verify State
   const [verifyMpin, setVerifyMpin] = useState("");
