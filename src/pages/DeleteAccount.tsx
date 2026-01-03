@@ -23,19 +23,27 @@ const DeleteAccount = () => {
     console.log("Proceed clicked with option:", selectedOption);
   };
 
-  const OptionCard = ({ type, title, description }: { type: OptionType, title: string, description: string }) => {
+  const OptionCard = ({
+    type,
+    title,
+    description,
+    paddingY = "py-[13px]"
+  }: {
+    type: OptionType,
+    title: string,
+    description: string,
+    paddingY?: string
+  }) => {
     const isSelected = selectedOption === type;
 
     return (
       <div
-        className="w-full relative px-[10px] py-[13px] flex items-start gap-3 cursor-pointer"
+        className={`w-full relative px-[10px] ${paddingY} flex items-start gap-3 cursor-pointer`}
         onClick={() => setSelectedOption(type)}
         style={{
             backgroundImage: `url(${optionContainerBg})`,
             backgroundSize: '100% 100%',
             backgroundRepeat: 'no-repeat',
-            // Ensure min-height matches requirement if content is short,
-            // but let it expand for text. Req says 362x103px approx.
             minHeight: '103px'
         }}
       >
@@ -72,7 +80,7 @@ const DeleteAccount = () => {
       }}
     >
       {/* Header */}
-      <div className="px-5 pt-4 flex items-center relative z-50 mb-8">
+      <div className="px-5 pt-4 flex items-center relative z-50 mb-0">
         <button
           onClick={handleGoBack}
           className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center bg-black/20 backdrop-blur-md absolute left-5"
@@ -84,37 +92,40 @@ const DeleteAccount = () => {
 
       {/* Content Container */}
       <div className="px-5 flex-1 flex flex-col">
-        {/* Spacing from header */}
-        <div className="h-[46px]" />
 
-        {/* Secondary Header */}
-        <h2 className="text-white text-[18px] font-bold font-sans">What would you like to do?</h2>
+        {/* Text Group Wrapper */}
+        <div className="flex flex-col mt-[46px] mb-[36px]">
+             {/* Secondary Header */}
+            <h2 className="text-white text-[18px] font-bold font-sans">What would you like to do?</h2>
 
-        {/* Subheader */}
-        <div className="h-[6px]" />
-        <p className="text-[#C4C4C4] text-[14px] font-normal font-sans">
-            You can pause your account or go nuclear. Up to you.
-        </p>
+            {/* Subheader */}
+            <div className="h-[6px]" />
+            <p className="text-[#C4C4C4] text-[14px] font-normal font-sans">
+                You can pause your account or go nuclear. Up to you.
+            </p>
+        </div>
 
         {/* Options */}
-        <div className="mt-8 flex flex-col gap-4">
+        <div className="flex flex-col gap-[10px]">
             <OptionCard
                 type="deactivate"
                 title="Deactivate Account"
                 description="Temporarily disable your account. You can come back anytime. Recommended if you’re just taking a break. You can actually say, “we were on a break!” and mean it."
+                paddingY="py-[13px]"
             />
 
             <OptionCard
                 type="delete"
                 title="Delete Account"
                 description="This will wipe your account, order history, and wallet. You won’t be able to reverse this."
+                paddingY="py-[12px]"
             />
         </div>
       </div>
 
       {/* Footer / CTA */}
       <div className="px-5 pb-10 mt-auto flex flex-col gap-3">
-        {/* Proceed Button - Reusing Remove Card Button Style (Red) */}
+        {/* Proceed Button */}
         <button
             className="w-full h-[48px] relative flex items-center justify-center active:scale-95 transition-transform"
             onClick={handleProceed}
