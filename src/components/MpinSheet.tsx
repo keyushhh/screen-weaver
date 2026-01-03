@@ -256,11 +256,13 @@ const MpinSheet = ({ onClose, mode = 'verify', onSuccess }: MpinSheetProps) => {
                                                     index={index}
                                                     className={`flex items-center justify-center h-[54px] w-[81px] rounded-[12px] border-none text-[32px] font-bold text-white transition-all bg-cover bg-center ring-1 ${
                                                         isPredictableError ? 'ring-red-500' :
+                                                        createSuccess ? 'ring-green-500' :
                                                         activeField === 'new' ? 'ring-[#5260FE]' : 'ring-white/10'
                                                     }`}
                                                     style={{
                                                         backgroundColor: 'rgba(26, 26, 46, 0.5)',
-                                                        backgroundImage: isPredictableError ? `url(${mpinInputError})` : undefined
+                                                        backgroundImage: isPredictableError ? `url(${mpinInputError})` :
+                                                                        createSuccess ? `url(${mpinInputSuccess})` : undefined
                                                     }}
                                                 />
                                             ))}
@@ -303,14 +305,9 @@ const MpinSheet = ({ onClose, mode = 'verify', onSuccess }: MpinSheetProps) => {
                         </div>
                     )}
 
-                </div>
-
-                {/* Footer / Keypad */}
-                <div className="bg-[#05050B] rounded-t-[30px] p-[20px] pb-[40px]">
-
-                    {/* Save Button (Success State) */}
-                    {step === 'CREATE_NEW' && createSuccess ? (
-                        <div className="flex flex-col gap-4 w-full h-[300px] justify-center">
+                    {/* Success CTA - Rendered in main flow */}
+                    {step === 'CREATE_NEW' && createSuccess && (
+                         <div className="w-full mt-auto px-5 pb-10">
                             <Button
                                 onClick={handleSave}
                                 className="w-full h-[48px] bg-[#5260FE] hover:bg-[#5260FE]/90 text-white rounded-full text-[16px] font-medium"
@@ -318,8 +315,14 @@ const MpinSheet = ({ onClose, mode = 'verify', onSuccess }: MpinSheetProps) => {
                                 Save Changes
                             </Button>
                         </div>
-                    ) : (
-                        /* Keypad */
+                    )}
+
+                </div>
+
+                {/* Footer / Keypad - Only render if NOT success */}
+                {!(step === 'CREATE_NEW' && createSuccess) && (
+                    <div className="bg-[#05050B] rounded-t-[30px] p-[20px] pb-[40px]">
+                        {/* Keypad */}
                         <div className="flex flex-col gap-[10px] items-center">
                             {/* Row 1 */}
                             <div className="flex gap-[10px]">
@@ -349,8 +352,8 @@ const MpinSheet = ({ onClose, mode = 'verify', onSuccess }: MpinSheetProps) => {
                                 />
                             </div>
                         </div>
-                    )}
-                </div>
+                    </div>
+                )}
             </div>
         </div>
     </div>
