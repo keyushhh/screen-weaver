@@ -38,13 +38,12 @@ const DeleteAccount = () => {
 
     return (
       <div
-        className={`w-full relative px-[10px] ${paddingY} flex items-start gap-3 cursor-pointer`}
+        className={`w-full relative px-[10px] ${paddingY} flex items-start gap-[14px] cursor-pointer`}
         onClick={() => setSelectedOption(type)}
         style={{
             backgroundImage: `url(${optionContainerBg})`,
             backgroundSize: '100% 100%',
-            backgroundRepeat: 'no-repeat',
-            minHeight: '103px'
+            backgroundRepeat: 'no-repeat'
         }}
       >
         {/* Radio Button */}
@@ -52,7 +51,7 @@ const DeleteAccount = () => {
             <img
                 src={isSelected ? radioOn : radioOff}
                 alt={isSelected ? "Selected" : "Not Selected"}
-                className="w-5 h-5 object-contain"
+                className="w-[18px] h-[18px] object-contain"
             />
         </div>
 
@@ -133,7 +132,7 @@ const DeleteAccount = () => {
             <img
                 src={buttonRemoveCard}
                 alt="Proceed"
-                className="absolute inset-0 w-full h-full object-contain pointer-events-none"
+                className="absolute inset-0 w-full h-full object-fill pointer-events-none"
             />
             <span className="relative z-10 text-white text-[16px] font-semibold font-sans">Proceed</span>
         </button>
@@ -146,7 +145,7 @@ const DeleteAccount = () => {
             <img
                 src={buttonCancel}
                 alt="Cancel"
-                className="absolute inset-0 w-full h-full object-contain pointer-events-none"
+                className="absolute inset-0 w-full h-full object-fill pointer-events-none"
             />
              <span className="relative z-10 text-white text-[16px] font-semibold font-sans">Cancel</span>
         </button>
