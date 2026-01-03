@@ -18,11 +18,13 @@ import Lottie from "lottie-react";
 import dotpeRadarAnimation from "@/assets/dotpe-radar.json";
 import errorRadarAnimation from "@/assets/error.json";
 import inProgressRadarAnimation from "@/assets/in-progress.json";
+import MpinSheet from "@/components/MpinSheet";
 
 const SecurityDashboard = () => {
   const navigate = useNavigate();
   const { kycStatus } = useUser();
   const [biometricEnabled, setBiometricEnabled] = useState(false);
+  const [showMpinSheet, setShowMpinSheet] = useState(false);
 
   const getStatusBanner = () => {
     // Height 80px, Badge Icon, Centered Header, Secondary Text
@@ -132,7 +134,7 @@ const SecurityDashboard = () => {
             {/* ROW 2: MPIN */}
             <div
                 className={`w-full ${rowHeight} flex items-center justify-between ${paddingClass} bg-[#0B0B0B] cursor-pointer`}
-                onClick={() => navigate("/enter-mpin")}
+                onClick={() => setShowMpinSheet(true)}
             >
                  <div className="flex items-center gap-4 w-full">
                     <img src={mpinIcon} alt="MPIN" className={iconClass} />
@@ -239,6 +241,11 @@ const SecurityDashboard = () => {
         {renderSubmenu()}
 
       </div>
+
+      {/* MPIN Sheet Modal */}
+      {showMpinSheet && (
+        <MpinSheet onClose={() => setShowMpinSheet(false)} />
+      )}
     </div>
   );
 };
