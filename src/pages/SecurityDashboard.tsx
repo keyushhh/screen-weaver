@@ -111,6 +111,14 @@ const SecurityDashboard = () => {
         kycBg = "rgba(250, 204, 21, 0.12)";
     }
 
+    const handleKycClick = () => {
+        if (kycStatus === 'incomplete') {
+            navigate("/kyc-intro");
+        } else if (kycStatus === 'complete') {
+            navigate("/kyc-status-complete");
+        }
+    };
+
     return (
         <div className="flex flex-col gap-[4px] w-full">
 
@@ -118,7 +126,7 @@ const SecurityDashboard = () => {
             <div
                 className={`w-full ${rowHeight} flex items-center justify-between ${paddingClass} cursor-pointer rounded-t-xl rounded-b-none`}
                 style={{ backgroundColor: kycBg }}
-                onClick={() => kycStatus === 'incomplete' && navigate("/kyc-intro")}
+                onClick={handleKycClick}
             >
                 <div className="flex items-center gap-4 w-full">
                     <img src={kycIcon} alt="KYC" className={iconClass} />
