@@ -39,7 +39,7 @@ const AccountDeactivated = () => {
       }}
     >
       {/* Header */}
-      <div className="flex flex-col items-center mt-[220px]">
+      <div className="flex flex-col items-center mt-4">
         <h1 className="text-white text-[26px] font-medium font-sans">
           Deactivated
         </h1>
