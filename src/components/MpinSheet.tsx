@@ -241,12 +241,14 @@ const MpinSheet = ({ onClose, mode = 'verify', onSuccess }: MpinSheetProps) => {
                                   </InputOTPGroup>
                               </InputOTP>
 
-                              <button
-                                onClick={() => navigate('/forgot-mpin')}
-                                className="text-[#5260FE]/80 text-[14px] underline underline-offset-2 self-start"
-                              >
-                                Forgot MPIN?
-                              </button>
+                              {mode !== 'change' && (
+                                <button
+                                  onClick={() => navigate('/forgot-mpin')}
+                                  className="text-[#5260FE]/80 text-[14px] underline underline-offset-2 self-start"
+                                >
+                                  Forgot MPIN?
+                                </button>
+                              )}
                             </div>
                         </>
                     )}
