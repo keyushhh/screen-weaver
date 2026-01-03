@@ -20,7 +20,7 @@ import biometricIcon from "@/assets/biometric-icon.png";
 
 const OnboardingScreen = () => {
   const navigate = useNavigate();
-  const { setPhoneNumber: savePhoneNumber } = useUser();
+  const { setPhoneNumber: savePhoneNumber, setMpin: saveMpin } = useUser();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [otp, setOtp] = useState("");
   const [showOtpInput, setShowOtpInput] = useState(false);
@@ -139,6 +139,10 @@ const OnboardingScreen = () => {
     setIsLoading(true);
     await new Promise(resolve => setTimeout(resolve, 1500));
     setIsLoading(false);
+
+    // Save MPIN to context/storage
+    saveMpin(mpin);
+
     console.log("MPIN Setup Complete!", { biometricEnabled });
     navigate("/home");
   };

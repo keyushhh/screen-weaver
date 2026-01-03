@@ -130,7 +130,10 @@ const SecurityDashboard = () => {
             </div>
 
             {/* ROW 2: MPIN */}
-            <div className={`w-full ${rowHeight} flex items-center justify-between ${paddingClass} bg-[#0B0B0B] cursor-pointer`}>
+            <div
+                className={`w-full ${rowHeight} flex items-center justify-between ${paddingClass} bg-[#0B0B0B] cursor-pointer`}
+                onClick={() => navigate("/enter-mpin")}
+            >
                  <div className="flex items-center gap-4 w-full">
                     <img src={mpinIcon} alt="MPIN" className={iconClass} />
                     <div className={`${textWrapperClass} ${textGap} w-full`}>

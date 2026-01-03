@@ -23,6 +23,7 @@ import AddBank from "./pages/AddBank";
 import LinkedAccounts from "./pages/LinkedAccounts";
 import BankRemoveSuccess from "./pages/BankRemoveSuccess";
 import SecurityDashboard from "./pages/SecurityDashboard";
+import EnterMpin from "./pages/EnterMpin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -54,6 +55,7 @@ const App = () => (
             <Route path="/banking/linked-accounts" element={<LinkedAccounts />} />
             <Route path="/bank-remove-success" element={<BankRemoveSuccess />} />
             <Route path="/security-dashboard" element={<SecurityDashboard />} />
+            <Route path="/enter-mpin" element={<EnterMpin />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </HashRouter>
