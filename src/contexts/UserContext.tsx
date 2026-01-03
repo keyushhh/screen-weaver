@@ -8,6 +8,7 @@ interface UserState {
   profileImage: string | null;
   kycStatus: 'incomplete' | 'pending' | 'complete';
   kycSubmittedAt: number | null;
+  mpin: string | null;
 }
 
 interface UserContextType extends UserState {
@@ -17,6 +18,7 @@ interface UserContextType extends UserState {
   setEmailVerified: (verified: boolean) => void;
   setProfileImage: (image: string | null) => void;
   setKycStatus: (status: 'incomplete' | 'pending' | 'complete') => void;
+  setMpin: (mpin: string) => void;
   submitKyc: () => void;
   resetForDemo: () => void;
 }
@@ -31,6 +33,7 @@ const defaultState: UserState = {
   profileImage: null,
   kycStatus: 'incomplete',
   kycSubmittedAt: null,
+  mpin: null,
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -88,6 +91,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setState(prev => ({ ...prev, kycStatus: status }));
   };
 
+  const setMpin = (mpin: string) => {
+    setState(prev => ({ ...prev, mpin }));
+  };
+
   const submitKyc = () => {
     setState(prev => ({
       ...prev,
@@ -111,6 +118,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         setEmailVerified,
         setProfileImage,
         setKycStatus,
+        setMpin,
         submitKyc,
         resetForDemo,
       }}
