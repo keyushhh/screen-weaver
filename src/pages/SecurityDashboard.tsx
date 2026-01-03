@@ -22,8 +22,7 @@ import MpinSheet from "@/components/MpinSheet";
 
 const SecurityDashboard = () => {
   const navigate = useNavigate();
-  const { kycStatus } = useUser();
-  const [biometricEnabled, setBiometricEnabled] = useState(false);
+  const { kycStatus, biometricEnabled, setBiometricEnabled } = useUser();
   const [showMpinSheet, setShowMpinSheet] = useState(false);
 
   const getStatusBanner = () => {

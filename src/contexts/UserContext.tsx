@@ -9,6 +9,7 @@ interface UserState {
   kycStatus: 'incomplete' | 'pending' | 'complete';
   kycSubmittedAt: number | null;
   mpin: string | null;
+  biometricEnabled: boolean;
 }
 
 interface UserContextType extends UserState {
@@ -19,6 +20,7 @@ interface UserContextType extends UserState {
   setProfileImage: (image: string | null) => void;
   setKycStatus: (status: 'incomplete' | 'pending' | 'complete') => void;
   setMpin: (mpin: string) => void;
+  setBiometricEnabled: (enabled: boolean) => void;
   submitKyc: () => void;
   resetForDemo: () => void;
 }
@@ -34,6 +36,7 @@ const defaultState: UserState = {
   kycStatus: 'incomplete',
   kycSubmittedAt: null,
   mpin: null,
+  biometricEnabled: false,
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -95,6 +98,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setState(prev => ({ ...prev, mpin }));
   };
 
+  const setBiometricEnabled = (enabled: boolean) => {
+    setState(prev => ({ ...prev, biometricEnabled: enabled }));
+  };
+
   const submitKyc = () => {
     setState(prev => ({
       ...prev,
@@ -119,6 +126,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         setProfileImage,
         setKycStatus,
         setMpin,
+        setBiometricEnabled,
         submitKyc,
         resetForDemo,
       }}

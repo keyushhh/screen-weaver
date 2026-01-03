@@ -21,7 +21,7 @@ import { isWeakMpin } from "@/utils/validationUtils";
 
 const OnboardingScreen = () => {
   const navigate = useNavigate();
-  const { setPhoneNumber: savePhoneNumber, setMpin: saveMpin } = useUser();
+  const { setPhoneNumber: savePhoneNumber, setMpin: saveMpin, setBiometricEnabled: saveBiometricEnabled } = useUser();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [otp, setOtp] = useState("");
   const [showOtpInput, setShowOtpInput] = useState(false);
@@ -124,6 +124,7 @@ const OnboardingScreen = () => {
 
     // Save MPIN to context/storage
     saveMpin(mpin);
+    saveBiometricEnabled(biometricEnabled);
 
     console.log("MPIN Setup Complete!", { biometricEnabled });
     navigate("/home");
