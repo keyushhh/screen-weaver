@@ -2,15 +2,20 @@
 // Basic Luhn Algorithm for Card Number Validation
 export const luhnCheck = (val: string) => {
     let sum = 0;
-    for (let i = 0; i < val.length; i++) {
-        let intVal = parseInt(val.substr(i, 1));
-        if (i % 2 === 0) {
+    let shouldDouble = false;
+    // Iterate from right to left
+    for (let i = val.length - 1; i >= 0; i--) {
+        let intVal = parseInt(val.charAt(i));
+
+        if (shouldDouble) {
             intVal *= 2;
             if (intVal > 9) {
-                intVal = 1 + (intVal % 10);
+                intVal -= 9;
             }
         }
+
         sum += intVal;
+        shouldDouble = !shouldDouble;
     }
     return (sum % 10) === 0;
 };
