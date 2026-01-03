@@ -65,7 +65,7 @@ const MpinSheet = ({ onClose }: MpinSheetProps) => {
   const KeypadButton = ({ label, onClick, icon }: { label?: string; onClick?: () => void; icon?: React.ReactNode }) => (
     <button
       onClick={onClick}
-      className="w-[113px] h-[65px] bg-[#1C1C1E] rounded-xl flex items-center justify-center active:bg-[#2C2C2E] transition-colors"
+      className="w-[113px] h-[65px] bg-[#000000] rounded-xl flex items-center justify-center active:bg-white/10 transition-colors"
     >
       {icon ? icon : <span className="text-white font-bold font-sans text-[32px]">{label}</span>}
     </button>
@@ -125,8 +125,8 @@ const MpinSheet = ({ onClose }: MpinSheetProps) => {
                     </InputOTP>
                 </div>
 
-                {/* Keypad Section */}
-                <div className="bg-[#000000] p-[20px] pb-[40px]">
+                {/* Keypad Section - Reverted to Original Styling */}
+                <div className="bg-[#05050B] rounded-t-[30px] p-[20px] pb-[40px]">
                     <div className="flex flex-col gap-[10px] items-center">
                         {/* Row 1 */}
                         <div className="flex gap-[10px]">
