@@ -19,8 +19,12 @@ const DeleteAccount = () => {
   };
 
   const handleProceed = () => {
-    // Placeholder for future logic
-    console.log("Proceed clicked with option:", selectedOption);
+    if (selectedOption === 'deactivate') {
+      navigate('/confirm-deactivation');
+    } else {
+      // Placeholder for future logic
+      console.log("Proceed clicked with option:", selectedOption);
+    }
   };
 
   const OptionCard = ({
