@@ -73,75 +73,71 @@ const ForgotMpin = () => {
       }}
     >
       {/* Header */}
-      <div className="px-5 pt-4 flex items-center relative">
+      <div className="px-5 pt-4 flex items-center justify-center relative">
         <button
           onClick={() => navigate(-1)}
-          className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center bg-black/20 backdrop-blur-md"
+          className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center bg-black/20 backdrop-blur-md absolute left-5"
         >
           <ChevronLeft className="w-5 h-5 text-white" />
         </button>
+        {/* Header Title: Centered */}
+        <h1 className="text-white text-[22px] font-medium font-sans text-center">Forgot MPIN?</h1>
       </div>
 
       {/* Content */}
-      <div className="px-5 mt-10 flex flex-col items-center w-full">
-        <h1 className="text-white text-[22px] font-medium font-sans mb-6">Forgot MPIN?</h1>
+      <div className="px-5 flex flex-col w-full">
+        {/* Subtext */}
+        <p className="mt-[46px] text-white text-[16px] font-bold font-sans text-left leading-relaxed max-w-[340px]">
+             {step === 'REQUEST'
+                ? `We’ll send a one-time password (OTP) to your registered number ending in ••${last4}`
+                : `OTP sent! If it doesn’t show up in 30 seconds, don’t stare at the screen—just tap resend.`
+             }
+        </p>
 
-        {step === 'REQUEST' ? (
-             <>
-                <p className="text-white text-[16px] font-normal leading-relaxed text-center max-w-[320px]">
-                    We’ll send a one-time password (OTP) to your registered number ending in ••{last4}
-                </p>
+        {/* OTP Input - Single Instance */}
+        <div className="mt-10 flex flex-col items-center w-full">
+            <InputOTP
+                maxLength={6}
+                value={otp}
+                onChange={(val) => { setOtp(val); setError(""); }}
+                autoFocus={step === 'VERIFY'}
+                disabled={step === 'REQUEST'}
+                className={step === 'REQUEST' ? "opacity-50" : "opacity-100"}
+            >
+                <InputOTPGroup className="gap-[10px]">
+                {[0, 1, 2, 3, 4, 5].map(index => (
+                    <InputOTPSlot
+                    key={index}
+                    index={index}
+                    className={`h-[48px] w-[48px] rounded-[7px] border-none text-2xl font-semibold text-white transition-all bg-cover bg-center ${
+                        error ? 'ring-1 ring-red-500' : 'ring-1 ring-white/10'
+                    }`}
+                    style={{
+                        backgroundImage: `url(${otpInputField})`,
+                        backgroundColor: 'transparent',
+                        opacity: step === 'REQUEST' ? 0.5 : 1 // Manually enforce opacity on slots if parent doesn't propagate
+                    }}
+                    />
+                ))}
+                </InputOTPGroup>
+            </InputOTP>
 
-                {/* Static/Disabled OTP Slots Visual */}
-                <div className="flex gap-[10px] mt-10">
-                    {[0, 1, 2, 3, 4, 5].map((i) => (
-                        <div
-                            key={i}
-                            className="w-[48px] h-[48px] rounded-[7px] bg-white/5 border border-white/10 flex items-center justify-center text-white text-xl font-bold"
-                        >
-                            *
-                        </div>
-                    ))}
-                </div>
-             </>
-        ) : (
-            <>
-                <p className="text-white text-[16px] font-normal leading-relaxed text-center max-w-[320px]">
-                    OTP sent! If it doesn’t show up in 30 seconds, don’t stare at the screen—just tap resend.
-                </p>
+            {error && <p className="text-red-500 text-sm mt-2 w-full text-left pl-1">{error}</p>}
 
-                {/* Active OTP Input */}
-                <div className="mt-10 flex flex-col items-center w-full">
-                    <InputOTP maxLength={6} value={otp} onChange={(val) => { setOtp(val); setError(""); }} autoFocus>
-                        <InputOTPGroup className="gap-[10px]">
-                        {[0, 1, 2, 3, 4, 5].map(index => (
-                            <InputOTPSlot
-                            key={index}
-                            index={index}
-                            className={`h-[48px] w-[48px] rounded-[7px] border-none text-2xl font-semibold text-white transition-all bg-cover bg-center ${
-                                error ? 'ring-1 ring-red-500' : 'ring-1 ring-white/10'
-                            }`}
-                            style={{
-                                backgroundImage: `url(${otpInputField})`,
-                                backgroundColor: 'transparent'
-                            }}
-                            />
-                        ))}
-                        </InputOTPGroup>
-                    </InputOTP>
-
-                    {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-
+            {/* Resend Link - Only in Verify Step, Right Aligned */}
+            {step === 'VERIFY' && (
+                <div className="w-full flex justify-end mt-4 px-1 max-w-[340px]">
                     <button
                         onClick={handleResend}
                         disabled={resendTimer > 0}
-                        className={`mt-4 text-[14px] font-normal ${resendTimer > 0 ? 'text-[#5260FE]' : 'text-white underline'}`}
+                        className={`text-[14px] font-normal ${resendTimer > 0 ? 'text-[#5260FE]' : 'text-white underline'}`}
                     >
                         {resendTimer > 0 ? `Resend OTP in ${resendTimer}s` : 'Resend OTP'}
                     </button>
                 </div>
-            </>
-        )}
+            )}
+        </div>
+
       </div>
 
       {/* Bottom CTA */}
