@@ -32,7 +32,7 @@ const SuccessScreen = () => {
 
   return (
     <div
-      className="min-h-[100dvh] flex flex-col items-center relative overflow-hidden safe-area-top safe-area-bottom px-6"
+      className="h-full w-full overflow-y-auto flex flex-col items-center relative overflow-hidden safe-area-top safe-area-bottom px-6"
       style={{
         backgroundImage: `url(${successBg})`,
         backgroundSize: "cover",
