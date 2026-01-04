@@ -86,7 +86,7 @@ const DeleteAccountOTP = () => {
         </div>
 
         {/* OTP Input */}
-        <div className="mb-8">
+        <div className="mb-8 w-full flex flex-col items-center">
             <InputOTP maxLength={6} value={otp} onChange={setOtp}>
                 <InputOTPGroup className="gap-2">
                     {[0, 1, 2, 3, 4, 5].map((index) => (
@@ -101,24 +101,24 @@ const DeleteAccountOTP = () => {
                     ))}
                 </InputOTPGroup>
             </InputOTP>
-        </div>
 
-        {/* Resend / Wrong Number */}
-        <div className="flex flex-col items-center gap-4 w-full">
-            <button
-                onClick={handleResend}
-                disabled={!canResend}
-                className={`text-[14px] font-sans ${canResend ? 'text-[#5260FE]' : 'text-white/40'}`}
-            >
-                {canResend ? "Resend OTP" : `Resend OTP in ${timeLeft}s`}
-            </button>
+            {/* Helper Links - Below Input */}
+            <div className="flex justify-between w-full max-w-[364px] mt-4 px-1">
+                <button
+                    onClick={() => navigate(-1)}
+                    className="text-[14px] font-sans text-[#5260FE] underline opacity-80"
+                >
+                    Wrong number? Fix it here.
+                </button>
 
-            <button
-                onClick={() => navigate(-1)}
-                className="text-[14px] font-sans text-[#5260FE] underline opacity-80"
-            >
-                Wrong number?
-            </button>
+                <button
+                    onClick={handleResend}
+                    disabled={!canResend}
+                    className={`text-[14px] font-sans ${canResend ? 'text-[#5260FE]' : 'text-white/40'}`}
+                >
+                    {canResend ? "Resend OTP" : `Resend OTP in ${timeLeft}s`}
+                </button>
+            </div>
         </div>
 
       </div>

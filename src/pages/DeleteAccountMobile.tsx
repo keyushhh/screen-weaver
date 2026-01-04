@@ -1,17 +1,35 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import inputFieldBg from "@/assets/input-field-bg.png";
 import buttonCancel from "@/assets/button-cancel-wide.png";
 import { Button } from "@/components/ui/button";
+import { useUser } from "@/contexts/UserContext";
 
 const DeleteAccountMobile = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { phoneNumber } = useUser();
   const [mobile, setMobile] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
-  const isValid = mobile.length === 10;
+  // Normalize user's phone number (remove +91, spaces) for comparison
+  const normalizedUserPhone = phoneNumber.replace(/\D/g, "").slice(-10);
+
+  useEffect(() => {
+    if (mobile.length === 10) {
+      if (mobile !== normalizedUserPhone) {
+        setError("Please enter the same number you used to login to Dot.Pe");
+      } else {
+        setError(null);
+      }
+    } else {
+      setError(null);
+    }
+  }, [mobile, normalizedUserPhone]);
+
+  const isValid = mobile.length === 10 && !error;
 
   const handleRequestOtp = () => {
     navigate("/delete-account-otp", {
@@ -51,23 +69,28 @@ const DeleteAccountMobile = () => {
       <div className="px-5 flex-1 flex flex-col">
         {/* Title Section */}
         <div className="mb-8">
-          <h2 className="text-white text-[14px] font-normal font-sans mb-2 leading-tight">
+          <h2 className="text-white text-[16px] font-bold font-sans mb-[6px] leading-tight">
             Confirm Deletion
           </h2>
-          <p className="text-white text-[14px] font-normal font-sans leading-relaxed text-white/60">
-            Enter your registered mobile number to proceed. We need to make sure it's really you trying to leave us.
+          <p className="text-white text-[14px] font-normal font-sans leading-relaxed">
+            Still doing this? Okay... enter your number so we can at least say goodbye properly.
           </p>
         </div>
 
         {/* Mobile Input */}
         <div className="space-y-2">
+            <h3 className="text-[#707070] text-[14px] font-bold font-sans uppercase">
+                CONFIRM MOBILE NUMBER
+            </h3>
             <div
-                className="w-full h-[48px] rounded-full flex items-center px-6 justify-between border-none"
+                className={`w-full h-[48px] rounded-full flex items-center px-6 justify-between border transition-all duration-200 ${
+                  error ? "border-[#FF3B30] bg-[#FF3B30]/10" : "border-transparent"
+                }`}
                 style={{
-                    backgroundImage: `url(${inputFieldBg})`,
+                    backgroundImage: error ? undefined : `url(${inputFieldBg})`,
                     backgroundSize: '100% 100%',
                     backgroundRepeat: 'no-repeat',
-                    backgroundColor: 'transparent'
+                    backgroundColor: error ? undefined : 'transparent'
                 }}
             >
                 <div className="flex items-center gap-4 flex-1">
@@ -85,6 +108,15 @@ const DeleteAccountMobile = () => {
                     />
                 </div>
             </div>
+            {error && (
+                <p className="text-[#FF3B30] text-[12px] font-medium font-sans px-4">
+                    {error}
+                </p>
+            )}
+
+            <p className="text-white text-[14px] font-italic font-sans italic pt-2">
+                We won’t call. We won’t cry. We just need to know if it’s really you.
+            </p>
         </div>
       </div>
 
