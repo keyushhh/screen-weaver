@@ -29,7 +29,7 @@ const AccountRetrieved = () => {
 
       {/* Icon */}
       <div className="mb-[35px]">
-        <img src={checkIconLarge} alt="Success" className="w-[80px] h-[80px] object-contain" />
+        <img src={checkIconLarge} alt="Success" className="w-[62px] h-[62px] object-contain" />
       </div>
 
       {/* Subtext */}

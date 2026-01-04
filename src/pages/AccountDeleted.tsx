@@ -50,20 +50,20 @@ const AccountDeleted = () => {
 
       {/* Icon */}
       <div className="mb-[35px]">
-        <img src={sadFace} alt="Sad Face" className="w-[80px] h-[80px] object-contain" />
+        <img src={sadFace} alt="Sad Face" className="w-[62px] h-[62px] object-contain" />
       </div>
 
       {/* Subtext */}
-      <h2 className="text-white text-[18px] font-bold font-sans mb-[32px] text-center">
+      <h2 className="text-white text-[18px] font-bold font-sans mb-[32px] text-center leading-tight">
         And just like that... you ghosted us.
       </h2>
 
       {/* Container */}
       <div
-        className="w-full relative pt-[12px] pb-[12px] px-[15px] flex flex-col rounded-2xl mb-auto"
+        className="w-full relative px-[15px] py-[11px] flex flex-col rounded-2xl"
         style={{
             backgroundImage: `url(${deleteAccContainer})`,
-            backgroundSize: "100% 100%", // Stretch to fit
+            backgroundSize: "100% 100%",
             backgroundRepeat: "no-repeat",
         }}
       >
@@ -71,8 +71,8 @@ const AccountDeleted = () => {
           No worries — it’s not like we cried or anything.
         </p>
 
-        <div className="text-[#AFAFAF] text-[16px] font-normal font-sans leading-relaxed mb-[21px]">
-            <p className="mb-0">
+        <div className="text-[#AFAFAF] text-[16px] font-normal font-sans leading-relaxed mb-[12px]">
+            <p className="mb-1">
                 No judgment though — digital breakups happen.
             </p>
             <p>
