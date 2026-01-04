@@ -29,12 +29,15 @@ const DeleteAccountReasons = () => {
   };
 
   const handleDelete = () => {
-    // No-op for now
-    console.log("Delete clicked", {
+    navigate("/delete-account-mobile", {
+      state: {
         reason: reasons[selectedReason],
-        details: selectedReason === 4 ? otherReason : undefined
+        details: selectedReason === 4 ? otherReason : undefined,
+      },
     });
   };
+
+  const isDeleteDisabled = selectedReason === 4 && !otherReason.trim();
 
   return (
     <div
@@ -138,15 +141,20 @@ const DeleteAccountReasons = () => {
       <div className="px-5 pb-10 mt-auto flex flex-col gap-3">
         {/* Delete Anyway */}
         <button
-            className="w-full h-[48px] relative flex items-center justify-center active:scale-95 transition-transform"
-            onClick={handleDelete}
+          className={`w-full h-[48px] relative flex items-center justify-center transition-transform ${
+            isDeleteDisabled ? "opacity-50 grayscale pointer-events-none" : "active:scale-95"
+          }`}
+          onClick={handleDelete}
+          disabled={isDeleteDisabled}
         >
-            <img
-                src={buttonRemoveCard}
-                alt="Delete Anyway"
-                className="absolute inset-0 w-full h-full object-fill pointer-events-none"
-            />
-            <span className="relative z-10 text-white text-[16px] font-semibold font-sans">Delete Anyway</span>
+          <img
+            src={buttonRemoveCard}
+            alt="Delete Anyway"
+            className="absolute inset-0 w-full h-full object-fill pointer-events-none"
+          />
+          <span className="relative z-10 text-white text-[16px] font-semibold font-sans">
+            Delete Anyway
+          </span>
         </button>
 
         {/* Cancel */}
