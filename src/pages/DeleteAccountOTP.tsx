@@ -42,14 +42,9 @@ const DeleteAccountOTP = () => {
         // Here we would actually call the API to delete the account
         console.log("Deleting account...", { ...location.state, otp });
 
-        // Clear local storage / user state
-        localStorage.clear();
-
-        // Show success/goodbye message
-        toast.success("Account deleted. We'll miss you!");
-
-        // Navigate to root/intro
-        navigate("/");
+        // Navigate to the "Account Deleted" intermediate screen
+        // Actual deletion happens there after a timeout if not cancelled
+        navigate("/account-deleted");
     }
   };
 
