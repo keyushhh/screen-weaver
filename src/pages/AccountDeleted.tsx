@@ -44,36 +44,35 @@ const AccountDeleted = () => {
       }}
     >
       {/* Header */}
-      <h1 className="text-white text-[18px] font-medium font-sans mb-8">
+      <h1 className="text-white text-[26px] font-medium font-sans mb-[12px]">
         Delete Account
       </h1>
 
       {/* Icon */}
-      <div className="mb-6">
+      <div className="mb-[35px]">
         <img src={sadFace} alt="Sad Face" className="w-[80px] h-[80px] object-contain" />
       </div>
 
       {/* Subtext */}
-      <h2 className="text-white text-[18px] font-normal font-sans mb-8 text-center">
+      <h2 className="text-white text-[18px] font-bold font-sans mb-[32px] text-center">
         And just like that... you ghosted us.
       </h2>
 
       {/* Container */}
       <div
-        className="w-full relative p-6 flex flex-col gap-4 rounded-2xl mb-auto"
+        className="w-full relative pt-[12px] pb-[12px] px-[15px] flex flex-col rounded-2xl mb-auto"
         style={{
             backgroundImage: `url(${deleteAccContainer})`,
             backgroundSize: "100% 100%", // Stretch to fit
             backgroundRepeat: "no-repeat",
-            minHeight: "260px" // Approximate height based on content
         }}
       >
-        <p className="text-white text-[15px] font-medium font-sans">
+        <p className="text-white text-[16px] font-medium font-sans mb-[12px]">
           No worries — it’s not like we cried or anything.
         </p>
 
-        <div className="space-y-4 text-white/70 text-[14px] font-sans leading-relaxed">
-            <p>
+        <div className="text-[#AFAFAF] text-[16px] font-normal font-sans leading-relaxed mb-[21px]">
+            <p className="mb-0">
                 No judgment though — digital breakups happen.
             </p>
             <p>
@@ -81,9 +80,9 @@ const AccountDeleted = () => {
             </p>
         </div>
 
-        <div className="mt-auto pt-6 flex items-center gap-2">
+        <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-[#FF3B30] shadow-[0_0_8px_rgba(255,59,48,0.6)]"></div>
-            <span className="text-[#FF3B30] text-[13px] font-medium font-sans">
+            <span className="text-[#D0D0D0] text-[12px] font-normal font-sans">
                 Deleted but still in our feels.
             </span>
         </div>
