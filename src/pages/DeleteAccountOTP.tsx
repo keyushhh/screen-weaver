@@ -75,18 +75,25 @@ const DeleteAccountOTP = () => {
       <div className="px-5 flex-1 flex flex-col items-center">
         {/* Title Section */}
         <div className="mb-8 w-full">
-          <h2 className="text-white text-[14px] font-normal font-sans mb-2 leading-tight">
-            OTP time. The last gate.
+          <h2 className="text-white text-[16px] font-bold font-sans mb-[6px] leading-tight">
+            Confirm Deletion
           </h2>
-          <p className="text-white text-[14px] font-normal font-sans leading-relaxed text-white/60">
-            Enter the code sent to {location.state?.mobile || "your number"}.
-            <br />
-            No turning back after this.
+          <p className="text-white text-[14px] font-normal font-sans leading-relaxed">
+            OTP time. The last gate before your grand exit. Choose your fate.
           </p>
         </div>
 
         {/* OTP Input */}
         <div className="mb-8 w-full flex flex-col items-center">
+            <div className="w-full text-left mb-[24px]">
+                <h3 className="text-[#707070] text-[14px] font-bold font-sans uppercase mb-[6px]">
+                    CONFIRM VERIFICATION CODE
+                </h3>
+                <p className="text-white text-[14px] font-italic font-sans italic">
+                    Enter the digits we sent. Or don’t. There’s still time to turn around.
+                </p>
+            </div>
+
             <InputOTP maxLength={6} value={otp} onChange={setOtp}>
                 <InputOTPGroup className="gap-2">
                     {[0, 1, 2, 3, 4, 5].map((index) => (

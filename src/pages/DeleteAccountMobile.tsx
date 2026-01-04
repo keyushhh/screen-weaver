@@ -79,9 +79,12 @@ const DeleteAccountMobile = () => {
 
         {/* Mobile Input */}
         <div className="space-y-2">
-            <h3 className="text-[#707070] text-[14px] font-bold font-sans uppercase">
+            <h3 className="text-[#707070] text-[14px] font-bold font-sans uppercase mb-[6px]">
                 CONFIRM MOBILE NUMBER
             </h3>
+            <p className="text-white text-[14px] font-italic font-sans italic mb-[6px]">
+                We won’t call. We won’t cry. We just need to know if it’s really you.
+            </p>
             <div
                 className={`w-full h-[48px] rounded-full flex items-center px-6 justify-between border transition-all duration-200 ${
                   error ? "border-[#FF3B30] bg-[#FF3B30]/10" : "border-transparent"
@@ -113,10 +116,6 @@ const DeleteAccountMobile = () => {
                     {error}
                 </p>
             )}
-
-            <p className="text-white text-[14px] font-italic font-sans italic pt-2">
-                We won’t call. We won’t cry. We just need to know if it’s really you.
-            </p>
         </div>
       </div>
 
