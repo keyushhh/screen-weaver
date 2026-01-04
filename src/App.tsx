@@ -30,6 +30,8 @@ import AccountDeactivated from "./pages/AccountDeactivated";
 import DeleteAccountReasons from "./pages/DeleteAccountReasons";
 import DeleteAccountMobile from "./pages/DeleteAccountMobile";
 import DeleteAccountOTP from "./pages/DeleteAccountOTP";
+import AccountDeleted from "./pages/AccountDeleted";
+import AccountRetrieved from "./pages/AccountRetrieved";
 import MpinSettings from "./pages/MpinSettings";
 import ForgotMpin from "./pages/ForgotMpin";
 import NotFound from "./pages/NotFound";
@@ -70,6 +72,8 @@ const App = () => (
             <Route path="/delete-account-reasons" element={<DeleteAccountReasons />} />
             <Route path="/delete-account-mobile" element={<DeleteAccountMobile />} />
             <Route path="/delete-account-otp" element={<DeleteAccountOTP />} />
+            <Route path="/account-deleted" element={<AccountDeleted />} />
+            <Route path="/account-retrieved" element={<AccountRetrieved />} />
             <Route path="/security/mpin-settings" element={<MpinSettings />} />
             <Route path="/forgot-mpin" element={<ForgotMpin />} />
             <Route path="*" element={<NotFound />} />
