@@ -64,7 +64,7 @@ const AccountRetrieved = () => {
       </div>
 
       {/* Footer / Action */}
-      <div className="w-full mt-8">
+      <div className="w-full mt-[32px]">
         <button
             className="w-full h-[48px] relative flex items-center justify-center active:scale-95 transition-transform"
             onClick={handleBackHome}

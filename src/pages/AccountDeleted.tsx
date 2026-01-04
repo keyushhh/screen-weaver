@@ -90,7 +90,7 @@ const AccountDeleted = () => {
       </div>
 
       {/* Footer / Action */}
-      <div className="w-full mt-8 flex flex-col items-center gap-3">
+      <div className="w-full mt-[32px] flex flex-col items-center">
         <button
             className="w-full h-[48px] relative flex items-center justify-center active:scale-95 transition-transform"
             onClick={handleTakeMeBack}
@@ -105,7 +105,7 @@ const AccountDeleted = () => {
             </span>
         </button>
 
-        <p className="text-white/40 text-[13px] font-sans">
+        <p className="text-white/40 text-[13px] font-sans mt-[8px]">
             (Redirecting in {timeLeft}s..)
         </p>
       </div>
