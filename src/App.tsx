@@ -27,6 +27,7 @@ import KYCStatusComplete from "./pages/KYCStatusComplete";
 import DeleteAccount from "./pages/DeleteAccount";
 import ConfirmDeactivation from "./pages/ConfirmDeactivation";
 import AccountDeactivated from "./pages/AccountDeactivated";
+import DeleteAccountReasons from "./pages/DeleteAccountReasons";
 import MpinSettings from "./pages/MpinSettings";
 import ForgotMpin from "./pages/ForgotMpin";
 import NotFound from "./pages/NotFound";
@@ -64,6 +65,7 @@ const App = () => (
             <Route path="/delete-account" element={<DeleteAccount />} />
             <Route path="/confirm-deactivation" element={<ConfirmDeactivation />} />
             <Route path="/account-deactivated" element={<AccountDeactivated />} />
+            <Route path="/delete-account-reasons" element={<DeleteAccountReasons />} />
             <Route path="/security/mpin-settings" element={<MpinSettings />} />
             <Route path="/forgot-mpin" element={<ForgotMpin />} />
             <Route path="*" element={<NotFound />} />
