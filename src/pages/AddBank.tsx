@@ -180,7 +180,7 @@ const AddBank = () => {
 
   return (
     <div
-      className="h-full w-full overflow-y-auto flex flex-col relative safe-area-top safe-area-bottom overflow-hidden"
+      className="min-h-[100dvh] flex flex-col relative safe-area-top safe-area-bottom overflow-hidden"
       style={{
         backgroundColor: "#0a0a12",
         backgroundImage: `url(${bgDarkMode})`,

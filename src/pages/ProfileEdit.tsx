@@ -103,7 +103,7 @@ const ProfileEdit = () => {
 
   return (
     <div
-      className="h-full w-full overflow-y-auto h-full flex flex-col safe-area-top safe-area-bottom"
+      className="min-h-[100dvh] h-full flex flex-col safe-area-top safe-area-bottom"
       style={{
         backgroundColor: "#0a0a12",
         backgroundImage: `url(${bgDarkMode})`,

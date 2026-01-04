@@ -30,7 +30,7 @@ const AccountDeactivated = () => {
 
   return (
     <div
-      className="h-full w-full overflow-y-auto flex flex-col items-center safe-area-top safe-area-bottom overflow-hidden relative"
+      className="min-h-[100dvh] flex flex-col items-center safe-area-top safe-area-bottom overflow-hidden relative"
       style={{
         backgroundImage: `url(${warningBackground})`,
         backgroundSize: "cover",

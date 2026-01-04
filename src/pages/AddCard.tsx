@@ -182,7 +182,7 @@ const AddCard = () => {
 
   return (
     <div
-      className="h-full w-full overflow-y-auto flex flex-col safe-area-top safe-area-bottom pb-8"
+      className="min-h-[100dvh] flex flex-col safe-area-top safe-area-bottom pb-8"
       style={{
         backgroundColor: "#0a0a12",
         backgroundImage: `url(${bgDarkMode})`,
