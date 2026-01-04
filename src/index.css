@@ -54,6 +54,15 @@
 @layer base {
   * {
     @apply border-border;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+  }
+
+  html, body, #root {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    position: fixed; /* Prevent bouncy scroll on iOS */
   }
 
   html {
@@ -64,7 +73,15 @@
 
   body {
     @apply bg-background text-foreground;
-    min-height: 100dvh;
+    overscroll-behavior-y: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Restore text selection for inputs */
+  input, textarea {
+    user-select: text;
+    -webkit-user-select: text;
   }
 }
 

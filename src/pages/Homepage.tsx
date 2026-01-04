@@ -18,7 +18,7 @@ const Homepage = () => {
   const balance = "0.00";
   return (
   <div
-    className="min-h-[100dvh] flex flex-col safe-area-top safe-area-bottom pb-[96px]"
+    className="h-full w-full overflow-y-auto flex flex-col safe-area-top safe-area-bottom pb-[96px]"
     style={{
       backgroundColor: "#0a0a12",
       backgroundImage: `url(${bgDarkMode})`,

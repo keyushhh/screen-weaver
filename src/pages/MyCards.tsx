@@ -211,7 +211,7 @@ const MyCards = () => {
 
   return (
     <div
-      className="min-h-[100dvh] flex flex-col safe-area-top safe-area-bottom relative"
+      className="h-full w-full overflow-y-auto flex flex-col safe-area-top safe-area-bottom relative"
       style={{
         backgroundColor: "#0a0a12",
         backgroundImage: `url(${bgDarkMode})`,
