@@ -116,7 +116,7 @@ const DeleteAccountReasons = () => {
 
         {/* Other Input - Conditionally Rendered */}
         {selectedReason === 4 && (
-            <div className="mt-4 relative">
+            <div className="mt-[10px] relative">
                 <textarea
                     value={otherReason}
                     onChange={(e) => {
@@ -124,10 +124,10 @@ const DeleteAccountReasons = () => {
                             setOtherReason(e.target.value);
                         }
                     }}
-                    placeholder="Go ahead, break our heart. Tell us how we failed you..."
-                    className="w-full h-[120px] bg-[#191919]/30 border border-white/10 rounded-[20px] p-4 text-white text-[13px] font-sans resize-none focus:outline-none focus:border-white/20 placeholder:text-white/20"
+                    placeholder="Go ahead, break our heart. Tell us how we failed you…"
+                    className="w-full h-[146px] bg-[#191919]/30 border border-white/10 rounded-[10px] p-4 text-white text-[12px] font-light font-sans resize-none focus:outline-none focus:border-white/20 placeholder:text-[#878787] placeholder:font-light placeholder:text-[12px]"
                 />
-                <div className="absolute bottom-4 right-4 text-white/20 text-[10px] font-sans">
+                <div className="absolute bottom-4 right-4 text-[#878787] text-[12px] font-light font-sans">
                     (max {200 - otherReason.length} chars of heartbreak)
                 </div>
             </div>
