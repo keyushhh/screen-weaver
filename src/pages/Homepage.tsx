@@ -2,12 +2,13 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, ChevronDown } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
-import addIcon from "@/assets/add.png";
-import iconWallet from "@/assets/icon-wallet.png";
-import iconFxConvert from "@/assets/icon-fx-convert.png";
+import addIcon from "@/assets/add-icon.svg";
+import iconWallet from "@/assets/wallet.svg";
+import iconFxConvert from "@/assets/fx-convert.svg";
 import iconGift from "@/assets/icon-gift.png";
 import orderCashBg from "@/assets/order-cash-button-bg.png";
-import iconOrderCash from "@/assets/icon-order-cash.png";
+import iconOrderCash from "@/assets/order-cash.svg";
+import circleButtonBg from "@/assets/circle-button.png";
 import bannerBg from "@/assets/banner-bg-new.png";
 import bannerImage from "@/assets/banner-image.png";
 import avatarImg from "@/assets/avatar.png";
@@ -71,7 +72,14 @@ const Homepage = () => {
       <div className="flex justify-center gap-6 mt-8 px-5">
         {/* Add Money - Custom Circle Button */}
         <button className="flex flex-col items-center gap-2">
-          <div className="w-[52px] h-[52px] rounded-full bg-black flex items-center justify-center border border-white/10">
+          <div
+            className="w-[52px] h-[52px] flex items-center justify-center"
+            style={{
+              backgroundImage: `url(${circleButtonBg})`,
+              backgroundSize: "100% 100%",
+              backgroundRepeat: "no-repeat",
+            }}
+          >
             <img src={addIcon} alt="Add" className="w-[22px] h-[22px]" />
           </div>
           <span className="text-foreground text-[12px]">Add Money</span>
@@ -86,7 +94,16 @@ const Homepage = () => {
           label: "FX Convert"
         }].map(action => (
           <button key={action.label} className="flex flex-col items-center gap-2">
-            <img src={action.icon} alt={action.label} className="w-[52px] h-[52px]" />
+            <div
+              className="w-[52px] h-[52px] flex items-center justify-center"
+              style={{
+                backgroundImage: `url(${circleButtonBg})`,
+                backgroundSize: "100% 100%",
+                backgroundRepeat: "no-repeat",
+              }}
+            >
+              <img src={action.icon} alt={action.label} className="w-[22px] h-[22px]" />
+            </div>
             <span className="text-foreground text-[12px]">{action.label}</span>
           </button>
         ))}
