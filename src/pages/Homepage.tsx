@@ -86,9 +86,7 @@ const Homepage = () => {
           label: "FX Convert"
         }].map(action => (
           <button key={action.label} className="flex flex-col items-center gap-2">
-            <div className="w-[52px] h-[52px] rounded-full bg-black flex items-center justify-center border border-white/10">
-              <img src={action.icon} alt={action.label} className="w-6 h-6" />
-            </div>
+            <img src={action.icon} alt={action.label} className="w-[52px] h-[52px]" />
             <span className="text-foreground text-[12px]">{action.label}</span>
           </button>
         ))}
