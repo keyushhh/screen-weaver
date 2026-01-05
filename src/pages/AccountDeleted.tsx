@@ -35,7 +35,7 @@ const AccountDeleted = () => {
 
   return (
     <div
-      className="h-full w-full overflow-y-auto flex flex-col items-center pt-[60px] pb-10 px-5 safe-area-top safe-area-bottom overflow-hidden relative"
+      className="h-full w-full overflow-hidden flex flex-col items-center pt-[60px] pb-10 px-5 safe-area-top safe-area-bottom overflow-hidden relative"
       style={{
         backgroundImage: `url(${accountDeletedBg})`,
         backgroundSize: "cover",

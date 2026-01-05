@@ -202,7 +202,7 @@ const AddBank = () => {
       </div>
 
       {/* Content */}
-      <div className="flex-1 px-5 mt-8 overflow-y-auto scrollbar-hide pb-32">
+      <div className="flex-1 px-5 mt-8 overflow-y-auto overscroll-y-none scrollbar-hide pb-32">
         <p className="text-white text-[16px] font-medium leading-relaxed mb-8">
           Whether you like shortcuts or full control —
           <br />

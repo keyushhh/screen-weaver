@@ -46,7 +46,7 @@ const DeleteAccountMobile = () => {
 
   return (
     <div
-      className="h-full w-full overflow-y-auto flex flex-col safe-area-top safe-area-bottom"
+      className="h-full w-full overflow-y-auto overscroll-y-none flex flex-col safe-area-top safe-area-bottom"
       style={{
         backgroundColor: "#0a0a12",
         backgroundImage: `url(${bgDarkMode})`,
