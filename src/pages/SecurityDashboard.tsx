@@ -209,7 +209,7 @@ const SecurityDashboard = () => {
 
   return (
     <div
-      className="h-full w-full overflow-y-auto flex flex-col safe-area-top safe-area-bottom"
+      className="h-full w-full overflow-hidden flex flex-col safe-area-top safe-area-bottom"
       style={{
         backgroundColor: "#0a0a12",
         backgroundImage: `url(${bgDarkMode})`,
@@ -218,8 +218,8 @@ const SecurityDashboard = () => {
         backgroundRepeat: "no-repeat",
       }}
     >
-      {/* Header */}
-      <div className="px-5 pt-4 flex items-center gap-3 relative z-50">
+      {/* Header - Fixed */}
+      <div className="px-5 pt-4 flex items-center gap-3 relative z-50 flex-none">
         <button
           onClick={() => navigate("/settings")}
           className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center bg-black/20 backdrop-blur-md"
@@ -229,27 +229,30 @@ const SecurityDashboard = () => {
         <h1 className="text-white text-[18px] font-semibold font-sans">Security & KYC</h1>
       </div>
 
-      {/* Radar Animation Section */}
-      <div className="flex-1 flex flex-col items-center justify-center min-h-[300px] relative">
-        <div className="w-[254px] h-[254px] flex items-center justify-center relative">
-          <Lottie
-            animationData={getRadarAnimation()}
-            loop={true}
-            className="w-full h-full"
-            style={{ transform: "scale(2.0)" }}
-          />
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto overscroll-y-none flex flex-col">
+        {/* Radar Animation Section */}
+        <div className="flex-1 flex flex-col items-center justify-center min-h-[300px] relative">
+          <div className="w-[254px] h-[254px] flex items-center justify-center relative">
+            <Lottie
+              animationData={getRadarAnimation()}
+              loop={true}
+              className="w-full h-full"
+              style={{ transform: "scale(2.0)" }}
+            />
+          </div>
         </div>
-      </div>
 
-      {/* Content Container */}
-      <div className="px-5 pb-10 flex flex-col gap-6">
+        {/* Content Container */}
+        <div className="px-5 pb-10 flex flex-col gap-6">
 
-        {/* Dynamic KYC Banner */}
-        {getStatusBanner()}
+          {/* Dynamic KYC Banner */}
+          {getStatusBanner()}
 
-        {/* Submenu */}
-        {renderSubmenu()}
+          {/* Submenu */}
+          {renderSubmenu()}
 
+        </div>
       </div>
 
       {/* MPIN Sheet Modal */}

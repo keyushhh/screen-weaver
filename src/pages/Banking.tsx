@@ -207,7 +207,7 @@ const Banking = () => {
         </div>
 
         {/* Content */}
-        <div className="px-5 mt-8 flex-1 overflow-y-auto scrollbar-hide pb-0">
+        <div className="px-5 mt-8 flex-1 overflow-y-auto overscroll-y-none scrollbar-hide pb-0">
 
             {accounts.length === 0 ? (
                 /* Empty State */

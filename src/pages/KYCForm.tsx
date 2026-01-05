@@ -52,7 +52,7 @@ const KYCForm = () => {
         <div className="w-10" /> {/* Spacer */}
       </div>
 
-      <div className="flex-1 overflow-y-auto px-5 pt-4 pb-24 no-scrollbar">
+      <div className="flex-1 overflow-y-auto overscroll-y-none px-5 pt-4 pb-24 no-scrollbar">
         {/* Steps Indicator */}
         <div
           className="w-full h-[88px] rounded-[20px] p-5 mb-8 relative overflow-hidden"

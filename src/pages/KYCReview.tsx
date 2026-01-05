@@ -63,7 +63,7 @@ const KYCReview = () => {
         <div className="w-10" />
       </div>
 
-      <div id="scroll-container" className="flex-1 px-5 pt-4 flex flex-col overflow-y-auto">
+      <div id="scroll-container" className="flex-1 px-5 pt-4 flex flex-col overflow-y-auto overscroll-y-none">
         {/* Steps Indicator */}
         <div
           className="w-full h-[88px] rounded-[20px] p-5 mb-6 relative overflow-hidden shrink-0"
