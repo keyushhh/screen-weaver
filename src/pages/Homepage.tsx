@@ -56,6 +56,7 @@ const Homepage = () => {
           ₹{showBalance ? balance : "******"}
         </p>
         <button
+          onClick={() => navigate('/order-cash')}
           className="flex items-center justify-center gap-2 px-6 py-3 text-foreground text-[14px] font-medium h-12 w-[180px]"
           style={{
             backgroundImage: `url(${orderCashBg})`,
