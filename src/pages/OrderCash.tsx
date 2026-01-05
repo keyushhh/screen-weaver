@@ -53,9 +53,6 @@ const OrderCash = () => {
       className="w-[113px] h-[65px] bg-[#000000] rounded-xl flex items-center justify-center active:bg-[#5260FE] active:text-white transition-colors group"
     >
       {icon ? (
-        // Pass a prop or handle style change for icon on active if needed,
-        // but for now just the button background changes.
-        // We can force the icon brightness if needed, but the requirements just said "key highlighted purple".
         <div className="group-active:brightness-200">
            {icon}
         </div>
@@ -64,6 +61,8 @@ const OrderCash = () => {
       )}
     </button>
   );
+
+  const isZero = amount === "0.00";
 
   return (
     <div
@@ -76,29 +75,38 @@ const OrderCash = () => {
         backgroundRepeat: "no-repeat",
       }}
     >
-      {/* Header */}
-      <div className="px-5 pt-4 flex items-center gap-4">
+      {/* Header - Standard Single Row */}
+      <div className="relative px-5 pt-4 flex items-center justify-between z-10">
+         {/* Back Button */}
         <button
           onClick={() => navigate(-1)}
-          className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md"
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md relative z-20"
         >
           <ChevronLeft className="w-6 h-6 text-white" />
         </button>
-        <h1 className="flex-1 text-center text-white text-[18px] font-medium font-sans pr-14">
+
+        {/* Title - Centered Absolute */}
+        <h1 className="absolute left-0 right-0 text-center text-white text-[18px] font-medium font-sans pointer-events-none">
           Order Cash
         </h1>
+
+        {/* Spacer for Right Side balance */}
+        <div className="w-10" />
       </div>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col items-center pt-[60px]">
         {/* Amount Display */}
-        <div className="flex items-center justify-center mb-2">
-            <span className="text-white text-[48px] font-medium font-sans mr-2">₹</span>
-            <span className="text-white text-[48px] font-medium font-sans">{amount}</span>
+        <div className={`flex items-center justify-center transition-opacity duration-200 ${isZero ? 'opacity-50' : 'opacity-100'}`}>
+            <span className="text-white text-[32px] font-black font-sans mr-1">₹</span>
+            <span className="text-white text-[32px] font-black font-sans">{amount}</span>
         </div>
 
+        {/* Divider */}
+        <div className="w-[238px] h-[1px] bg-[#373737] mt-[4.5px]" />
+
         {/* Balance Text */}
-        <p className="text-white/60 text-[12px] font-sans font-normal mb-[17px]">
+        <p className="text-white/60 text-[12px] font-sans font-normal mt-[8px] mb-[17px]">
             Total Available Balance ₹ 13,00,058.00
         </p>
 
@@ -148,43 +156,65 @@ const OrderCash = () => {
         </div>
 
         {/* Keypad Container */}
-        <div className="w-full bg-[#05050B] rounded-t-[30px] p-[20px] pb-[40px]">
-            <div className="flex flex-col gap-[10px] items-center">
-                {/* Row 1 */}
-                <div className="flex gap-[10px]">
-                    <KeypadButton label="1" onClick={() => handleKeyPress("1")} />
-                    <KeypadButton label="2" onClick={() => handleKeyPress("2")} />
-                    <KeypadButton label="3" onClick={() => handleKeyPress("3")} />
-                </div>
-                {/* Row 2 */}
-                <div className="flex gap-[10px]">
-                    <KeypadButton label="4" onClick={() => handleKeyPress("4")} />
-                    <KeypadButton label="5" onClick={() => handleKeyPress("5")} />
-                    <KeypadButton label="6" onClick={() => handleKeyPress("6")} />
-                </div>
-                {/* Row 3 */}
-                <div className="flex gap-[10px]">
-                    <KeypadButton label="7" onClick={() => handleKeyPress("7")} />
-                    <KeypadButton label="8" onClick={() => handleKeyPress("8")} />
-                    <KeypadButton label="9" onClick={() => handleKeyPress("9")} />
-                </div>
-                {/* Row 4 */}
-                <div className="flex gap-[10px]">
-                    <KeypadButton label="." onClick={() => handleKeyPress(".")} />
-                    <KeypadButton label="0" onClick={() => handleKeyPress("0")} />
-                    <KeypadButton
-                        onClick={handleBackspace}
-                        icon={<img src={backspaceIcon} alt="Backspace" className="w-[18px] h-[18px] object-contain" />}
-                    />
-                </div>
+        <div className="w-full relative rounded-t-[32px] overflow-hidden">
+             {/* Gradient Border Wrapper */}
+             {/* We use a pseudo-element or absolute div for the gradient border */}
+             <div
+                className="absolute inset-0 rounded-t-[32px] pointer-events-none"
+                style={{
+                    padding: '0.63px', // Border width
+                    background: 'linear-gradient(to bottom right, rgba(255,255,255,0.12), rgba(0,0,0,0.20))',
+                    mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                    maskComposite: 'exclude',
+                    WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                    WebkitMaskComposite: 'xor'
+                }}
+             />
 
-                {/* CTA */}
-                <div className="w-full mt-[32px]">
-                    <Button
-                        className="w-full h-[48px] bg-[#5260FE] hover:bg-[#5260FE]/90 text-white rounded-full text-[16px] font-medium font-sans"
-                    >
-                        Place Order
-                    </Button>
+             {/* Inner Content Background */}
+             <div
+                className="w-full h-full p-[20px] pb-[40px] backdrop-blur-[25px]"
+                style={{
+                    backgroundColor: 'rgba(23, 23, 23, 0.31)', // #171717 at 31%
+                }}
+             >
+                <div className="flex flex-col gap-[10px] items-center relative z-10">
+                    {/* Row 1 */}
+                    <div className="flex gap-[10px]">
+                        <KeypadButton label="1" onClick={() => handleKeyPress("1")} />
+                        <KeypadButton label="2" onClick={() => handleKeyPress("2")} />
+                        <KeypadButton label="3" onClick={() => handleKeyPress("3")} />
+                    </div>
+                    {/* Row 2 */}
+                    <div className="flex gap-[10px]">
+                        <KeypadButton label="4" onClick={() => handleKeyPress("4")} />
+                        <KeypadButton label="5" onClick={() => handleKeyPress("5")} />
+                        <KeypadButton label="6" onClick={() => handleKeyPress("6")} />
+                    </div>
+                    {/* Row 3 */}
+                    <div className="flex gap-[10px]">
+                        <KeypadButton label="7" onClick={() => handleKeyPress("7")} />
+                        <KeypadButton label="8" onClick={() => handleKeyPress("8")} />
+                        <KeypadButton label="9" onClick={() => handleKeyPress("9")} />
+                    </div>
+                    {/* Row 4 */}
+                    <div className="flex gap-[10px]">
+                        <KeypadButton label="." onClick={() => handleKeyPress(".")} />
+                        <KeypadButton label="0" onClick={() => handleKeyPress("0")} />
+                        <KeypadButton
+                            onClick={handleBackspace}
+                            icon={<img src={backspaceIcon} alt="Backspace" className="w-[18px] h-[18px] object-contain" />}
+                        />
+                    </div>
+
+                    {/* CTA */}
+                    <div className="w-full mt-[32px]">
+                        <Button
+                            className="w-full h-[48px] bg-[#5260FE] hover:bg-[#5260FE]/90 text-white rounded-full text-[16px] font-medium font-sans"
+                        >
+                            Place Order
+                        </Button>
+                    </div>
                 </div>
             </div>
         </div>
