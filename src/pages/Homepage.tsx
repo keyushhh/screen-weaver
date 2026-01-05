@@ -1,14 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff, ChevronDown, Plus } from "lucide-react";
+import { Eye, EyeOff, ChevronDown, Plus, Banknote } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
-import iconOrderCash from "@/assets/icon-order-cash.png";
 import iconWallet from "@/assets/icon-wallet.png";
 import iconFxConvert from "@/assets/icon-fx-convert.png";
 import iconGift from "@/assets/icon-gift.png";
 import bannerBg from "@/assets/banner-bg-new.png";
 import bannerImage from "@/assets/banner-image.png";
-import buttonAddMoney from "@/assets/button-add-money.png";
 import avatarImg from "@/assets/avatar.png";
 import BottomNavigation from "@/components/BottomNavigation";
 
@@ -53,31 +51,35 @@ const Homepage = () => {
         <p className="text-foreground text-[32px] font-semibold">
           ₹{showBalance ? balance : "******"}
         </p>
-        <button className="flex items-center justify-center gap-2 px-6 py-3 text-foreground text-[14px] font-medium h-12 w-[180px]" style={{
-        backgroundImage: `url(${buttonAddMoney})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center'
-      }}>
-          <Plus className="w-4 h-4" />
-          Add Money
+        <button className="flex items-center justify-center gap-2 px-6 py-3 text-foreground text-[14px] font-medium h-12 w-[180px] rounded-full border border-white/10 bg-black/40 backdrop-blur-md">
+          <Banknote className="w-5 h-5" />
+          Order Cash
         </button>
       </div>
 
       {/* Quick Actions */}
       <div className="flex justify-center gap-6 mt-8 px-5">
+        {/* Add Money - Custom Circle Button */}
+        <button className="flex flex-col items-center gap-2">
+          <div className="w-[52px] h-[52px] rounded-full bg-black flex items-center justify-center border border-white/10">
+            <Plus className="w-6 h-6 text-white" />
+          </div>
+          <span className="text-foreground text-[12px]">Add Money</span>
+        </button>
+
+        {/* Other Actions */}
         {[{
-        icon: iconOrderCash,
-        label: "Order Cash"
-      }, {
-        icon: iconWallet,
-        label: "Wallet"
-      }, {
-        icon: iconFxConvert,
-        label: "FX Convert"
-      }].map(action => <button key={action.label} className="flex flex-col items-center gap-2">
+          icon: iconWallet,
+          label: "Wallet"
+        }, {
+          icon: iconFxConvert,
+          label: "FX Convert"
+        }].map(action => (
+          <button key={action.label} className="flex flex-col items-center gap-2">
             <img src={action.icon} alt={action.label} className="w-[52px] h-[52px]" />
             <span className="text-foreground text-[12px]">{action.label}</span>
-          </button>)}
+          </button>
+        ))}
       </div>
 
       {/* Referral Banner */}
