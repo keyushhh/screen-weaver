@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, ChevronDown } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
-import addIcon from "@/assets/add-icon.png";
+import addIcon from "@/assets/add.png";
 import iconWallet from "@/assets/icon-wallet.png";
 import iconFxConvert from "@/assets/icon-fx-convert.png";
 import iconGift from "@/assets/icon-gift.png";
@@ -86,7 +86,9 @@ const Homepage = () => {
           label: "FX Convert"
         }].map(action => (
           <button key={action.label} className="flex flex-col items-center gap-2">
-            <img src={action.icon} alt={action.label} className="w-[52px] h-[52px]" />
+            <div className="w-[52px] h-[52px] rounded-full bg-black flex items-center justify-center border border-white/10">
+              <img src={action.icon} alt={action.label} className="w-6 h-6" />
+            </div>
             <span className="text-foreground text-[12px]">{action.label}</span>
           </button>
         ))}
