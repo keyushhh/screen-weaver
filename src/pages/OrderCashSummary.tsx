@@ -30,7 +30,7 @@ const OrderCashSummary = () => {
 
   return (
     <div
-      className="h-full w-full overflow-hidden flex flex-col"
+      className="h-full w-full overflow-hidden flex flex-col safe-area-top safe-area-bottom"
       style={{
         backgroundColor: "#0a0a12",
         backgroundImage: `url(${bgDarkMode})`,
@@ -40,14 +40,14 @@ const OrderCashSummary = () => {
       }}
     >
       {/* Header */}
-      <div className="relative px-5 pt-4 flex items-center justify-between z-10 mb-6">
+      <div className="px-5 pt-4 flex items-center justify-between z-10 mb-6">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/order-cash")}
           className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md relative z-20"
         >
           <ChevronLeft className="w-6 h-6 text-white" />
         </button>
-        <h1 className="absolute left-0 right-0 text-center text-white text-[18px] font-medium font-sans pointer-events-none">
+        <h1 className="text-white text-[18px] font-medium font-sans">
           Order Cash
         </h1>
         <div className="w-10" />
