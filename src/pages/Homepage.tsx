@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff, ChevronDown, Plus, Banknote } from "lucide-react";
+import { Eye, EyeOff, ChevronDown } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
+import addIcon from "@/assets/add-icon.png";
 import iconWallet from "@/assets/icon-wallet.png";
 import iconFxConvert from "@/assets/icon-fx-convert.png";
 import iconGift from "@/assets/icon-gift.png";
+import orderCashBg from "@/assets/order-cash-button-bg.png";
+import iconOrderCash from "@/assets/icon-order-cash.png";
 import bannerBg from "@/assets/banner-bg-new.png";
 import bannerImage from "@/assets/banner-image.png";
 import avatarImg from "@/assets/avatar.png";
@@ -51,8 +54,15 @@ const Homepage = () => {
         <p className="text-foreground text-[32px] font-semibold">
           ₹{showBalance ? balance : "******"}
         </p>
-        <button className="flex items-center justify-center gap-2 px-6 py-3 text-foreground text-[14px] font-medium h-12 w-[180px] rounded-full border border-white/10 bg-black/40 backdrop-blur-md">
-          <Banknote className="w-5 h-5" />
+        <button
+          className="flex items-center justify-center gap-2 px-6 py-3 text-foreground text-[14px] font-medium h-12 w-[180px]"
+          style={{
+            backgroundImage: `url(${orderCashBg})`,
+            backgroundSize: "100% 100%",
+            backgroundRepeat: "no-repeat",
+          }}
+        >
+          <img src={iconOrderCash} alt="Order Cash" className="w-5 h-5" />
           Order Cash
         </button>
       </div>
@@ -62,7 +72,7 @@ const Homepage = () => {
         {/* Add Money - Custom Circle Button */}
         <button className="flex flex-col items-center gap-2">
           <div className="w-[52px] h-[52px] rounded-full bg-black flex items-center justify-center border border-white/10">
-            <Plus className="w-6 h-6 text-white" />
+            <img src={addIcon} alt="Add" className="w-6 h-6" />
           </div>
           <span className="text-foreground text-[12px]">Add Money</span>
         </button>
