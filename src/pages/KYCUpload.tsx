@@ -225,7 +225,7 @@ const KYCUpload = () => {
 
   return (
     <div
-      className="h-[100dvh] w-full flex flex-col safe-area-top safe-area-bottom overflow-hidden"
+      className="h-full w-full flex flex-col safe-area-top safe-area-bottom overflow-hidden"
       style={{
         backgroundColor: "#0a0a12",
         backgroundImage: `url(${bgDarkMode})`,
