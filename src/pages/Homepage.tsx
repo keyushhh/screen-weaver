@@ -62,7 +62,7 @@ const Homepage = () => {
             backgroundRepeat: "no-repeat",
           }}
         >
-          <img src={iconOrderCash} alt="Order Cash" className="w-5 h-5" />
+          <img src={iconOrderCash} alt="Order Cash" className="w-[22px] h-[22px]" />
           Order Cash
         </button>
       </div>
@@ -72,7 +72,7 @@ const Homepage = () => {
         {/* Add Money - Custom Circle Button */}
         <button className="flex flex-col items-center gap-2">
           <div className="w-[52px] h-[52px] rounded-full bg-black flex items-center justify-center border border-white/10">
-            <img src={addIcon} alt="Add" className="w-6 h-6" />
+            <img src={addIcon} alt="Add" className="w-[22px] h-[22px]" />
           </div>
           <span className="text-foreground text-[12px]">Add Money</span>
         </button>
