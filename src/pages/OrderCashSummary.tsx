@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ChevronLeft, Lock } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import locationIcon from "@/assets/location.svg";
@@ -8,20 +8,19 @@ import deliveryIcon from "@/assets/delivery.svg";
 import calendarIcon from "@/assets/calendar.svg";
 import chevronDownIcon from "@/assets/chevron-down.svg";
 import circleButtonBg from "@/assets/circle-button.png";
-import pillContainerBg from "@/assets/pill-container-bg.png"; // Reusing for containers if appropriate, or css
+import pillContainerBg from "@/assets/pill-container-bg.png";
 
 const OrderCashSummary = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { amount } = location.state || { amount: "0.00" };
 
-  const [isAddressOpen, setIsAddressOpen] = useState(true);
   const [isRewardsOpen, setIsRewardsOpen] = useState(false);
   const [isPayOpen, setIsPayOpen] = useState(true);
 
   // Common container style
   const containerStyle = {
-    backgroundColor: "rgba(25, 25, 25, 0.30)", // #191919 at ~30%
+    backgroundColor: "rgba(25, 25, 25, 0.30)",
     backdropFilter: "blur(24px)",
     WebkitBackdropFilter: "blur(24px)",
     border: "0.65px solid rgba(255, 255, 255, 0.20)",
@@ -59,11 +58,10 @@ const OrderCashSummary = () => {
         {/* Address Section */}
         <div
             style={containerStyle}
-            className="w-full relative overflow-hidden transition-all duration-300"
+            className="w-full relative overflow-hidden"
         >
             <div
-                className="flex items-start p-[11px] cursor-pointer"
-                onClick={() => setIsAddressOpen(!isAddressOpen)}
+                className="flex items-start py-[11px] px-[12px]"
             >
                 {/* Icon */}
                 <div
@@ -85,24 +83,28 @@ const OrderCashSummary = () => {
                         <img
                             src={chevronDownIcon}
                             alt="Toggle"
-                            className={`w-4 h-4 transition-transform ${isAddressOpen ? 'rotate-180' : ''}`}
+                            className="w-4 h-4"
                         />
                     </div>
-                    {isAddressOpen && (
-                        <p className="text-white/80 text-[14px] font-normal font-sans mt-1 leading-tight">
-                            C102, Pubali Estate, Guwahati - 781005
-                        </p>
-                    )}
+                    <p className="text-white/80 text-[14px] font-normal font-sans mt-1 leading-tight">
+                        C102, Pubali Estate, Guwahati - 781005
+                    </p>
                 </div>
             </div>
         </div>
 
         {/* Delivery Section */}
-        <div style={containerStyle} className="w-full p-[12px] flex items-center justify-between">
+        <div style={containerStyle} className="w-full py-[11px] px-[12px] flex items-center justify-between">
              <div className="flex items-center gap-[12px]">
+                {/* Icon with Circle BG */}
                 <div
-                    className="w-[46px] h-[46px] rounded-full border border-white/20 flex items-center justify-center"
-                    style={{ backgroundColor: 'transparent' }}
+                    className="w-[52px] h-[52px] shrink-0 flex items-center justify-center"
+                    style={{
+                        backgroundImage: `url(${circleButtonBg})`,
+                        backgroundSize: 'contain',
+                        backgroundRepeat: 'no-repeat',
+                        backgroundPosition: 'center'
+                    }}
                 >
                     <img src={deliveryIcon} alt="Delivery" className="w-[24px] h-[24px]" />
                 </div>
@@ -130,11 +132,10 @@ const OrderCashSummary = () => {
         </div>
 
         {/* KYC Security Check */}
-        <div style={containerStyle} className="w-full p-5">
+        <div style={containerStyle} className="w-full pt-[10px] px-[11px] pb-[12px]">
             <div className="flex items-center gap-2 mb-3">
                 <span className="text-white text-[16px] font-medium font-sans">KYC Security Check</span>
-                {/* Using Lucide Lock for now as icon-security.svg might be a shield. Using yellow lock to match screenshot */}
-                <Lock className="w-4 h-4 text-[#FACC15]" fill="#FACC15" />
+                <span className="text-[16px]">🔐</span>
             </div>
             <ul className="list-disc pl-4 space-y-2 text-white/80 text-[13px] font-normal font-sans leading-snug marker:text-white/60">
                 <li>Your KYC has been verified. Please keep your original ID ready when accepting your cash delivery.</li>
@@ -150,7 +151,7 @@ const OrderCashSummary = () => {
         {/* Redeem Reward Points */}
         <div style={containerStyle} className="w-full overflow-hidden">
             <button
-                className="w-full h-[48px] px-[15px] flex items-center justify-between"
+                className="w-full py-[13px] px-[12px] flex items-center justify-between"
                 onClick={() => setIsRewardsOpen(!isRewardsOpen)}
             >
                 <span className="text-white text-[16px] font-medium font-sans">Redeem Reward Points</span>
@@ -161,7 +162,7 @@ const OrderCashSummary = () => {
                 />
             </button>
             {isRewardsOpen && (
-                <div className="px-[15px] pb-4 text-white/60 text-sm">
+                <div className="px-[12px] pb-[13px] text-white/60 text-sm">
                     No points available.
                 </div>
             )}
@@ -170,7 +171,7 @@ const OrderCashSummary = () => {
         {/* To Pay */}
         <div style={containerStyle} className="w-full overflow-hidden">
              <button
-                className="w-full px-[15px] py-[15px] flex items-center justify-between"
+                className="w-full py-[14px] px-[12px] flex items-center justify-between"
                 onClick={() => setIsPayOpen(!isPayOpen)}
             >
                 <div className="flex items-center gap-2">
@@ -186,7 +187,7 @@ const OrderCashSummary = () => {
                 />
             </button>
             {isPayOpen && (
-                <div className="px-[15px] pb-[15px]">
+                <div className="px-[12px] pb-[14px]">
                     <p className="text-white/60 text-[12px] font-normal font-sans">
                         Incl. all taxes & charges
                     </p>
