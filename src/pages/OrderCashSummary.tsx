@@ -203,24 +203,40 @@ const OrderCashSummary = () => {
 
       </div>
 
-      {/* Fixed Bottom Sheet - NOW FLEX ITEM */}
+      {/* Base Container (New) */}
       <div
-        className="flex-none w-full z-20 rounded-t-[30px] p-5 pb-10 flex flex-col gap-4 safe-area-bottom"
+        className="flex-none w-full relative z-20 safe-area-bottom"
         style={{
-            backgroundColor: "#000000",
-            boxShadow: "0px -10px 40px rgba(0,0,0,0.5)"
+            height: "264px"
         }}
       >
-        <div>
-            <h2 className="text-white text-[18px] font-bold font-sans mb-1">
-                Amount will be held from wallet
-            </h2>
-            <p className="text-white/60 text-[14px] font-normal font-sans leading-snug">
-                You won’t be charged unless the delivery is completed.
-            </p>
-        </div>
+          {/* Foreground Container (New) */}
+          <div
+             className="absolute bottom-0 left-0 right-0 w-full flex flex-col"
+             style={{
+                 height: "255px",
+                 backgroundColor: "rgba(23, 23, 23, 0.31)",
+                 borderTopLeftRadius: "32px",
+                 borderTopRightRadius: "32px",
+                 paddingTop: "26px",
+                 paddingLeft: "20px",
+                 paddingRight: "20px",
+                 paddingBottom: "54px"
+             }}
+          >
+              {/* Primary Text */}
+              <p className="text-white text-[18px] font-bold font-sans mb-[16px]">
+                  Amount will be held from wallet
+              </p>
 
-        <SlideToPay onComplete={handlePay} />
+              {/* Secondary Text */}
+              <p className="text-white text-[16px] font-medium font-sans mb-[34px]">
+                  You won’t be charged unless the delivery is completed.
+              </p>
+
+              {/* Slide CTA */}
+              <SlideToPay onComplete={handlePay} />
+          </div>
       </div>
     </div>
   );
