@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ChevronLeft, Check } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import locationIcon from "@/assets/location.svg";
@@ -10,6 +10,7 @@ import chevronDownIcon from "@/assets/chevron-down.svg";
 import circleButtonBg from "@/assets/circle-button.png";
 import pillContainerBg from "@/assets/pill-container-bg.png";
 import applyButtonBg from "@/assets/apply-button-bg.png";
+import checkSvg from "@/assets/check.svg";
 import { SlideToPay } from "@/components/SlideToPay";
 
 const OrderCashSummary = () => {
@@ -34,8 +35,11 @@ const OrderCashSummary = () => {
     // Allow only numeric input
     if (/^\d*$/.test(val)) {
       setRewardPoints(val);
+      // Reset logic on edit
       setRewardError("");
-      if (rewardApplied) setRewardApplied(false);
+      if (rewardApplied) {
+          setRewardApplied(false);
+      }
     }
   };
 
@@ -44,7 +48,7 @@ const OrderCashSummary = () => {
     const points = parseInt(rewardPoints, 10);
 
     if (isNaN(points) || points < 500) {
-      setRewardError("Minimum 500 points required");
+      setRewardError("Minimum 500 points to redeem.");
       setRewardApplied(false);
     } else {
       setRewardError("");
@@ -214,7 +218,7 @@ const OrderCashSummary = () => {
                             {/* Check Icon inside Input */}
                             {rewardApplied && (
                                 <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                                    <Check className="w-4 h-4 text-[#1CB956]" strokeWidth={3} />
+                                    <img src={checkSvg} alt="Applied" className="w-4 h-4" />
                                 </div>
                             )}
                         </div>

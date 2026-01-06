@@ -110,6 +110,13 @@ const OrderCash = () => {
             Total Available Balance ₹ 13,00,058.00
         </p>
 
+        {/* Error Message */}
+        {parseFloat(amount) > 0 && parseFloat(amount) < 500 && (
+          <p className="text-[#FF3B30] text-[12px] font-normal font-sans mb-[17px] -mt-[12px]">
+            Amount needs to be ₹500 or more
+          </p>
+        )}
+
         {/* Pills */}
         <div className="flex gap-4 mb-8">
             {["500", "1000", "1500"].map((val) => (
@@ -211,7 +218,8 @@ const OrderCash = () => {
                     <div className="w-full mt-[32px]">
                         <Button
                             onClick={() => navigate("/order-cash-summary", { state: { amount } })}
-                            className="w-full h-[48px] bg-[#5260FE] hover:bg-[#5260FE]/90 text-white rounded-full text-[16px] font-medium font-sans"
+                            disabled={parseFloat(amount) < 500}
+                            className="w-full h-[48px] bg-[#5260FE] hover:bg-[#5260FE]/90 text-white rounded-full text-[16px] font-medium font-sans disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             Place Order
                         </Button>
