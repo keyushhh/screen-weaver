@@ -9,6 +9,7 @@ import calendarIcon from "@/assets/calendar.svg";
 import chevronDownIcon from "@/assets/chevron-down.svg";
 import circleButtonBg from "@/assets/circle-button.png";
 import pillContainerBg from "@/assets/pill-container-bg.png";
+import { SlideToPay } from "@/components/SlideToPay";
 
 const OrderCashSummary = () => {
   const navigate = useNavigate();
@@ -17,6 +18,10 @@ const OrderCashSummary = () => {
 
   const [isRewardsOpen, setIsRewardsOpen] = useState(false);
   const [isPayOpen, setIsPayOpen] = useState(true);
+
+  const handlePay = () => {
+      navigate("/order-cash-success");
+  };
 
   // Common container style
   const containerStyle = {
@@ -53,7 +58,7 @@ const OrderCashSummary = () => {
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto px-5 pb-10 space-y-[10px] no-scrollbar">
+      <div className="flex-1 overflow-y-auto px-5 pb-[300px] space-y-[10px] no-scrollbar">
 
         {/* Address Section */}
         <div
@@ -195,15 +200,24 @@ const OrderCashSummary = () => {
 
       </div>
 
-      {/* Footer CTA */}
-      <div className="p-5 pt-0 mt-4">
-        <Button
-          variant="gradient"
-          className="w-full h-12 text-[16px] font-bold font-sans rounded-full"
-          onClick={() => {}}
-        >
-          Pay {amount ? `₹${amount}` : "₹0"}
-        </Button>
+      {/* Fixed Bottom Sheet Overlay */}
+      <div
+        className="fixed bottom-0 left-0 right-0 z-50 rounded-t-[30px] p-5 pb-10 flex flex-col gap-4"
+        style={{
+            backgroundColor: "#000000",
+            boxShadow: "0px -10px 40px rgba(0,0,0,0.5)"
+        }}
+      >
+        <div>
+            <h2 className="text-white text-[18px] font-bold font-sans mb-1">
+                Amount will be held from wallet
+            </h2>
+            <p className="text-white/60 text-[14px] font-normal font-sans leading-snug">
+                You won’t be charged unless the delivery is completed.
+            </p>
+        </div>
+
+        <SlideToPay onComplete={handlePay} />
       </div>
     </div>
   );
