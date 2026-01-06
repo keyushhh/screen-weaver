@@ -9,6 +9,8 @@ import calendarIcon from "@/assets/calendar.svg";
 import chevronDownIcon from "@/assets/chevron-down.svg";
 import circleButtonBg from "@/assets/circle-button.png";
 import pillContainerBg from "@/assets/pill-container-bg.png";
+import applyButtonBg from "@/assets/apply-button-bg.png";
+import checkIcon from "@/assets/check-icon.png";
 import { SlideToPay } from "@/components/SlideToPay";
 
 const OrderCashSummary = () => {
@@ -19,8 +21,36 @@ const OrderCashSummary = () => {
   const [isRewardsOpen, setIsRewardsOpen] = useState(false);
   const [isPayOpen, setIsPayOpen] = useState(true);
 
+  // Rewards State
+  const [rewardPoints, setRewardPoints] = useState("");
+  const [rewardError, setRewardError] = useState("");
+  const [rewardApplied, setRewardApplied] = useState(false);
+
   const handlePay = () => {
       navigate("/order-cash-success");
+  };
+
+  const handleRewardChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    // Allow only numeric input
+    if (/^\d*$/.test(val)) {
+      setRewardPoints(val);
+      setRewardError("");
+      if (rewardApplied) setRewardApplied(false);
+    }
+  };
+
+  const handleApplyReward = () => {
+    if (!rewardPoints) return;
+    const points = parseInt(rewardPoints, 10);
+
+    if (isNaN(points) || points < 500) {
+      setRewardError("Minimum 500 points required");
+      setRewardApplied(false);
+    } else {
+      setRewardError("");
+      setRewardApplied(true);
+    }
   };
 
   // Common container style
@@ -167,8 +197,53 @@ const OrderCashSummary = () => {
                 />
             </button>
             {isRewardsOpen && (
-                <div className="px-[12px] pb-[13px] text-white/60 text-sm">
-                    No points available.
+                <div className="px-[12px] pb-[16px]">
+                     <p className="text-white text-[14px] font-medium font-sans mb-[12px]">
+                        You have 12,000 points available
+                     </p>
+
+                     <div className="flex items-center gap-[12px]">
+                        {/* Input Container - Flex 1 to take available space */}
+                        <div className="relative flex-1 h-[45px]">
+                            <input
+                                type="text"
+                                value={rewardPoints}
+                                onChange={handleRewardChange}
+                                placeholder="Enter reward points"
+                                className={`w-full h-full bg-white/5 rounded-[14px] px-4 text-white font-sans text-[12px] focus:outline-none border ${rewardError ? 'border-[#FF3B30]' : 'border-white/20'}`}
+                            />
+                            {/* Check Icon inside Input */}
+                            {rewardApplied && (
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                                    <img src={checkIcon} alt="Applied" className="w-4 h-4" />
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Apply Button - Fixed Width */}
+                        <button
+                            onClick={handleApplyReward}
+                            disabled={!rewardPoints}
+                            className="shrink-0 flex items-center justify-center transition-opacity active:scale-95 disabled:opacity-50"
+                            style={{
+                                width: "102px",
+                                height: "45px",
+                                backgroundImage: `url(${applyButtonBg})`,
+                                backgroundSize: 'contain',
+                                backgroundRepeat: 'no-repeat',
+                                backgroundPosition: 'center'
+                            }}
+                        >
+                            <span className="text-black text-[14px] font-bold font-sans">
+                                {rewardApplied ? "Applied" : "Apply"}
+                            </span>
+                        </button>
+                     </div>
+
+                     {/* Helper / Error Message */}
+                     <p className={`text-[12px] font-normal font-sans mt-2 ${rewardError ? 'text-[#FF3B30]' : 'text-white/40'}`}>
+                         {rewardError || "Minimum 500 points to redeem"}
+                     </p>
                 </div>
             )}
         </div>
