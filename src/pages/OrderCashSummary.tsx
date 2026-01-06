@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Info, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import locationIcon from "@/assets/location.svg";
@@ -11,6 +11,9 @@ import circleButtonBg from "@/assets/circle-button.png";
 import pillContainerBg from "@/assets/pill-container-bg.png";
 import applyButtonBg from "@/assets/apply-button-bg.png";
 import checkSvg from "@/assets/check.svg";
+import pillBg from "@/assets/pill.png";
+import selectedPillBg from "@/assets/selected-pill.png";
+import xIcon from "@/assets/icon-x.svg";
 import { SlideToPay } from "@/components/SlideToPay";
 
 const OrderCashSummary = () => {
@@ -26,13 +29,44 @@ const OrderCashSummary = () => {
   const [rewardError, setRewardError] = useState("");
   const [rewardApplied, setRewardApplied] = useState(false);
 
+  // Tip State
+  const [isTipContainerVisible, setIsTipContainerVisible] = useState(false);
+  const [selectedTipOption, setSelectedTipOption] = useState<string | null>(null);
+  const [tipAmount, setTipAmount] = useState(0);
+  const [customTipValue, setCustomTipValue] = useState("");
+
   // Calculations
   const parsedAmount = parseFloat((amount || "0").toString().replace(/,/g, "")) || 0;
   const parsedRewardPoints = rewardApplied && rewardPoints ? parseInt(rewardPoints, 10) : 0;
   const deliveryFee = 30;
   const gst = parsedAmount * 0.18;
   const platformFee = 6.60;
-  const totalAmount = parsedAmount - parsedRewardPoints + deliveryFee + gst + platformFee;
+  const totalAmount = parsedAmount - parsedRewardPoints + deliveryFee + gst + platformFee + tipAmount;
+
+  const handleTipSelect = (option: string) => {
+    setSelectedTipOption(option);
+    if (option === "other") {
+      setTipAmount(0);
+      setCustomTipValue("");
+    } else {
+      setTipAmount(parseInt(option, 10));
+    }
+  };
+
+  const handleClearTip = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedTipOption(null);
+    setTipAmount(0);
+    setCustomTipValue("");
+  };
+
+  const handleCustomTipChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (/^\d*$/.test(val)) {
+      setCustomTipValue(val);
+      setTipAmount(val ? parseInt(val, 10) : 0);
+    }
+  };
 
   const handlePay = () => {
       navigate("/order-cash-success");
@@ -259,6 +293,102 @@ const OrderCashSummary = () => {
             )}
         </div>
 
+        {/* Delivery Tip Container */}
+        {isTipContainerVisible && (
+            <div
+                style={containerStyle}
+                className="w-full p-[20px]"
+            >
+                {/* Header */}
+                <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                        <span className="text-white text-[16px] font-medium font-sans">Delivery Tip</span>
+                        <Info className="w-4 h-4 text-white" />
+                    </div>
+                    <button onClick={() => setIsTipContainerVisible(false)}>
+                        <ChevronUp className="w-5 h-5 text-white/60" />
+                    </button>
+                </div>
+
+                {/* Subtext */}
+                <p className="text-white/80 text-[13px] font-normal font-sans mb-5 leading-snug">
+                    A small tip, goes a big way! Totally optional — but your rider will appreciate it ❤️
+                </p>
+
+                {/* Pills Row */}
+                <div className="flex items-center gap-3">
+                    {['10', '20', '30'].map((val) => (
+                        <div key={val} className="relative">
+                            <button
+                                onClick={() => handleTipSelect(val)}
+                                className="w-[74px] h-[38px] flex items-center justify-center transition-all relative z-10"
+                                style={{
+                                    backgroundImage: `url(${selectedTipOption === val ? selectedPillBg : pillBg})`,
+                                    backgroundSize: '100% 100%',
+                                    backgroundRepeat: 'no-repeat',
+                                }}
+                            >
+                                <span className="text-white font-medium font-sans text-[15px]">₹{val}</span>
+                                {selectedTipOption === val && (
+                                    <div
+                                        onClick={handleClearTip}
+                                        className="absolute top-[2px] right-[2px] w-5 h-5 flex items-center justify-center cursor-pointer hover:opacity-80 z-20"
+                                    >
+                                        <img src={xIcon} alt="Remove" className="w-[10px] h-[10px]" />
+                                    </div>
+                                )}
+                            </button>
+                            {/* Most Tipped Badge (Only for 20) */}
+                            {val === '20' && (
+                                <div className="absolute -bottom-[6px] left-0 right-0 h-[14px] bg-[#5260FE] flex items-center justify-center rounded-b-[10px] z-20 pointer-events-none">
+                                    <span className="text-white text-[7px] font-bold font-sans uppercase tracking-wider">
+                                        MOST TIPPED
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+
+                    {/* Other Button */}
+                    <div className="relative">
+                        <button
+                            onClick={() => handleTipSelect('other')}
+                            className="w-[74px] h-[38px] flex items-center justify-center transition-all relative z-10"
+                            style={{
+                                backgroundImage: `url(${selectedTipOption === 'other' ? selectedPillBg : pillBg})`,
+                                backgroundSize: '100% 100%',
+                                backgroundRepeat: 'no-repeat',
+                            }}
+                        >
+                            <span className="text-white font-medium font-sans text-[15px]">Other</span>
+                            {selectedTipOption === 'other' && (
+                                <div
+                                    onClick={handleClearTip}
+                                    className="absolute top-[2px] right-[2px] w-5 h-5 flex items-center justify-center cursor-pointer hover:opacity-80 z-20"
+                                >
+                                    <img src={xIcon} alt="Remove" className="w-[10px] h-[10px]" />
+                                </div>
+                            )}
+                        </button>
+                    </div>
+                </div>
+
+                {/* Custom Input */}
+                {selectedTipOption === 'other' && (
+                    <div className="mt-[15px] h-[48px] w-full bg-[#191919] rounded-full border border-white/10 flex items-center px-4">
+                        <span className="text-white font-medium font-sans mr-2">₹</span>
+                        <input
+                            type="text"
+                            placeholder="Enter tip amount"
+                            value={customTipValue}
+                            onChange={handleCustomTipChange}
+                            className="bg-transparent text-white font-sans text-[14px] placeholder:text-white/30 focus:outline-none w-full"
+                        />
+                    </div>
+                )}
+            </div>
+        )}
+
         {/* To Pay */}
         <div style={containerStyle} className="w-full overflow-hidden">
              <div
@@ -316,7 +446,19 @@ const OrderCashSummary = () => {
                          {/* Cost Breakdown - Section 2 */}
                         <div className="flex justify-between items-center mb-[2px]">
                             <span className="text-white font-light font-sans text-[13px]">Delivery Tip</span>
-                            <span className="text-[#5260FE] cursor-pointer font-medium font-sans text-[13px]">Add Tip</span>
+                            {tipAmount > 0 ? (
+                                <span className="text-white font-bold font-sans text-[13px]">₹{tipAmount}</span>
+                            ) : (
+                                <span
+                                    className="text-[#5260FE] cursor-pointer font-medium font-sans text-[13px]"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setIsTipContainerVisible(true);
+                                    }}
+                                >
+                                    Add Tip
+                                </span>
+                            )}
                         </div>
 
                         <div className="flex justify-between items-center mb-[2px]">
