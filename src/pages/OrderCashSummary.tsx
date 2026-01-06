@@ -170,29 +170,27 @@ const OrderCashSummary = () => {
 
         {/* To Pay */}
         <div style={containerStyle} className="w-full overflow-hidden">
-             <button
-                className="w-full py-[14px] px-[12px] flex items-center justify-between"
-                onClick={() => setIsPayOpen(!isPayOpen)}
+             <div
+                className="w-full py-[14px] px-[12px] flex flex-col"
             >
-                <div className="flex items-center gap-2">
-                    <span className="text-white text-[16px] font-medium font-sans">To Pay</span>
-                    <span className="text-white text-[16px] font-medium font-sans">
-                        +₹{amount}
-                    </span>
+                <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-2">
+                        <span className="text-white text-[16px] font-medium font-sans">To Pay</span>
+                        <span className="text-white text-[16px] font-medium font-sans">
+                            +₹{amount}
+                        </span>
+                    </div>
+                    <img
+                        src={chevronDownIcon}
+                        alt="Toggle"
+                        className="w-4 h-4"
+                    />
                 </div>
-                <img
-                    src={chevronDownIcon}
-                    alt="Toggle"
-                    className={`w-4 h-4 transition-transform ${isPayOpen ? 'rotate-180' : ''}`}
-                />
-            </button>
-            {isPayOpen && (
-                <div className="px-[12px] pb-[14px]">
-                    <p className="text-white/60 text-[12px] font-normal font-sans">
-                        Incl. all taxes & charges
-                    </p>
-                </div>
-            )}
+
+                <p className="text-white/60 text-[12px] font-normal font-sans mt-[6px]">
+                    Incl. all taxes & charges
+                </p>
+            </div>
         </div>
 
       </div>
