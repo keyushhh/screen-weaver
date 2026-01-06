@@ -201,7 +201,7 @@ const OrderCashSummary = () => {
             </button>
             {isRewardsOpen && (
                 <div className="px-[12px] pb-[16px]">
-                     <p className="text-white text-[14px] font-medium font-sans mt-[6px] mb-[21px]">
+                     <p className="text-white text-[14px] font-medium font-sans -mt-[7px] mb-[21px]">
                         You have 12,000 points available
                      </p>
 
