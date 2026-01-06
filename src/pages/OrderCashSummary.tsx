@@ -19,12 +19,20 @@ const OrderCashSummary = () => {
   const { amount } = location.state || { amount: "0.00" };
 
   const [isRewardsOpen, setIsRewardsOpen] = useState(false);
-  const [isPayOpen, setIsPayOpen] = useState(true);
+  const [isPayOpen, setIsPayOpen] = useState(false);
 
   // Rewards State
   const [rewardPoints, setRewardPoints] = useState("");
   const [rewardError, setRewardError] = useState("");
   const [rewardApplied, setRewardApplied] = useState(false);
+
+  // Calculations
+  const parsedAmount = parseFloat((amount || "0").toString().replace(/,/g, "")) || 0;
+  const parsedRewardPoints = rewardApplied && rewardPoints ? parseInt(rewardPoints, 10) : 0;
+  const deliveryFee = 30;
+  const gst = parsedAmount * 0.18;
+  const platformFee = 6.60;
+  const totalAmount = parsedAmount - parsedRewardPoints + deliveryFee + gst + platformFee;
 
   const handlePay = () => {
       navigate("/order-cash-success");
@@ -254,7 +262,8 @@ const OrderCashSummary = () => {
         {/* To Pay */}
         <div style={containerStyle} className="w-full overflow-hidden">
              <div
-                className="w-full py-[14px] px-[12px] flex flex-col"
+                className={`w-full px-[12px] flex flex-col cursor-pointer transition-all pt-[14px] ${isPayOpen ? 'pb-0' : 'pb-[14px]'}`}
+                onClick={() => setIsPayOpen(!isPayOpen)}
             >
                 <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-2">
@@ -266,13 +275,70 @@ const OrderCashSummary = () => {
                     <img
                         src={chevronDownIcon}
                         alt="Toggle"
-                        className="w-4 h-4"
+                        className={`w-4 h-4 transition-transform duration-200 ${isPayOpen ? 'rotate-180' : ''}`}
                     />
                 </div>
 
                 <p className="text-white/60 text-[12px] font-normal font-sans mt-[6px]">
                     Incl. all taxes & charges
                 </p>
+
+                {isPayOpen && (
+                    <div className="w-full mt-[10px]">
+                        {/* Divider 1 */}
+                        <div className="w-full h-[1px] bg-[#202020] mb-[10px]" />
+
+                        {/* Cost Breakdown - Section 1 */}
+                        <div className="flex justify-between items-center mb-[2px]">
+                            <span className="text-white font-light font-sans text-[13px]">Item Value</span>
+                            <span className="text-white font-bold font-sans text-[13px]">₹{parsedAmount}</span>
+                        </div>
+
+                        {rewardApplied && (
+                             <div className="flex justify-between items-center mb-[2px]">
+                                <span className="text-white font-light font-sans text-[13px]">Reward Points</span>
+                                <span className="text-[#FF3B30] font-bold font-sans text-[13px]">-₹{parsedRewardPoints}</span>
+                            </div>
+                        )}
+
+                        <div className="flex justify-between items-center">
+                            <span className="text-white font-light font-sans text-[13px]">Delivery Fee | 1.2 kms</span>
+                            <span className="text-white font-bold font-sans text-[13px]">₹{deliveryFee}</span>
+                        </div>
+
+                        <p className="text-white/50 font-light font-sans text-[13px] mt-[12px] mb-[8px] leading-snug">
+                            This fee fairly goes to our delivery partners for delivering your orders.
+                        </p>
+
+                        {/* Divider 2 */}
+                        <div className="w-full h-[1px] bg-[#202020] mb-[8px]" />
+
+                         {/* Cost Breakdown - Section 2 */}
+                        <div className="flex justify-between items-center mb-[2px]">
+                            <span className="text-white font-light font-sans text-[13px]">Delivery Tip</span>
+                            <span className="text-[#5260FE] cursor-pointer font-medium font-sans text-[13px]">Add Tip</span>
+                        </div>
+
+                        <div className="flex justify-between items-center mb-[2px]">
+                            <span className="text-white font-light font-sans text-[13px]">GST (18%)</span>
+                            <span className="text-white font-bold font-sans text-[13px]">₹{gst.toFixed(2)}</span>
+                        </div>
+
+                        <div className="flex justify-between items-center mb-[8px]">
+                            <span className="text-white font-light font-sans text-[13px]">Platform Fee</span>
+                            <span className="text-white font-bold font-sans text-[13px]">₹{platformFee.toFixed(2)}</span>
+                        </div>
+
+                        {/* Divider 3 */}
+                        <div className="w-full h-[1px] bg-[#202020] mb-[8px]" />
+
+                        {/* Total */}
+                         <div className="flex justify-between items-center pb-[18px]">
+                            <span className="text-white font-medium font-sans text-[15px]">Total Payable</span>
+                            <span className="text-white font-bold font-sans text-[15px]">₹{totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}</span>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
 
