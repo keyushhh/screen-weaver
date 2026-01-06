@@ -34,7 +34,7 @@ const OrderCashSummary = () => {
 
   return (
     <div
-      className="h-full w-full overflow-hidden flex flex-col safe-area-top safe-area-bottom"
+      className="h-full w-full overflow-hidden flex flex-col"
       style={{
         backgroundColor: "#0a0a12",
         backgroundImage: `url(${bgDarkMode})`,
@@ -43,8 +43,8 @@ const OrderCashSummary = () => {
         backgroundRepeat: "no-repeat",
       }}
     >
-      {/* Header */}
-      <div className="px-5 pt-4 flex items-center justify-between z-10 mb-6">
+      {/* Header - Fixed Height or Block */}
+      <div className="flex-none px-5 pt-4 flex items-center justify-between z-10 mb-6 safe-area-top">
         <button
           onClick={() => navigate("/order-cash")}
           className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md relative z-20"
@@ -57,8 +57,8 @@ const OrderCashSummary = () => {
         <div className="w-10" />
       </div>
 
-      {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto px-5 pb-[300px] space-y-[10px] no-scrollbar">
+      {/* Scrollable Content - Flex 1 */}
+      <div className="flex-1 overflow-y-auto px-5 space-y-[10px] no-scrollbar">
 
         {/* Address Section */}
         <div
@@ -198,11 +198,14 @@ const OrderCashSummary = () => {
             </div>
         </div>
 
+        {/* Padding for visual separation before CTA, if needed, but flex handles pushing */}
+        <div className="h-4 flex-none" />
+
       </div>
 
-      {/* Fixed Bottom Sheet Overlay */}
+      {/* Fixed Bottom Sheet - NOW FLEX ITEM */}
       <div
-        className="fixed bottom-0 left-0 right-0 z-50 rounded-t-[30px] p-5 pb-10 flex flex-col gap-4"
+        className="flex-none w-full z-20 rounded-t-[30px] p-5 pb-10 flex flex-col gap-4 safe-area-bottom"
         style={{
             backgroundColor: "#000000",
             boxShadow: "0px -10px 40px rgba(0,0,0,0.5)"

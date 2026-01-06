@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import slideTrack from '@/assets/slide-to-pay-track.png';
 import slideSuccess from '@/assets/slide-to-pay-success.png';
 import swipeCircle from '@/assets/swipe-circle.png';
+import swipeIcon from '@/assets/swipe.svg';
 
 interface SlideToPayProps {
   onComplete: () => void;
@@ -53,10 +54,7 @@ export const SlideToPay: React.FC<SlideToPayProps> = ({ onComplete, className = 
     if (dragX > maxDrag * 0.85) {
       setCompleted(true);
       setDragX(maxDrag);
-      // Trigger callback after a slight delay or immediately, but UI update happens first
-      // The parent might handle navigation, but we want to show the "Verifying" state here.
       setTimeout(() => {
-          console.log("SlideToPay: Calling onComplete");
           onComplete();
       }, 2000);
     } else {
@@ -113,17 +111,24 @@ export const SlideToPay: React.FC<SlideToPayProps> = ({ onComplete, className = 
             ref={thumbRef}
             onMouseDown={handleStart}
             onTouchStart={handleStart}
-            className="absolute top-1/2 left-[2%] cursor-grab active:cursor-grabbing z-10"
+            className="absolute top-1/2 left-[2%] cursor-grab active:cursor-grabbing z-10 flex items-center justify-center"
             style={{
-            transform: `translate(${dragX}px, -50%)`,
-            transition: isDragging ? 'none' : 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-            height: '82%',
-            aspectRatio: '1/1',
-            backgroundImage: `url(${swipeCircle})`,
-            backgroundSize: 'contain',
-            backgroundRepeat: 'no-repeat'
+                transform: `translate(${dragX}px, -50%)`,
+                transition: isDragging ? 'none' : 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                height: '82%',
+                aspectRatio: '1/1',
+                backgroundImage: `url(${swipeCircle})`,
+                backgroundSize: 'contain',
+                backgroundRepeat: 'no-repeat'
             }}
-        />
+        >
+            {/* Swipe Icon */}
+            <img
+                src={swipeIcon}
+                alt=""
+                className="w-[40%] h-[40%] object-contain pointer-events-none"
+            />
+        </div>
       )}
     </div>
   );
