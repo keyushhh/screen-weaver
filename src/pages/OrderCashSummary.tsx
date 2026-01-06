@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import locationIcon from "@/assets/location.svg";
@@ -10,7 +10,6 @@ import chevronDownIcon from "@/assets/chevron-down.svg";
 import circleButtonBg from "@/assets/circle-button.png";
 import pillContainerBg from "@/assets/pill-container-bg.png";
 import applyButtonBg from "@/assets/apply-button-bg.png";
-import checkIcon from "@/assets/check-icon.png";
 import { SlideToPay } from "@/components/SlideToPay";
 
 const OrderCashSummary = () => {
@@ -198,7 +197,7 @@ const OrderCashSummary = () => {
             </button>
             {isRewardsOpen && (
                 <div className="px-[12px] pb-[16px]">
-                     <p className="text-white text-[14px] font-medium font-sans mb-[12px]">
+                     <p className="text-white text-[14px] font-medium font-sans mt-[6px] mb-[21px]">
                         You have 12,000 points available
                      </p>
 
@@ -215,7 +214,7 @@ const OrderCashSummary = () => {
                             {/* Check Icon inside Input */}
                             {rewardApplied && (
                                 <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                                    <img src={checkIcon} alt="Applied" className="w-4 h-4" />
+                                    <Check className="w-4 h-4 text-[#1CB956]" strokeWidth={3} />
                                 </div>
                             )}
                         </div>
@@ -234,7 +233,7 @@ const OrderCashSummary = () => {
                                 backgroundPosition: 'center'
                             }}
                         >
-                            <span className="text-black text-[14px] font-bold font-sans">
+                            <span className="text-white text-[14px] font-bold font-sans">
                                 {rewardApplied ? "Applied" : "Apply"}
                             </span>
                         </button>
