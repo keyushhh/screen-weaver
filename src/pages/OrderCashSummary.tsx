@@ -373,7 +373,11 @@ const OrderCashSummary = () => {
                                             backgroundRepeat: 'no-repeat',
                                         }}
                                     >
-                                        <span className={`text-white font-medium font-sans text-[15px] z-20 relative ${val === '20' ? 'pb-[6px]' : ''}`}>₹{val}</span>
+                                        <span
+                                            className={`text-white font-medium font-sans text-[15px] z-20 relative leading-none ${val === '20' ? '-translate-y-[3px]' : ''}`}
+                                        >
+                                            ₹{val}
+                                        </span>
 
                                         {selectedTipOption === val && (
                                             <div
@@ -382,15 +386,15 @@ const OrderCashSummary = () => {
                                                     handleClearTip(e);
                                                     setIsTipContainerVisible(false);
                                                 }}
-                                                className={`absolute z-30 cursor-pointer hover:opacity-80 flex items-center justify-center w-[16px] h-[16px] ${val === '20' ? 'top-[4px] right-[4px]' : 'top-1/2 -translate-y-1/2 right-[6px]'}`}
+                                                className="absolute top-[6px] right-[6px] z-30 cursor-pointer hover:opacity-80 flex items-center justify-center w-[12px] h-[12px]"
                                             >
-                                                <img src={crossIcon} alt="Remove" className="w-[10px] h-[10px] object-contain" />
+                                                <img src={crossIcon} alt="Remove" className="w-full h-full object-contain" />
                                             </div>
                                         )}
 
                                         {/* Most Tipped Badge (Only for 20) - Inside Button */}
                                         {val === '20' && (
-                                            <div className="absolute bottom-0 left-0 right-0 h-[12px] bg-[#5260FE] flex items-center justify-center z-10 pointer-events-none rounded-b-[13px]">
+                                            <div className="absolute bottom-0 left-0 right-0 h-[12px] bg-[#5260FE] flex items-center justify-center z-10 pointer-events-none rounded-b-[10px]">
                                                 <span className="text-white text-[7px] font-bold font-sans uppercase tracking-wider leading-none">
                                                     MOST TIPPED
                                                 </span>
@@ -411,16 +415,16 @@ const OrderCashSummary = () => {
                                         backgroundRepeat: 'no-repeat',
                                     }}
                                 >
-                                    <span className="text-white font-medium font-sans text-[15px] z-20 relative">Other</span>
+                                    <span className="text-white font-medium font-sans text-[15px] z-20 relative leading-none">Other</span>
                                     {selectedTipOption === 'other' && (
                                         <div
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 handleClearCustomTip();
                                             }}
-                                            className="absolute top-1/2 -translate-y-1/2 right-[6px] w-[16px] h-[16px] flex items-center justify-center cursor-pointer hover:opacity-80 z-30"
+                                            className="absolute top-[6px] right-[6px] w-[12px] h-[12px] flex items-center justify-center cursor-pointer hover:opacity-80 z-30"
                                         >
-                                            <img src={crossIcon} alt="Remove" className="w-[10px] h-[10px] object-contain" />
+                                            <img src={crossIcon} alt="Remove" className="w-full h-full object-contain" />
                                         </div>
                                     )}
                                 </button>
