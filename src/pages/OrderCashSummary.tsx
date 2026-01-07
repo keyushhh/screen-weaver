@@ -329,7 +329,7 @@ const OrderCashSummary = () => {
                                 <div key={val} className="relative shrink-0" style={{ width: '74px', height: '38px' }}>
                                     <button
                                         onClick={() => handleTipSelect(val)}
-                                        className="relative block w-full h-full transition-all z-10 overflow-hidden p-0 m-0 border-none outline-none"
+                                        className={`relative block w-full h-full transition-all z-10 overflow-hidden p-0 m-0 border-none outline-none ${val === '20' ? 'rounded-[19px]' : ''}`}
                                         style={{
                                             backgroundImage: `url(${selectedTipOption === val ? selectedPillBg : pillBg})`,
                                             backgroundSize: '100% 100%',
