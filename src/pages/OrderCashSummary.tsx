@@ -447,7 +447,15 @@ const OrderCashSummary = () => {
                         <div className="flex justify-between items-center mb-[2px]">
                             <span className="text-white font-light font-sans text-[13px]">Delivery Tip</span>
                             {tipAmount > 0 ? (
-                                <span className="text-white font-bold font-sans text-[13px]">₹{tipAmount}</span>
+                                <span
+                                    className="text-white font-bold font-sans text-[13px] cursor-pointer hover:underline"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setIsTipContainerVisible(true);
+                                    }}
+                                >
+                                    ₹{tipAmount}
+                                </span>
                             ) : (
                                 <span
                                     className="text-[#5260FE] cursor-pointer font-medium font-sans text-[13px]"
