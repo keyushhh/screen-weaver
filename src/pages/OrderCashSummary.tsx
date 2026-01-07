@@ -32,6 +32,7 @@ const OrderCashSummary = () => {
 
   // Tip State
   const [isTipContainerVisible, setIsTipContainerVisible] = useState(false);
+  const [isTipCollapsed, setIsTipCollapsed] = useState(false);
   const [selectedTipOption, setSelectedTipOption] = useState<string | null>(null);
   const [tipAmount, setTipAmount] = useState(0);
   const [customTipValue, setCustomTipValue] = useState("");
@@ -47,8 +48,12 @@ const OrderCashSummary = () => {
   const handleTipSelect = (option: string) => {
     setSelectedTipOption(option);
     if (option === "other") {
+      // When switching to other, we reset applied tip until they click apply
       setTipAmount(0);
-      setCustomTipValue("");
+      // Keep existing custom value if any, or empty?
+      // Requirement: "Input field must show the previously entered value" logic handled in Apply/Clear
+      // But if switching *to* Other fresh, assume empty unless persisted state needed.
+      // Current simplified: Reset applied tip.
     } else {
       setTipAmount(parseInt(option, 10));
     }
@@ -65,8 +70,31 @@ const OrderCashSummary = () => {
     const val = e.target.value;
     if (/^\d*$/.test(val)) {
       setCustomTipValue(val);
-      setTipAmount(val ? parseInt(val, 10) : 0);
+      // Do NOT update tipAmount immediately for "Other"
     }
+  };
+
+  const handleApplyCustomTip = () => {
+    const val = parseInt(customTipValue, 10);
+    if (!isNaN(val) && val > 0) {
+        setTipAmount(val);
+    }
+  };
+
+  const handleClearCustomTip = () => {
+      setCustomTipValue("");
+      setTipAmount(0);
+      setSelectedTipOption(null);
+      setIsTipContainerVisible(false); // Hide container logic
+  };
+
+  const handleCollapseTip = () => {
+      if (tipAmount > 0) {
+          setIsTipCollapsed(!isTipCollapsed);
+      } else {
+          setIsTipContainerVisible(false);
+          setIsTipCollapsed(false);
+      }
   };
 
   const handlePay = () => {
@@ -298,97 +326,113 @@ const OrderCashSummary = () => {
         {isTipContainerVisible && (
             <div
                 style={containerStyle}
-                className="w-full p-[20px]"
+                className="w-full overflow-hidden"
             >
                 {/* Header */}
-                <div className="flex items-center justify-between mb-2">
+                <div
+                    className={`flex items-center justify-between px-[20px] ${isTipCollapsed ? 'py-[14px]' : 'pt-[20px] pb-[2px]'}`}
+                    onClick={() => {
+                        if (isTipCollapsed) setIsTipCollapsed(false);
+                    }}
+                >
                     <div className="flex items-center gap-2">
                         <span className="text-white text-[16px] font-medium font-sans">Delivery Tip</span>
                         <img src={infoIcon} alt="Info" className="w-4 h-4" />
                     </div>
-                    <button onClick={() => setIsTipContainerVisible(false)}>
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleCollapseTip();
+                        }}
+                    >
                         <img
                             src={chevronDownIcon}
                             alt="Collapse"
-                            className="w-4 h-4 rotate-180 opacity-60"
+                            className={`w-4 h-4 transition-transform duration-200 ${!isTipCollapsed ? 'rotate-180' : ''}`}
                         />
                     </button>
                 </div>
 
-                {/* Subtext */}
-                <p className="text-white/80 text-[13px] font-normal font-sans mb-5 leading-snug">
-                    A small tip, goes a big way! Totally optional — but your rider will appreciate it ❤️
-                </p>
+                {!isTipCollapsed && (
+                    <div className="px-[20px] pb-[20px]">
+                        {/* Subtext */}
+                        <p className="text-white/80 text-[13px] font-normal font-sans mb-5 leading-snug">
+                            A small tip, goes a big way! Totally optional — but your rider will appreciate it ❤️
+                        </p>
 
-                {/* Pills Row */}
-                <div className="flex items-center gap-3">
-                    {['10', '20', '30'].map((val) => (
-                        <div key={val} className="relative">
-                            <button
-                                onClick={() => handleTipSelect(val)}
-                                className="w-[74px] h-[38px] flex items-center justify-center transition-all relative z-10 overflow-hidden"
-                                style={{
-                                    backgroundImage: `url(${selectedTipOption === val ? selectedPillBg : pillBg})`,
-                                    backgroundSize: '100% 100%',
-                                    backgroundRepeat: 'no-repeat',
-                                }}
-                            >
-                                <span className={`text-white font-medium font-sans text-[15px] ${val === '20' ? 'mb-1' : ''}`}>₹{val}</span>
-                                {selectedTipOption === val && (
-                                    <div
-                                        onClick={handleClearTip}
-                                        className="absolute top-[5px] right-[5px] w-[10px] h-[10px] flex items-center justify-center cursor-pointer hover:opacity-80 z-30"
+                        {/* Pills Row */}
+                        <div className="flex items-center gap-3">
+                            {['10', '20', '30'].map((val) => (
+                                <div key={val} className="relative">
+                                    <button
+                                        onClick={() => handleTipSelect(val)}
+                                        className="w-[74px] h-[38px] flex items-center justify-center transition-all relative z-10 overflow-hidden"
+                                        style={{
+                                            backgroundImage: `url(${selectedTipOption === val ? selectedPillBg : pillBg})`,
+                                            backgroundSize: '100% 100%',
+                                            backgroundRepeat: 'no-repeat',
+                                        }}
                                     >
-                                        <img src={crossIcon} alt="Remove" className="w-full h-full object-contain" />
-                                    </div>
-                                )}
-                                {/* Most Tipped Badge (Only for 20) - Inside Button */}
-                                {val === '20' && (
-                                    <div className="absolute bottom-0 left-0 right-0 h-[12px] bg-[#5260FE] flex items-center justify-center z-20 pointer-events-none">
-                                        <span className="text-white text-[7px] font-bold font-sans uppercase tracking-wider leading-none">
-                                            MOST TIPPED
-                                        </span>
-                                    </div>
-                                )}
-                            </button>
-                        </div>
-                    ))}
+                                        <div className={`flex items-center justify-center gap-1 ${val === '20' ? 'mb-1' : ''}`}>
+                                            <span className="text-white font-medium font-sans text-[15px]">₹{val}</span>
+                                            {selectedTipOption === val && (
+                                                <img src={crossIcon} alt="Remove" className="w-[10px] h-[10px] object-contain" />
+                                            )}
+                                        </div>
 
-                    {/* Other Button */}
-                    <div className="relative">
-                        <button
-                            onClick={() => handleTipSelect('other')}
-                            className="w-[74px] h-[38px] flex items-center justify-center transition-all relative z-10"
-                            style={{
-                                backgroundImage: `url(${selectedTipOption === 'other' ? selectedPillBg : pillBg})`,
-                                backgroundSize: '100% 100%',
-                                backgroundRepeat: 'no-repeat',
-                            }}
-                        >
-                            <span className="text-white font-medium font-sans text-[15px]">Other</span>
-                            {selectedTipOption === 'other' && (
-                                <div
-                                    onClick={handleClearTip}
-                                    className="absolute top-[5px] right-[5px] w-[10px] h-[10px] flex items-center justify-center cursor-pointer hover:opacity-80 z-30"
-                                >
-                                    <img src={crossIcon} alt="Remove" className="w-full h-full object-contain" />
+                                        {/* Most Tipped Badge (Only for 20) - Inside Button */}
+                                        {val === '20' && (
+                                            <div className="absolute bottom-0 left-0 right-0 h-[12px] bg-[#5260FE] flex items-center justify-center z-20 pointer-events-none rounded-b-[10px]">
+                                                <span className="text-white text-[7px] font-bold font-sans uppercase tracking-wider leading-none">
+                                                    MOST TIPPED
+                                                </span>
+                                            </div>
+                                        )}
+                                    </button>
                                 </div>
-                            )}
-                        </button>
-                    </div>
-                </div>
+                            ))}
 
-                {/* Custom Input */}
-                {selectedTipOption === 'other' && (
-                    <div className="mt-[15px] h-[48px] w-full bg-[#191919] rounded-full border border-white/10 flex items-center px-4">
-                        <span className="text-white font-medium font-sans mr-2">₹</span>
-                        <input
-                            type="text"
-                            placeholder="Enter tip amount"
-                            value={customTipValue}
-                            onChange={handleCustomTipChange}
-                            className="bg-transparent text-white font-sans text-[14px] placeholder:text-white/30 focus:outline-none w-full"
-                        />
+                            {/* Other Button */}
+                            <div className="relative">
+                                <button
+                                    onClick={() => handleTipSelect('other')}
+                                    className="w-[74px] h-[38px] flex items-center justify-center transition-all relative z-10"
+                                    style={{
+                                        backgroundImage: `url(${selectedTipOption === 'other' ? selectedPillBg : pillBg})`,
+                                        backgroundSize: '100% 100%',
+                                        backgroundRepeat: 'no-repeat',
+                                    }}
+                                >
+                                    <div className="flex items-center justify-center gap-1">
+                                        <span className="text-white font-medium font-sans text-[15px]">Other</span>
+                                        {selectedTipOption === 'other' && (
+                                            <img src={crossIcon} alt="Remove" className="w-[10px] h-[10px] object-contain" />
+                                        )}
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Custom Input */}
+                        {selectedTipOption === 'other' && (
+                            <div className="mt-[15px] h-[48px] w-full bg-[#191919] rounded-full border border-white/10 flex items-center pl-4 pr-4">
+                                <span className="text-white font-medium font-sans mr-2">₹</span>
+                                <input
+                                    type="text"
+                                    placeholder="Enter tip amount"
+                                    value={customTipValue}
+                                    onChange={handleCustomTipChange}
+                                    className="bg-transparent text-white font-sans text-[14px] placeholder:text-white/30 focus:outline-none flex-1"
+                                />
+                                {/* Apply / Clear Action */}
+                                <button
+                                    onClick={tipAmount > 0 ? handleClearCustomTip : handleApplyCustomTip}
+                                    className="text-[#5260FE] text-[13px] font-medium font-sans ml-2"
+                                >
+                                    {tipAmount > 0 ? "Clear" : "Apply"}
+                                </button>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
@@ -467,6 +511,7 @@ const OrderCashSummary = () => {
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         setIsTipContainerVisible(true);
+                                        setIsTipCollapsed(false);
                                     }}
                                 >
                                     Add Tip
