@@ -326,16 +326,21 @@ const OrderCashSummary = () => {
                         </p>
                         <div className="flex items-center gap-3">
                             {['10', '20', '30'].map((val) => (
-                                <div key={val} className="relative shrink-0">
+                                <div key={val} className="relative shrink-0" style={{ width: '74px', height: '38px' }}>
                                     <button
                                         onClick={() => handleTipSelect(val)}
-                                        className="relative flex items-center justify-center transition-all z-10 overflow-hidden shrink-0 border-none p-0 m-0 box-border"
+                                        className="relative flex items-center justify-center transition-all z-10 overflow-hidden p-0 m-0 border-none outline-none"
                                         style={{
                                             width: '74px',
                                             height: '38px',
+                                            minWidth: '74px',
+                                            minHeight: '38px',
+                                            maxWidth: '74px',
+                                            maxHeight: '38px',
                                             backgroundImage: `url(${selectedTipOption === val ? selectedPillBg : pillBg})`,
                                             backgroundSize: '100% 100%',
                                             backgroundRepeat: 'no-repeat',
+                                            boxSizing: 'border-box'
                                         }}
                                     >
                                         <span
@@ -365,16 +370,21 @@ const OrderCashSummary = () => {
                                     </button>
                                 </div>
                             ))}
-                            <div className="relative shrink-0">
+                            <div className="relative shrink-0" style={{ width: '74px', height: '38px' }}>
                                 <button
                                     onClick={() => handleTipSelect('other')}
-                                    className="relative flex items-center justify-center transition-all z-10 shrink-0 border-none p-0 m-0 box-border overflow-hidden"
+                                    className="relative flex items-center justify-center transition-all z-10 overflow-hidden p-0 m-0 border-none outline-none"
                                     style={{
                                         width: '74px',
                                         height: '38px',
+                                        minWidth: '74px',
+                                        minHeight: '38px',
+                                        maxWidth: '74px',
+                                        maxHeight: '38px',
                                         backgroundImage: `url(${selectedTipOption === 'other' ? selectedPillBg : pillBg})`,
                                         backgroundSize: '100% 100%',
                                         backgroundRepeat: 'no-repeat',
+                                        boxSizing: 'border-box'
                                     }}
                                 >
                                     <span className="text-white font-medium font-sans text-[15px] z-20 relative leading-none">Other</span>
@@ -471,7 +481,7 @@ const OrderCashSummary = () => {
                                 </span>
                             ) : (
                                 <span
-                                    className="text-[#5260FE] cursor-pointer font-medium font-sans text-[13px]"
+                                    className="text-[#5260FE] cursor-pointer font-medium font-sans text-[13px] relative z-50"
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         setIsTipContainerVisible(true);
