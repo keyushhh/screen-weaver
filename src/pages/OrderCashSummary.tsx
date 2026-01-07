@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ChevronLeft, Info, ChevronUp } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import locationIcon from "@/assets/location.svg";
@@ -13,7 +13,8 @@ import applyButtonBg from "@/assets/apply-button-bg.png";
 import checkSvg from "@/assets/check.svg";
 import pillBg from "@/assets/pill.png";
 import selectedPillBg from "@/assets/selected-pill.png";
-import xIcon from "@/assets/icon-x.svg";
+import crossIcon from "@/assets/cross-icon.png";
+import infoIcon from "@/assets/delivery-tip-info.png";
 import { SlideToPay } from "@/components/SlideToPay";
 
 const OrderCashSummary = () => {
@@ -303,10 +304,14 @@ const OrderCashSummary = () => {
                 <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                         <span className="text-white text-[16px] font-medium font-sans">Delivery Tip</span>
-                        <Info className="w-4 h-4 text-white" />
+                        <img src={infoIcon} alt="Info" className="w-4 h-4" />
                     </div>
                     <button onClick={() => setIsTipContainerVisible(false)}>
-                        <ChevronUp className="w-5 h-5 text-white/60" />
+                        <img
+                            src={chevronDownIcon}
+                            alt="Collapse"
+                            className="w-4 h-4 rotate-180 opacity-60"
+                        />
                     </button>
                 </div>
 
@@ -321,31 +326,31 @@ const OrderCashSummary = () => {
                         <div key={val} className="relative">
                             <button
                                 onClick={() => handleTipSelect(val)}
-                                className="w-[74px] h-[38px] flex items-center justify-center transition-all relative z-10"
+                                className="w-[74px] h-[38px] flex items-center justify-center transition-all relative z-10 overflow-hidden"
                                 style={{
                                     backgroundImage: `url(${selectedTipOption === val ? selectedPillBg : pillBg})`,
                                     backgroundSize: '100% 100%',
                                     backgroundRepeat: 'no-repeat',
                                 }}
                             >
-                                <span className="text-white font-medium font-sans text-[15px]">₹{val}</span>
+                                <span className={`text-white font-medium font-sans text-[15px] ${val === '20' ? 'mb-1' : ''}`}>₹{val}</span>
                                 {selectedTipOption === val && (
                                     <div
                                         onClick={handleClearTip}
-                                        className="absolute top-[2px] right-[2px] w-5 h-5 flex items-center justify-center cursor-pointer hover:opacity-80 z-20"
+                                        className="absolute top-[5px] right-[5px] w-[10px] h-[10px] flex items-center justify-center cursor-pointer hover:opacity-80 z-30"
                                     >
-                                        <img src={xIcon} alt="Remove" className="w-[10px] h-[10px]" />
+                                        <img src={crossIcon} alt="Remove" className="w-full h-full object-contain" />
+                                    </div>
+                                )}
+                                {/* Most Tipped Badge (Only for 20) - Inside Button */}
+                                {val === '20' && (
+                                    <div className="absolute bottom-0 left-0 right-0 h-[12px] bg-[#5260FE] flex items-center justify-center z-20 pointer-events-none">
+                                        <span className="text-white text-[7px] font-bold font-sans uppercase tracking-wider leading-none">
+                                            MOST TIPPED
+                                        </span>
                                     </div>
                                 )}
                             </button>
-                            {/* Most Tipped Badge (Only for 20) */}
-                            {val === '20' && (
-                                <div className="absolute -bottom-[6px] left-0 right-0 h-[14px] bg-[#5260FE] flex items-center justify-center rounded-b-[10px] z-20 pointer-events-none">
-                                    <span className="text-white text-[7px] font-bold font-sans uppercase tracking-wider">
-                                        MOST TIPPED
-                                    </span>
-                                </div>
-                            )}
                         </div>
                     ))}
 
@@ -364,9 +369,9 @@ const OrderCashSummary = () => {
                             {selectedTipOption === 'other' && (
                                 <div
                                     onClick={handleClearTip}
-                                    className="absolute top-[2px] right-[2px] w-5 h-5 flex items-center justify-center cursor-pointer hover:opacity-80 z-20"
+                                    className="absolute top-[5px] right-[5px] w-[10px] h-[10px] flex items-center justify-center cursor-pointer hover:opacity-80 z-30"
                                 >
-                                    <img src={xIcon} alt="Remove" className="w-[10px] h-[10px]" />
+                                    <img src={crossIcon} alt="Remove" className="w-full h-full object-contain" />
                                 </div>
                             )}
                         </button>
