@@ -9,7 +9,7 @@ import bgDarkMode from "@/assets/bg-dark-mode.png";
 import logo from "@/assets/logo.svg";
 import iconGoogle from "@/assets/icon-google.svg";
 import iconApple from "@/assets/icon-apple.svg";
-import iconX from "@/assets/icon-x.svg";
+import iconX from "@/assets/cross-icon.png";
 import otpInputField from "@/assets/otp-input-field.png";
 import toggleOn from "@/assets/toggle-on.svg";
 import toggleOff from "@/assets/toggle-off.svg";
