@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronDown } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import GlassCalendar from "@/components/GlassCalendar";
 import timeIcon from "@/assets/time-icon.png";
@@ -12,7 +12,6 @@ const ScheduleDelivery = () => {
 
   // Time state
   const [selectedTime, setSelectedTime] = useState("7:00 am");
-  const [isAmPmOpen, setIsAmPmOpen] = useState(false);
   const [meridiem, setMeridiem] = useState<"AM" | "PM">("AM");
 
   // Time slots generation
@@ -26,7 +25,7 @@ const ScheduleDelivery = () => {
       for (let min = 0; min < 60; min += 30) {
         // Format time
         let displayHour = hour > 12 ? hour - 12 : hour;
-        if (displayHour === 0) displayHour = 12; // Should not happen with 6am start but safe check
+        if (displayHour === 0) displayHour = 12;
 
         const displayMin = min === 0 ? "00" : min;
         const ampm = hour >= 12 ? "PM" : "AM";
@@ -37,20 +36,19 @@ const ScheduleDelivery = () => {
     return slots;
   };
 
-  const timeSlots = generateTimeSlots();
+  const allTimeSlots = generateTimeSlots();
+
+  // Filter slots based on selected meridiem
+  const filteredTimeSlots = allTimeSlots.filter(time =>
+    time.toLowerCase().includes(meridiem.toLowerCase())
+  );
 
   // Parse current selected time for clock hands
   const getClockRotation = () => {
-    // Parse "7:00 am" -> hour 7, min 0
-    const [timePart, amPmPart] = selectedTime.split(" ");
+    const [timePart] = selectedTime.split(" ");
     const [hourStr, minStr] = timePart.split(":");
     let hour = parseInt(hourStr);
     const minute = parseInt(minStr);
-
-    // Adjust hour for calculation (12 should be treated as 0 offset for visual calculation if we want standard 360)
-    // But standard clock: 12 is top (0 deg).
-    // Hour hand: (hour % 12 + minute/60) * 30
-    // Minute hand: minute * 6
 
     const hourRotation = ((hour % 12) + minute / 60) * 30;
     const minuteRotation = minute * 6;
@@ -66,19 +64,15 @@ const ScheduleDelivery = () => {
   // Scroll to selected time on mount/change
   useEffect(() => {
     if (scrollRef.current) {
-      // Find index of selected time
-      const index = timeSlots.indexOf(selectedTime);
+      const index = filteredTimeSlots.indexOf(selectedTime);
       if (index !== -1) {
-        // 5 items visible, item height approx 30px?
-        // Let's assume item height is 40px based on visual spacing
-        // Center the selected item
-        const itemHeight = 32; // refined guess
-        // We want selected item in middle (3rd position of 5)
-        // offset = index * itemHeight - (containerHeight / 2) + (itemHeight / 2)
-        // container is approx 160px?
+        // Scroll logic to center the element
+        // Item height (16px font + line height + 4px gap) ~ roughly 24-28px
+        // Better to just rely on user interaction or simple scroll into view if needed
+        // For now, leaving auto-scroll logic basic or manual
       }
     }
-  }, [selectedTime]);
+  }, [selectedTime, meridiem]);
 
   return (
     <div
@@ -126,16 +120,16 @@ const ScheduleDelivery = () => {
             />
         </div>
 
-        {/* Time Selection */}
+        {/* Time Selection Container */}
         <div
             className="w-full rounded-[24px] overflow-hidden backdrop-blur-[24px] border border-white/10"
             style={{
                 backgroundColor: "rgba(25, 25, 25, 0.30)",
-                height: "238px"
+                paddingBottom: "24px"
             }}
         >
             {/* Header */}
-            <div className="flex items-center justify-between px-5 pt-4">
+            <div className="flex items-center justify-between px-5 py-4">
                 <div className="flex items-center gap-2">
                     <img src={timeIcon} alt="Time" className="w-[22px] h-[22px]" />
                     <span className="text-white text-[15px] font-bold">Time</span>
@@ -143,77 +137,108 @@ const ScheduleDelivery = () => {
                 <span className="text-white text-[15px] font-bold">{selectedTime}</span>
             </div>
 
-            {/* Content: Clock + Picker */}
-            <div className="flex items-center justify-between px-8 pt-6">
-                {/* Clock Visual */}
-                <div
-                    className="relative w-[120px] h-[120px] rounded-full"
-                    style={{
-                        backgroundImage: `url(${clockBase})`,
-                        backgroundSize: 'cover'
-                    }}
-                >
-                    {/* Pivot */}
-                    <div className="absolute top-1/2 left-1/2 w-1.5 h-1.5 bg-white rounded-full -translate-x-1/2 -translate-y-1/2 z-20 shadow-sm" />
-
-                    {/* Hour Hand */}
-                    <div
-                        className="absolute left-1/2 bottom-1/2 w-[2px] bg-white rounded-full origin-bottom z-10"
-                        style={{
-                            height: '18.5px',
-                            transform: `translateX(-50%) rotate(${hourRotation}deg)`
-                        }}
-                    />
-
-                    {/* Minute Hand */}
-                    <div
-                        className="absolute left-1/2 bottom-1/2 w-[1px] bg-white rounded-full origin-bottom z-10"
-                        style={{
-                            height: '34px',
-                            transform: `translateX(-50%) rotate(${minuteRotation}deg)`
-                        }}
-                    />
+            {/* Inner Container: Clock + Picker */}
+            <div
+                className="mx-5 rounded-[24px] overflow-hidden backdrop-blur-[24px] border border-white/10 relative"
+                style={{
+                    backgroundColor: "rgba(25, 25, 25, 0.30)",
+                    height: "150px"
+                }}
+            >
+                {/* AM/PM Switch - Absolute Positioned Top Right */}
+                <div className="absolute top-[9px] right-[10px] flex flex-col items-center z-20">
+                    <button
+                        onClick={() => setMeridiem("AM")}
+                        className={`text-[12px] font-bold transition-opacity ${meridiem === "AM" ? "text-white opacity-100" : "text-white opacity-50"}`}
+                    >
+                        AM
+                    </button>
+                    <div className="h-[1px] w-[30px] bg-[#2D2D30] my-[4px]" />
+                    <button
+                        onClick={() => setMeridiem("PM")}
+                        className={`text-[12px] font-bold transition-opacity ${meridiem === "PM" ? "text-white opacity-100" : "text-white opacity-50"}`}
+                    >
+                        PM
+                    </button>
                 </div>
 
-                {/* Time Scroll Picker */}
-                <div className="flex items-start gap-4 h-[140px] relative">
-                    {/* Time List */}
+                {/* Content */}
+                <div className="flex items-center justify-between pl-8 pr-16 h-full">
+                    {/* Clock Visual */}
                     <div
-                        className="h-full w-[80px] overflow-y-auto no-scrollbar snap-y snap-mandatory py-[54px]"
-                        ref={scrollRef}
+                        className="relative w-[120px] h-[120px] rounded-full shrink-0"
+                        style={{
+                            backgroundImage: `url(${clockBase})`,
+                            backgroundSize: 'cover'
+                        }}
                     >
-                        {timeSlots.map((time) => {
-                            // Extract just the time part for display if needed, or full string
-                            // The design shows "7:00 am" styling
-                            const isSelected = time === selectedTime;
-                            return (
-                                <div
-                                    key={time}
-                                    onClick={() => setSelectedTime(time)}
-                                    className={`snap-center h-[32px] flex items-center justify-center cursor-pointer transition-all duration-300 ${isSelected ? 'text-white text-[20px] font-bold' : 'text-white/20 text-[16px] font-medium'}`}
-                                >
-                                    {time}
-                                </div>
-                            );
-                        })}
+                        {/* Pivot */}
+                        <div className="absolute top-1/2 left-1/2 w-1.5 h-1.5 bg-white rounded-full -translate-x-1/2 -translate-y-1/2 z-20 shadow-sm" />
+
+                        {/* Hour Hand */}
+                        <div
+                            className="absolute left-1/2 bottom-1/2 w-[2px] bg-white rounded-full origin-bottom z-10"
+                            style={{
+                                height: '18.5px',
+                                transform: `translateX(-50%) rotate(${hourRotation}deg)`
+                            }}
+                        />
+
+                        {/* Minute Hand */}
+                        <div
+                            className="absolute left-1/2 bottom-1/2 w-[1px] bg-white rounded-full origin-bottom z-10"
+                            style={{
+                                height: '34px',
+                                transform: `translateX(-50%) rotate(${minuteRotation}deg)`
+                            }}
+                        />
                     </div>
 
-                    {/* AM/PM Toggle (Visual mainly based on screenshot, looks like a toggle) */}
-                    <div className="flex flex-col gap-1 mt-[40px]">
-                        <div className="text-white font-bold text-[14px]">AM</div>
-                        <div className="text-white/20 font-medium text-[14px]">PM</div>
-                    </div>
+                    {/* Time List Container */}
+                    <div className="relative h-[111px] w-[90px] shrink-0">
+                         {/* Top Fade */}
+                        <div
+                            className="absolute top-0 left-0 right-0 h-[30px] z-10 pointer-events-none"
+                            style={{
+                                background: 'linear-gradient(180deg, #191919 0%, rgba(25, 25, 25, 0.5) 100%)'
+                            }}
+                        />
 
-                    {/* Selection Highlight Gradient/Overlay could go here if needed */}
+                        {/* List */}
+                        <div
+                            className="h-full overflow-y-auto no-scrollbar flex flex-col gap-[4px] py-[10px]"
+                            ref={scrollRef}
+                        >
+                            {filteredTimeSlots.map((time) => {
+                                const isSelected = time === selectedTime;
+                                return (
+                                    <div
+                                        key={time}
+                                        onClick={() => setSelectedTime(time)}
+                                        className={`flex-none text-center cursor-pointer whitespace-nowrap transition-all duration-200 text-[16px] font-bold font-sans ${isSelected ? 'text-white' : 'text-white/40'}`}
+                                    >
+                                        {time}
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        {/* Bottom Fade */}
+                        <div
+                            className="absolute bottom-0 left-0 right-0 h-[30px] z-10 pointer-events-none"
+                            style={{
+                                background: 'linear-gradient(0deg, #191919 0%, rgba(25, 25, 25, 0.5) 100%)'
+                            }}
+                        />
+                    </div>
                 </div>
             </div>
         </div>
 
         {/* Footer Note */}
-        <div className="mt-6 text-center px-4">
-             <p className="text-white/40 text-[12px] font-normal leading-snug">
-                Note: We'll do our best to deliver at your selected time.
-                Actual timing may vary slightly based on rider availability.
+        <div className="mt-6 text-left px-1">
+             <p className="text-white text-[14px] font-normal font-sans leading-snug">
+                Note: We'll do our best to deliver at your selected time. Actual timing may vary slightly based on rider availability.
              </p>
         </div>
       </div>
