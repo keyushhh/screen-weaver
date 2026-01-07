@@ -330,7 +330,7 @@ const OrderCashSummary = () => {
             >
                 {/* Header */}
                 <div
-                    className={`flex items-center justify-between px-[20px] ${isTipCollapsed ? 'py-[14px]' : 'pt-[20px] pb-[2px]'}`}
+                    className={`flex items-center justify-between px-[12px] ${isTipCollapsed ? 'py-[14px]' : 'pt-[14px] pb-[2px]'}`}
                     onClick={() => {
                         if (isTipCollapsed) setIsTipCollapsed(false);
                     }}
@@ -354,7 +354,7 @@ const OrderCashSummary = () => {
                 </div>
 
                 {!isTipCollapsed && (
-                    <div className="px-[20px] pb-[20px]">
+                    <div className="px-[12px] pb-[16px]">
                         {/* Subtext */}
                         <p className="text-white/80 text-[13px] font-normal font-sans mb-5 leading-snug">
                             A small tip, goes a big way! Totally optional — but your rider will appreciate it ❤️
@@ -363,26 +363,34 @@ const OrderCashSummary = () => {
                         {/* Pills Row */}
                         <div className="flex items-center gap-3">
                             {['10', '20', '30'].map((val) => (
-                                <div key={val} className="relative">
+                                <div key={val} className="relative shrink-0">
                                     <button
                                         onClick={() => handleTipSelect(val)}
-                                        className="w-[74px] h-[38px] flex items-center justify-center transition-all relative z-10 overflow-hidden"
+                                        className="w-[74px] h-[38px] relative flex items-center justify-center transition-all z-10 overflow-hidden shrink-0"
                                         style={{
                                             backgroundImage: `url(${selectedTipOption === val ? selectedPillBg : pillBg})`,
                                             backgroundSize: '100% 100%',
                                             backgroundRepeat: 'no-repeat',
                                         }}
                                     >
-                                        <div className={`flex items-center justify-center gap-1 ${val === '20' ? 'mb-1' : ''}`}>
-                                            <span className="text-white font-medium font-sans text-[15px]">₹{val}</span>
-                                            {selectedTipOption === val && (
+                                        <span className={`text-white font-medium font-sans text-[15px] z-20 relative ${val === '20' ? 'pb-[6px]' : ''}`}>₹{val}</span>
+
+                                        {selectedTipOption === val && (
+                                            <div
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleClearTip(e);
+                                                    setIsTipContainerVisible(false);
+                                                }}
+                                                className={`absolute z-30 cursor-pointer hover:opacity-80 flex items-center justify-center w-[16px] h-[16px] ${val === '20' ? 'top-[4px] right-[4px]' : 'top-1/2 -translate-y-1/2 right-[6px]'}`}
+                                            >
                                                 <img src={crossIcon} alt="Remove" className="w-[10px] h-[10px] object-contain" />
-                                            )}
-                                        </div>
+                                            </div>
+                                        )}
 
                                         {/* Most Tipped Badge (Only for 20) - Inside Button */}
                                         {val === '20' && (
-                                            <div className="absolute bottom-0 left-0 right-0 h-[12px] bg-[#5260FE] flex items-center justify-center z-20 pointer-events-none rounded-b-[10px]">
+                                            <div className="absolute bottom-0 left-0 right-0 h-[12px] bg-[#5260FE] flex items-center justify-center z-10 pointer-events-none rounded-b-[10px]">
                                                 <span className="text-white text-[7px] font-bold font-sans uppercase tracking-wider leading-none">
                                                     MOST TIPPED
                                                 </span>
@@ -393,22 +401,28 @@ const OrderCashSummary = () => {
                             ))}
 
                             {/* Other Button */}
-                            <div className="relative">
+                            <div className="relative shrink-0">
                                 <button
                                     onClick={() => handleTipSelect('other')}
-                                    className="w-[74px] h-[38px] flex items-center justify-center transition-all relative z-10"
+                                    className="w-[74px] h-[38px] relative flex items-center justify-center transition-all z-10 shrink-0"
                                     style={{
                                         backgroundImage: `url(${selectedTipOption === 'other' ? selectedPillBg : pillBg})`,
                                         backgroundSize: '100% 100%',
                                         backgroundRepeat: 'no-repeat',
                                     }}
                                 >
-                                    <div className="flex items-center justify-center gap-1">
-                                        <span className="text-white font-medium font-sans text-[15px]">Other</span>
-                                        {selectedTipOption === 'other' && (
+                                    <span className="text-white font-medium font-sans text-[15px] z-20 relative">Other</span>
+                                    {selectedTipOption === 'other' && (
+                                        <div
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleClearCustomTip();
+                                            }}
+                                            className="absolute top-1/2 -translate-y-1/2 right-[6px] w-[16px] h-[16px] flex items-center justify-center cursor-pointer hover:opacity-80 z-30"
+                                        >
                                             <img src={crossIcon} alt="Remove" className="w-[10px] h-[10px] object-contain" />
-                                        )}
-                                    </div>
+                                        </div>
+                                    )}
                                 </button>
                             </div>
                         </div>
