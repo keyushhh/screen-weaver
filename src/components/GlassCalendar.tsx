@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from "lucide-react";
-import { getDaysInMonth, startOfMonth, getDay, addMonths, subMonths, setYear } from "date-fns";
+import { getDaysInMonth, startOfMonth, getDay, addMonths, subMonths, setYear, startOfDay, isBefore } from "date-fns";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import calendarBg from "@/assets/calendar-bg.png";
@@ -13,6 +13,7 @@ interface GlassCalendarProps {
   onSelect?: (date: Date) => void;
   onClose?: () => void;
   disableFutureDates?: boolean;
+  disablePastDates?: boolean;
   className?: string;
 }
 
@@ -27,7 +28,7 @@ const DAYS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 const currentYear = new Date().getFullYear();
 const YEARS = Array.from({ length: currentYear - 1920 + 1 }, (_, i) => currentYear - i);
 
-export function GlassCalendar({ selected, onSelect, onClose, disableFutureDates = false, className }: GlassCalendarProps) {
+export function GlassCalendar({ selected, onSelect, onClose, disableFutureDates = false, disablePastDates = false, className }: GlassCalendarProps) {
   const [currentDate, setCurrentDate] = useState(selected || new Date());
   const [showYearDropdown, setShowYearDropdown] = useState(false);
   const calendarRef = useRef<HTMLDivElement>(null);
@@ -74,13 +75,18 @@ export function GlassCalendar({ selected, onSelect, onClose, disableFutureDates 
     if (disableFutureDates && newDate > today) {
       return;
     }
+    // Check if past date is disabled
+    if (disablePastDates && isBefore(newDate, startOfDay(today))) {
+      return;
+    }
     onSelect?.(newDate);
   };
 
-  const isFutureDate = (day: number) => {
-    if (!disableFutureDates) return false;
+  const isDisabledDate = (day: number) => {
     const date = new Date(year, month, day);
-    return date > today;
+    if (disableFutureDates && date > today) return true;
+    if (disablePastDates && isBefore(date, startOfDay(today))) return true;
+    return false;
   };
 
   const isSelected = (day: number) => {
@@ -221,13 +227,13 @@ export function GlassCalendar({ selected, onSelect, onClose, disableFutureDates 
               {day !== null ? (
                 <button
                   onClick={() => handleDayClick(day)}
-                  disabled={isFutureDate(day)}
+                  disabled={isDisabledDate(day)}
                   className={cn(
                     "w-10 h-10 rounded-[10px] flex items-center justify-center text-base font-medium transition-all",
-                    isFutureDate(day)
+                    isDisabledDate(day)
                       ? "text-white/30 cursor-not-allowed"
                       : "text-white",
-                    !isSelected(day) && !isFutureDate(day) && "hover:bg-white/10 active:scale-95"
+                    !isSelected(day) && !isDisabledDate(day) && "hover:bg-white/10 active:scale-95"
                   )}
                   style={isSelected(day) ? {
                     backgroundImage: `url(${calendarSelection})`,

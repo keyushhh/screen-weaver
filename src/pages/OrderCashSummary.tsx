@@ -202,7 +202,10 @@ const OrderCashSummary = () => {
                     <p className="text-white/60 text-[14px] font-normal font-sans">Deliver now</p>
                 </div>
              </div>
-             <div className="flex items-center gap-2 cursor-pointer opacity-80 hover:opacity-100">
+             <div
+                className="flex items-center gap-2 cursor-pointer opacity-80 hover:opacity-100"
+                onClick={() => navigate("/schedule-delivery")}
+             >
                 <img src={calendarIcon} alt="Calendar" className="w-[18px] h-[18px]" />
                 <span className="text-white text-[14px] font-medium font-sans underline underline-offset-2">Want it later?</span>
              </div>
