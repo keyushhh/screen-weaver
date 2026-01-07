@@ -366,7 +366,7 @@ const OrderCashSummary = () => {
                                 <div key={val} className="relative shrink-0">
                                     <button
                                         onClick={() => handleTipSelect(val)}
-                                        className="w-[74px] h-[38px] relative flex items-center justify-center transition-all z-10 overflow-hidden shrink-0"
+                                        className="w-[74px] h-[38px] relative flex items-center justify-center transition-all z-10 overflow-hidden shrink-0 border-none p-0 m-0 box-border"
                                         style={{
                                             backgroundImage: `url(${selectedTipOption === val ? selectedPillBg : pillBg})`,
                                             backgroundSize: '100% 100%',
@@ -390,7 +390,7 @@ const OrderCashSummary = () => {
 
                                         {/* Most Tipped Badge (Only for 20) - Inside Button */}
                                         {val === '20' && (
-                                            <div className="absolute bottom-0 left-0 right-0 h-[12px] bg-[#5260FE] flex items-center justify-center z-10 pointer-events-none rounded-b-[10px]">
+                                            <div className="absolute bottom-0 left-0 right-0 h-[12px] bg-[#5260FE] flex items-center justify-center z-10 pointer-events-none rounded-b-[13px]">
                                                 <span className="text-white text-[7px] font-bold font-sans uppercase tracking-wider leading-none">
                                                     MOST TIPPED
                                                 </span>
@@ -404,7 +404,7 @@ const OrderCashSummary = () => {
                             <div className="relative shrink-0">
                                 <button
                                     onClick={() => handleTipSelect('other')}
-                                    className="w-[74px] h-[38px] relative flex items-center justify-center transition-all z-10 shrink-0"
+                                    className="w-[74px] h-[38px] relative flex items-center justify-center transition-all z-10 shrink-0 border-none p-0 m-0 box-border"
                                     style={{
                                         backgroundImage: `url(${selectedTipOption === 'other' ? selectedPillBg : pillBg})`,
                                         backgroundSize: '100% 100%',
