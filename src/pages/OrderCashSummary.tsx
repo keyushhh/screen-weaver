@@ -329,39 +329,39 @@ const OrderCashSummary = () => {
                                 <div key={val} className="relative shrink-0" style={{ width: '74px', height: '38px' }}>
                                     <button
                                         onClick={() => handleTipSelect(val)}
-                                        className={`relative flex items-center justify-center transition-all z-10 overflow-hidden p-0 m-0 border-none outline-none ${selectedTipOption === val ? 'flex-row gap-[10px]' : ''}`}
+                                        className="relative block w-full h-full transition-all z-10 overflow-hidden p-0 m-0 border-none outline-none"
                                         style={{
-                                            width: '74px',
-                                            height: '38px',
-                                            minWidth: '74px',
-                                            minHeight: '38px',
-                                            maxWidth: '74px',
-                                            maxHeight: '38px',
                                             backgroundImage: `url(${selectedTipOption === val ? selectedPillBg : pillBg})`,
                                             backgroundSize: '100% 100%',
                                             backgroundRepeat: 'no-repeat',
                                             boxSizing: 'border-box'
                                         }}
                                     >
-                                        <span
-                                            className={`text-white font-medium font-sans text-[15px] z-20 relative leading-none ${val === '20' && selectedTipOption !== val ? '-translate-y-[3px]' : ''}`}
+                                        {/* Content Wrapper */}
+                                        <div
+                                            className={`absolute left-0 right-0 flex justify-center items-center gap-[10px] z-20 ${val === '20' ? 'top-[2px]' : 'top-1/2 -translate-y-1/2'}`}
                                         >
-                                            ₹{val}
-                                        </span>
-                                        {selectedTipOption === val && (
-                                            <div
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleClearTip(e);
-                                                    setIsTipContainerVisible(false);
-                                                }}
-                                                className="z-30 cursor-pointer hover:opacity-80 flex items-center justify-center w-[12px] h-[12px]"
-                                            >
-                                                <img src={crossIcon} alt="Remove" className="w-full h-full object-contain" />
-                                            </div>
-                                        )}
+                                            <span className="text-white font-medium font-sans text-[15px] leading-none">
+                                                ₹{val}
+                                            </span>
+
+                                            {selectedTipOption === val && (
+                                                <div
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleClearTip(e);
+                                                        setIsTipContainerVisible(false);
+                                                    }}
+                                                    className="cursor-pointer hover:opacity-80 flex items-center justify-center w-[12px] h-[12px]"
+                                                >
+                                                    <img src={crossIcon} alt="Remove" className="w-full h-full object-contain" />
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Most Tipped Banner - Only for 20 */}
                                         {val === '20' && (
-                                            <div className="absolute bottom-0 left-0 right-0 h-[12px] bg-[#5260FE] flex items-center justify-center z-10 pointer-events-none rounded-b-[10px]">
+                                            <div className="absolute top-[23px] left-0 right-0 h-[14px] bg-[#5260FE] flex items-center justify-center z-10 pointer-events-none">
                                                 <span className="text-white text-[7px] font-bold font-sans uppercase tracking-wider leading-none">
                                                     MOST TIPPED
                                                 </span>
