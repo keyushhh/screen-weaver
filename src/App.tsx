@@ -37,6 +37,7 @@ import ForgotMpin from "./pages/ForgotMpin";
 import OrderCash from "./pages/OrderCash";
 import OrderCashSummary from "./pages/OrderCashSummary";
 import OrderCashSuccess from "./pages/OrderCashSuccess";
+import ScheduleDelivery from "./pages/ScheduleDelivery";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -82,6 +83,7 @@ const App = () => (
             <Route path="/order-cash" element={<OrderCash />} />
             <Route path="/order-cash-summary" element={<OrderCashSummary />} />
             <Route path="/order-cash-success" element={<OrderCashSuccess />} />
+            <Route path="/schedule-delivery" element={<ScheduleDelivery />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </HashRouter>
