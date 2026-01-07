@@ -329,7 +329,7 @@ const OrderCashSummary = () => {
                                 <div key={val} className="relative shrink-0" style={{ width: '74px', height: '38px' }}>
                                     <button
                                         onClick={() => handleTipSelect(val)}
-                                        className="relative flex items-center justify-center transition-all z-10 overflow-hidden p-0 m-0 border-none outline-none"
+                                        className={`relative flex items-center justify-center transition-all z-10 overflow-hidden p-0 m-0 border-none outline-none ${selectedTipOption === val ? 'flex-row gap-[10px]' : ''}`}
                                         style={{
                                             width: '74px',
                                             height: '38px',
@@ -344,7 +344,7 @@ const OrderCashSummary = () => {
                                         }}
                                     >
                                         <span
-                                            className={`text-white font-medium font-sans text-[15px] z-20 relative leading-none ${val === '20' ? '-translate-y-[3px]' : ''}`}
+                                            className={`text-white font-medium font-sans text-[15px] z-20 relative leading-none ${val === '20' && selectedTipOption !== val ? '-translate-y-[3px]' : ''}`}
                                         >
                                             ₹{val}
                                         </span>
@@ -355,7 +355,7 @@ const OrderCashSummary = () => {
                                                     handleClearTip(e);
                                                     setIsTipContainerVisible(false);
                                                 }}
-                                                className="absolute top-[6px] right-[6px] z-30 cursor-pointer hover:opacity-80 flex items-center justify-center w-[12px] h-[12px]"
+                                                className="z-30 cursor-pointer hover:opacity-80 flex items-center justify-center w-[12px] h-[12px]"
                                             >
                                                 <img src={crossIcon} alt="Remove" className="w-full h-full object-contain" />
                                             </div>
@@ -373,7 +373,7 @@ const OrderCashSummary = () => {
                             <div className="relative shrink-0" style={{ width: '74px', height: '38px' }}>
                                 <button
                                     onClick={() => handleTipSelect('other')}
-                                    className="relative flex items-center justify-center transition-all z-10 overflow-hidden p-0 m-0 border-none outline-none"
+                                    className={`relative flex items-center justify-center transition-all z-10 overflow-hidden p-0 m-0 border-none outline-none ${selectedTipOption === 'other' ? 'flex-row gap-[10px]' : ''}`}
                                     style={{
                                         width: '74px',
                                         height: '38px',
@@ -394,7 +394,7 @@ const OrderCashSummary = () => {
                                                 e.stopPropagation();
                                                 handleClearCustomTip();
                                             }}
-                                            className="absolute top-[6px] right-[6px] w-[12px] h-[12px] flex items-center justify-center cursor-pointer hover:opacity-80 z-30"
+                                            className="z-30 cursor-pointer hover:opacity-80 flex items-center justify-center w-[12px] h-[12px]"
                                         >
                                             <img src={crossIcon} alt="Remove" className="w-full h-full object-contain" />
                                         </div>
