@@ -13,17 +13,16 @@ const ScheduleDelivery = () => {
   // Time state
   const [selectedTime, setSelectedTime] = useState("7:00 am");
   const [meridiem, setMeridiem] = useState<"AM" | "PM">("AM");
+  const [isDragging, setIsDragging] = useState(false);
 
   // Time slots generation
-  const generateTimeSlots = () => {
+  const generateTimeSlots = (extraTime?: string) => {
     const slots = [];
-    // 6:00 AM to 10:00 PM
     const startHour = 6;
     const endHour = 22; // 10 PM
 
     for (let hour = startHour; hour <= endHour; hour++) {
       for (let min = 0; min < 60; min += 30) {
-        // Format time
         let displayHour = hour > 12 ? hour - 12 : hour;
         if (displayHour === 0) displayHour = 12;
 
@@ -33,10 +32,35 @@ const ScheduleDelivery = () => {
         slots.push(`${displayHour}:${displayMin} ${ampm.toLowerCase()}`);
       }
     }
+
+    // Inject the selected time if it's not in the list (for 15/45 min intervals)
+    if (extraTime && !slots.includes(extraTime)) {
+        // Need to insert it in the correct order
+        // Parse extraTime to minutes from midnight
+        const parseTime = (t: string) => {
+            const [timeStr, m] = t.split(' ');
+            let [h, min] = timeStr.split(':').map(Number);
+            if (m.toLowerCase() === 'pm' && h !== 12) h += 12;
+            if (m.toLowerCase() === 'am' && h === 12) h = 0;
+            return h * 60 + min;
+        };
+        const extraMinutes = parseTime(extraTime);
+
+        // Find insert index
+        let insertIndex = slots.length;
+        for (let i = 0; i < slots.length; i++) {
+            if (parseTime(slots[i]) > extraMinutes) {
+                insertIndex = i;
+                break;
+            }
+        }
+        slots.splice(insertIndex, 0, extraTime);
+    }
+
     return slots;
   };
 
-  const allTimeSlots = generateTimeSlots();
+  const allTimeSlots = generateTimeSlots(selectedTime);
 
   // Filter slots based on selected meridiem
   const filteredTimeSlots = allTimeSlots.filter(time =>
@@ -58,21 +82,124 @@ const ScheduleDelivery = () => {
 
   const { hourRotation, minuteRotation } = getClockRotation();
 
-  // Handle scroll for time picker
+  // Scroll Sync
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  // Scroll to selected time on mount/change
   useEffect(() => {
     if (scrollRef.current) {
       const index = filteredTimeSlots.indexOf(selectedTime);
       if (index !== -1) {
-        // Scroll logic to center the element
-        // Item height (16px font + line height + 4px gap) ~ roughly 24-28px
-        // Better to just rely on user interaction or simple scroll into view if needed
-        // For now, leaving auto-scroll logic basic or manual
+        // Calculate scroll position to center the item
+        // Container height: 111px
+        // Item height: ~28px (16px font + 4px gap + padding)
+        // Let's approximate center position
+        const itemHeight = 28;
+        const containerHeight = 111;
+        const scrollTop = (index * itemHeight) - (containerHeight / 2) + (itemHeight / 2);
+
+        scrollRef.current.scrollTo({
+            top: Math.max(0, scrollTop),
+            behavior: "smooth"
+        });
       }
     }
-  }, [selectedTime, meridiem]);
+  }, [selectedTime, meridiem, filteredTimeSlots]); // Added dependency to re-scroll when list changes
+
+  // Clock Interaction
+  const clockRef = useRef<HTMLDivElement>(null);
+
+  const handleClockInteraction = (clientX: number, clientY: number) => {
+    if (!clockRef.current) return;
+    const rect = clockRef.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    // Calculate angle
+    const deltaX = clientX - centerX;
+    const deltaY = clientY - centerY;
+    // atan2 returns -PI to PI. -PI/2 is top (12 o'clock).
+    // We want 0 at top.
+    // angle in radians + PI/2 -> 0 at top.
+    let angleRad = Math.atan2(deltaY, deltaX) + Math.PI / 2;
+    if (angleRad < 0) angleRad += 2 * Math.PI;
+
+    // Convert to degrees (0-360)
+    const degrees = (angleRad * 180) / Math.PI;
+
+    // Determine nearest 15 minute interval (6 degrees per minute, 15 min = 90 degrees)
+    // Wait, 360 deg = 60 min -> 6 deg/min. 15 min = 90 deg.
+    // Snap to 15 min = 90 deg steps? No, clock face is 12 hours.
+    // Minute hand logic:
+    // angle maps to 0-60 minutes.
+    const rawMinutes = (degrees / 360) * 60;
+    const snappedMinutes = Math.round(rawMinutes / 15) * 15; // 0, 15, 30, 45, 60(0)
+
+    let finalMinutes = snappedMinutes % 60;
+
+    // Determine Hour based on current selected time or drag?
+    // User wants to scrub time.
+    // If we only update minutes, hour stays same.
+    // Let's assume user is modifying minute hand primarily as requested "15 min interval".
+    // Getting hour from current state
+    const [timePart, mPart] = selectedTime.split(" ");
+    let [currentHour] = timePart.split(":").map(Number);
+
+    // If dragging moves past 12, should we increment hour?
+    // For simplicity, let's keep hour static unless logic gets complex,
+    // OR we can deduce hour from angle if user touches near center?
+    // Let's stick to minute modification for the "handle" request,
+    // as changing hours via circular drag can be tricky without a mode switch.
+    // However, if the user drags near the hour hand, we could switch hour.
+
+    // Distance check
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    const radius = rect.width / 2;
+    // If distance is < 60% of radius, maybe it's hour hand?
+    // Standard UI behavior: usually separate rings or modes.
+    // Let's Stick to Minute modification for the "fun 15 min" feature.
+
+    let finalHour = currentHour;
+
+    // Construct new time string
+    let displayMin = finalMinutes === 0 ? "00" : finalMinutes.toString();
+    // Keep current meridiem unless logic changes it?
+    // Let's allow simple minute adjustment within current hour/meridiem.
+
+    const newTime = `${finalHour}:${displayMin} ${mPart}`;
+    setSelectedTime(newTime);
+  };
+
+  const handleStart = (e: React.MouseEvent | React.TouchEvent) => {
+      setIsDragging(true);
+      const clientX = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
+      const clientY = 'touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
+      handleClockInteraction(clientX, clientY);
+  };
+
+  const handleMove = (e: React.MouseEvent | React.TouchEvent) => {
+      if (!isDragging) return;
+      const clientX = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
+      const clientY = 'touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
+      handleClockInteraction(clientX, clientY);
+  };
+
+  const handleEnd = () => {
+      setIsDragging(false);
+  };
+
+  // Validation Logic
+  const parseTimeMinutes = (t: string) => {
+      const [timeStr, m] = t.split(' ');
+      let [h, min] = timeStr.split(':').map(Number);
+      if (m.toLowerCase() === 'pm' && h !== 12) h += 12;
+      if (m.toLowerCase() === 'am' && h === 12) h = 0;
+      return h * 60 + min;
+  };
+
+  const currentTimeMinutes = parseTimeMinutes(selectedTime);
+  const startLimit = 6 * 60; // 6:00 AM
+  const endLimit = 22 * 60; // 10:00 PM
+
+  const isInvalidTime = currentTimeMinutes < startLimit || currentTimeMinutes > endLimit;
 
   return (
     <div
@@ -84,6 +211,10 @@ const ScheduleDelivery = () => {
         backgroundPosition: "top center",
         backgroundRepeat: "no-repeat",
       }}
+      onMouseUp={handleEnd}
+      onTouchEnd={handleEnd}
+      onMouseMove={handleMove}
+      onTouchMove={handleMove}
     >
       {/* Header */}
       <div className="flex-none px-5 pt-4 flex items-center justify-between z-10 mb-6 safe-area-top">
@@ -134,12 +265,14 @@ const ScheduleDelivery = () => {
                     <img src={timeIcon} alt="Time" className="w-[22px] h-[22px]" />
                     <span className="text-white text-[15px] font-bold">Time</span>
                 </div>
-                <span className="text-white text-[15px] font-bold">{selectedTime}</span>
+                <span className={`text-[15px] font-bold transition-colors duration-300 ${isInvalidTime ? 'text-white/30' : 'text-white'}`}>
+                    {selectedTime}
+                </span>
             </div>
 
             {/* Inner Container: Clock + Picker */}
             <div
-                className="mx-5 rounded-[24px] overflow-hidden backdrop-blur-[24px] border border-white/10 relative"
+                className="mx-5 rounded-[24px] overflow-hidden backdrop-blur-[24px] border border-white/10 relative transition-colors duration-300"
                 style={{
                     backgroundColor: "#0E0E0F",
                     height: "150px"
@@ -166,18 +299,21 @@ const ScheduleDelivery = () => {
                 <div className="flex items-center justify-between pl-8 pr-16 h-full">
                     {/* Clock Visual */}
                     <div
-                        className="relative w-[120px] h-[120px] rounded-full shrink-0"
+                        ref={clockRef}
+                        className="relative w-[120px] h-[120px] rounded-full shrink-0 cursor-pointer touch-none"
                         style={{
                             backgroundImage: `url(${clockBase})`,
                             backgroundSize: 'cover'
                         }}
+                        onMouseDown={handleStart}
+                        onTouchStart={handleStart}
                     >
                         {/* Pivot */}
                         <div className="absolute top-1/2 left-1/2 w-1.5 h-1.5 bg-white rounded-full -translate-x-1/2 -translate-y-1/2 z-20 shadow-sm" />
 
                         {/* Hour Hand */}
                         <div
-                            className="absolute left-1/2 bottom-1/2 w-[2px] bg-white rounded-full origin-bottom z-10"
+                            className="absolute left-1/2 bottom-1/2 w-[2px] bg-white rounded-full origin-bottom z-10 transition-transform duration-100 ease-out"
                             style={{
                                 height: '18.5px',
                                 transform: `translateX(-50%) rotate(${hourRotation}deg)`
@@ -186,7 +322,7 @@ const ScheduleDelivery = () => {
 
                         {/* Minute Hand */}
                         <div
-                            className="absolute left-1/2 bottom-1/2 w-[1px] bg-white rounded-full origin-bottom z-10"
+                            className="absolute left-1/2 bottom-1/2 w-[1px] bg-white rounded-full origin-bottom z-10 transition-transform duration-100 ease-out"
                             style={{
                                 height: '34px',
                                 transform: `translateX(-50%) rotate(${minuteRotation}deg)`
@@ -233,6 +369,15 @@ const ScheduleDelivery = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Invalid Time Message */}
+            {isInvalidTime && (
+                <div className="px-5 pb-4 pt-2 text-center animate-fade-in">
+                    <p className="text-[#FF3B30] text-[13px] font-medium">
+                        Hey man, even we need rest and sleep!
+                    </p>
+                </div>
+            )}
         </div>
 
         {/* Footer Note */}
