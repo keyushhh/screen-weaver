@@ -141,7 +141,7 @@ const ScheduleDelivery = () => {
             <div
                 className="mx-5 rounded-[24px] overflow-hidden backdrop-blur-[24px] border border-white/10 relative"
                 style={{
-                    backgroundColor: "rgba(25, 25, 25, 0.30)",
+                    backgroundColor: "#0E0E0F",
                     height: "150px"
                 }}
             >
