@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Map, { ViewState, ViewStateChangeEvent } from "react-map-gl/maplibre";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Search } from "lucide-react";
+import { ChevronLeft, Search, Copy } from "lucide-react";
 import 'maplibre-gl/dist/maplibre-gl.css';
+import { OpenLocationCode } from "open-location-code";
+import { toast } from "sonner";
 
 // Assets
 import mapPinIcon from "@/assets/map-pin-icon.svg";
@@ -23,12 +25,14 @@ const AddAddress = () => {
 
   const [addressTitle, setAddressTitle] = useState<string>("Loading...");
   const [addressLine, setAddressLine] = useState<string>("");
+  const [plusCode, setPlusCode] = useState<string>("");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isDragging, setIsDragging] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const debounce = (func: Function, wait: number) => {
+  const debounce = <T extends (...args: unknown[]) => void>(func: T, wait: number) => {
     let timeout: NodeJS.Timeout;
-    return (...args: any[]) => {
+    return (...args: Parameters<T>) => {
       clearTimeout(timeout);
       timeout = setTimeout(() => func(...args), wait);
     };
@@ -37,6 +41,12 @@ const AddAddress = () => {
   const fetchAddress = async (lat: number, lng: number) => {
     try {
       console.log("Fetching address for", lat, lng);
+      // Generate Plus Code
+      const olc = new OpenLocationCode();
+      const code = olc.encode(lat, lng);
+      console.log("Generated Code:", code);
+      setPlusCode(code);
+
       // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 500));
 
@@ -48,6 +58,7 @@ const AddAddress = () => {
       console.error("Error fetching address:", error);
       setAddressTitle("Error fetching location");
       setAddressLine("");
+      setPlusCode("");
     }
   };
 
@@ -64,9 +75,45 @@ const AddAddress = () => {
     debouncedFetchAddress(evt.viewState.latitude, evt.viewState.longitude);
   };
 
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      // Check if it's a Plus Code (simple check for now)
+      if (searchQuery.includes('+')) {
+         try {
+             // Attempt to decode
+             const olc = new OpenLocationCode();
+             const codeArea = olc.decode(searchQuery);
+             const lat = codeArea.latitudeCenter;
+             const lng = codeArea.longitudeCenter;
+
+             setViewState(prev => ({
+                 ...prev,
+                 latitude: lat,
+                 longitude: lng,
+                 zoom: 18 // Zoom in closer for specific code
+             }));
+             debouncedFetchAddress(lat, lng);
+         } catch (err) {
+             console.error(err);
+             toast.error("Invalid Plus Code");
+         }
+      } else {
+        // Normal search simulation would go here
+        toast.info("Search implemented for Plus Codes only in this demo");
+      }
+    }
+  };
+
+  const copyPlusCode = () => {
+      if (plusCode) {
+          navigator.clipboard.writeText(plusCode);
+          toast.success("Plus Code copied to clipboard!");
+      }
+  };
+
   useEffect(() => {
     debouncedFetchAddress(viewState.latitude, viewState.longitude);
-  }, []);
+  }, [debouncedFetchAddress, viewState.latitude, viewState.longitude]);
 
   return (
     <div className="h-full w-full relative bg-black text-white overflow-hidden">
@@ -127,6 +174,7 @@ const AddAddress = () => {
                      placeholder="“near the tree” doesn’t help anyone"
                      value={searchQuery}
                      onChange={(e) => setSearchQuery(e.target.value)}
+                     onKeyDown={handleSearch}
                      className="bg-transparent border-none outline-none flex-1 text-[14px] text-white placeholder-white font-normal font-sans"
                      style={{ fontFamily: 'Satoshi, sans-serif' }}
                  />
@@ -206,9 +254,27 @@ const AddAddress = () => {
           <img src={locationPinIcon} alt="Loc" className="w-5 h-5 mt-1 shrink-0 mr-3" />
 
           <div className="flex-1">
-            <h4 className="text-white font-bold text-[16px] mb-[6px]" style={{ fontFamily: 'Satoshi, sans-serif' }}>
-                {addressTitle}
-            </h4>
+             <div className="flex items-center gap-2 mb-[6px]">
+                <h4 className="text-white font-bold text-[16px]" style={{ fontFamily: 'Satoshi, sans-serif' }}>
+                    {addressTitle}
+                </h4>
+                {plusCode && (
+                    <div
+                        onClick={copyPlusCode}
+                        className="flex items-center gap-1 px-2 py-0.5 bg-white/10 rounded cursor-pointer hover:bg-white/20 transition-colors"
+                        title="Click to copy Plus Code"
+                    >
+                        <span
+                            data-testid="plus-code"
+                            className="text-[#5260FE] font-bold text-sm"
+                            style={{ fontFamily: 'Satoshi, sans-serif' }}
+                        >
+                            {plusCode}
+                        </span>
+                        <Copy className="w-3 h-3 text-[#5260FE]" />
+                    </div>
+                )}
+            </div>
             <p className="text-gray-400 text-sm leading-relaxed">
               {addressLine || "Fetching details..."}
             </p>
