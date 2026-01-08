@@ -34,7 +34,10 @@ const Homepage = () => {
       <div className="px-5 pt-4 flex items-start justify-between">
         <div className="space-y-1">
           <p className="text-[12px] text-muted-foreground font-medium tracking-wider">DELIVERING</p>
-          <button className="flex items-center gap-1 text-foreground text-[14px] font-normal">
+          <button
+            onClick={() => navigate('/add-address')}
+            className="flex items-center gap-1 text-foreground text-[14px] font-normal"
+          >
             Add Address
             <ChevronDown className="w-4 h-4" />
           </button>
