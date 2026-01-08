@@ -1,13 +1,19 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Map, { ViewState, ViewStateChangeEvent } from "react-map-gl/maplibre";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Search, MapPin, Navigation } from "lucide-react";
+import { ChevronLeft, Search } from "lucide-react";
 import 'maplibre-gl/dist/maplibre-gl.css';
+
+// Assets
+import mapPinIcon from "@/assets/map-pin-icon.svg";
+import locationPinIcon from "@/assets/location-pin.svg";
+import navigationIcon from "@/assets/navigation-icon.svg";
+import confirmCtaBg from "@/assets/confirm-location-cta.png";
 
 const AddAddress = () => {
   const navigate = useNavigate();
   const [viewState, setViewState] = useState<ViewState>({
-    latitude: 12.9716, // Default to Bangalore (as per screenshot)
+    latitude: 12.9716,
     longitude: 77.5946,
     zoom: 15,
     bearing: 0,
@@ -15,12 +21,11 @@ const AddAddress = () => {
     padding: { top: 0, bottom: 0, left: 0, right: 0 }
   });
 
-  const [address, setAddress] = useState<string>("Loading address...");
-  const [detailedAddress, setDetailedAddress] = useState<string>("");
+  const [addressTitle, setAddressTitle] = useState<string>("Loading...");
+  const [addressLine, setAddressLine] = useState<string>("");
   const [isDragging, setIsDragging] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Debounce function for geocoding
   const debounce = (func: Function, wait: number) => {
     let timeout: NodeJS.Timeout;
     return (...args: any[]) => {
@@ -31,24 +36,21 @@ const AddAddress = () => {
 
   const fetchAddress = async (lat: number, lng: number) => {
     try {
-      // Mock address for now (simulating "Interaction First" approach)
-      // Since we are using MapLibre with CartoDB, we don't have a built-in geocoding API like Mapbox
-      // We'll keep the mock logic as requested, which is enough to validate the interaction model.
       console.log("Fetching address for", lat, lng);
-
       // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      setAddress("Bangalore, India");
-      setDetailedAddress(`Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)} - Mock Address`);
+      // Dynamic Mock Address Logic
+      setAddressTitle("Bangalore, India");
+      setAddressLine("C-102, Lotus Residency, 5th Cross Road, JP Nagar, Bangalore, Karnataka – 560078");
 
     } catch (error) {
       console.error("Error fetching address:", error);
-      setAddress("Error fetching location");
+      setAddressTitle("Error fetching location");
+      setAddressLine("");
     }
   };
 
-  // Create debounced version of fetchAddress
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedFetchAddress = useCallback(debounce(fetchAddress, 1000), []);
 
@@ -62,10 +64,9 @@ const AddAddress = () => {
     debouncedFetchAddress(evt.viewState.latitude, evt.viewState.longitude);
   };
 
-  // Initial fetch
   useEffect(() => {
     debouncedFetchAddress(viewState.latitude, viewState.longitude);
-  }, []); // Run once on mount
+  }, []);
 
   return (
     <div className="h-full w-full relative bg-black text-white overflow-hidden">
@@ -75,95 +76,161 @@ const AddAddress = () => {
         onMove={handleMove}
         onMoveEnd={handleMoveEnd}
         style={{ width: "100%", height: "100%" }}
-        // Use CartoDB Dark Matter style (Free, no token needed)
         mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
         attributionControl={false}
       />
 
-      {/* Header Overlay */}
-      <div className="absolute top-0 left-0 right-0 p-4 pt-12 safe-area-top bg-gradient-to-b from-black/80 to-transparent z-10 flex items-center">
-        <button
-          onClick={() => navigate(-1)}
-          className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center border border-white/10"
+      {/* Top Container Layer */}
+      <div
+        className="absolute top-0 left-0 right-0 z-10 pointer-events-none"
+      >
+        <div
+          className="rounded-b-[32px] overflow-hidden pointer-events-auto"
+          style={{
+              backgroundColor: "rgba(7, 7, 7, 0.81)", // #070707 at 81%
+              backdropFilter: "blur(25px)",
+              WebkitBackdropFilter: "blur(25px)",
+              paddingBottom: "24px"
+          }}
         >
-          <ChevronLeft className="w-6 h-6 text-white" />
-        </button>
-        <h1 className="flex-1 text-center text-lg font-medium">Add New Address</h1>
-        <div className="w-10" /> {/* Spacer for centering */}
-      </div>
-
-      {/* Search Bar Overlay */}
-      <div className="absolute top-36 left-4 right-4 z-10">
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl flex items-center px-4 h-12 border border-white/10">
-          <Search className="w-5 h-5 text-gray-400 mr-3" />
-          <input
-            type="text"
-            placeholder='"near the tree" doesn’t help anyone'
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="bg-transparent border-none outline-none flex-1 text-sm text-white placeholder-gray-400 font-normal"
-          />
+          <div className="safe-area-top pt-4 px-5">
+             {/* Header */}
+            <div className="flex items-center mb-[18px]">
+                <button
+                onClick={() => navigate(-1)}
+                className="w-10 h-10 flex items-center justify-center mr-2"
+                >
+                <ChevronLeft className="w-6 h-6 text-white" />
+                </button>
+                <h1 className="flex-1 text-center text-lg font-medium pr-10">Add New Address</h1>
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* Fixed Center Pin */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20 flex flex-col items-center justify-center pb-8">
-         {/* The pin point usually sits at the bottom center of the icon, so we adjust slightly */}
-         {/* Pulse effect */}
-         <div className="absolute w-24 h-24 bg-purple-500/20 rounded-full blur-xl animate-pulse top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
-         <div className="relative">
-            <div className="w-12 h-12 bg-black/40 rounded-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 backdrop-blur-sm"></div>
-            <MapPin className="w-10 h-10 text-[#5260FE] relative z-10 fill-[#5260FE]/20" />
+        {/* Search Bar - 18px below the container */}
+        <div className="flex justify-center mt-[18px] pointer-events-auto">
+             <div
+                 className="flex items-center px-4"
+                 style={{
+                     width: "363px",
+                     height: "44px",
+                     borderRadius: "9999px",
+                     background: "rgba(255, 255, 255, 0.1)", // Glass effect base
+                     backdropFilter: "blur(10px)",
+                     WebkitBackdropFilter: "blur(10px)",
+                     border: "1px solid rgba(255, 255, 255, 0.1)"
+                 }}
+             >
+                 <Search className="w-5 h-5 text-white mr-3" />
+                 <input
+                     type="text"
+                     placeholder="“near the tree” doesn’t help anyone"
+                     value={searchQuery}
+                     onChange={(e) => setSearchQuery(e.target.value)}
+                     className="bg-transparent border-none outline-none flex-1 text-[14px] text-white placeholder-white font-normal font-sans"
+                     style={{ fontFamily: 'Satoshi, sans-serif' }}
+                 />
+             </div>
          </div>
       </div>
 
-      {/* Helper text above bottom sheet */}
-      <div className="absolute bottom-[350px] left-0 right-0 flex justify-center z-10 pointer-events-none">
-        <div className="bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
-           <span className="text-sm font-medium">Drag the pin to set your location</span>
-        </div>
+      {/* Fixed Center Pin */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0">
+          {/* -mt-10 adjustment to make the pin tip land on center */}
+          <div className="relative z-0 -mt-10">
+            <img src={mapPinIcon} alt="Pin" className="w-[46px] h-[58px]" />
+          </div>
       </div>
 
-      {/* My Location Button */}
-      <button
-        className="absolute bottom-[350px] right-4 z-10 w-12 h-12 bg-[#1A1A1A] rounded-full flex items-center justify-center border border-white/10 shadow-lg"
-        onClick={() => {
-            // Mock geolocation
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition((pos) => {
-                    setViewState(prev => ({
-                        ...prev,
-                        latitude: pos.coords.latitude,
-                        longitude: pos.coords.longitude,
-                        zoom: 15
-                    }));
-                    debouncedFetchAddress(pos.coords.latitude, pos.coords.longitude);
-                });
-            }
-        }}
-      >
-        <Navigation className="w-5 h-5 text-[#5260FE] fill-[#5260FE]" />
-      </button>
+      {/* Helper Pill & Navigation Button Container */}
+      {/* 280px from bottom to clear the bottom sheet */}
+      <div className="absolute bottom-[280px] left-0 right-0 z-10 flex items-center justify-center pointer-events-none">
+         <div className="flex items-center pointer-events-auto">
+            {/* Helper Pill */}
+            <div
+                className="flex items-center justify-center"
+                style={{
+                    width: "302px",
+                    height: "40px",
+                    borderRadius: "9999px",
+                    backgroundColor: "rgba(0,0,0,0.6)",
+                    backdropFilter: "blur(10px)",
+                    border: "1px solid rgba(255,255,255,0.1)"
+                }}
+            >
+                <span className="text-white font-medium text-[14px]" style={{ fontFamily: 'Satoshi, sans-serif' }}>
+                    Drag the pin to set your location
+                </span>
+            </div>
+
+            <div style={{ width: "16px" }}></div>
+
+            {/* Navigation Button */}
+            <button
+                onClick={() => {
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition((pos) => {
+                            setViewState(prev => ({ ...prev, latitude: pos.coords.latitude, longitude: pos.coords.longitude }));
+                            debouncedFetchAddress(pos.coords.latitude, pos.coords.longitude);
+                        });
+                    }
+                }}
+                className="w-[40px] h-[40px] rounded-full flex items-center justify-center overflow-hidden"
+                style={{
+                    backgroundColor: "#1A1A1A",
+                    border: "1px solid rgba(255,255,255,0.1)"
+                }}
+            >
+                <img src={navigationIcon} alt="Nav" className="w-full h-full object-cover" />
+            </button>
+         </div>
+      </div>
 
       {/* Bottom Sheet */}
       <div className="absolute bottom-0 left-0 right-0 bg-black rounded-t-[32px] p-6 pb-10 safe-area-bottom z-20 border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
         <h3 className="text-white text-base font-semibold mb-4">Order will be delivered here</h3>
 
-        <div className="bg-[#1A1A1A] rounded-2xl p-4 flex items-start gap-4 mb-6 border border-white/5">
-          <div className="w-10 h-10 rounded-full bg-[#2A2A2A] flex items-center justify-center shrink-0">
-             <MapPin className="w-5 h-5 text-[#5260FE] fill-[#5260FE]" />
-          </div>
-          <div className="space-y-1">
-            <h4 className="text-white font-bold text-base">{address}</h4>
+        {/* Address Container */}
+        <div
+            className="flex items-start mb-6"
+            style={{
+                backgroundColor: "#000000",
+                border: "1px solid rgba(82, 96, 254, 0.21)",
+                borderRadius: "12px",
+                paddingTop: "12px",
+                paddingBottom: "12px",
+                paddingLeft: "14px",
+                paddingRight: "14px"
+            }}
+        >
+          <img src={locationPinIcon} alt="Loc" className="w-5 h-5 mt-1 shrink-0 mr-3" />
+
+          <div className="flex-1">
+            <h4 className="text-white font-bold text-[16px] mb-[6px]" style={{ fontFamily: 'Satoshi, sans-serif' }}>
+                {addressTitle}
+            </h4>
             <p className="text-gray-400 text-sm leading-relaxed">
-              {detailedAddress || "Fetching detailed address..."}
+              {addressLine || "Fetching details..."}
             </p>
           </div>
         </div>
 
-        <button className="w-full h-12 bg-[#1A1A1A] hover:bg-[#252525] text-white font-medium rounded-full border border-white/20 transition-colors">
-          Confirm Location
-        </button>
+        {/* CTA */}
+        <div style={{ marginTop: "24px" }}>
+            <button
+                className="w-full flex items-center justify-center"
+                style={{
+                    height: "48px",
+                    backgroundImage: `url(${confirmCtaBg})`,
+                    backgroundSize: "100% 100%",
+                    backgroundRepeat: "no-repeat",
+                    backgroundColor: "transparent",
+                    border: "none"
+                }}
+            >
+                <span className="text-white font-medium">Confirm Location</span>
+            </button>
+        </div>
       </div>
     </div>
   );
