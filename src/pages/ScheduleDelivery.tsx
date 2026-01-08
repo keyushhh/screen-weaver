@@ -5,6 +5,7 @@ import bgDarkMode from "@/assets/bg-dark-mode.png";
 import GlassCalendar from "@/components/GlassCalendar";
 import timeIcon from "@/assets/time-icon.png";
 import clockBase from "@/assets/clock-base.png";
+import { SlideToPay } from "@/components/SlideToPay";
 
 const ScheduleDelivery = () => {
   const navigate = useNavigate();
@@ -216,7 +217,7 @@ const ScheduleDelivery = () => {
         <div className="w-10" />
       </div>
 
-      <div className="flex-1 overflow-y-auto px-5 no-scrollbar pb-[100px]">
+      <div className="flex-1 overflow-y-auto px-5 no-scrollbar pb-[280px]">
         {/* Sub-header */}
         <div className="mb-6">
             <p className="text-white text-[16px] font-medium mb-1">
@@ -372,6 +373,31 @@ const ScheduleDelivery = () => {
                 Note: We'll do our best to deliver at your selected time. Actual timing may vary slightly based on rider availability.
              </p>
         </div>
+      </div>
+
+      {/* Slide to Pay Bottom Sheet */}
+      <div
+        className="fixed bottom-0 left-0 right-0 z-50 safe-area-bottom"
+        style={{
+            height: "255px",
+            backgroundColor: "rgba(23, 23, 23, 0.31)",
+            borderTopLeftRadius: "32px",
+            borderTopRightRadius: "32px",
+            paddingTop: "26px",
+            paddingLeft: "20px",
+            paddingRight: "20px",
+            paddingBottom: "54px",
+            backdropFilter: "blur(24px)",
+            WebkitBackdropFilter: "blur(24px)"
+        }}
+      >
+          <p className="text-white text-[18px] font-bold font-sans mb-[16px]">
+              Amount will be held from wallet
+          </p>
+          <p className="text-white text-[16px] font-medium font-sans mb-[34px]">
+              You won’t be charged unless the delivery is completed.
+          </p>
+          <SlideToPay onComplete={() => {}} />
       </div>
     </div>
   );
