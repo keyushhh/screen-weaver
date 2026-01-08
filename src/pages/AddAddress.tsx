@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import Map, { ViewState, ViewStateChangeEvent } from "react-map-gl/maplibre";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, Search, MapPin, Navigation } from "lucide-react";
-import "maplibre-gl/dist/maplibre-gl.css";
+import 'maplibre-gl/dist/maplibre-gl.css';
 
 const AddAddress = () => {
   const navigate = useNavigate();
