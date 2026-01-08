@@ -200,7 +200,7 @@ const ScheduleDelivery = () => {
                         <div
                             className="absolute top-0 left-0 right-0 h-[30px] z-10 pointer-events-none"
                             style={{
-                                background: 'linear-gradient(180deg, #0a0a12 0%, rgba(10, 10, 18, 0) 100%)'
+                                background: 'linear-gradient(180deg, #0E0E0F 0%, rgba(14, 14, 15, 0) 100%)'
                             }}
                         />
 
@@ -227,7 +227,7 @@ const ScheduleDelivery = () => {
                         <div
                             className="absolute bottom-0 left-0 right-0 h-[30px] z-10 pointer-events-none"
                             style={{
-                                background: 'linear-gradient(0deg, #0a0a12 0%, rgba(10, 10, 18, 0) 100%)'
+                                background: 'linear-gradient(0deg, #0E0E0F 0%, rgba(14, 14, 15, 0) 100%)'
                             }}
                         />
                     </div>
