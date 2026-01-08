@@ -16,58 +16,48 @@ const ScheduleDelivery = () => {
   const [isDragging, setIsDragging] = useState(false);
 
   // Time slots generation
-  const generateTimeSlots = (extraTime?: string) => {
+  const generateTimeSlots = (currentMeridiem: string, extraTime?: string) => {
     const slots = [];
-    const startHour = 6;
-    const endHour = 22; // 10 PM
 
-    for (let hour = startHour; hour <= endHour; hour++) {
-      for (let min = 0; min < 60; min += 30) {
-        let displayHour = hour > 12 ? hour - 12 : hour;
-        if (displayHour === 0) displayHour = 12;
+    // Operating Hours: 06:00 to 22:00
+    for (let h = 0; h < 24; h++) {
+        if (h < 6 || h > 22) continue; // 6am to 10pm
 
-        const displayMin = min === 0 ? "00" : min;
-        const ampm = hour >= 12 ? "PM" : "AM";
+        const isPm = h >= 12;
+        const m = isPm ? "PM" : "AM";
 
-        slots.push(`${displayHour}:${displayMin} ${ampm.toLowerCase()}`);
-      }
+        if (m !== currentMeridiem) continue;
+
+        let dispH = h > 12 ? h - 12 : h;
+        if (dispH === 0) dispH = 12;
+
+        for (let min = 0; min < 60; min += 30) {
+            if (h === 22 && min > 0) continue;
+            const dispMin = min === 0 ? "00" : min;
+            slots.push(`${dispH}:${dispMin} ${m.toLowerCase()}`);
+        }
     }
 
-    // Inject the selected time if it's not in the list (for 15/45 min intervals)
-    if (extraTime && !slots.includes(extraTime)) {
-        // Need to insert it in the correct order
-        // Parse extraTime to minutes from midnight
-        const parseTime = (t: string) => {
-            const [timeStr, m] = t.split(' ');
-            let [h, min] = timeStr.split(':').map(Number);
-            if (m.toLowerCase() === 'pm' && h !== 12) h += 12;
-            if (m.toLowerCase() === 'am' && h === 12) h = 0;
-            return h * 60 + min;
-        };
-        const extraMinutes = parseTime(extraTime);
-
-        // Find insert index
-        let insertIndex = slots.length;
-        for (let i = 0; i < slots.length; i++) {
-            if (parseTime(slots[i]) > extraMinutes) {
-                insertIndex = i;
-                break;
-            }
-        }
-        slots.splice(insertIndex, 0, extraTime);
+    // Inject extraTime if valid for this meridiem but missing
+    if (extraTime && extraTime.toLowerCase().includes(currentMeridiem.toLowerCase()) && !slots.includes(extraTime)) {
+         slots.push(extraTime);
+         slots.sort((a, b) => {
+             const getMin = (t: string) => {
+                 let [hStr, minStr] = t.split(' ')[0].split(':');
+                 let h = parseInt(hStr);
+                 if (h === 12) h = 0;
+                 return h * 60 + parseInt(minStr);
+             };
+             return getMin(a) - getMin(b);
+         });
     }
 
     return slots;
   };
 
-  const allTimeSlots = generateTimeSlots(selectedTime);
+  const timeSlots = generateTimeSlots(meridiem, selectedTime);
 
-  // Filter slots based on selected meridiem
-  const filteredTimeSlots = allTimeSlots.filter(time =>
-    time.toLowerCase().includes(meridiem.toLowerCase())
-  );
-
-  // Parse current selected time for clock hands
+  // Parse current selected time
   const getClockRotation = () => {
     const [timePart] = selectedTime.split(" ");
     const [hourStr, minStr] = timePart.split(":");
@@ -86,12 +76,8 @@ const ScheduleDelivery = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (scrollRef.current) {
-      const index = filteredTimeSlots.indexOf(selectedTime);
+      const index = timeSlots.indexOf(selectedTime);
       if (index !== -1) {
-        // Calculate scroll position to center the item
-        // Container height: 111px
-        // Item height: ~28px (16px font + 4px gap + padding)
-        // Let's approximate center position
         const itemHeight = 28;
         const containerHeight = 111;
         const scrollTop = (index * itemHeight) - (containerHeight / 2) + (itemHeight / 2);
@@ -102,7 +88,7 @@ const ScheduleDelivery = () => {
         });
       }
     }
-  }, [selectedTime, meridiem, filteredTimeSlots]); // Added dependency to re-scroll when list changes
+  }, [selectedTime, meridiem, timeSlots]);
 
   // Clock Interaction
   const clockRef = useRef<HTMLDivElement>(null);
@@ -113,58 +99,49 @@ const ScheduleDelivery = () => {
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
 
-    // Calculate angle
     const deltaX = clientX - centerX;
     const deltaY = clientY - centerY;
-    // atan2 returns -PI to PI. -PI/2 is top (12 o'clock).
-    // We want 0 at top.
-    // angle in radians + PI/2 -> 0 at top.
-    let angleRad = Math.atan2(deltaY, deltaX) + Math.PI / 2;
-    if (angleRad < 0) angleRad += 2 * Math.PI;
-
-    // Convert to degrees (0-360)
-    const degrees = (angleRad * 180) / Math.PI;
-
-    // Determine nearest 15 minute interval (6 degrees per minute, 15 min = 90 degrees)
-    // Wait, 360 deg = 60 min -> 6 deg/min. 15 min = 90 deg.
-    // Snap to 15 min = 90 deg steps? No, clock face is 12 hours.
-    // Minute hand logic:
-    // angle maps to 0-60 minutes.
-    const rawMinutes = (degrees / 360) * 60;
-    const snappedMinutes = Math.round(rawMinutes / 15) * 15; // 0, 15, 30, 45, 60(0)
-
-    let finalMinutes = snappedMinutes % 60;
-
-    // Determine Hour based on current selected time or drag?
-    // User wants to scrub time.
-    // If we only update minutes, hour stays same.
-    // Let's assume user is modifying minute hand primarily as requested "15 min interval".
-    // Getting hour from current state
-    const [timePart, mPart] = selectedTime.split(" ");
-    let [currentHour] = timePart.split(":").map(Number);
-
-    // If dragging moves past 12, should we increment hour?
-    // For simplicity, let's keep hour static unless logic gets complex,
-    // OR we can deduce hour from angle if user touches near center?
-    // Let's stick to minute modification for the "handle" request,
-    // as changing hours via circular drag can be tricky without a mode switch.
-    // However, if the user drags near the hour hand, we could switch hour.
-
-    // Distance check
     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
     const radius = rect.width / 2;
-    // If distance is < 60% of radius, maybe it's hour hand?
-    // Standard UI behavior: usually separate rings or modes.
-    // Let's Stick to Minute modification for the "fun 15 min" feature.
 
-    let finalHour = currentHour;
+    // Angle -> 0 at top
+    let angleRad = Math.atan2(deltaY, deltaX) + Math.PI / 2;
+    if (angleRad < 0) angleRad += 2 * Math.PI;
+    const degrees = (angleRad * 180) / Math.PI;
 
-    // Construct new time string
-    let displayMin = finalMinutes === 0 ? "00" : finalMinutes.toString();
-    // Keep current meridiem unless logic changes it?
-    // Let's allow simple minute adjustment within current hour/meridiem.
+    // Interaction Modes
+    // < 60% radius = Hour interaction
+    // > 60% radius = Minute interaction
+    const isHourInteraction = distance < (radius * 0.6);
 
-    const newTime = `${finalHour}:${displayMin} ${mPart}`;
+    let [timePart, mPart] = selectedTime.split(" ");
+    let [currentHour, currentMin] = timePart.split(":").map(Number);
+    let newHour = currentHour;
+    let newMin = currentMin;
+
+    if (isHourInteraction) {
+        // Calculate Hour from degrees (360 / 12 = 30 deg per hour)
+        let rawHour = Math.floor(degrees / 30);
+        // Correct mapping: 0-30 deg is 12-1? No.
+        // degrees start at 0 (12 o'clock).
+        // 0-30 -> 12? No, standard is 30deg = 1.
+        // So degrees / 30 rounded?
+        // 0-15 = 12?
+        // Let's use simple sector logic.
+        // 12 is centered at 0. 1 is centered at 30.
+        // range for 1 is 15-45 deg.
+        let sector = Math.round(degrees / 30);
+        if (sector === 0) sector = 12;
+        newHour = sector;
+    } else {
+        // Minute interaction - Continuous (Smooth)
+        // 360 deg = 60 min
+        const rawMinutes = (degrees / 360) * 60;
+        newMin = Math.round(rawMinutes) % 60;
+    }
+
+    const displayMin = newMin < 10 ? `0${newMin}` : newMin.toString();
+    const newTime = `${newHour}:${displayMin} ${mPart}`;
     setSelectedTime(newTime);
   };
 
@@ -177,6 +154,9 @@ const ScheduleDelivery = () => {
 
   const handleMove = (e: React.MouseEvent | React.TouchEvent) => {
       if (!isDragging) return;
+      // Prevent default to avoid scrolling while dragging clock on touch devices
+      // e.preventDefault(); // Can't easily preventDefault in React synthetic event here for passive listener issue
+
       const clientX = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
       const clientY = 'touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
       handleClockInteraction(clientX, clientY);
@@ -184,6 +164,14 @@ const ScheduleDelivery = () => {
 
   const handleEnd = () => {
       setIsDragging(false);
+  };
+
+  // Toggle AM/PM
+  const handleMeridiemClick = (newM: "AM" | "PM") => {
+      setMeridiem(newM);
+      // Update selected time text to match new meridiem
+      const [t] = selectedTime.split(' ');
+      setSelectedTime(`${t} ${newM.toLowerCase()}`);
   };
 
   // Validation Logic
@@ -281,14 +269,14 @@ const ScheduleDelivery = () => {
                 {/* AM/PM Switch - Absolute Positioned Top Right */}
                 <div className="absolute top-[9px] right-[10px] flex flex-col items-center z-20">
                     <button
-                        onClick={() => setMeridiem("AM")}
+                        onClick={() => handleMeridiemClick("AM")}
                         className={`text-[12px] font-bold transition-opacity ${meridiem === "AM" ? "text-white opacity-100" : "text-white opacity-50"}`}
                     >
                         AM
                     </button>
                     <div className="h-[1px] w-[30px] bg-[#2D2D30] my-[4px]" />
                     <button
-                        onClick={() => setMeridiem("PM")}
+                        onClick={() => handleMeridiemClick("PM")}
                         className={`text-[12px] font-bold transition-opacity ${meridiem === "PM" ? "text-white opacity-100" : "text-white opacity-50"}`}
                     >
                         PM
@@ -345,7 +333,7 @@ const ScheduleDelivery = () => {
                             className="h-full overflow-y-auto no-scrollbar flex flex-col gap-[4px] py-[10px]"
                             ref={scrollRef}
                         >
-                            {filteredTimeSlots.map((time) => {
+                            {timeSlots.map((time) => {
                                 const isSelected = time === selectedTime;
                                 return (
                                     <div
