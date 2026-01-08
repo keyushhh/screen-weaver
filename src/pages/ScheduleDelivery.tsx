@@ -38,18 +38,25 @@ const ScheduleDelivery = () => {
         }
     }
 
-    // Inject extraTime if valid for this meridiem but missing
+    // Inject extraTime if valid for this meridiem AND within operating hours
     if (extraTime && extraTime.toLowerCase().includes(currentMeridiem.toLowerCase()) && !slots.includes(extraTime)) {
-         slots.push(extraTime);
-         slots.sort((a, b) => {
-             const getMin = (t: string) => {
-                 let [hStr, minStr] = t.split(' ')[0].split(':');
-                 let h = parseInt(hStr);
-                 if (h === 12) h = 0;
-                 return h * 60 + parseInt(minStr);
-             };
-             return getMin(a) - getMin(b);
-         });
+         // Parse extraTime to check range
+         const getMin = (t: string) => {
+             let [timeStr, m] = t.split(' ');
+             let [h, min] = timeStr.split(':').map(Number);
+             if (m.toLowerCase() === 'pm' && h !== 12) h += 12;
+             if (m.toLowerCase() === 'am' && h === 12) h = 0;
+             return h * 60 + min;
+         };
+
+         const extraMinutes = getMin(extraTime);
+         const startLimit = 6 * 60; // 6:00 AM
+         const endLimit = 22 * 60; // 10:00 PM
+
+         if (extraMinutes >= startLimit && extraMinutes <= endLimit) {
+             slots.push(extraTime);
+             slots.sort((a, b) => getMin(a) - getMin(b));
+         }
     }
 
     return slots;
@@ -121,15 +128,6 @@ const ScheduleDelivery = () => {
 
     if (isHourInteraction) {
         // Calculate Hour from degrees (360 / 12 = 30 deg per hour)
-        let rawHour = Math.floor(degrees / 30);
-        // Correct mapping: 0-30 deg is 12-1? No.
-        // degrees start at 0 (12 o'clock).
-        // 0-30 -> 12? No, standard is 30deg = 1.
-        // So degrees / 30 rounded?
-        // 0-15 = 12?
-        // Let's use simple sector logic.
-        // 12 is centered at 0. 1 is centered at 30.
-        // range for 1 is 15-45 deg.
         let sector = Math.round(degrees / 30);
         if (sector === 0) sector = 12;
         newHour = sector;
@@ -360,7 +358,7 @@ const ScheduleDelivery = () => {
 
             {/* Invalid Time Message */}
             {isInvalidTime && (
-                <div className="px-5 pb-4 pt-2 text-center animate-fade-in">
+                <div className="px-5 pt-2 text-center animate-fade-in">
                     <p className="text-[#FF3B30] text-[13px] font-medium">
                         Hey man, even we need rest and sleep!
                     </p>
