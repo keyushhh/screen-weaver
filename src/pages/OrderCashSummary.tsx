@@ -530,7 +530,9 @@ const OrderCashSummary = () => {
                  paddingTop: "26px",
                  paddingLeft: "20px",
                  paddingRight: "20px",
-                 paddingBottom: "54px"
+                 paddingBottom: "54px",
+                 backdropFilter: "blur(24px)",
+                 WebkitBackdropFilter: "blur(24px)"
              }}
           >
               <p className="text-white text-[18px] font-bold font-sans mb-[16px]">
