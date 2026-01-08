@@ -1,11 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
-import Map, { ViewState, ViewStateChangeEvent } from "react-map-gl/mapbox";
-import mapboxgl from "mapbox-gl";
+import Map, { ViewState, ViewStateChangeEvent } from "react-map-gl/maplibre";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, Search, MapPin, Navigation } from "lucide-react";
-import "mapbox-gl/dist/mapbox-gl.css";
-
-const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
+import "maplibre-gl/dist/maplibre-gl.css";
 
 const AddAddress = () => {
   const navigate = useNavigate();
@@ -34,27 +31,17 @@ const AddAddress = () => {
 
   const fetchAddress = async (lat: number, lng: number) => {
     try {
-      if (!MAPBOX_TOKEN || MAPBOX_TOKEN.includes("placeholder")) {
-        // Mock response if token is placeholder
-        console.log("Using placeholder token - mocking address");
-        setAddress("Bangalore, India");
-        setDetailedAddress(`Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)} - Mock Address`);
-        return;
-      }
+      // Mock address for now (simulating "Interaction First" approach)
+      // Since we are using MapLibre with CartoDB, we don't have a built-in geocoding API like Mapbox
+      // We'll keep the mock logic as requested, which is enough to validate the interaction model.
+      console.log("Fetching address for", lat, lng);
 
-      const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${MAPBOX_TOKEN}`
-      );
-      const data = await response.json();
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 500));
 
-      if (data.features && data.features.length > 0) {
-        const place = data.features[0];
-        setAddress(place.text || "Unknown Location");
-        setDetailedAddress(place.place_name || "");
-      } else {
-        setAddress("Unknown Location");
-        setDetailedAddress("");
-      }
+      setAddress("Bangalore, India");
+      setDetailedAddress(`Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)} - Mock Address`);
+
     } catch (error) {
       console.error("Error fetching address:", error);
       setAddress("Error fetching location");
@@ -88,13 +75,13 @@ const AddAddress = () => {
         onMove={handleMove}
         onMoveEnd={handleMoveEnd}
         style={{ width: "100%", height: "100%" }}
-        mapStyle="mapbox://styles/mapbox/dark-v11"
-        mapboxAccessToken={MAPBOX_TOKEN}
+        // Use CartoDB Dark Matter style (Free, no token needed)
+        mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
         attributionControl={false}
       />
 
       {/* Header Overlay */}
-      <div className="absolute top-0 left-0 right-0 p-4 pt-12 bg-gradient-to-b from-black/80 to-transparent z-10 flex items-center">
+      <div className="absolute top-0 left-0 right-0 p-4 pt-12 safe-area-top bg-gradient-to-b from-black/80 to-transparent z-10 flex items-center">
         <button
           onClick={() => navigate(-1)}
           className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center border border-white/10"
@@ -106,7 +93,7 @@ const AddAddress = () => {
       </div>
 
       {/* Search Bar Overlay */}
-      <div className="absolute top-28 left-4 right-4 z-10">
+      <div className="absolute top-36 left-4 right-4 z-10">
         <div className="bg-white/10 backdrop-blur-md rounded-2xl flex items-center px-4 h-12 border border-white/10">
           <Search className="w-5 h-5 text-gray-400 mr-3" />
           <input
@@ -131,7 +118,7 @@ const AddAddress = () => {
       </div>
 
       {/* Helper text above bottom sheet */}
-      <div className="absolute bottom-[240px] left-0 right-0 flex justify-center z-10 pointer-events-none">
+      <div className="absolute bottom-[350px] left-0 right-0 flex justify-center z-10 pointer-events-none">
         <div className="bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
            <span className="text-sm font-medium">Drag the pin to set your location</span>
         </div>
@@ -139,7 +126,7 @@ const AddAddress = () => {
 
       {/* My Location Button */}
       <button
-        className="absolute bottom-[240px] right-4 z-10 w-12 h-12 bg-[#1A1A1A] rounded-full flex items-center justify-center border border-white/10 shadow-lg"
+        className="absolute bottom-[350px] right-4 z-10 w-12 h-12 bg-[#1A1A1A] rounded-full flex items-center justify-center border border-white/10 shadow-lg"
         onClick={() => {
             // Mock geolocation
             if (navigator.geolocation) {
@@ -159,7 +146,7 @@ const AddAddress = () => {
       </button>
 
       {/* Bottom Sheet */}
-      <div className="absolute bottom-0 left-0 right-0 bg-black rounded-t-[32px] p-6 pb-10 z-20 border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+      <div className="absolute bottom-0 left-0 right-0 bg-black rounded-t-[32px] p-6 pb-10 safe-area-bottom z-20 border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
         <h3 className="text-white text-base font-semibold mb-4">Order will be delivered here</h3>
 
         <div className="bg-[#1A1A1A] rounded-2xl p-4 flex items-start gap-4 mb-6 border border-white/5">
