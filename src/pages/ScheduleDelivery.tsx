@@ -380,15 +380,10 @@ const ScheduleDelivery = () => {
         className="fixed bottom-0 left-0 right-0 z-50 safe-area-bottom"
         style={{
             height: "255px",
-            backgroundColor: "rgba(23, 23, 23, 0.31)",
-            borderTopLeftRadius: "32px",
-            borderTopRightRadius: "32px",
             paddingTop: "26px",
             paddingLeft: "20px",
             paddingRight: "20px",
             paddingBottom: "54px",
-            backdropFilter: "blur(24px)",
-            WebkitBackdropFilter: "blur(24px)"
         }}
       >
           <p className="text-white text-[18px] font-bold font-sans mb-[16px]">
