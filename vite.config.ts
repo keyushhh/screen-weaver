@@ -14,6 +14,7 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "open-location-code": path.resolve(__dirname, "node_modules/open-location-code/openlocationcode.js")
     },
   },
 }));
