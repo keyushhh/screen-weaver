@@ -113,24 +113,24 @@ const AddAddress = () => {
   const fetchUserLocation = useCallback(async () => {
       try {
           console.log("Checking location permissions...");
-          const permissionStatus = await Geolocation.checkPermissions();
-          console.log('Permission status:', permissionStatus.location);
+          let permissionStatus = await Geolocation.checkPermissions();
+          console.log('Initial permission status:', permissionStatus.location);
 
-          if (permissionStatus.location === 'denied') {
-              console.log("Location permission denied");
+          // If not granted, explicitly request permission
+          if (permissionStatus.location !== 'granted') {
+              console.log("Permission not granted. Requesting explicitly...");
+              permissionStatus = await Geolocation.requestPermissions();
+              console.log('New permission status:', permissionStatus.location);
+          }
+
+          // If still not granted (denied or dismissed), exit
+          if (permissionStatus.location !== 'granted') {
+              console.log("Location permission denied or not granted.");
               return;
           }
 
-          if (permissionStatus.location === 'prompt' || permissionStatus.location === 'prompt-with-rationale') {
-              console.log("Requesting location permissions...");
-              const request = await Geolocation.requestPermissions();
-              if (request.location === 'denied') {
-                  console.log("Location permission denied after request");
-                  return;
-              }
-          }
-
-          console.log("Requesting fresh user location via Capacitor...");
+          // Permission granted, fetch location
+          console.log("Permission granted. Requesting fresh user location via Capacitor...");
           const position = await Geolocation.getCurrentPosition({
               enableHighAccuracy: true,
               timeout: 10000,
