@@ -7,6 +7,7 @@ import { OpenLocationCode } from "open-location-code";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { calculateDistance, reverseGeocode } from "@/utils/geoUtils";
+import { Geolocation } from '@capacitor/geolocation';
 
 // Assets
 import mapPinIcon from "@/assets/map-pin-icon.svg";
@@ -109,15 +110,33 @@ const AddAddress = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedFetchAddress = useCallback(debounce(fetchAddress, 1000), [userLocation]);
 
-  const fetchUserLocation = useCallback(() => {
-      if (!navigator.geolocation) {
-          console.log("Geolocation is not supported by this browser.");
-          return;
-      }
+  const fetchUserLocation = useCallback(async () => {
+      try {
+          console.log("Checking location permissions...");
+          const permissionStatus = await Geolocation.checkPermissions();
+          console.log('Permission status:', permissionStatus.location);
 
-      console.log("Requesting fresh user location...");
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
+          if (permissionStatus.location === 'denied') {
+              console.log("Location permission denied");
+              return;
+          }
+
+          if (permissionStatus.location === 'prompt' || permissionStatus.location === 'prompt-with-rationale') {
+              console.log("Requesting location permissions...");
+              const request = await Geolocation.requestPermissions();
+              if (request.location === 'denied') {
+                  console.log("Location permission denied after request");
+                  return;
+              }
+          }
+
+          console.log("Requesting fresh user location via Capacitor...");
+          const position = await Geolocation.getCurrentPosition({
+              enableHighAccuracy: true,
+              timeout: 10000,
+              maximumAge: 0
+          });
+
           const { latitude, longitude } = position.coords;
           console.log("Got fresh location:", latitude, longitude);
 
@@ -136,12 +155,10 @@ const AddAddress = () => {
 
           // Fetch address for this new GPS location
           fetchAddress(latitude, longitude);
-        },
-        (error) => {
-          console.error("Error getting location", error);
-        },
-        { timeout: 10000, enableHighAccuracy: true, maximumAge: 0 }
-      );
+
+      } catch (error) {
+          console.error("Error getting location via Capacitor:", error);
+      }
   }, []);
 
   const handleSnapToGrid = () => {
