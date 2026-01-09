@@ -215,6 +215,7 @@ const AddAddress = () => {
         style={{ width: "100%", height: "100%" }}
         mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
         attributionControl={false}
+        touchZoom={true}
       />
 
       {/* Top Container Layer */}
@@ -309,7 +310,12 @@ const AddAddress = () => {
                 onClick={() => {
                     if (navigator.geolocation) {
                         navigator.geolocation.getCurrentPosition((pos) => {
-                            setViewState(prev => ({ ...prev, latitude: pos.coords.latitude, longitude: pos.coords.longitude }));
+                            setViewState(prev => ({
+                                ...prev,
+                                latitude: pos.coords.latitude,
+                                longitude: pos.coords.longitude,
+                                zoom: 18
+                            }));
                             debouncedFetchAddress(pos.coords.latitude, pos.coords.longitude);
                         });
                     }
@@ -398,22 +404,38 @@ const AddAddress = () => {
           </div>
         </div>
 
-        {/* CTA */}
-        <div style={{ marginTop: "24px", opacity: isDragging || isLoading ? 0 : 1, transition: 'opacity 0.2s', visibility: isDragging || isLoading ? 'hidden' : 'visible' }}>
-            <button
-                className="w-full flex items-center justify-center"
+        {/* CTA or Warning */}
+        {viewState.zoom < 16 ? (
+            <div
+                className="w-full flex items-center justify-center text-white font-medium text-[14px]"
                 style={{
-                    height: "48px",
-                    backgroundImage: `url(${confirmCtaBg})`,
-                    backgroundSize: "100% 100%",
-                    backgroundRepeat: "no-repeat",
-                    backgroundColor: "transparent",
-                    border: "none"
+                    marginTop: "12px",
+                    height: "45px",
+                    backgroundColor: "rgba(255, 0, 0, 0.15)",
+                    border: "1px solid rgba(255, 0, 0, 0.22)",
+                    borderRadius: "12px",
+                    fontFamily: 'Satoshi, sans-serif'
                 }}
             >
-                <span className="text-white font-medium">Confirm Location</span>
-            </button>
-        </div>
+                Zoom in to place the pin at exact delivery location
+            </div>
+        ) : (
+            <div style={{ marginTop: "24px", opacity: isDragging || isLoading ? 0 : 1, transition: 'opacity 0.2s', visibility: isDragging || isLoading ? 'hidden' : 'visible' }}>
+                <button
+                    className="w-full flex items-center justify-center"
+                    style={{
+                        height: "48px",
+                        backgroundImage: `url(${confirmCtaBg})`,
+                        backgroundSize: "100% 100%",
+                        backgroundRepeat: "no-repeat",
+                        backgroundColor: "transparent",
+                        border: "none"
+                    }}
+                >
+                    <span className="text-white font-medium">Confirm Location</span>
+                </button>
+            </div>
+        )}
       </div>
     </div>
   );
