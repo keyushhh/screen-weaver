@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Map, { ViewState, ViewStateChangeEvent } from "react-map-gl/maplibre";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Search, Copy } from "lucide-react";
+import { ChevronLeft, Search } from "lucide-react";
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { OpenLocationCode } from "open-location-code";
 import { toast } from "sonner";
@@ -11,6 +11,7 @@ import mapPinIcon from "@/assets/map-pin-icon.svg";
 import locationPinIcon from "@/assets/location-pin.svg";
 import navigationIcon from "@/assets/navigation-icon.svg";
 import confirmCtaBg from "@/assets/confirm-location-cta.png";
+import copyIcon from "@/assets/copy.svg";
 
 const AddAddress = () => {
   const navigate = useNavigate();
@@ -282,17 +283,25 @@ const AddAddress = () => {
                 {plusCode && (
                     <div
                         onClick={copyPlusCode}
-                        className="flex items-center gap-1 px-2 py-0.5 bg-white/10 rounded cursor-pointer hover:bg-white/20 transition-colors"
+                        className="flex items-center gap-1.5 px-3 cursor-pointer hover:bg-white/5 transition-colors"
+                        style={{
+                            height: "22px",
+                            backgroundColor: "rgba(7, 7, 7, 0.85)", // #070707 at 85% opacity
+                            borderRadius: "9999px", // 100% pill shaped
+                            border: "1px solid rgba(255, 255, 255, 0.12)", // #FFFFFF at 12% opacity
+                            display: "inline-flex",
+                            alignItems: "center"
+                        }}
                         title="Click to copy Plus Code"
                     >
                         <span
                             data-testid="plus-code"
-                            className="text-[#5260FE] font-bold text-sm"
+                            className="text-[#5260FE] font-bold text-xs" // text-xs approx 12px, adjust if needed
                             style={{ fontFamily: 'Satoshi, sans-serif' }}
                         >
                             {plusCode}
                         </span>
-                        <Copy className="w-3 h-3 text-[#5260FE]" />
+                        <img src={copyIcon} alt="Copy" className="w-3 h-3" />
                     </div>
                 )}
             </div>
