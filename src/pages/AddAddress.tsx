@@ -30,11 +30,10 @@ const AddAddress = () => {
   const [addressLine, setAddressLine] = useState<string>("");
   const [plusCode, setPlusCode] = useState<string>("");
   const [isDragging, setIsDragging] = useState(false);
-  const [isLoading, setIsLoading] = useState(true); // Start loading immediately
+  const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
   const [distance, setDistance] = useState<string | null>(null);
-  const [isInitialized, setIsInitialized] = useState(false);
 
   const debounce = <T extends (...args: unknown[]) => void>(func: T, wait: number) => {
     let timeout: NodeJS.Timeout;
@@ -166,13 +165,14 @@ const AddAddress = () => {
   };
 
   useEffect(() => {
+    // Initial fetch for default location immediately
+    fetchAddress(viewState.latitude, viewState.longitude);
+
     if (navigator.geolocation) {
       const timeoutId = setTimeout(() => {
-          // If geolocation times out, fallback
-          console.log("Geolocation timed out, falling back to default");
-          fetchAddress(viewState.latitude, viewState.longitude);
-          setIsInitialized(true);
-      }, 5000); // Reduced to 5 seconds for better UX
+          // If geolocation times out, just log it. We already showed default address.
+          console.log("Geolocation timed out");
+      }, 5000);
 
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -191,23 +191,16 @@ const AddAddress = () => {
             longitude
           }));
 
-          // Fetch address for this initial location
+          // Fetch address for this new GPS location
           fetchAddress(latitude, longitude);
-          setIsInitialized(true);
         },
         (error) => {
           clearTimeout(timeoutId);
           console.error("Error getting location", error);
-          // Fallback to default location if GPS fails
-          fetchAddress(viewState.latitude, viewState.longitude);
-          setIsInitialized(true);
+          // No need to fetch default again, already done on mount
         },
         { timeout: 5000, enableHighAccuracy: true, maximumAge: 0 }
       );
-    } else {
-        // Fallback if no geolocation support
-        fetchAddress(viewState.latitude, viewState.longitude);
-        setIsInitialized(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
