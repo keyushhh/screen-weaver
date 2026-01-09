@@ -164,7 +164,8 @@ const AddAddress = () => {
         >
           <div className="safe-area-top pt-4 px-5">
              {/* Header */}
-            <div className="flex items-center mb-[18px]">
+            {/* Removed mb-[18px] to strictly enforce the container's 24px bottom padding */}
+            <div className="flex items-center">
                 <button
                 onClick={() => navigate(-1)}
                 className="w-10 h-10 flex items-center justify-center mr-2"
@@ -276,7 +277,8 @@ const AddAddress = () => {
           <img src={locationPinIcon} alt="Loc" className="w-5 h-5 mt-1 shrink-0 mr-3" />
 
           <div className="flex-1">
-             <div className="flex items-center gap-2 mb-[6px]">
+             {/* Changed to justify-between to push Plus Code to the right */}
+             <div className="flex items-center justify-between mb-[6px]">
                 <h4 className="text-white font-bold text-[16px]" style={{ fontFamily: 'Satoshi, sans-serif' }}>
                     {addressTitle}
                 </h4>
