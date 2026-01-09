@@ -252,7 +252,7 @@ const AddAddress = () => {
                     border: "1px solid rgba(255,255,255,0.1)"
                 }}
             >
-                <img src={navigationIcon} alt="Nav" className="w-full h-full object-cover" />
+                <img src={navigationIcon} alt="Nav" className="w-[18px] h-[18px] object-cover" />
             </button>
          </div>
       </div>
