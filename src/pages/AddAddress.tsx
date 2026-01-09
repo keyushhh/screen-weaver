@@ -42,10 +42,24 @@ const AddAddress = () => {
     try {
       console.log("Fetching address for", lat, lng);
       // Generate Plus Code
-      const olc = new OpenLocationCode();
-      const code = olc.encode(lat, lng);
-      console.log("Generated Code:", code);
-      setPlusCode(code);
+      // Note: @types/open-location-code defines methods as static, but the JS library
+      // implementation uses prototype methods, requiring instantiation.
+      // Casting to 'any' bypasses the incorrect type definition.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const olc = new OpenLocationCode() as any;
+      const fullCode = olc.encode(lat, lng);
+      console.log("Generated Full Code:", fullCode);
+
+      // Shorten the Plus Code for display (remove the first 4 characters, usually the area code)
+      // This provides the 4+2 (e.g., 5Q5C+FX) format relative to the local city/region
+      let shortCode = fullCode;
+      if (fullCode.length >= 10 && fullCode.includes('+')) {
+         // Assuming standard 10+ digit code (8 chars before +, 2+ after)
+         // remove first 4 chars.
+         shortCode = fullCode.substring(4);
+      }
+
+      setPlusCode(shortCode);
 
       // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 500));
@@ -81,8 +95,15 @@ const AddAddress = () => {
       if (searchQuery.includes('+')) {
          try {
              // Attempt to decode
-             const olc = new OpenLocationCode();
-             const codeArea = olc.decode(searchQuery);
+             // eslint-disable-next-line @typescript-eslint/no-explicit-any
+             const olc = new OpenLocationCode() as any;
+
+             // Try recovering nearest first (handles short codes)
+             // Use current map center as reference for context
+             const recoveredCode = olc.recoverNearest(searchQuery, viewState.latitude, viewState.longitude);
+             console.log(`Recovered code: ${recoveredCode} from input: ${searchQuery}`);
+
+             const codeArea = olc.decode(recoveredCode);
              const lat = codeArea.latitudeCenter;
              const lng = codeArea.longitudeCenter;
 
