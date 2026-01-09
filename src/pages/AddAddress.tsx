@@ -167,8 +167,17 @@ const AddAddress = () => {
 
   useEffect(() => {
     if (navigator.geolocation) {
+      const timeoutId = setTimeout(() => {
+          // If geolocation times out, fallback
+          console.log("Geolocation timed out, falling back to default");
+          fetchAddress(viewState.latitude, viewState.longitude);
+          setIsInitialized(true);
+          // Also set userLocation to default if needed, or leave null to indicate no GPS
+      }, 10000); // 10 second timeout
+
       navigator.geolocation.getCurrentPosition(
         (position) => {
+          clearTimeout(timeoutId);
           const { latitude, longitude } = position.coords;
 
           setUserLocation({
@@ -188,11 +197,13 @@ const AddAddress = () => {
           setIsInitialized(true);
         },
         (error) => {
+          clearTimeout(timeoutId);
           console.error("Error getting location", error);
           // Fallback to default location if GPS fails
           fetchAddress(viewState.latitude, viewState.longitude);
           setIsInitialized(true);
-        }
+        },
+        { timeout: 10000, enableHighAccuracy: true, maximumAge: 0 }
       );
     } else {
         // Fallback if no geolocation support
