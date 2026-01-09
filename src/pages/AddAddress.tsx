@@ -109,6 +109,29 @@ const AddAddress = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedFetchAddress = useCallback(debounce(fetchAddress, 1000), [userLocation]);
 
+  const handleSnapToGrid = () => {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const olc = new OpenLocationCode() as any;
+      const code = olc.encode(viewState.latitude, viewState.longitude);
+      const decoded = olc.decode(code);
+      const centerLat = decoded.latitudeCenter;
+      const centerLng = decoded.longitudeCenter;
+
+      setViewState(prev => ({
+        ...prev,
+        latitude: centerLat,
+        longitude: centerLng,
+        zoom: 18
+      }));
+
+      // Fetch address for the new snapped location
+      fetchAddress(centerLat, centerLng);
+    } catch (error) {
+      console.error("Error snapping to grid:", error);
+    }
+  };
+
   const handleMove = (evt: ViewStateChangeEvent) => {
     setViewState(evt.viewState);
     setIsDragging(true);
@@ -210,6 +233,7 @@ const AddAddress = () => {
       {/* Map */}
       <Map
         {...viewState}
+        minZoom={3}
         onMove={handleMove}
         onMoveEnd={handleMoveEnd}
         style={{ width: "100%", height: "100%" }}
@@ -298,6 +322,13 @@ const AddAddress = () => {
                     border: "1px solid rgba(255,255,255,0.1)"
                 }}
             >
+                <img
+                    src={locationPinIcon}
+                    alt="Snap"
+                    className="w-4 h-4 mr-2 cursor-pointer hover:scale-110 transition-transform"
+                    onClick={handleSnapToGrid}
+                    data-testid="helper-pin-icon"
+                />
                 <span className="text-white font-medium text-[14px]" style={{ fontFamily: 'Satoshi, sans-serif' }}>
                     Drag the pin to set your location
                 </span>
