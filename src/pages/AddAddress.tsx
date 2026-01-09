@@ -5,6 +5,8 @@ import { ChevronLeft, Search } from "lucide-react";
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { OpenLocationCode } from "open-location-code";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
+import { calculateDistance } from "@/utils/geoUtils";
 
 // Assets
 import mapPinIcon from "@/assets/map-pin-icon.svg";
@@ -27,9 +29,11 @@ const AddAddress = () => {
   const [addressTitle, setAddressTitle] = useState<string>("Loading...");
   const [addressLine, setAddressLine] = useState<string>("");
   const [plusCode, setPlusCode] = useState<string>("");
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isDragging, setIsDragging] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
+  const [distance, setDistance] = useState<string | null>(null);
 
   const debounce = <T extends (...args: unknown[]) => void>(func: T, wait: number) => {
     let timeout: NodeJS.Timeout;
@@ -40,6 +44,7 @@ const AddAddress = () => {
   };
 
   const fetchAddress = async (lat: number, lng: number) => {
+    setIsLoading(true);
     try {
       console.log("Fetching address for", lat, lng);
       // Generate Plus Code
@@ -69,16 +74,23 @@ const AddAddress = () => {
       setAddressTitle("Bangalore, India");
       setAddressLine("C-102, Lotus Residency, 5th Cross Road, JP Nagar, Bangalore, Karnataka – 560078");
 
+      if (userLocation) {
+        setDistance(calculateDistance(userLocation.lat, userLocation.lng, lat, lng));
+      }
+
     } catch (error) {
       console.error("Error fetching address:", error);
       setAddressTitle("Error fetching location");
       setAddressLine("");
       setPlusCode("");
+      setDistance(null);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const debouncedFetchAddress = useCallback(debounce(fetchAddress, 1000), []);
+  const debouncedFetchAddress = useCallback(debounce(fetchAddress, 1000), [userLocation]);
 
   const handleMove = (evt: ViewStateChangeEvent) => {
     setViewState(evt.viewState);
@@ -87,7 +99,9 @@ const AddAddress = () => {
 
   const handleMoveEnd = (evt: ViewStateChangeEvent) => {
     setIsDragging(false);
-    debouncedFetchAddress(evt.viewState.latitude, evt.viewState.longitude);
+    // Fetch immediately on move end for snappier feeling, or use debounced if preferred.
+    // Given the requirement for "Swiggy-like" where it loads after drag:
+    fetchAddress(evt.viewState.latitude, evt.viewState.longitude);
   };
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -114,7 +128,7 @@ const AddAddress = () => {
                  longitude: lng,
                  zoom: 18 // Zoom in closer for specific code
              }));
-             debouncedFetchAddress(lat, lng);
+             fetchAddress(lat, lng);
          } catch (err) {
              console.error(err);
              toast.error("Invalid Plus Code");
@@ -134,8 +148,28 @@ const AddAddress = () => {
   };
 
   useEffect(() => {
-    debouncedFetchAddress(viewState.latitude, viewState.longitude);
-  }, [debouncedFetchAddress, viewState.latitude, viewState.longitude]);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+          // Also set initial distance if needed, though fetchAddress below will handle it if userLocation is set
+        },
+        (error) => {
+          console.error("Error getting location", error);
+        }
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    // Initial fetch
+    fetchAddress(viewState.latitude, viewState.longitude);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userLocation]); // Re-fetch when userLocation is available to calculate distance
 
   return (
     <div className="h-full w-full relative bg-black text-white overflow-hidden">
@@ -279,42 +313,59 @@ const AddAddress = () => {
           <div className="flex-1">
              {/* Changed to justify-between to push Plus Code to the right */}
              <div className="flex items-center justify-between mb-[6px]">
-                <h4 className="text-white font-bold text-[16px]" style={{ fontFamily: 'Satoshi, sans-serif' }}>
-                    {addressTitle}
-                </h4>
-                {plusCode && (
-                    <div
-                        onClick={copyPlusCode}
-                        className="flex items-center gap-1.5 px-3 cursor-pointer hover:bg-white/5 transition-colors"
-                        style={{
-                            height: "22px",
-                            backgroundColor: "rgba(7, 7, 7, 0.85)", // #070707 at 85% opacity
-                            borderRadius: "9999px", // 100% pill shaped
-                            border: "1px solid rgba(255, 255, 255, 0.12)", // #FFFFFF at 12% opacity
-                            display: "inline-flex",
-                            alignItems: "center"
-                        }}
-                        title="Click to copy Plus Code"
-                    >
-                        <span
-                            data-testid="plus-code"
-                            className="text-[#5260FE] font-bold text-xs" // text-xs approx 12px, adjust if needed
-                            style={{ fontFamily: 'Satoshi, sans-serif' }}
+                {isDragging || isLoading ? (
+                    <Skeleton className="h-6 w-3/4 bg-gray-800" />
+                ) : (
+                    <>
+                    <h4 className="text-white font-bold text-[16px]" style={{ fontFamily: 'Satoshi, sans-serif' }}>
+                        {addressTitle}
+                    </h4>
+                    {plusCode && (
+                        <div
+                            onClick={copyPlusCode}
+                            className="flex items-center gap-1.5 px-3 cursor-pointer hover:bg-white/5 transition-colors"
+                            style={{
+                                height: "22px",
+                                backgroundColor: "rgba(7, 7, 7, 0.85)", // #070707 at 85% opacity
+                                borderRadius: "9999px", // 100% pill shaped
+                                border: "1px solid rgba(255, 255, 255, 0.12)", // #FFFFFF at 12% opacity
+                                display: "inline-flex",
+                                alignItems: "center"
+                            }}
+                            title="Click to copy Plus Code"
                         >
-                            {plusCode}
-                        </span>
-                        <img src={copyIcon} alt="Copy" className="w-3 h-3" />
-                    </div>
+                            <span
+                                data-testid="plus-code"
+                                className="text-[#5260FE] font-bold text-xs" // text-xs approx 12px, adjust if needed
+                                style={{ fontFamily: 'Satoshi, sans-serif' }}
+                            >
+                                {plusCode}
+                            </span>
+                            <img src={copyIcon} alt="Copy" className="w-3 h-3" />
+                        </div>
+                    )}
+                    </>
                 )}
             </div>
-            <p className="text-gray-400 text-sm leading-relaxed">
-              {addressLine || "Fetching details..."}
-            </p>
+
+            {isDragging || isLoading ? (
+                <Skeleton className="h-4 w-full bg-gray-800 mt-2" />
+            ) : (
+                <p className="text-gray-400 text-sm leading-relaxed">
+                    {addressLine || "Fetching details..."}
+                </p>
+            )}
+
+            {!isDragging && !isLoading && distance && (
+                <p className="text-white/60 text-xs mt-2 font-medium" style={{ fontFamily: 'Satoshi, sans-serif' }}>
+                    {distance}
+                </p>
+            )}
           </div>
         </div>
 
         {/* CTA */}
-        <div style={{ marginTop: "24px" }}>
+        <div style={{ marginTop: "24px", opacity: isDragging || isLoading ? 0 : 1, transition: 'opacity 0.2s', visibility: isDragging || isLoading ? 'hidden' : 'visible' }}>
             <button
                 className="w-full flex items-center justify-center"
                 style={{
