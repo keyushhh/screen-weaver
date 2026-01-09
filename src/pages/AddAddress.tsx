@@ -109,6 +109,41 @@ const AddAddress = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedFetchAddress = useCallback(debounce(fetchAddress, 1000), [userLocation]);
 
+  const fetchUserLocation = useCallback(() => {
+      if (!navigator.geolocation) {
+          console.log("Geolocation is not supported by this browser.");
+          return;
+      }
+
+      console.log("Requesting fresh user location...");
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          console.log("Got fresh location:", latitude, longitude);
+
+          setUserLocation({
+            lat: latitude,
+            lng: longitude
+          });
+
+          // Center map on user location
+          setViewState(prev => ({
+            ...prev,
+            latitude,
+            longitude,
+            zoom: 18 // Zoom in when we find the user
+          }));
+
+          // Fetch address for this new GPS location
+          fetchAddress(latitude, longitude);
+        },
+        (error) => {
+          console.error("Error getting location", error);
+        },
+        { timeout: 10000, enableHighAccuracy: true, maximumAge: 0 }
+      );
+  }, []);
+
   const handleSnapToGrid = () => {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -188,45 +223,23 @@ const AddAddress = () => {
   };
 
   useEffect(() => {
-    // Initial fetch for default location immediately
+    // Initial fetch for default location immediately (fallback/last known)
     fetchAddress(viewState.latitude, viewState.longitude);
 
-    if (navigator.geolocation) {
-      const timeoutId = setTimeout(() => {
-          // If geolocation times out, just log it. We already showed default address.
-          console.log("Geolocation timed out");
-      }, 5000);
+    // Initial fresh fetch
+    fetchUserLocation();
 
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          clearTimeout(timeoutId);
-          const { latitude, longitude } = position.coords;
+    // Re-fetch on window focus (e.g. user comes back from Settings or another app)
+    const handleFocus = () => {
+        fetchUserLocation();
+    };
 
-          setUserLocation({
-            lat: latitude,
-            lng: longitude
-          });
-
-          // Center map on user location
-          setViewState(prev => ({
-            ...prev,
-            latitude,
-            longitude
-          }));
-
-          // Fetch address for this new GPS location
-          fetchAddress(latitude, longitude);
-        },
-        (error) => {
-          clearTimeout(timeoutId);
-          console.error("Error getting location", error);
-          // No need to fetch default again, already done on mount
-        },
-        { timeout: 5000, enableHighAccuracy: true, maximumAge: 0 }
-      );
-    }
+    window.addEventListener('focus', handleFocus);
+    return () => {
+        window.removeEventListener('focus', handleFocus);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fetchUserLocation]);
 
   return (
     <div className="h-full w-full relative bg-black text-white overflow-hidden">
@@ -338,19 +351,7 @@ const AddAddress = () => {
 
             {/* Navigation Button */}
             <button
-                onClick={() => {
-                    if (navigator.geolocation) {
-                        navigator.geolocation.getCurrentPosition((pos) => {
-                            setViewState(prev => ({
-                                ...prev,
-                                latitude: pos.coords.latitude,
-                                longitude: pos.coords.longitude,
-                                zoom: 18
-                            }));
-                            debouncedFetchAddress(pos.coords.latitude, pos.coords.longitude);
-                        });
-                    }
-                }}
+                onClick={fetchUserLocation}
                 className="w-[40px] h-[40px] rounded-full flex items-center justify-center overflow-hidden"
                 style={{
                     backgroundColor: "#1A1A1A",
