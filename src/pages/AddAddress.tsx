@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Map, { ViewState, ViewStateChangeEvent } from "react-map-gl/maplibre";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Search, Loader2 } from "lucide-react";
+import { ChevronLeft, Search } from "lucide-react";
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { OpenLocationCode } from "open-location-code";
 import { toast } from "sonner";
@@ -214,17 +214,6 @@ const AddAddress = () => {
 
   return (
     <div className="h-full w-full relative bg-black text-white overflow-hidden">
-
-      {/* Initial Loading Overlay */}
-      {!isInitialized && (
-        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black">
-            <Loader2 className="w-10 h-10 text-[#5260FE] animate-spin mb-4" />
-            <p className="text-white/80 font-medium text-sm" style={{ fontFamily: 'Satoshi, sans-serif' }}>
-                Locating you...
-            </p>
-        </div>
-      )}
-
       {/* Map */}
       <Map
         {...viewState}
