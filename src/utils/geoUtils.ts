@@ -1,5 +1,5 @@
 
-export const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): string => {
+export const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
   const R = 6371; // Radius of the earth in km
   const dLat = deg2rad(lat2 - lat1);
   const dLon = deg2rad(lon2 - lon1);
@@ -9,6 +9,11 @@ export const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2
     Math.sin(dLon / 2) * Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const d = R * c; // Distance in km
+  return d * 1000; // Return in meters
+};
+
+export const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): string => {
+  const d = getDistance(lat1, lon1, lat2, lon2) / 1000; // Convert back to km for formatting logic
 
   if (d < 1) {
     return `${Math.round(d * 1000)} m away`;

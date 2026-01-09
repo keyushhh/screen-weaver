@@ -6,7 +6,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { OpenLocationCode } from "open-location-code";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
-import { calculateDistance, reverseGeocode } from "@/utils/geoUtils";
+import { calculateDistance, reverseGeocode, getDistance } from "@/utils/geoUtils";
 import { Geolocation } from '@capacitor/geolocation';
 
 // Assets
@@ -34,7 +34,7 @@ const AddAddress = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
-  const [distance, setDistance] = useState<string | null>(null);
+  const [distanceInMeters, setDistanceInMeters] = useState<number | null>(null);
 
   const debounce = <T extends (...args: unknown[]) => void>(func: T, wait: number) => {
     let timeout: NodeJS.Timeout;
@@ -44,7 +44,7 @@ const AddAddress = () => {
     };
   };
 
-  const fetchAddress = async (lat: number, lng: number) => {
+  const fetchAddress = async (lat: number, lng: number, overrideUserLocation?: {lat: number, lng: number}) => {
     setIsLoading(true);
     try {
       console.log("Fetching address for", lat, lng);
@@ -92,8 +92,11 @@ const AddAddress = () => {
       const fullAddress = [...new Set(parts)].filter(Boolean).join(", ");
       setAddressLine(fullAddress || geocodeResult.display_name); // Fallback to display_name if construction fails
 
-      if (userLocation) {
-        setDistance(calculateDistance(userLocation.lat, userLocation.lng, lat, lng));
+      const loc = overrideUserLocation || userLocation;
+      if (loc) {
+        setDistanceInMeters(getDistance(loc.lat, loc.lng, lat, lng));
+      } else {
+        setDistanceInMeters(null);
       }
 
     } catch (error) {
@@ -101,7 +104,7 @@ const AddAddress = () => {
       setAddressTitle("Location not found");
       setAddressLine("Unable to fetch address details. Please try moving the pin.");
       setPlusCode("");
-      setDistance(null);
+      setDistanceInMeters(null);
     } finally {
       setIsLoading(false);
     }
@@ -154,7 +157,7 @@ const AddAddress = () => {
           }));
 
           // Fetch address for this new GPS location
-          fetchAddress(latitude, longitude);
+          fetchAddress(latitude, longitude, { lat: latitude, lng: longitude });
 
       } catch (error) {
           console.error("Error getting location via Capacitor:", error);
@@ -445,13 +448,41 @@ const AddAddress = () => {
                 </p>
             )}
 
-            {!isDragging && !isLoading && distance && (
-                <p className="text-white/60 text-xs mt-2 font-medium" style={{ fontFamily: 'Satoshi, sans-serif' }}>
-                    {distance}
-                </p>
-            )}
           </div>
         </div>
+
+        {/* Distance Callout */}
+        {!isDragging && !isLoading && distanceInMeters !== null && distanceInMeters > 200 && (
+             <div className="relative w-full flex flex-col items-center -mt-4 mb-6 z-0">
+                 {/* Caret SVG */}
+                 <svg width="24" height="14" viewBox="0 0 24 14" fill="none" xmlns="http://www.w3.org/2000/svg" className="relative z-10 translate-y-[1px]">
+                     <path d="M0 14L12 0L24 14" stroke="#FACC15" strokeOpacity="0.21" fill="rgba(250, 204, 21, 0.15)" />
+                 </svg>
+
+                 {/* Bubble */}
+                 <div
+                    className="w-full flex items-center justify-center relative z-0"
+                    style={{
+                        height: "45px",
+                        borderRadius: "4px",
+                        backgroundColor: "rgba(250, 204, 21, 0.15)",
+                        border: "1px solid rgba(250, 204, 21, 0.21)",
+                    }}
+                 >
+                    <span
+                        className="text-center font-medium text-[14px]"
+                        style={{
+                            fontFamily: 'Satoshi, sans-serif',
+                            color: "#FACC15",
+                        }}
+                    >
+                        This is {distanceInMeters < 1000
+                            ? `${Math.round(distanceInMeters)}m`
+                            : `${(distanceInMeters/1000).toFixed(1)}km`} away from your current location.
+                    </span>
+                 </div>
+             </div>
+        )}
 
         {/* CTA or Warning */}
         {viewState.zoom < 16 ? (
