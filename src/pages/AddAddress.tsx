@@ -30,10 +30,11 @@ const AddAddress = () => {
   const [addressLine, setAddressLine] = useState<string>("");
   const [plusCode, setPlusCode] = useState<string>("");
   const [isDragging, setIsDragging] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Start loading immediately
   const [searchQuery, setSearchQuery] = useState("");
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
   const [distance, setDistance] = useState<string | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const debounce = <T extends (...args: unknown[]) => void>(func: T, wait: number) => {
     let timeout: NodeJS.Timeout;
@@ -168,25 +169,38 @@ const AddAddress = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
+          const { latitude, longitude } = position.coords;
+
           setUserLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
+            lat: latitude,
+            lng: longitude
           });
-          // Also set initial distance if needed, though fetchAddress below will handle it if userLocation is set
+
+          // Center map on user location
+          setViewState(prev => ({
+            ...prev,
+            latitude,
+            longitude
+          }));
+
+          // Fetch address for this initial location
+          fetchAddress(latitude, longitude);
+          setIsInitialized(true);
         },
         (error) => {
           console.error("Error getting location", error);
+          // Fallback to default location if GPS fails
+          fetchAddress(viewState.latitude, viewState.longitude);
+          setIsInitialized(true);
         }
       );
+    } else {
+        // Fallback if no geolocation support
+        fetchAddress(viewState.latitude, viewState.longitude);
+        setIsInitialized(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    // Initial fetch
-    fetchAddress(viewState.latitude, viewState.longitude);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userLocation]); // Re-fetch when userLocation is available to calculate distance
 
   return (
     <div className="h-full w-full relative bg-black text-white overflow-hidden">
