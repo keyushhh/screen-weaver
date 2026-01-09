@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Map, { ViewState, ViewStateChangeEvent } from "react-map-gl/maplibre";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Search } from "lucide-react";
+import { ChevronLeft, Search, Loader2 } from "lucide-react";
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { OpenLocationCode } from "open-location-code";
 import { toast } from "sonner";
@@ -172,8 +172,7 @@ const AddAddress = () => {
           console.log("Geolocation timed out, falling back to default");
           fetchAddress(viewState.latitude, viewState.longitude);
           setIsInitialized(true);
-          // Also set userLocation to default if needed, or leave null to indicate no GPS
-      }, 10000); // 10 second timeout
+      }, 5000); // Reduced to 5 seconds for better UX
 
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -203,7 +202,7 @@ const AddAddress = () => {
           fetchAddress(viewState.latitude, viewState.longitude);
           setIsInitialized(true);
         },
-        { timeout: 10000, enableHighAccuracy: true, maximumAge: 0 }
+        { timeout: 5000, enableHighAccuracy: true, maximumAge: 0 }
       );
     } else {
         // Fallback if no geolocation support
@@ -215,6 +214,17 @@ const AddAddress = () => {
 
   return (
     <div className="h-full w-full relative bg-black text-white overflow-hidden">
+
+      {/* Initial Loading Overlay */}
+      {!isInitialized && (
+        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black">
+            <Loader2 className="w-10 h-10 text-[#5260FE] animate-spin mb-4" />
+            <p className="text-white/80 font-medium text-sm" style={{ fontFamily: 'Satoshi, sans-serif' }}>
+                Locating you...
+            </p>
+        </div>
+      )}
+
       {/* Map */}
       <Map
         {...viewState}
