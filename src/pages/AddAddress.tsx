@@ -6,7 +6,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { OpenLocationCode } from "open-location-code";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
-import { calculateDistance } from "@/utils/geoUtils";
+import { calculateDistance, reverseGeocode } from "@/utils/geoUtils";
 
 // Assets
 import mapPinIcon from "@/assets/map-pin-icon.svg";
@@ -67,12 +67,29 @@ const AddAddress = () => {
 
       setPlusCode(shortCode);
 
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Fetch Real Address from Nominatim
+      const geocodeResult = await reverseGeocode(lat, lng);
+      const addr = geocodeResult.address;
 
-      // Dynamic Mock Address Logic
-      setAddressTitle("Bangalore, India");
-      setAddressLine("C-102, Lotus Residency, 5th Cross Road, JP Nagar, Bangalore, Karnataka – 560078");
+      // Construct Title (Locality/Suburb/City)
+      const title = addr.suburb || addr.neighbourhood || addr.city || addr.town || addr.village || "Unknown Location";
+      setAddressTitle(title);
+
+      // Construct Full Address Line
+      // Priority: Road/House -> Locality -> City -> State -> Pincode
+      const parts = [];
+      if (addr.road || addr.house_number) {
+        parts.push([addr.house_number, addr.road].filter(Boolean).join(" "));
+      }
+      if (addr.suburb && addr.suburb !== title) parts.push(addr.suburb);
+      if (addr.neighbourhood && addr.neighbourhood !== title) parts.push(addr.neighbourhood);
+      if (addr.city || addr.town || addr.village) parts.push(addr.city || addr.town || addr.village);
+      if (addr.state) parts.push(addr.state);
+      if (addr.postcode) parts.push(addr.postcode);
+
+      // Remove duplicates and join
+      const fullAddress = [...new Set(parts)].filter(Boolean).join(", ");
+      setAddressLine(fullAddress || geocodeResult.display_name); // Fallback to display_name if construction fails
 
       if (userLocation) {
         setDistance(calculateDistance(userLocation.lat, userLocation.lng, lat, lng));
@@ -80,8 +97,8 @@ const AddAddress = () => {
 
     } catch (error) {
       console.error("Error fetching address:", error);
-      setAddressTitle("Error fetching location");
-      setAddressLine("");
+      setAddressTitle("Location not found");
+      setAddressLine("Unable to fetch address details. Please try moving the pin.");
       setPlusCode("");
       setDistance(null);
     } finally {
