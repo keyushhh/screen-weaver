@@ -105,7 +105,7 @@ const AddAddress = () => {
        }
     }
 
-    // 2. Text Search (Ola Places)
+    // 2. Text Search (Ola Places) - Fallback if no Plus Code matched or returned
     try {
         console.log("Calling Ola searchPlaces...");
         const olaResults = await olaSearchPlaces(query);

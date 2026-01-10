@@ -33,22 +33,29 @@ export const searchPlaces = async (query: string): Promise<OlaPlacePrediction[]>
     return [];
   }
 
+  const url = `https://api.olamaps.io/places/v1/autocomplete?input=${encodeURIComponent(query)}&api_key=${API_KEY}`;
+  console.log(`Ola Autocomplete Request: ${url.replace(API_KEY, 'MASKED_KEY')}`);
+
   try {
-    const response = await fetch(
-      `https://api.olamaps.io/places/v1/autocomplete?input=${encodeURIComponent(query)}&api_key=${API_KEY}`,
-      {
+    const response = await fetch(url, {
          headers: {
-            'X-Request-Id': crypto.randomUUID(),
+            'X-Request-Id': Date.now().toString(),
          }
-      }
-    );
+    });
 
     if (!response.ok) {
+      console.error(`Ola Autocomplete failed: ${response.status} ${response.statusText}`);
       throw new Error(`Ola Maps Autocomplete error: ${response.statusText}`);
     }
 
     const data = await response.json();
-    return data.predictions || [];
+    console.log("Ola Autocomplete Response:", JSON.stringify(data));
+
+    if (!data.predictions) {
+        console.warn("Ola Autocomplete: No predictions found in response");
+        return [];
+    }
+    return data.predictions;
   } catch (error) {
     console.error("searchPlaces failed:", error);
     return [];
@@ -58,38 +65,59 @@ export const searchPlaces = async (query: string): Promise<OlaPlacePrediction[]>
 export const reverseGeocode = async (lat: number, lng: number): Promise<OlaReverseGeocodeResult | null> => {
   if (!API_KEY) {
     console.warn("Ola Maps API key is missing. Check VITE_MAPS_API_KEY in .env");
-    return null;
+    return {
+        formatted_address: "Address Unavailable",
+        name: "Location",
+        geometry: { location: { lat, lng } }
+    };
   }
 
+  const url = `https://api.olamaps.io/places/v1/reverse-geocode?latlng=${lat},${lng}&api_key=${API_KEY}`;
+  console.log(`Ola Reverse Geocode Request: ${url.replace(API_KEY, 'MASKED_KEY')}`);
+
   try {
-    const response = await fetch(
-      `https://api.olamaps.io/places/v1/reverse-geocode?latlng=${lat},${lng}&api_key=${API_KEY}`,
-      {
+    const response = await fetch(url, {
           headers: {
-            'X-Request-Id': crypto.randomUUID(),
+            'X-Request-Id': Date.now().toString(),
          }
-      }
-    );
+    });
 
     if (!response.ok) {
-      throw new Error(`Ola Maps Reverse Geocode error: ${response.statusText}`);
+      console.error(`Ola Reverse Geocode failed: ${response.status} ${response.statusText}`);
+      // Return fallback instead of throwing to prevent crash
+      return {
+          formatted_address: "Address Unavailable",
+          name: "Location",
+          geometry: { location: { lat, lng } }
+      };
     }
 
     const data = await response.json();
+    console.log("Ola Reverse Geocode Response:", JSON.stringify(data));
+
     if (data.results && data.results.length > 0) {
-        // Prefer "name" (building name) if available, otherwise formatted_address
-        // The API response structure needs to be handled carefully.
-        // Assuming standard Google-like or Ola structure.
         const result = data.results[0];
         return {
             formatted_address: result.formatted_address,
-            name: result.name || result.formatted_address.split(',')[0], // Fallback logic
+            name: result.name || result.formatted_address.split(',')[0],
             geometry: result.geometry
         };
     }
-    return null;
+
+    console.warn("Ola Reverse Geocode: No results found");
+    return {
+        formatted_address: "Address Unavailable",
+        name: "Location",
+        geometry: { location: { lat, lng } }
+    };
+
   } catch (error) {
     console.error("reverseGeocode failed:", error);
-    return null;
+    // Return fallback on error
+    return {
+        formatted_address: "Address Unavailable",
+        name: "Location",
+        geometry: { location: { lat, lng } }
+    };
   }
 };
