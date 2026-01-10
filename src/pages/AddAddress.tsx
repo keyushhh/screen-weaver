@@ -195,21 +195,21 @@ const AddAddress = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedFetchAddress = useCallback(debounce(fetchAddress, 1000), [userLocation]);
 
+  const checkLocationPermission = async () => {
+      const status = await Geolocation.checkPermissions();
+      if (status.location === 'prompt' || status.location === 'prompt-with-rationale') {
+        const permission = await Geolocation.requestPermissions();
+        return permission.location === 'granted';
+      }
+      return status.location === 'granted';
+  };
+
   const fetchUserLocation = useCallback(async () => {
       try {
           console.log("Checking location permissions...");
-          let permissionStatus = await Geolocation.checkPermissions();
-          console.log('Initial permission status:', permissionStatus.location);
+          const hasPermission = await checkLocationPermission();
 
-          // If not granted, explicitly request permission
-          if (permissionStatus.location !== 'granted') {
-              console.log("Permission not granted. Requesting explicitly...");
-              permissionStatus = await Geolocation.requestPermissions();
-              console.log('New permission status:', permissionStatus.location);
-          }
-
-          // If still not granted (denied or dismissed), exit
-          if (permissionStatus.location !== 'granted') {
+          if (!hasPermission) {
               console.log("Location permission denied or not granted.");
               return;
           }
