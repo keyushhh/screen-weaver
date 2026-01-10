@@ -42,6 +42,8 @@ export interface AddressComponents {
 export interface GeocodeResult {
   display_name: string;
   address: AddressComponents;
+  lat: string;
+  lon: string;
 }
 
 export const reverseGeocode = async (lat: number, lng: number): Promise<GeocodeResult> => {
@@ -68,9 +70,32 @@ export const reverseGeocode = async (lat: number, lng: number): Promise<GeocodeR
     return {
       display_name: data.display_name,
       address: data.address,
+      lat: data.lat,
+      lon: data.lon
     };
   } catch (error) {
     console.error("Reverse geocoding failed:", error);
     throw error;
   }
 };
+
+export const forwardGeocode = async (query: string): Promise<GeocodeResult[]> => {
+    try {
+        const response = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`,
+            {
+                 headers: {
+                  'User-Agent': 'DotPe-Clone/1.0',
+                },
+            }
+        );
+        if (!response.ok) {
+            throw new Error(`Geocoding search error: ${response.statusText}`);
+        }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Forward geocoding failed:", error);
+        return [];
+    }
+}
