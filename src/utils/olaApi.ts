@@ -37,15 +37,20 @@ export const searchPlaces = async (query: string): Promise<OlaPlacePrediction[]>
   console.log(`Ola Autocomplete Request: ${url.replace(API_KEY, 'MASKED_KEY')}`);
 
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      headers: {
+        'Referer': 'http://localhost',
+        'X-Request-Id': Date.now().toString(),
+      }
+    });
 
     if (!response.ok) {
-      console.error('Ola API Error:', response.status, response.statusText);
+      console.error('API Error Status:', response.status, await response.text());
       throw new Error(`Ola Maps Autocomplete error: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();
-    console.log("Ola Autocomplete Response:", JSON.stringify(data));
+    console.log('API Response:', data);
 
     if (!data.predictions) {
         console.warn("Ola Autocomplete: No predictions found in response");
@@ -72,10 +77,15 @@ export const reverseGeocode = async (lat: number, lng: number): Promise<OlaRever
   console.log(`Ola Reverse Geocode Request: ${url.replace(API_KEY, 'MASKED_KEY')}`);
 
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      headers: {
+        'Referer': 'http://localhost',
+        'X-Request-Id': Date.now().toString(),
+      }
+    });
 
     if (!response.ok) {
-      console.error('Ola API Error:', response.status, response.statusText);
+      console.error('API Error Status:', response.status, await response.text());
       // Return fallback instead of throwing to prevent crash
       return {
           formatted_address: "Address Unavailable",
@@ -85,7 +95,7 @@ export const reverseGeocode = async (lat: number, lng: number): Promise<OlaRever
     }
 
     const data = await response.json();
-    console.log("Ola Reverse Geocode Response:", JSON.stringify(data));
+    console.log('API Response:', data);
 
     if (data.results && data.results.length > 0) {
         const result = data.results[0];
