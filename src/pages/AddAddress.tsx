@@ -107,7 +107,7 @@ const AddAddress = () => {
         // Pass user location or map center to bias results
         const centerLat = userLocation ? userLocation.lat : viewState.latitude;
         const centerLng = userLocation ? userLocation.lng : viewState.longitude;
-
+        
         const results = await forwardGeocode(query, centerLat, centerLng);
         setSearchResults(results);
         setShowDropdown(results.length > 0);

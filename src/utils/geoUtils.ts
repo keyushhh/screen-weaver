@@ -1,4 +1,3 @@
-
 export const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
   const R = 6371; // Radius of the earth in km
   const dLat = deg2rad(lat2 - lat1);
@@ -99,7 +98,7 @@ export const forwardGeocode = async (query: string, userLat?: number, userLng?: 
         if (!response.ok) {
             throw new Error(`Geocoding search error: ${response.statusText}`);
         }
-
+        
         let data: GeocodeResult[] = await response.json();
 
         // If user location is provided, sort results by distance
