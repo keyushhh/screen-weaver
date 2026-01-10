@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useCallback } from "react";
-import Map, { ViewState, ViewStateChangeEvent } from "react-map-gl/maplibre";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import Map, { ViewState, ViewStateChangeEvent, MapRef } from "react-map-gl/maplibre";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, Search } from "lucide-react";
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { OpenLocationCode } from "open-location-code";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
-import { calculateDistance, reverseGeocode, getDistance } from "@/utils/geoUtils";
+import { calculateDistance, reverseGeocode, getDistance, forwardGeocode, GeocodeResult } from "@/utils/geoUtils";
 import { Geolocation } from '@capacitor/geolocation';
 
 // Assets
@@ -15,9 +15,11 @@ import locationPinIcon from "@/assets/location-pin.svg";
 import navigationIcon from "@/assets/navigation-icon.svg";
 import confirmCtaBg from "@/assets/confirm-location-cta.png";
 import copyIcon from "@/assets/copy.svg";
+import distanceCallout from "@/assets/distance-callout.svg";
 
 const AddAddress = () => {
   const navigate = useNavigate();
+  const mapRef = useRef<MapRef>(null);
   const [viewState, setViewState] = useState<ViewState>({
     latitude: 12.9716,
     longitude: 77.5946,
@@ -33,8 +35,12 @@ const AddAddress = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<GeocodeResult[]>([]);
+  const [showDropdown, setShowDropdown] = useState(false);
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
   const [distanceInMeters, setDistanceInMeters] = useState<number | null>(null);
+  const [bottomSheetHeight, setBottomSheetHeight] = useState(0);
+  const bottomSheetRef = useRef<HTMLDivElement>(null);
 
   const debounce = <T extends (...args: unknown[]) => void>(func: T, wait: number) => {
     let timeout: NodeJS.Timeout;
@@ -42,6 +48,60 @@ const AddAddress = () => {
       clearTimeout(timeout);
       timeout = setTimeout(() => func(...args), wait);
     };
+  };
+
+  // Hybrid Search (Plus Code & Text)
+  const performSearch = async (query: string) => {
+    console.log("performSearch called with:", query);
+    if (!query) {
+      setSearchResults([]);
+      setShowDropdown(false);
+      return;
+    }
+
+    // 1. Check if input looks like a Plus Code (contains +)
+    // Regex for checking if it contains a plus sign and alphanumeric chars
+    // e.g. "HXCV+JR" or "87G8HXCV+JR"
+    if (query.includes('+') && query.length >= 4) {
+       try {
+           // eslint-disable-next-line @typescript-eslint/no-explicit-any
+           const olc = new OpenLocationCode() as any;
+
+           // Attempt to recover nearest (handles short codes like HXCV+JR using current map center context)
+           const recoveredCode = olc.recoverNearest(query, viewState.latitude, viewState.longitude);
+
+           if (olc.isValid(recoveredCode)) {
+              // Valid Plus Code
+              const codeArea = olc.decode(recoveredCode);
+              const lat = codeArea.latitudeCenter;
+              const lng = codeArea.longitudeCenter;
+
+              // We'll treat this as a single result for the dropdown
+              const result: GeocodeResult = {
+                  display_name: `Plus Code Location: ${query.toUpperCase()}`,
+                  address: {}, // dummy
+                  lat: lat.toString(),
+                  lon: lng.toString()
+              };
+              setSearchResults([result]);
+              setShowDropdown(true);
+              return;
+           }
+       } catch (err) {
+           console.log("Not a valid plus code, falling back to text search", err);
+       }
+    }
+
+    // 2. Fallback to Text Search (Geocoding)
+    try {
+        console.log("Calling forwardGeocode...");
+        const results = await forwardGeocode(query);
+        console.log("Geocode results:", results);
+        setSearchResults(results);
+        setShowDropdown(results.length > 0);
+    } catch (error) {
+        console.error("Search error:", error);
+    }
   };
 
   const fetchAddress = async (lat: number, lng: number, overrideUserLocation?: {lat: number, lng: number}) => {
@@ -108,6 +168,26 @@ const AddAddress = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+
+
+  const performSearchRef = useRef(performSearch);
+  useEffect(() => {
+    performSearchRef.current = performSearch;
+  });
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debouncedSearch = useMemo(() => {
+    const func = (q: string) => performSearchRef.current(q);
+    return debounce(func, 500);
+  }, []);
+
+  const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const val = e.target.value;
+      console.log("Input changed:", val);
+      setSearchQuery(val);
+      debouncedSearch(val);
   };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -200,39 +280,26 @@ const AddAddress = () => {
   };
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      // Check if it's a Plus Code (simple check for now)
-      if (searchQuery.includes('+')) {
-         try {
-             // Attempt to decode
-             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-             const olc = new OpenLocationCode() as any;
-
-             // Try recovering nearest first (handles short codes)
-             // Use current map center as reference for context
-             const recoveredCode = olc.recoverNearest(searchQuery, viewState.latitude, viewState.longitude);
-             console.log(`Recovered code: ${recoveredCode} from input: ${searchQuery}`);
-
-             const codeArea = olc.decode(recoveredCode);
-             const lat = codeArea.latitudeCenter;
-             const lng = codeArea.longitudeCenter;
-
-             setViewState(prev => ({
-                 ...prev,
-                 latitude: lat,
-                 longitude: lng,
-                 zoom: 18 // Zoom in closer for specific code
-             }));
-             fetchAddress(lat, lng);
-         } catch (err) {
-             console.error(err);
-             toast.error("Invalid Plus Code");
-         }
-      } else {
-        // Normal search simulation would go here
-        toast.info("Search implemented for Plus Codes only in this demo");
-      }
+    if (e.key === 'Enter' && searchResults.length > 0) {
+        handleSelectResult(searchResults[0]);
     }
+  };
+
+  const handleSelectResult = (result: GeocodeResult) => {
+      const lat = parseFloat(result.lat);
+      const lng = parseFloat(result.lon);
+
+      // Smooth FlyTo Transition
+      mapRef.current?.flyTo({
+          center: [lng, lat],
+          zoom: 18,
+          duration: 1500 // 1.5s smooth animation
+      });
+
+      // Clear search
+      setSearchResults([]);
+      setShowDropdown(false);
+      setSearchQuery(result.display_name.split(',')[0]); // Set input to the selected name
   };
 
   const copyPlusCode = () => {
@@ -261,10 +328,22 @@ const AddAddress = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchUserLocation]);
 
+  useEffect(() => {
+    if (!bottomSheetRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setBottomSheetHeight(entry.contentRect.height);
+      }
+    });
+    observer.observe(bottomSheetRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="h-full w-full relative bg-black text-white overflow-hidden">
       {/* Map */}
       <Map
+        ref={mapRef}
         {...viewState}
         minZoom={3}
         onMove={handleMove}
@@ -304,7 +383,7 @@ const AddAddress = () => {
         </div>
 
         {/* Search Bar - 18px below the container */}
-        <div className="flex justify-center mt-[18px] pointer-events-auto">
+        <div className="flex justify-center mt-[18px] pointer-events-auto relative" style={{ zIndex: 60 }}>
              <div
                  className="flex items-center px-4"
                  style={{
@@ -322,12 +401,33 @@ const AddAddress = () => {
                      type="text"
                      placeholder="“near the tree” doesn’t help anyone"
                      value={searchQuery}
-                     onChange={(e) => setSearchQuery(e.target.value)}
+                     onChange={handleSearchInput}
                      onKeyDown={handleSearch}
                      className="bg-transparent border-none outline-none flex-1 text-[14px] text-white placeholder-white font-normal font-sans"
                      style={{ fontFamily: 'Satoshi, sans-serif' }}
                  />
              </div>
+
+             {/* Dropdown Results */}
+             {showDropdown && searchResults.length > 0 && (
+                <div
+                    className="absolute top-[52px] w-[363px] bg-[#1A1A1A]/95 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden max-h-[300px] overflow-y-auto"
+                    style={{ zIndex: 50 }}
+                >
+                    {searchResults.map((result, idx) => (
+                        <div
+                            key={idx}
+                            onClick={() => handleSelectResult(result)}
+                            className="px-4 py-3 border-b border-white/5 hover:bg-white/10 cursor-pointer flex items-center"
+                        >
+                            <img src={locationPinIcon} alt="Pin" className="w-3 h-3 mr-3 opacity-70" />
+                            <span className="text-sm text-white font-satoshi truncate">
+                                {result.display_name}
+                            </span>
+                        </div>
+                    ))}
+                </div>
+             )}
          </div>
       </div>
 
@@ -340,8 +440,11 @@ const AddAddress = () => {
       </div>
 
       {/* Helper Pill & Navigation Button Container */}
-      {/* 280px from bottom to clear the bottom sheet */}
-      <div className="absolute bottom-[280px] left-0 right-0 z-10 flex items-center justify-center pointer-events-none">
+      {/* Dynamic bottom position to clear the bottom sheet */}
+      <div
+        className="absolute left-0 right-0 z-10 flex items-center justify-center pointer-events-none transition-all duration-300 ease-in-out"
+        style={{ bottom: `${bottomSheetHeight + 20}px` }}
+      >
          <div className="flex items-center pointer-events-auto">
             {/* Helper Pill */}
             <div
@@ -384,7 +487,10 @@ const AddAddress = () => {
       </div>
 
       {/* Bottom Sheet */}
-      <div className="absolute bottom-0 left-0 right-0 bg-black rounded-t-[32px] p-6 pb-10 safe-area-bottom z-20 border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+      <div
+        ref={bottomSheetRef}
+        className="absolute bottom-0 left-0 right-0 bg-black rounded-t-[32px] p-6 pb-10 safe-area-bottom z-20 border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]"
+      >
         <h3 className="text-white text-base font-semibold mb-4">Order will be delivered here</h3>
 
         {/* Address Container */}
@@ -453,20 +559,15 @@ const AddAddress = () => {
 
         {/* Distance Callout */}
         {!isDragging && !isLoading && distanceInMeters !== null && distanceInMeters > 200 && (
-             <div className="relative w-full flex flex-col items-center -mt-4 mb-6 z-0">
-                 {/* Caret SVG */}
-                 <svg width="24" height="14" viewBox="0 0 24 14" fill="none" xmlns="http://www.w3.org/2000/svg" className="relative z-10 translate-y-[1px]">
-                     <path d="M0 14L12 0L24 14" stroke="#FACC15" strokeOpacity="0.21" fill="rgba(250, 204, 21, 0.15)" />
-                 </svg>
-
-                 {/* Bubble */}
+             <div className="relative w-full flex justify-center -mt-4 mb-6 z-0">
                  <div
-                    className="w-full flex items-center justify-center relative z-0"
+                    className="w-full flex items-center justify-center"
                     style={{
-                        height: "45px",
-                        borderRadius: "4px",
-                        backgroundColor: "rgba(250, 204, 21, 0.15)",
-                        border: "1px solid rgba(250, 204, 21, 0.21)",
+                        height: "59px",
+                        backgroundImage: `url(${distanceCallout})`,
+                        backgroundSize: "100% 100%",
+                        backgroundRepeat: "no-repeat",
+                        paddingTop: "10px"
                     }}
                  >
                     <span
