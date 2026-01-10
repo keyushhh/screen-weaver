@@ -99,3 +99,32 @@ export const forwardGeocode = async (query: string): Promise<GeocodeResult[]> =>
         return [];
     }
 }
+
+export const searchPlaces = async (query: string): Promise<any[]> => {
+  const API_KEY = import.meta.env.VITE_OLA_API_KEY;
+  if (!API_KEY) {
+    console.warn("Ola Maps API key is missing. Please add VITE_OLA_API_KEY to your .env file.");
+    return [];
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.olamaps.io/places/v1/autocomplete?input=${encodeURIComponent(query)}&api_key=${API_KEY}`,
+      {
+        headers: {
+          'X-Request-Id': crypto.randomUUID(),
+        }
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Ola Maps Autocomplete error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.predictions || [];
+  } catch (error) {
+    console.error("searchPlaces failed:", error);
+    return [];
+  }
+};
