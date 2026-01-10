@@ -216,7 +216,15 @@ const AddAddress = () => {
             lng: longitude
           });
 
-          // Center map on user location with smooth animation
+          // Update viewState directly to ensure map loads at this location
+          setViewState(prev => ({
+              ...prev,
+              latitude,
+              longitude,
+              zoom: 18
+          }));
+
+          // Also try smooth animation if map is ready
           mapRef.current?.flyTo({
               center: [longitude, latitude],
               zoom: 18,
@@ -478,7 +486,7 @@ const AddAddress = () => {
 
         {/* Address Container */}
         <div
-            className="flex items-start mb-6"
+            className="flex items-start mb-[14px]"
             style={{
                 backgroundColor: "#000000",
                 border: "1px solid rgba(82, 96, 254, 0.21)",
@@ -573,7 +581,7 @@ const AddAddress = () => {
             <div
                 className="w-full flex items-center justify-center text-white font-medium text-[14px]"
                 style={{
-                    marginTop: "12px",
+                    marginTop: "0px",
                     height: "45px",
                     backgroundColor: "rgba(255, 0, 0, 0.15)",
                     border: "1px solid rgba(255, 0, 0, 0.22)",
