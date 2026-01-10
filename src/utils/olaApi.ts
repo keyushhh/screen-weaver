@@ -66,6 +66,9 @@ export const searchPlaces = async (query: string): Promise<OlaPlacePrediction[]>
 
     if (!response.ok) {
       console.error('API Error Status:', response.status, await response.text());
+      if (response.status === 401) {
+          console.error("Ola Maps API Unauthorized: Please enable Places/Search APIs in the Ola Dashboard for this API Key.");
+      }
       throw new Error(`Ola Maps Autocomplete error: ${response.status} ${response.statusText}`);
     }
 
@@ -99,6 +102,9 @@ export const getPlaceDetails = async (placeId: string): Promise<OlaPlaceDetails 
 
     if (!response.ok) {
       console.error('API Error Status:', response.status, await response.text());
+      if (response.status === 401) {
+          console.error("Ola Maps API Unauthorized: Please enable Places/Search APIs in the Ola Dashboard for this API Key.");
+      }
       return null;
     }
 
@@ -134,6 +140,14 @@ export const reverseGeocode = async (lat: number, lng: number): Promise<OlaRever
 
     if (!response.ok) {
       console.error('API Error Status:', response.status, await response.text());
+      if (response.status === 401) {
+          console.error("Ola Maps API Unauthorized: Please enable Places/Search APIs in the Ola Dashboard for this API Key.");
+          return {
+              formatted_address: "API Configuration Error (401)",
+              name: "Unauthorized Key",
+              geometry: { location: { lat, lng } }
+          };
+      }
       return {
           formatted_address: "Address Unavailable",
           name: "Location",
