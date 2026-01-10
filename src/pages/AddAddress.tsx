@@ -68,7 +68,10 @@ const AddAddress = () => {
            const olc = new OpenLocationCode() as any;
 
            // Attempt to recover nearest (handles short codes like HXCV+JR using current map center context)
-           const recoveredCode = olc.recoverNearest(query, viewState.latitude, viewState.longitude);
+           // Use user location if available for better local context, otherwise map center
+           const refLat = userLocation ? userLocation.lat : viewState.latitude;
+           const refLng = userLocation ? userLocation.lng : viewState.longitude;
+           const recoveredCode = olc.recoverNearest(query, refLat, refLng);
 
            if (olc.isValid(recoveredCode)) {
               // Valid Plus Code
@@ -442,8 +445,8 @@ const AddAddress = () => {
       {/* Helper Pill & Navigation Button Container */}
       {/* Dynamic bottom position to clear the bottom sheet */}
       <div
-        className="absolute left-0 right-0 z-10 flex items-center justify-center pointer-events-none transition-all duration-300 ease-in-out"
-        style={{ bottom: `${bottomSheetHeight + 20}px` }}
+        className="absolute left-0 right-0 z-30 flex items-center justify-center pointer-events-none transition-all duration-300 ease-in-out"
+        style={{ bottom: `${bottomSheetHeight + 14}px` }}
       >
          <div className="flex items-center pointer-events-auto">
             {/* Helper Pill */}
@@ -561,17 +564,19 @@ const AddAddress = () => {
         {!isDragging && !isLoading && distanceInMeters !== null && distanceInMeters > 200 && (
              <div className="relative w-full flex justify-center -mt-4 mb-6 z-0">
                  <div
-                    className="w-full flex items-center justify-center"
+                    className="w-full flex items-center justify-center relative"
                     style={{
                         height: "59px",
-                        backgroundImage: `url(${distanceCallout})`,
-                        backgroundSize: "100% 100%",
-                        backgroundRepeat: "no-repeat",
                         paddingTop: "10px"
                     }}
                  >
+                    <img
+                        src={distanceCallout}
+                        alt=""
+                        className="absolute inset-0 w-full h-full object-fill pointer-events-none"
+                    />
                     <span
-                        className="text-center font-medium text-[14px]"
+                        className="text-center font-medium text-[14px] relative z-10"
                         style={{
                             fontFamily: 'Satoshi, sans-serif',
                             color: "#FACC15",
