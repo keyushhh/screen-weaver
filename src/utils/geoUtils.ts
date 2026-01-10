@@ -1,4 +1,3 @@
-
 export const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
   const R = 6371; // Radius of the earth in km
   const dLat = deg2rad(lat2 - lat1);
@@ -44,7 +43,6 @@ export interface GeocodeResult {
   address: AddressComponents;
   lat: string;
   lon: string;
-  distance?: number;
 }
 
 export const reverseGeocode = async (lat: number, lng: number): Promise<GeocodeResult> => {
@@ -80,40 +78,36 @@ export const reverseGeocode = async (lat: number, lng: number): Promise<GeocodeR
   }
 };
 
-export const forwardGeocode = async (query: string, center?: { lat: number, lng: number }): Promise<GeocodeResult[]> => {
+export const forwardGeocode = async (query: string, userLat?: number, userLng?: number): Promise<GeocodeResult[]> => {
     try {
-        let url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1&countrycodes=in`;
+        let url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=10&addressdetails=1&countrycodes=in`;
 
-        if (center) {
-            // Define a viewbox around the center (approx +/- 0.5 deg ~ 55km)
-            const d = 0.5;
-            const viewbox = `${center.lng - d},${center.lat + d},${center.lng + d},${center.lat - d}`;
-            url += `&viewbox=${viewbox}`;
+        // If user location is provided, add viewbox bias
+        if (userLat !== undefined && userLng !== undefined) {
+            const delta = 0.5; // Roughly 50km
+            const viewbox = `${userLng - delta},${userLat + delta},${userLng + delta},${userLat - delta}`;
+            url += `&viewbox=${viewbox}&bounded=0`;
         }
 
         const response = await fetch(url, {
-             headers: {
-              'User-Agent': 'DotPe-Clone/1.0',
+            headers: {
+                'User-Agent': 'DotPe-Clone/1.0',
             },
         });
 
         if (!response.ok) {
             throw new Error(`Geocoding search error: ${response.statusText}`);
         }
-        const data = await response.json();
+        
+        let data: GeocodeResult[] = await response.json();
 
-        // Calculate distances and sort if center is provided
-        if (center && Array.isArray(data)) {
-            const resultsWithDistance = data.map((item: any) => {
-                const itemLat = parseFloat(item.lat);
-                const itemLon = parseFloat(item.lon);
-                const dist = getDistance(center.lat, center.lng, itemLat, itemLon);
-                return { ...item, distance: dist };
+        // If user location is provided, sort results by distance
+        if (userLat !== undefined && userLng !== undefined) {
+            data = data.sort((a, b) => {
+                const distA = getDistance(userLat, userLng, parseFloat(a.lat), parseFloat(a.lon));
+                const distB = getDistance(userLat, userLng, parseFloat(b.lat), parseFloat(b.lon));
+                return distA - distB;
             });
-
-            // Sort by distance ascending
-            resultsWithDistance.sort((a: any, b: any) => a.distance - b.distance);
-            return resultsWithDistance;
         }
 
         return data;
