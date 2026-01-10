@@ -104,7 +104,9 @@ const AddAddress = () => {
     // 2. Text Search (Nominatim)
     try {
         console.log("Calling Nominatim search...");
-        const results = await forwardGeocode(query);
+        // Use userLocation if available, otherwise map center
+        const center = userLocation || { lat: viewState.latitude, lng: viewState.longitude };
+        const results = await forwardGeocode(query, center);
         setSearchResults(results);
         setShowDropdown(results.length > 0);
     } catch (error) {
@@ -411,12 +413,21 @@ const AddAddress = () => {
                         <div
                             key={idx}
                             onClick={() => handleSelectResult(result)}
-                            className="px-4 py-3 border-b border-white/5 hover:bg-white/10 cursor-pointer flex items-center"
+                            className="px-4 py-3 border-b border-white/5 hover:bg-white/10 cursor-pointer flex items-center justify-between"
                         >
-                            <img src={locationPinIcon} alt="Pin" className="w-3 h-3 mr-3 opacity-70" />
-                            <span className="text-sm text-white font-satoshi truncate">
-                                {result.display_name}
-                            </span>
+                            <div className="flex items-center overflow-hidden">
+                                <img src={locationPinIcon} alt="Pin" className="w-3 h-3 mr-3 opacity-70 shrink-0" />
+                                <span className="text-sm text-white font-satoshi truncate">
+                                    {result.display_name}
+                                </span>
+                            </div>
+                            {typeof result.distance === 'number' && (
+                                <span className="text-xs text-white/50 ml-2 whitespace-nowrap shrink-0">
+                                    {result.distance < 1000
+                                        ? `${Math.round(result.distance)} m`
+                                        : `${(result.distance / 1000).toFixed(1)} km`}
+                                </span>
+                            )}
                         </div>
                     ))}
                 </div>

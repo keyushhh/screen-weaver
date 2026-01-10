@@ -44,6 +44,7 @@ export interface GeocodeResult {
   address: AddressComponents;
   lat: string;
   lon: string;
+  distance?: number;
 }
 
 export const reverseGeocode = async (lat: number, lng: number): Promise<GeocodeResult> => {
@@ -79,20 +80,42 @@ export const reverseGeocode = async (lat: number, lng: number): Promise<GeocodeR
   }
 };
 
-export const forwardGeocode = async (query: string): Promise<GeocodeResult[]> => {
+export const forwardGeocode = async (query: string, center?: { lat: number, lng: number }): Promise<GeocodeResult[]> => {
     try {
-        const response = await fetch(
-            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1&countrycodes=in`,
-            {
-                 headers: {
-                  'User-Agent': 'DotPe-Clone/1.0',
-                },
-            }
-        );
+        let url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1&countrycodes=in`;
+
+        if (center) {
+            // Define a viewbox around the center (approx +/- 0.5 deg ~ 55km)
+            const d = 0.5;
+            const viewbox = `${center.lng - d},${center.lat + d},${center.lng + d},${center.lat - d}`;
+            url += `&viewbox=${viewbox}`;
+        }
+
+        const response = await fetch(url, {
+             headers: {
+              'User-Agent': 'DotPe-Clone/1.0',
+            },
+        });
+
         if (!response.ok) {
             throw new Error(`Geocoding search error: ${response.statusText}`);
         }
         const data = await response.json();
+
+        // Calculate distances and sort if center is provided
+        if (center && Array.isArray(data)) {
+            const resultsWithDistance = data.map((item: any) => {
+                const itemLat = parseFloat(item.lat);
+                const itemLon = parseFloat(item.lon);
+                const dist = getDistance(center.lat, center.lng, itemLat, itemLon);
+                return { ...item, distance: dist };
+            });
+
+            // Sort by distance ascending
+            resultsWithDistance.sort((a: any, b: any) => a.distance - b.distance);
+            return resultsWithDistance;
+        }
+
         return data;
     } catch (error) {
         console.error("Forward geocoding failed:", error);
