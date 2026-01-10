@@ -240,13 +240,12 @@ const AddAddress = () => {
             lng: longitude
           });
 
-          // Center map on user location
-          setViewState(prev => ({
-            ...prev,
-            latitude,
-            longitude,
-            zoom: 18 // Zoom in when we find the user
-          }));
+          // Center map on user location with smooth animation
+          mapRef.current?.flyTo({
+              center: [longitude, latitude],
+              zoom: 18,
+              duration: 1500
+          });
 
           // Fetch address for this new GPS location
           fetchAddress(latitude, longitude, { lat: latitude, lng: longitude });
