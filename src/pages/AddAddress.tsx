@@ -6,8 +6,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { OpenLocationCode } from "open-location-code";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
-import { calculateDistance, getDistance, GeocodeResult } from "@/utils/geoUtils";
-import { searchPlaces as olaSearchPlaces, reverseGeocode as olaReverseGeocode } from "@/utils/olaApi";
+import { calculateDistance, getDistance, GeocodeResult, reverseGeocode, forwardGeocode } from "@/utils/geoUtils";
 import { Geolocation } from '@capacitor/geolocation';
 
 // Assets
@@ -42,6 +41,10 @@ const AddAddress = () => {
   const [distanceInMeters, setDistanceInMeters] = useState<number | null>(null);
   const [bottomSheetHeight, setBottomSheetHeight] = useState(0);
   const bottomSheetRef = useRef<HTMLDivElement>(null);
+
+  // Manual Input State
+  const [apartment, setApartment] = useState("");
+  const [landmark, setLandmark] = useState("");
 
   const debounce = <T extends (...args: unknown[]) => void>(func: T, wait: number) => {
     let timeout: NodeJS.Timeout;
@@ -83,15 +86,12 @@ const AddAddress = () => {
               const lng = codeArea.longitudeCenter;
 
               // IMMEDIATELY Call reverseGeocode(lat, lng) to get the building name
-              const reverseResult = await olaReverseGeocode(lat, lng);
+              const reverseResult = await reverseGeocode(lat, lng);
 
               if (reverseResult) {
                  const result: GeocodeResult = {
-                    display_name: reverseResult.name || reverseResult.formatted_address, // "Wind Wave Apartment"
-                    address: {
-                        city: "Bangalore", // fallback/dummy
-                        suburb: reverseResult.formatted_address
-                    },
+                    display_name: reverseResult.address?.building || reverseResult.display_name,
+                    address: reverseResult.address,
                     lat: lat.toString(),
                     lon: lng.toString()
                  };
@@ -105,19 +105,10 @@ const AddAddress = () => {
        }
     }
 
-    // 2. Text Search (Ola Places) - Fallback if no Plus Code matched or returned
+    // 2. Text Search (Nominatim)
     try {
-        console.log("Calling Ola searchPlaces...");
-        const olaResults = await olaSearchPlaces(query);
-        const results: GeocodeResult[] = olaResults.map(p => ({
-            display_name: p.structured_formatting.main_text || p.description,
-            address: {
-                city: p.structured_formatting.secondary_text
-            },
-            lat: p.geometry.location.lat.toString(),
-            lon: p.geometry.location.lng.toString()
-        }));
-
+        console.log("Calling Nominatim search...");
+        const results = await forwardGeocode(query);
         setSearchResults(results);
         setShowDropdown(results.length > 0);
     } catch (error) {
@@ -141,14 +132,15 @@ const AddAddress = () => {
 
       setPlusCode(shortCode);
 
-      // Use Ola Reverse Geocode
-      const geocodeResult = await olaReverseGeocode(lat, lng);
+      // Use Nominatim Reverse Geocode
+      const geocodeResult = await reverseGeocode(lat, lng);
 
       if (geocodeResult) {
-          // Logic to show "Wind Wave Apartment" if available
-          const title = geocodeResult.name || "Unknown Location";
+          const addr = geocodeResult.address || {};
+          // Construct a friendly title
+          const title = addr.building || addr.amenity || addr.shop || addr.tourism || addr.leisure || addr.road || addr.suburb || "Pinned Location";
           setAddressTitle(title);
-          setAddressLine(geocodeResult.formatted_address);
+          setAddressLine(geocodeResult.display_name);
       } else {
           setAddressTitle("Location not found");
           setAddressLine("Address details unavailable");
@@ -171,8 +163,6 @@ const AddAddress = () => {
       setIsLoading(false);
     }
   };
-
-
 
   const performSearchRef = useRef(performSearch);
   useEffect(() => {
@@ -275,8 +265,7 @@ const AddAddress = () => {
 
   const handleMoveEnd = (evt: ViewStateChangeEvent) => {
     setIsDragging(false);
-    // Fetch immediately on move end for snappier feeling, or use debounced if preferred.
-    // Given the requirement for "Swiggy-like" where it loads after drag:
+    // Fetch immediately on move end for snappier feeling
     fetchAddress(evt.viewState.latitude, evt.viewState.longitude);
   };
 
@@ -317,7 +306,7 @@ const AddAddress = () => {
     // Initial fresh fetch
     fetchUserLocation();
 
-    // Re-fetch on window focus (e.g. user comes back from Settings or another app)
+    // Re-fetch on window focus
     const handleFocus = () => {
         fetchUserLocation();
     };
@@ -333,8 +322,6 @@ const AddAddress = () => {
     if (!bottomSheetRef.current) return;
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
-        // Use getBoundingClientRect to ensure we get the full visual height (including padding/borders)
-        // contentRect (default) excludes padding, which causes overlap if the element has significant padding.
         setBottomSheetHeight(entry.target.getBoundingClientRect().height);
       }
     });
@@ -372,7 +359,6 @@ const AddAddress = () => {
         >
           <div className="safe-area-top pt-4 px-5">
              {/* Header */}
-            {/* Removed mb-[18px] to strictly enforce the container's 24px bottom padding */}
             <div className="flex items-center">
                 <button
                 onClick={() => navigate(-1)}
@@ -436,14 +422,12 @@ const AddAddress = () => {
 
       {/* Fixed Center Pin */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0">
-          {/* -mt-10 adjustment to make the pin tip land on center */}
           <div className="relative z-0 -mt-10">
             <img src={mapPinIcon} alt="Pin" className="w-[46px] h-[58px]" />
           </div>
       </div>
 
       {/* Helper Pill & Navigation Button Container */}
-      {/* Dynamic bottom position to clear the bottom sheet */}
       <div
         className="absolute left-0 right-0 z-30 flex items-center justify-center pointer-events-none transition-all duration-300 ease-in-out"
         style={{ bottom: `${bottomSheetHeight + 14}px` }}
@@ -512,7 +496,6 @@ const AddAddress = () => {
           <img src={locationPinIcon} alt="Loc" className="w-5 h-5 mt-1 shrink-0 mr-3" />
 
           <div className="flex-1">
-             {/* Changed to justify-between to push Plus Code to the right */}
              <div className="flex items-center justify-between mb-[6px]">
                 {isDragging || isLoading ? (
                     <Skeleton className="h-6 w-3/4 bg-gray-800" />
@@ -537,7 +520,7 @@ const AddAddress = () => {
                         >
                             <span
                                 data-testid="plus-code"
-                                className="text-[#5260FE] font-bold text-xs" // text-xs approx 12px, adjust if needed
+                                className="text-[#5260FE] font-bold text-xs"
                                 style={{ fontFamily: 'Satoshi, sans-serif' }}
                             >
                                 {plusCode}
@@ -556,13 +539,44 @@ const AddAddress = () => {
                     {addressLine || "Fetching details..."}
                 </p>
             )}
-
           </div>
+        </div>
+
+        {/* Manual Address Fields */}
+        <div className="space-y-3 mb-6">
+            <input
+                type="text"
+                placeholder="Apartment / House No / Flat"
+                value={apartment}
+                onChange={(e) => setApartment(e.target.value)}
+                className="w-full text-white placeholder-white/50 px-5 text-[14px] outline-none"
+                style={{
+                    height: "48px",
+                    backgroundColor: "rgba(25, 25, 25, 0.3)",
+                    border: "0.65px solid rgba(255, 255, 255, 0.2)",
+                    borderRadius: "9999px",
+                    fontFamily: 'Satoshi, sans-serif'
+                }}
+            />
+            <input
+                type="text"
+                placeholder="Landmark (Optional)"
+                value={landmark}
+                onChange={(e) => setLandmark(e.target.value)}
+                className="w-full text-white placeholder-white/50 px-5 text-[14px] outline-none"
+                style={{
+                    height: "48px",
+                    backgroundColor: "rgba(25, 25, 25, 0.3)",
+                    border: "0.65px solid rgba(255, 255, 255, 0.2)",
+                    borderRadius: "9999px",
+                    fontFamily: 'Satoshi, sans-serif'
+                }}
+            />
         </div>
 
         {/* Distance Callout */}
         {!isDragging && !isLoading && distanceInMeters !== null && distanceInMeters > 200 && (
-             <div className="relative w-full flex justify-center -mt-4 mb-6 z-0">
+             <div className="relative w-full flex justify-center -mt-2 mb-4 z-0">
                  <div
                     className="w-full flex items-center justify-center relative"
                     style={{
