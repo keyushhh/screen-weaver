@@ -50,7 +50,7 @@ export const searchPlaces = async (query: string): Promise<OlaPlacePrediction[]>
     }
 
     const data = await response.json();
-    console.log('API Response:', data);
+    console.log('Autocomplete Results:', data.predictions);
 
     if (!data.predictions) {
         console.warn("Ola Autocomplete: No predictions found in response");
@@ -95,7 +95,7 @@ export const reverseGeocode = async (lat: number, lng: number): Promise<OlaRever
     }
 
     const data = await response.json();
-    console.log('API Response:', data);
+    console.log('Reverse Geocode:', data.results?.[0]?.formatted_address);
 
     if (data.results && data.results.length > 0) {
         const result = data.results[0];
