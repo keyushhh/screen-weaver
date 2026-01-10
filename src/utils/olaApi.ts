@@ -66,6 +66,9 @@ export const searchPlaces = async (query: string): Promise<OlaPlacePrediction[]>
 
     if (!response.ok) {
       console.error('API Error Status:', response.status, await response.text());
+      if (response.status === 401) {
+          console.error("Ola Maps API Unauthorized: Please enable Places/Search APIs in the Ola Dashboard for this API Key.");
+      }
       throw new Error(`Ola Maps Autocomplete error: ${response.status} ${response.statusText}`);
     }
 
@@ -99,6 +102,9 @@ export const getPlaceDetails = async (placeId: string): Promise<OlaPlaceDetails 
 
     if (!response.ok) {
       console.error('API Error Status:', response.status, await response.text());
+      if (response.status === 401) {
+          console.error("Ola Maps API Unauthorized: Please enable Places/Search APIs in the Ola Dashboard for this API Key.");
+      }
       return null;
     }
 
@@ -134,6 +140,14 @@ export const reverseGeocode = async (lat: number, lng: number): Promise<OlaRever
 
     if (!response.ok) {
       console.error('API Error Status:', response.status, await response.text());
+      if (response.status === 401) {
+          console.error("Ola Maps API Unauthorized: Please enable Places/Search APIs in the Ola Dashboard for this API Key.");
+          return {
+              formatted_address: "API Configuration Error (401)",
+              name: "Unauthorized Key",
+              geometry: { location: { lat, lng } }
+          };
+      }
       return {
           formatted_address: "Address Unavailable",
           name: "Location",
@@ -142,10 +156,13 @@ export const reverseGeocode = async (lat: number, lng: number): Promise<OlaRever
     }
 
     const data = await response.json();
-    console.log('Reverse Geocode:', data.results?.[0]?.formatted_address);
+    console.log('Reverse Geocode Response:', JSON.stringify(data));
 
-    if (data.results && data.results.length > 0) {
-        const result = data.results[0];
+    // Check for geocodingResults based on user input
+    const results = data.geocodingResults || data.results;
+
+    if (results && results.length > 0) {
+        const result = results[0];
         return {
             formatted_address: result.formatted_address,
             name: result.name || result.formatted_address.split(',')[0],
