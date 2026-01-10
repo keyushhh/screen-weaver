@@ -104,7 +104,11 @@ const AddAddress = () => {
     // 2. Text Search (Nominatim)
     try {
         console.log("Calling Nominatim search...");
-        const results = await forwardGeocode(query);
+        // Pass user location or map center to bias results
+        const centerLat = userLocation ? userLocation.lat : viewState.latitude;
+        const centerLng = userLocation ? userLocation.lng : viewState.longitude;
+
+        const results = await forwardGeocode(query, centerLat, centerLng);
         setSearchResults(results);
         setShowDropdown(results.length > 0);
     } catch (error) {

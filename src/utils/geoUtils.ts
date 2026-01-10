@@ -79,20 +79,38 @@ export const reverseGeocode = async (lat: number, lng: number): Promise<GeocodeR
   }
 };
 
-export const forwardGeocode = async (query: string): Promise<GeocodeResult[]> => {
+export const forwardGeocode = async (query: string, userLat?: number, userLng?: number): Promise<GeocodeResult[]> => {
     try {
-        const response = await fetch(
-            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1&countrycodes=in`,
-            {
-                 headers: {
-                  'User-Agent': 'DotPe-Clone/1.0',
-                },
-            }
-        );
+        let url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=10&addressdetails=1&countrycodes=in`;
+
+        // If user location is provided, add viewbox bias
+        if (userLat !== undefined && userLng !== undefined) {
+            const delta = 0.5; // Roughly 50km
+            const viewbox = `${userLng - delta},${userLat + delta},${userLng + delta},${userLat - delta}`;
+            url += `&viewbox=${viewbox}&bounded=0`;
+        }
+
+        const response = await fetch(url, {
+            headers: {
+                'User-Agent': 'DotPe-Clone/1.0',
+            },
+        });
+
         if (!response.ok) {
             throw new Error(`Geocoding search error: ${response.statusText}`);
         }
-        const data = await response.json();
+
+        let data: GeocodeResult[] = await response.json();
+
+        // If user location is provided, sort results by distance
+        if (userLat !== undefined && userLng !== undefined) {
+            data = data.sort((a, b) => {
+                const distA = getDistance(userLat, userLng, parseFloat(a.lat), parseFloat(a.lon));
+                const distB = getDistance(userLat, userLng, parseFloat(b.lat), parseFloat(b.lon));
+                return distA - distB;
+            });
+        }
+
         return data;
     } catch (error) {
         console.error("Forward geocoding failed:", error);
