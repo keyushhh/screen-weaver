@@ -42,10 +42,6 @@ const AddAddress = () => {
   const [bottomSheetHeight, setBottomSheetHeight] = useState(0);
   const bottomSheetRef = useRef<HTMLDivElement>(null);
 
-  // Manual Input State
-  const [apartment, setApartment] = useState("");
-  const [landmark, setLandmark] = useState("");
-
   const debounce = <T extends (...args: unknown[]) => void>(func: T, wait: number) => {
     let timeout: NodeJS.Timeout;
     return (...args: Parameters<T>) => {
@@ -540,38 +536,6 @@ const AddAddress = () => {
                 </p>
             )}
           </div>
-        </div>
-
-        {/* Manual Address Fields */}
-        <div className="space-y-3 mb-6">
-            <input
-                type="text"
-                placeholder="Apartment / House No / Flat"
-                value={apartment}
-                onChange={(e) => setApartment(e.target.value)}
-                className="w-full text-white placeholder-white/50 px-5 text-[14px] outline-none"
-                style={{
-                    height: "48px",
-                    backgroundColor: "rgba(25, 25, 25, 0.3)",
-                    border: "0.65px solid rgba(255, 255, 255, 0.2)",
-                    borderRadius: "9999px",
-                    fontFamily: 'Satoshi, sans-serif'
-                }}
-            />
-            <input
-                type="text"
-                placeholder="Landmark (Optional)"
-                value={landmark}
-                onChange={(e) => setLandmark(e.target.value)}
-                className="w-full text-white placeholder-white/50 px-5 text-[14px] outline-none"
-                style={{
-                    height: "48px",
-                    backgroundColor: "rgba(25, 25, 25, 0.3)",
-                    border: "0.65px solid rgba(255, 255, 255, 0.2)",
-                    borderRadius: "9999px",
-                    fontFamily: 'Satoshi, sans-serif'
-                }}
-            />
         </div>
 
         {/* Distance Callout */}
