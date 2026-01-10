@@ -156,10 +156,13 @@ export const reverseGeocode = async (lat: number, lng: number): Promise<OlaRever
     }
 
     const data = await response.json();
-    console.log('Reverse Geocode:', data.results?.[0]?.formatted_address);
+    console.log('Reverse Geocode Response:', JSON.stringify(data));
 
-    if (data.results && data.results.length > 0) {
-        const result = data.results[0];
+    // Check for geocodingResults based on user input
+    const results = data.geocodingResults || data.results;
+
+    if (results && results.length > 0) {
+        const result = results[0];
         return {
             formatted_address: result.formatted_address,
             name: result.name || result.formatted_address.split(',')[0],
