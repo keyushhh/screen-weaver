@@ -5,7 +5,7 @@ export interface OlaPlacePrediction {
     main_text: string;
     secondary_text: string;
   };
-  geometry: {
+  geometry?: {
     location: {
       lat: number;
       lng: number;
@@ -14,14 +14,34 @@ export interface OlaPlacePrediction {
   place_id: string;
 }
 
+export interface OlaAddressComponent {
+  long_name: string;
+  short_name: string;
+  types: string[];
+}
+
 export interface OlaReverseGeocodeResult {
   formatted_address: string;
   name?: string;
+  address_components?: OlaAddressComponent[];
   geometry: {
     location: {
       lat: number;
       lng: number;
     };
+  };
+}
+
+export interface OlaPlaceDetails {
+  result: {
+    geometry: {
+      location: {
+        lat: number;
+        lng: number;
+      };
+    };
+    name: string;
+    formatted_address: string;
   };
 }
 
@@ -63,6 +83,34 @@ export const searchPlaces = async (query: string): Promise<OlaPlacePrediction[]>
   }
 };
 
+export const getPlaceDetails = async (placeId: string): Promise<OlaPlaceDetails | null> => {
+  if (!API_KEY) return null;
+
+  const url = `https://api.olamaps.io/places/v1/details?place_id=${placeId}&api_key=${API_KEY}`;
+  console.log(`Ola Place Details Request: ${url.replace(API_KEY, 'MASKED_KEY')}`);
+
+  try {
+    const response = await fetch(url, {
+      headers: {
+        'Referer': 'http://localhost',
+        'X-Request-Id': Date.now().toString(),
+      }
+    });
+
+    if (!response.ok) {
+      console.error('API Error Status:', response.status, await response.text());
+      return null;
+    }
+
+    const data = await response.json();
+    console.log('Place Details Response:', data);
+    return data;
+  } catch (error) {
+    console.error("getPlaceDetails failed:", error);
+    return null;
+  }
+};
+
 export const reverseGeocode = async (lat: number, lng: number): Promise<OlaReverseGeocodeResult | null> => {
   if (!API_KEY) {
     console.warn("Ola Maps API key is missing. Check VITE_MAPS_API_KEY in .env");
@@ -86,7 +134,6 @@ export const reverseGeocode = async (lat: number, lng: number): Promise<OlaRever
 
     if (!response.ok) {
       console.error('API Error Status:', response.status, await response.text());
-      // Return fallback instead of throwing to prevent crash
       return {
           formatted_address: "Address Unavailable",
           name: "Location",
@@ -102,6 +149,7 @@ export const reverseGeocode = async (lat: number, lng: number): Promise<OlaRever
         return {
             formatted_address: result.formatted_address,
             name: result.name || result.formatted_address.split(',')[0],
+            address_components: result.address_components,
             geometry: result.geometry
         };
     }
@@ -115,7 +163,6 @@ export const reverseGeocode = async (lat: number, lng: number): Promise<OlaRever
 
   } catch (error) {
     console.error("reverseGeocode failed:", error);
-    // Return fallback on error
     return {
         formatted_address: "Address Unavailable",
         name: "Location",
