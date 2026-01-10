@@ -59,29 +59,38 @@ const AddAddress = () => {
       return;
     }
 
-    // 1. Check if input looks like a Plus Code (contains +)
-    // Regex for checking if it contains a plus sign and alphanumeric chars
-    // e.g. "HXCV+JR" or "87G8HXCV+JR"
-    if (query.includes('+') && query.length >= 4) {
+    // 1. Hybrid Check: Extract Plus Code pattern from mixed input
+    // Regex matches 2-8 alphanumeric chars, a plus sign, and 2-3 alphanumeric chars
+    // This catches "HXCV+JR", "87G8HXCV+JR", "HXCV+JR Bangalore", etc.
+    const plusCodeRegex = /([A-Z0-9]{2,8}\+[A-Z0-9]{2,3})/i;
+    const match = query.match(plusCodeRegex);
+
+    if (match) {
+       const potentialCode = match[0].toUpperCase();
+       console.log("Potential Plus Code found:", potentialCode);
+
        try {
            // eslint-disable-next-line @typescript-eslint/no-explicit-any
            const olc = new OpenLocationCode() as any;
 
-           // Attempt to recover nearest (handles short codes like HXCV+JR using current map center context)
-           // Use user location if available for better local context, otherwise map center
+           // Attempt to recover nearest (handles short codes using context)
+           // Use user location if available, otherwise map center
            const refLat = userLocation ? userLocation.lat : viewState.latitude;
            const refLng = userLocation ? userLocation.lng : viewState.longitude;
-           const recoveredCode = olc.recoverNearest(query, refLat, refLng);
+
+           // If it's a full code (8+ chars before +), recoverNearest handles it too (ignoring ref),
+           // but mainly it resolves short codes relative to ref.
+           const recoveredCode = olc.recoverNearest(potentialCode, refLat, refLng);
 
            if (olc.isValid(recoveredCode)) {
-              // Valid Plus Code
+              console.log("Valid code recovered:", recoveredCode);
               const codeArea = olc.decode(recoveredCode);
               const lat = codeArea.latitudeCenter;
               const lng = codeArea.longitudeCenter;
 
               // We'll treat this as a single result for the dropdown
               const result: GeocodeResult = {
-                  display_name: `Plus Code Location: ${query.toUpperCase()}`,
+                  display_name: `Plus Code Location: ${potentialCode}`,
                   address: {}, // dummy
                   lat: lat.toString(),
                   lon: lng.toString()
@@ -91,11 +100,11 @@ const AddAddress = () => {
               return;
            }
        } catch (err) {
-           console.log("Not a valid plus code, falling back to text search", err);
+           console.log("Plus code resolution failed, falling back to text search", err);
        }
     }
 
-    // 2. Fallback to Text Search (Geocoding)
+    // 2. Fallback to Text Search (Geocoding) if no valid code found or code resolution failed
     try {
         console.log("Calling forwardGeocode...");
         const results = await forwardGeocode(query);
@@ -335,7 +344,9 @@ const AddAddress = () => {
     if (!bottomSheetRef.current) return;
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
-        setBottomSheetHeight(entry.contentRect.height);
+        // Use getBoundingClientRect to ensure we get the full visual height (including padding/borders)
+        // contentRect (default) excludes padding, which causes overlap if the element has significant padding.
+        setBottomSheetHeight(entry.target.getBoundingClientRect().height);
       }
     });
     observer.observe(bottomSheetRef.current);
