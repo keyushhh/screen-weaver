@@ -6,7 +6,8 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { OpenLocationCode } from "open-location-code";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
-import { calculateDistance, reverseGeocode, getDistance, forwardGeocode, GeocodeResult } from "@/utils/geoUtils";
+import { calculateDistance, getDistance, GeocodeResult } from "@/utils/geoUtils";
+import { searchPlaces as olaSearchPlaces, reverseGeocode as olaReverseGeocode } from "@/utils/olaApi";
 import { Geolocation } from '@capacitor/geolocation';
 
 // Assets
@@ -60,8 +61,6 @@ const AddAddress = () => {
     }
 
     // 1. Hybrid Check: Extract Plus Code pattern from mixed input
-    // Regex matches 2-8 alphanumeric chars, a plus sign, and 2-3 alphanumeric chars
-    // This catches "HXCV+JR", "87G8HXCV+JR", "HXCV+JR Bangalore", etc.
     const plusCodeRegex = /([A-Z0-9]{2,8}\+[A-Z0-9]{2,3})/i;
     const match = query.match(plusCodeRegex);
 
@@ -72,14 +71,9 @@ const AddAddress = () => {
        try {
            // eslint-disable-next-line @typescript-eslint/no-explicit-any
            const olc = new OpenLocationCode() as any;
-
            // Attempt to recover nearest (handles short codes using context)
-           // Use user location if available, otherwise map center
            const refLat = userLocation ? userLocation.lat : viewState.latitude;
            const refLng = userLocation ? userLocation.lng : viewState.longitude;
-
-           // If it's a full code (8+ chars before +), recoverNearest handles it too (ignoring ref),
-           // but mainly it resolves short codes relative to ref.
            const recoveredCode = olc.recoverNearest(potentialCode, refLat, refLng);
 
            if (olc.isValid(recoveredCode)) {
@@ -88,27 +82,42 @@ const AddAddress = () => {
               const lat = codeArea.latitudeCenter;
               const lng = codeArea.longitudeCenter;
 
-              // We'll treat this as a single result for the dropdown
-              const result: GeocodeResult = {
-                  display_name: `Plus Code Location: ${potentialCode}`,
-                  address: {}, // dummy
-                  lat: lat.toString(),
-                  lon: lng.toString()
-              };
-              setSearchResults([result]);
-              setShowDropdown(true);
-              return;
+              // IMMEDIATELY Call reverseGeocode(lat, lng) to get the building name
+              const reverseResult = await olaReverseGeocode(lat, lng);
+
+              if (reverseResult) {
+                 const result: GeocodeResult = {
+                    display_name: reverseResult.name || reverseResult.formatted_address, // "Wind Wave Apartment"
+                    address: {
+                        city: "Bangalore", // fallback/dummy
+                        suburb: reverseResult.formatted_address
+                    },
+                    lat: lat.toString(),
+                    lon: lng.toString()
+                 };
+                 setSearchResults([result]);
+                 setShowDropdown(true);
+                 return;
+              }
            }
        } catch (err) {
            console.log("Plus code resolution failed, falling back to text search", err);
        }
     }
 
-    // 2. Fallback to Text Search (Geocoding) if no valid code found or code resolution failed
+    // 2. Text Search (Ola Places)
     try {
-        console.log("Calling forwardGeocode...");
-        const results = await forwardGeocode(query);
-        console.log("Geocode results:", results);
+        console.log("Calling Ola searchPlaces...");
+        const olaResults = await olaSearchPlaces(query);
+        const results: GeocodeResult[] = olaResults.map(p => ({
+            display_name: p.structured_formatting.main_text || p.description,
+            address: {
+                city: p.structured_formatting.secondary_text
+            },
+            lat: p.geometry.location.lat.toString(),
+            lon: p.geometry.location.lng.toString()
+        }));
+
         setSearchResults(results);
         setShowDropdown(results.length > 0);
     } catch (error) {
@@ -120,49 +129,30 @@ const AddAddress = () => {
     setIsLoading(true);
     try {
       console.log("Fetching address for", lat, lng);
-      // Generate Plus Code
-      // Note: @types/open-location-code defines methods as static, but the JS library
-      // implementation uses prototype methods, requiring instantiation.
-      // Casting to 'any' bypasses the incorrect type definition.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const olc = new OpenLocationCode() as any;
       const fullCode = olc.encode(lat, lng);
       console.log("Generated Full Code:", fullCode);
 
-      // Shorten the Plus Code for display (remove the first 4 characters, usually the area code)
-      // This provides the 4+2 (e.g., 5Q5C+FX) format relative to the local city/region
       let shortCode = fullCode;
       if (fullCode.length >= 10 && fullCode.includes('+')) {
-         // Assuming standard 10+ digit code (8 chars before +, 2+ after)
-         // remove first 4 chars.
          shortCode = fullCode.substring(4);
       }
 
       setPlusCode(shortCode);
 
-      // Fetch Real Address from Nominatim
-      const geocodeResult = await reverseGeocode(lat, lng);
-      const addr = geocodeResult.address;
+      // Use Ola Reverse Geocode
+      const geocodeResult = await olaReverseGeocode(lat, lng);
 
-      // Construct Title (Locality/Suburb/City)
-      const title = addr.suburb || addr.neighbourhood || addr.city || addr.town || addr.village || "Unknown Location";
-      setAddressTitle(title);
-
-      // Construct Full Address Line
-      // Priority: Road/House -> Locality -> City -> State -> Pincode
-      const parts = [];
-      if (addr.road || addr.house_number) {
-        parts.push([addr.house_number, addr.road].filter(Boolean).join(" "));
+      if (geocodeResult) {
+          // Logic to show "Wind Wave Apartment" if available
+          const title = geocodeResult.name || "Unknown Location";
+          setAddressTitle(title);
+          setAddressLine(geocodeResult.formatted_address);
+      } else {
+          setAddressTitle("Location not found");
+          setAddressLine("Address details unavailable");
       }
-      if (addr.suburb && addr.suburb !== title) parts.push(addr.suburb);
-      if (addr.neighbourhood && addr.neighbourhood !== title) parts.push(addr.neighbourhood);
-      if (addr.city || addr.town || addr.village) parts.push(addr.city || addr.town || addr.village);
-      if (addr.state) parts.push(addr.state);
-      if (addr.postcode) parts.push(addr.postcode);
-
-      // Remove duplicates and join
-      const fullAddress = [...new Set(parts)].filter(Boolean).join(", ");
-      setAddressLine(fullAddress || geocodeResult.display_name); // Fallback to display_name if construction fails
 
       const loc = overrideUserLocation || userLocation;
       if (loc) {
