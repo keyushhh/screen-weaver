@@ -37,15 +37,11 @@ export const searchPlaces = async (query: string): Promise<OlaPlacePrediction[]>
   console.log(`Ola Autocomplete Request: ${url.replace(API_KEY, 'MASKED_KEY')}`);
 
   try {
-    const response = await fetch(url, {
-         headers: {
-            'X-Request-Id': Date.now().toString(),
-         }
-    });
+    const response = await fetch(url);
 
     if (!response.ok) {
-      console.error(`Ola Autocomplete failed: ${response.status} ${response.statusText}`);
-      throw new Error(`Ola Maps Autocomplete error: ${response.statusText}`);
+      console.error('Ola API Error:', response.status, response.statusText);
+      throw new Error(`Ola Maps Autocomplete error: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();
@@ -76,14 +72,10 @@ export const reverseGeocode = async (lat: number, lng: number): Promise<OlaRever
   console.log(`Ola Reverse Geocode Request: ${url.replace(API_KEY, 'MASKED_KEY')}`);
 
   try {
-    const response = await fetch(url, {
-          headers: {
-            'X-Request-Id': Date.now().toString(),
-         }
-    });
+    const response = await fetch(url);
 
     if (!response.ok) {
-      console.error(`Ola Reverse Geocode failed: ${response.status} ${response.statusText}`);
+      console.error('Ola API Error:', response.status, response.statusText);
       // Return fallback instead of throwing to prevent crash
       return {
           formatted_address: "Address Unavailable",
