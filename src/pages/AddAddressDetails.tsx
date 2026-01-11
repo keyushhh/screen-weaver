@@ -13,6 +13,7 @@ import otherIcon from "@/assets/Other.svg";
 import copyIcon from "@/assets/copy.svg";
 import phoneIcon from "@/assets/phone.svg";
 import confirmCtaBg from "@/assets/confirm-location-cta.png";
+import bgDarkMode from "@/assets/bg-dark-mode.png";
 
 interface AddressState {
   addressTitle: string; // "City, Country" or "Building Name"
@@ -107,7 +108,15 @@ const AddAddressDetails = () => {
     } text-[14px] font-satoshi placeholder:text-white placeholder:font-light`;
 
   return (
-    <div className="min-h-screen w-full bg-black text-white relative overflow-y-auto pb-10 font-sans">
+    <div
+      className="min-h-screen w-full text-white relative overflow-y-auto pb-32 font-sans"
+      style={{
+        backgroundImage: `url(${bgDarkMode})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundAttachment: "fixed"
+      }}
+    >
       <div className="safe-area-top pt-4 px-5">
         {/* Header */}
         <div className="flex items-center mb-[44px]">
@@ -159,7 +168,7 @@ const AddAddressDetails = () => {
         </div>
 
         {/* Helper Text */}
-        <p className="text-[12px] font-regular text-gray-400 mb-[24px]">
+        <p className="text-[12px] font-regular text-gray-400 mb-[12px]">
             A detailed address will help our delivery partner reach your doorstep with ease
         </p>
 
