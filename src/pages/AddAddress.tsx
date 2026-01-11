@@ -604,8 +604,8 @@ const AddAddress = () => {
                     onClick={() => {
                         const addr = currentAddressComponents || {};
 
-                        // Extract details safely
-                        const city = addr.city || addr.town || addr.village || addr.suburb || "Bangalore";
+                        // Extract details safely - Prioritize City > Town > Village > County > State District
+                        const city = addr.city || addr.town || addr.village || addr.county || addr.state_district || "Bangalore";
                         const state = addr.state || "Karnataka";
                         const postcode = addr.postcode || "560001";
                         const road = addr.road || "";
