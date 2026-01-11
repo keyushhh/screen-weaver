@@ -42,6 +42,9 @@ const AddAddressDetails = () => {
   const [phone, setPhone] = useState("");
   const [selectedTag, setSelectedTag] = useState<string>("Home");
 
+  // UI State
+  const [headerOpacity, setHeaderOpacity] = useState(1);
+
   // Derived Address Display
   // "C-102, Lotus Residency, 5th Cross Road, JP Nagar, Bangalore, Karnataka – 560078"
   // Logic:
@@ -93,6 +96,14 @@ const AddAddressDetails = () => {
     toast.success("Plus Code copied!");
   };
 
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const scrollTop = e.currentTarget.scrollTop;
+    // Calculate opacity: 1 at 0px, 0 at 50px
+    // Using a clamp to ensure it stays between 0 and 1
+    const newOpacity = Math.max(0, Math.min(1, 1 - scrollTop / 50));
+    setHeaderOpacity(newOpacity);
+  };
+
   const tags = [
     { label: "Home", icon: homeIcon },
     { label: "Work", icon: workIcon },
@@ -108,7 +119,8 @@ const AddAddressDetails = () => {
 
   return (
     <div
-      className="h-full w-full text-white relative overflow-y-auto pb-32 font-sans"
+      className="h-full w-full text-white relative overflow-y-auto pb-10 font-sans"
+      onScroll={handleScroll}
       style={{
         backgroundImage: `url(${bgDarkMode})`,
         backgroundSize: "cover",
@@ -118,7 +130,10 @@ const AddAddressDetails = () => {
     >
       <div className="safe-area-top pt-4 px-5">
         {/* Header */}
-        <div className="flex items-center mb-[44px]">
+        <div
+          className="flex items-center mb-[44px] transition-opacity duration-100"
+          style={{ opacity: headerOpacity }}
+        >
           <button
             onClick={() => navigate(-1)}
             className="w-10 h-10 flex items-center justify-center mr-2 rounded-full border border-white/20 active:bg-white/10"
