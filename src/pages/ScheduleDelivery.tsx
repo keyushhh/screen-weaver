@@ -43,7 +43,7 @@ const ScheduleDelivery = () => {
     if (extraTime && extraTime.toLowerCase().includes(currentMeridiem.toLowerCase()) && !slots.includes(extraTime)) {
          // Parse extraTime to check range
          const getMin = (t: string) => {
-             let [timeStr, m] = t.split(' ');
+             const [timeStr, m] = t.split(' ');
              let [h, min] = timeStr.split(':').map(Number);
              if (m.toLowerCase() === 'pm' && h !== 12) h += 12;
              if (m.toLowerCase() === 'am' && h === 12) h = 0;
@@ -69,7 +69,7 @@ const ScheduleDelivery = () => {
   const getClockRotation = () => {
     const [timePart] = selectedTime.split(" ");
     const [hourStr, minStr] = timePart.split(":");
-    let hour = parseInt(hourStr);
+    const hour = parseInt(hourStr);
     const minute = parseInt(minStr);
 
     const hourRotation = ((hour % 12) + minute / 60) * 30;
@@ -122,8 +122,8 @@ const ScheduleDelivery = () => {
     // > 60% radius = Minute interaction
     const isHourInteraction = distance < (radius * 0.6);
 
-    let [timePart, mPart] = selectedTime.split(" ");
-    let [currentHour, currentMin] = timePart.split(":").map(Number);
+    const [timePart, mPart] = selectedTime.split(" ");
+    const [currentHour, currentMin] = timePart.split(":").map(Number);
     let newHour = currentHour;
     let newMin = currentMin;
 

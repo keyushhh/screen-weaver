@@ -61,7 +61,6 @@ const AddAddressDetails = () => {
      // This is a simplified reconstruction logic based on user request.
      // Ideally, we'd parse the original string, but building it fresh ensures consistency with inputs.
 
-     let part1 = house ? `${house}, ` : (initialState.houseNumber ? `${initialState.houseNumber}, ` : "");
      // If user hasn't typed house, show original if available, else empty?
      // User said: "upon first launch, this should show the address fetched... as user enters, keep updating"
      // So we default inputs to empty, but display uses original until input overrides?
