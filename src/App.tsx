@@ -39,6 +39,7 @@ import OrderCashSummary from "./pages/OrderCashSummary";
 import OrderCashSuccess from "./pages/OrderCashSuccess";
 import ScheduleDelivery from "./pages/ScheduleDelivery";
 import AddAddress from "./pages/AddAddress";
+import AddAddressDetails from "./pages/AddAddressDetails";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -86,6 +87,7 @@ const App = () => (
             <Route path="/order-cash-success" element={<OrderCashSuccess />} />
             <Route path="/schedule-delivery" element={<ScheduleDelivery />} />
             <Route path="/add-address" element={<AddAddress />} />
+            <Route path="/add-address-details" element={<AddAddressDetails />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </HashRouter>

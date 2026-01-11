@@ -1,0 +1,309 @@
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { ChevronLeft } from "lucide-react";
+import { toast } from "sonner";
+
+// Assets
+import topAddressContainerBg from "@/assets/top-address-container.png";
+import selectedTagBg from "@/assets/selected.png";
+import homeIcon from "@/assets/HomeTag.svg";
+import workIcon from "@/assets/Work.svg";
+import friendsIcon from "@/assets/Friends Family.svg";
+import otherIcon from "@/assets/Other.svg";
+import copyIcon from "@/assets/copy.svg";
+import phoneIcon from "@/assets/phone.svg";
+import confirmCtaBg from "@/assets/confirm-location-cta.png";
+
+interface AddressState {
+  addressTitle: string; // "City, Country" or "Building Name"
+  addressLine: string; // Full address
+  plusCode: string;
+  city: string;
+  state: string;
+  postcode: string;
+  // Breakdown for editing
+  houseNumber?: string;
+  road?: string;
+  area?: string;
+}
+
+const AddAddressDetails = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const initialState = location.state as AddressState | null;
+
+  // Form State
+  const [house, setHouse] = useState("");
+  const [area, setArea] = useState("");
+  const [landmark, setLandmark] = useState("");
+  const [plusCode, setPlusCode] = useState(initialState?.plusCode || "");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [selectedTag, setSelectedTag] = useState<string>("Home");
+
+  // Derived Address Display
+  // "C-102, Lotus Residency, 5th Cross Road, JP Nagar, Bangalore, Karnataka – 560078"
+  // Logic:
+  // House -> Replaces start
+  // Area -> Replaces middle
+  // Landmark -> Adds after Area
+  // City, State, Pin -> Fixed from map
+  const [displayAddress, setDisplayAddress] = useState(initialState?.addressLine || "");
+
+  useEffect(() => {
+     if (!initialState) return;
+
+     // Construct base parts
+     const cityStatePin = `${initialState.city}, ${initialState.state} – ${initialState.postcode}`;
+
+     // Dynamic parts construction
+     // This is a simplified reconstruction logic based on user request.
+     // Ideally, we'd parse the original string, but building it fresh ensures consistency with inputs.
+
+     let part1 = house ? `${house}, ` : (initialState.houseNumber ? `${initialState.houseNumber}, ` : "");
+     // If user hasn't typed house, show original if available, else empty?
+     // User said: "upon first launch, this should show the address fetched... as user enters, keep updating"
+     // So we default inputs to empty, but display uses original until input overrides?
+     // Actually, it's cleaner to pre-fill inputs if we can identify them, OR just construct the string.
+
+     // Let's rely on constructing the string:
+     const currentHouse = house || initialState.houseNumber || "";
+     const currentArea = area || initialState.road || initialState.area || "";
+
+     let constructed = "";
+     if (currentHouse) constructed += `${currentHouse}, `;
+     if (currentArea) constructed += `${currentArea}, `;
+     if (landmark) constructed += `${landmark}, `;
+
+     // Remove trailing comma/space
+     if (constructed.endsWith(", ")) constructed = constructed.slice(0, -2);
+
+     if (constructed && cityStatePin) {
+         setDisplayAddress(`${constructed}, ${cityStatePin}`);
+     } else if (cityStatePin) {
+         setDisplayAddress(cityStatePin);
+     } else {
+         setDisplayAddress(initialState.addressLine);
+     }
+
+  }, [house, area, landmark, initialState]);
+
+  const handleCopyPlusCode = () => {
+    navigator.clipboard.writeText(plusCode);
+    toast.success("Plus Code copied!");
+  };
+
+  const tags = [
+    { label: "Home", icon: homeIcon },
+    { label: "Work", icon: workIcon },
+    { label: "Friends & Family", icon: friendsIcon },
+    { label: "Other", icon: otherIcon },
+  ];
+
+  // Helper to get input font class
+  const getInputClass = (val: string) =>
+    `w-full h-full bg-transparent border-none outline-none text-white transition-all ${
+      val ? "font-bold" : "font-light"
+    } text-[14px] font-satoshi placeholder:text-white placeholder:font-light`;
+
+  return (
+    <div className="min-h-screen w-full bg-black text-white relative overflow-y-auto pb-10 font-sans">
+      <div className="safe-area-top pt-4 px-5">
+        {/* Header */}
+        <div className="flex items-center mb-[44px]">
+          <button
+            onClick={() => navigate(-1)}
+            className="w-10 h-10 flex items-center justify-center mr-2 rounded-full active:bg-white/10"
+          >
+            <ChevronLeft className="w-6 h-6 text-white" />
+          </button>
+          <h1 className="flex-1 text-center text-lg font-medium pr-10">Add New Address</h1>
+        </div>
+
+        {/* Address Container */}
+        <div
+            className="relative w-full rounded-[12px] p-[11px] mb-[12px]"
+            style={{ height: "88px" }}
+        >
+            {/* Background Image */}
+            <img
+                src={topAddressContainerBg}
+                alt="Background"
+                className="absolute inset-0 w-full h-full object-cover rounded-[12px] z-0 pointer-events-none"
+            />
+
+            <div className="relative z-10 flex flex-col justify-between h-full">
+                {/* Top Row: City/Country + Change Button */}
+                <div className="flex justify-between items-start">
+                    <span className="font-bold text-[16px] truncate pr-2">
+                        {initialState ? `${initialState.city}, India` : "Location Details"}
+                    </span>
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="flex items-center justify-center bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors"
+                        style={{
+                            width: "67px",
+                            height: "22px",
+                            borderRadius: "9999px",
+                        }}
+                    >
+                        <span className="text-[12px] font-medium">Change</span>
+                    </button>
+                </div>
+
+                {/* Bottom Row: Full Address */}
+                <p className="text-[12px] font-regular text-gray-300 line-clamp-2 mt-auto">
+                    {displayAddress}
+                </p>
+            </div>
+        </div>
+
+        {/* Helper Text */}
+        <p className="text-[12px] font-regular text-gray-400 mb-[24px]">
+            A detailed address will help our delivery partner reach your doorstep with ease
+        </p>
+
+        {/* Tags Section */}
+        <h2 className="text-[14px] font-medium mb-[8px]">Save address as*</h2>
+        <div className="flex flex-wrap gap-2 mb-[32px]">
+            {tags.map((tag) => {
+                const isSelected = selectedTag === tag.label;
+                return (
+                    <button
+                        key={tag.label}
+                        onClick={() => setSelectedTag(tag.label)}
+                        className="relative flex items-center justify-center px-4 h-[32px] rounded-full transition-all border border-white/20"
+                        style={{
+                           backgroundColor: isSelected ? "transparent" : "rgba(255,255,255,0.05)",
+                        }}
+                    >
+                        {isSelected && (
+                            <img
+                                src={selectedTagBg}
+                                alt=""
+                                className="absolute inset-0 w-full h-full object-cover rounded-full z-0"
+                            />
+                        )}
+                        <div className="relative z-10 flex items-center gap-2">
+                             <img src={tag.icon} alt={tag.label} className="w-4 h-4" />
+                             <span className="text-[12px] font-medium">{tag.label}</span>
+                        </div>
+                    </button>
+                )
+            })}
+        </div>
+
+        {/* Input Fields Container */}
+        <div className="space-y-[10px] mb-[28px]">
+            {/* House / Flat */}
+            <div className="h-[48px] rounded-full bg-[#191919] border border-[#313131] px-6 flex items-center">
+                <input
+                    type="text"
+                    placeholder="House / Flat / Floor *"
+                    value={house}
+                    onChange={(e) => setHouse(e.target.value)}
+                    className={getInputClass(house)}
+                />
+            </div>
+
+            {/* Apartment / Road */}
+            <div className="h-[48px] rounded-full bg-[#191919] border border-[#313131] px-6 flex items-center">
+                <input
+                    type="text"
+                    placeholder="Apartment / Road / Area *"
+                    value={area}
+                    onChange={(e) => setArea(e.target.value)}
+                    className={getInputClass(area)}
+                />
+            </div>
+
+            {/* Landmark */}
+            <div className="h-[48px] rounded-full bg-[#191919] border border-[#313131] px-6 flex items-center">
+                <input
+                    type="text"
+                    placeholder="Landmark (Optional)"
+                    value={landmark}
+                    onChange={(e) => setLandmark(e.target.value)}
+                    className={getInputClass(landmark)}
+                />
+            </div>
+
+            {/* Plus Code */}
+            <div className="h-[48px] rounded-full bg-[#191919] border border-[#313131] px-6 flex items-center justify-between">
+                <input
+                    type="text"
+                    value={plusCode}
+                    onChange={(e) => setPlusCode(e.target.value)}
+                    className={`${getInputClass(plusCode)} flex-1 mr-2`}
+                />
+                <button onClick={handleCopyPlusCode}>
+                    <img src={copyIcon} alt="Copy" className="w-5 h-5 opacity-70 hover:opacity-100" />
+                </button>
+            </div>
+        </div>
+
+        {/* Contact Information */}
+        <h2 className="text-[14px] font-medium mb-[12px]">Enter contact information*</h2>
+        <div className="space-y-[12px] mb-[26px]">
+            {/* Name */}
+            <div className="h-[48px] rounded-full bg-[#191919] border border-[#313131] px-6 flex items-center">
+                <input
+                    type="text"
+                    placeholder="Your Name *"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className={getInputClass(name)}
+                />
+            </div>
+
+            {/* Phone Number */}
+            <div className="h-[48px] rounded-full bg-[#191919] border border-[#313131] flex items-center relative overflow-hidden">
+                 <span className="text-[14px] font-medium text-white pl-[30px] pr-[22px]">
+                    +91
+                 </span>
+                 {/* Divider */}
+                 <div className="h-[32px] w-[1px] bg-[#313131]"></div>
+
+                 {/* Input */}
+                 <div className="flex-1 ml-[22px] mr-[20px] relative h-full flex items-center">
+                    <input
+                        type="tel"
+                        maxLength={10}
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))} // Numeric only
+                        className={getInputClass(phone)}
+                        style={{ paddingRight: "30px" }}
+                    />
+                 </div>
+
+                 {/* Phone Icon */}
+                 <img
+                    src={phoneIcon}
+                    alt="Phone"
+                    className="absolute right-[20px] w-5 h-5 pointer-events-none"
+                 />
+            </div>
+        </div>
+
+        {/* Save Address CTA */}
+        <button
+            onClick={() => {}} // Does nothing for now
+            className="w-full flex items-center justify-center rounded-[12px]"
+            style={{
+                height: "48px",
+                backgroundImage: `url(${confirmCtaBg})`,
+                backgroundSize: "100% 100%",
+                backgroundRepeat: "no-repeat",
+                backgroundColor: "transparent",
+                border: "none"
+            }}
+        >
+            <span className="text-white font-medium text-[16px]">Save Address</span>
+        </button>
+
+      </div>
+    </div>
+  );
+};
+
+export default AddAddressDetails;
