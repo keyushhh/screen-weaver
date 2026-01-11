@@ -98,7 +98,7 @@ export const forwardGeocode = async (query: string, userLat?: number, userLng?: 
         if (!response.ok) {
             throw new Error(`Geocoding search error: ${response.statusText}`);
         }
-        
+
         let data: GeocodeResult[] = await response.json();
 
         // If user location is provided, sort results by distance

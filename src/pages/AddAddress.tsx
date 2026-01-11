@@ -31,6 +31,7 @@ const AddAddress = () => {
 
   const [addressTitle, setAddressTitle] = useState<string>("Loading...");
   const [addressLine, setAddressLine] = useState<string>("");
+  const [currentAddressComponents, setCurrentAddressComponents] = useState<any>(null); // Store full address details
   const [plusCode, setPlusCode] = useState<string>("");
   const [isDragging, setIsDragging] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -107,7 +108,7 @@ const AddAddress = () => {
         // Pass user location or map center to bias results
         const centerLat = userLocation ? userLocation.lat : viewState.latitude;
         const centerLng = userLocation ? userLocation.lng : viewState.longitude;
-        
+
         const results = await forwardGeocode(query, centerLat, centerLng);
         setSearchResults(results);
         setShowDropdown(results.length > 0);
@@ -137,11 +138,13 @@ const AddAddress = () => {
 
       if (geocodeResult) {
           const addr = geocodeResult.address || {};
+          setCurrentAddressComponents(addr); // Store for navigation
           // Construct a friendly title
           const title = addr.building || addr.amenity || addr.shop || addr.tourism || addr.leisure || addr.road || addr.suburb || "Pinned Location";
           setAddressTitle(title);
           setAddressLine(geocodeResult.display_name);
       } else {
+          setCurrentAddressComponents(null);
           setAddressTitle("Location not found");
           setAddressLine("Address details unavailable");
       }
@@ -598,6 +601,30 @@ const AddAddress = () => {
         ) : (
             <div style={{ marginTop: "24px", opacity: isDragging || isLoading ? 0 : 1, transition: 'opacity 0.2s', visibility: isDragging || isLoading ? 'hidden' : 'visible' }}>
                 <button
+                    onClick={() => {
+                        const addr = currentAddressComponents || {};
+
+                        // Extract details safely
+                        const city = addr.city || addr.town || addr.village || addr.suburb || "Bangalore";
+                        const state = addr.state || "Karnataka";
+                        const postcode = addr.postcode || "560001";
+                        const road = addr.road || "";
+                        const houseNumber = addr.house_number || "";
+
+                        navigate('/add-address-details', {
+                            state: {
+                                addressTitle: addressTitle,
+                                addressLine: addressLine,
+                                plusCode: plusCode,
+                                city,
+                                state,
+                                postcode,
+                                houseNumber,
+                                road,
+                                area: addr.suburb || addr.neighbourhood || ""
+                            }
+                        });
+                    }}
                     className="w-full flex items-center justify-center"
                     style={{
                         height: "48px",
