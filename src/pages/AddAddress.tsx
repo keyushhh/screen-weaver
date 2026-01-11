@@ -6,6 +6,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { OpenLocationCode } from "open-location-code";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import { calculateDistance, getDistance, GeocodeResult, reverseGeocode, forwardGeocode } from "@/utils/geoUtils";
 import { Geolocation } from '@capacitor/geolocation';
 
@@ -13,7 +14,6 @@ import { Geolocation } from '@capacitor/geolocation';
 import mapPinIcon from "@/assets/map-pin-icon.svg";
 import locationPinIcon from "@/assets/location-pin.svg";
 import navigationIcon from "@/assets/navigation-icon.svg";
-import confirmCtaBg from "@/assets/confirm-location-cta.png";
 import copyIcon from "@/assets/copy.svg";
 import distanceCallout from "@/assets/distance-callout.svg";
 
@@ -601,7 +601,7 @@ const AddAddress = () => {
             </div>
         ) : (
             <div style={{ marginTop: "24px", opacity: isDragging || isLoading ? 0 : 1, transition: 'opacity 0.2s', visibility: isDragging || isLoading ? 'hidden' : 'visible' }}>
-                <button
+                <Button
                     onClick={() => {
                         const addr = currentAddressComponents || {};
 
@@ -626,18 +626,11 @@ const AddAddress = () => {
                             }
                         });
                     }}
-                    className="w-full flex items-center justify-center"
-                    style={{
-                        height: "48px",
-                        backgroundImage: `url(${confirmCtaBg})`,
-                        backgroundSize: "100% 100%",
-                        backgroundRepeat: "no-repeat",
-                        backgroundColor: "transparent",
-                        border: "none"
-                    }}
+                    className="w-full rounded-full"
+                    variant="gradient"
                 >
-                    <span className="text-white font-medium">Confirm Location</span>
-                </button>
+                    Confirm Location
+                </Button>
             </div>
         )}
       </div>

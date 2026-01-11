@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 // Assets
 import topAddressContainerBg from "@/assets/top-address-container.png";
@@ -12,7 +13,6 @@ import friendsIcon from "@/assets/Friends Family.svg";
 import otherIcon from "@/assets/Other.svg";
 import copyIcon from "@/assets/copy.svg";
 import phoneIcon from "@/assets/phone.svg";
-import confirmCtaBg from "@/assets/confirm-location-cta.png";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 
 interface AddressState {
@@ -108,7 +108,7 @@ const AddAddressDetails = () => {
 
   return (
     <div
-      className="min-h-screen w-full text-white relative overflow-y-auto pb-32 font-sans"
+      className="h-full w-full text-white relative overflow-y-auto pb-32 font-sans"
       style={{
         backgroundImage: `url(${bgDarkMode})`,
         backgroundSize: "cover",
@@ -121,7 +121,7 @@ const AddAddressDetails = () => {
         <div className="flex items-center mb-[44px]">
           <button
             onClick={() => navigate(-1)}
-            className="w-10 h-10 flex items-center justify-center mr-2 rounded-full active:bg-white/10"
+            className="w-10 h-10 flex items-center justify-center mr-2 rounded-full border border-white/20 active:bg-white/10"
           >
             <ChevronLeft className="w-6 h-6 text-white" />
           </button>
@@ -294,20 +294,13 @@ const AddAddressDetails = () => {
         </div>
 
         {/* Save Address CTA */}
-        <button
+        <Button
             onClick={() => {}} // Does nothing for now
-            className="w-full flex items-center justify-center rounded-[12px]"
-            style={{
-                height: "48px",
-                backgroundImage: `url(${confirmCtaBg})`,
-                backgroundSize: "100% 100%",
-                backgroundRepeat: "no-repeat",
-                backgroundColor: "transparent",
-                border: "none"
-            }}
+            className="w-full rounded-full"
+            variant="gradient"
         >
-            <span className="text-white font-medium text-[16px]">Save Address</span>
-        </button>
+            Save Address
+        </Button>
 
       </div>
     </div>
