@@ -31,6 +31,7 @@ const AddAddress = () => {
 
   const [addressTitle, setAddressTitle] = useState<string>("Loading...");
   const [addressLine, setAddressLine] = useState<string>("");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [currentAddressComponents, setCurrentAddressComponents] = useState<any>(null); // Store full address details
   const [plusCode, setPlusCode] = useState<string>("");
   const [isDragging, setIsDragging] = useState(false);
@@ -172,7 +173,7 @@ const AddAddress = () => {
     performSearchRef.current = performSearch;
   });
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   const debouncedSearch = useMemo(() => {
     const func = (q: string) => performSearchRef.current(q);
     return debounce(func, 500);
