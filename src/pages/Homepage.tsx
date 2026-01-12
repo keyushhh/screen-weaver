@@ -13,6 +13,7 @@ import bannerBg from "@/assets/banner-bg-new.png";
 import bannerImage from "@/assets/banner-image.png";
 import avatarImg from "@/assets/avatar.png";
 import BottomNavigation from "@/components/BottomNavigation";
+import AddressSelectionSheet from "@/components/AddressSelectionSheet";
 
 // Tag Icons
 import homeIcon from "@/assets/HomeTag.svg";
@@ -37,6 +38,7 @@ const Homepage = () => {
   const navigate = useNavigate();
   const [showBalance, setShowBalance] = useState(false);
   const [savedAddress, setSavedAddress] = useState<SavedAddress | null>(null);
+  const [isAddressSheetOpen, setIsAddressSheetOpen] = useState(false);
   const balance = "0.00";
 
   useEffect(() => {
@@ -49,6 +51,19 @@ const Homepage = () => {
       }
     }
   }, []);
+
+  const handleAddressSelect = (address: any) => {
+     setSavedAddress(address);
+     // Sheet closes automatically via its own internal logic calling onClose, or we close it here if needed?
+     // The sheet component calls onAddressSelect(addr), but doesn't explicitly close itself unless we tell it to.
+     // Checking AddressSelectionSheet implementation:
+     // "onAddressSelect(addr);" then nothing else.
+     // Wait, let's check AddressSelectionSheet again.
+     // It does NOT call onClose automatically in handleSelectAddress.
+     // So we should close it here or inside the sheet.
+     // Usually, selection implies closing.
+     setIsAddressSheetOpen(false);
+  };
 
   const getTagIcon = (tag: string) => {
     switch (tag) {
@@ -94,7 +109,13 @@ const Homepage = () => {
           )}
 
           <button
-            onClick={() => navigate('/add-address')}
+            onClick={() => {
+              if (savedAddress) {
+                setIsAddressSheetOpen(true);
+              } else {
+                navigate('/add-address');
+              }
+            }}
             className="flex items-center gap-1 text-foreground text-[14px] font-normal w-full"
           >
             <span className="truncate block">
@@ -107,6 +128,13 @@ const Homepage = () => {
           <img src={avatarImg} alt="Profile" className="w-12 h-12 rounded-full" />
         </button>
       </div>
+
+      {/* Address Selection Sheet */}
+      <AddressSelectionSheet
+        isOpen={isAddressSheetOpen}
+        onClose={() => setIsAddressSheetOpen(false)}
+        onAddressSelect={handleAddressSelect}
+      />
 
       {/* Balance Section */}
       <div className="flex flex-col items-center mt-8 space-y-4">
