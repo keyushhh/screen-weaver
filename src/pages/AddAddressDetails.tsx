@@ -98,9 +98,9 @@ const AddAddressDetails = () => {
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const scrollTop = e.currentTarget.scrollTop;
-    // Calculate opacity: 1 at 0px, 0 at 50px
+    // Calculate opacity: 1 at 0px, 0 at 100px
     // Using a clamp to ensure it stays between 0 and 1
-    const newOpacity = Math.max(0, Math.min(1, 1 - scrollTop / 50));
+    const newOpacity = Math.max(0, Math.min(1, 1 - scrollTop / 100));
     setHeaderOpacity(newOpacity);
   };
 
@@ -131,8 +131,8 @@ const AddAddressDetails = () => {
       <div className="safe-area-top pt-4 px-5">
         {/* Header */}
         <div
-          className="flex items-center mb-[44px] transition-opacity duration-100"
-          style={{ opacity: headerOpacity }}
+          className="flex items-center mb-[44px] sticky top-0 z-50"
+          style={{ opacity: headerOpacity, pointerEvents: headerOpacity === 0 ? 'none' : 'auto' }}
         >
           <button
             onClick={() => navigate(-1)}
