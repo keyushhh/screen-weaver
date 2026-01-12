@@ -51,7 +51,7 @@ const AddAddressDetails = () => {
   // Derived Address Display
   const [displayAddress, setDisplayAddress] = useState(initialState?.addressLine || "");
 
-  const isFormValid = house.trim() !== "" && area.trim() !== "" && name.trim() !== "" && phone.trim().length > 0;
+  const isFormValid = house.trim() !== "" && area.trim() !== "" && name.trim() !== "" && phone.trim().length === 10;
 
   useEffect(() => {
      if (!initialState) return;
@@ -99,6 +99,12 @@ const AddAddressDetails = () => {
         return;
     }
 
+    // New Flow: Check if selectedTag is "Other" but sheet hasn't triggered yet (no overrideTag)
+    if (selectedTag === "Other" && !overrideTag) {
+        setIsSheetOpen(true);
+        return;
+    }
+
     const tagToSave = overrideTag || (selectedTag === "Other" && customLabel ? customLabel : selectedTag);
 
     const addressData = {
@@ -121,13 +127,11 @@ const AddAddressDetails = () => {
   };
 
   const handleTagClick = (tagLabel: string) => {
-      if (tagLabel === "Other") {
-          setSelectedTag("Other");
-          setIsSheetOpen(true);
-      } else {
-          setSelectedTag(tagLabel);
+      setSelectedTag(tagLabel);
+      if (tagLabel !== "Other") {
           setCustomLabel(""); // Clear custom label if switching back to standard
       }
+      // Note: We no longer open sheet immediately for "Other"
   };
 
   const handleSheetSave = (label: string) => {
@@ -360,6 +364,7 @@ const AddAddressDetails = () => {
             isOpen={isSheetOpen}
             onClose={() => setIsSheetOpen(false)}
             onSave={handleSheetSave}
+            icon={otherIcon}
         />
     </div>
   );
