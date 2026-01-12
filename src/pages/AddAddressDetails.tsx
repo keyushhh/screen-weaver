@@ -88,6 +88,28 @@ const AddAddressDetails = () => {
     setHeaderOpacity(newOpacity);
   };
 
+  const handleSaveAddress = () => {
+    if (!isFormValid) return;
+
+    const addressData = {
+        tag: selectedTag,
+        house,
+        area,
+        landmark,
+        name,
+        phone,
+        displayAddress,
+        plusCode,
+        city: initialState?.city || "",
+        state: initialState?.state || "",
+        postcode: initialState?.postcode || ""
+    };
+
+    localStorage.setItem("dotpe_user_address", JSON.stringify(addressData));
+    toast.success("Address saved successfully!");
+    navigate("/home", { replace: true });
+  };
+
   const tags = [
     { label: "Home", icon: homeIcon },
     { label: "Work", icon: workIcon },
@@ -289,7 +311,7 @@ const AddAddressDetails = () => {
 
         {/* Save Address CTA */}
         <Button
-            onClick={() => {}} // Does nothing for now
+            onClick={handleSaveAddress}
             className="w-full rounded-full"
             variant="gradient"
             disabled={!isFormValid}
