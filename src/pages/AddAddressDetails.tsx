@@ -46,13 +46,9 @@ const AddAddressDetails = () => {
   const [headerOpacity, setHeaderOpacity] = useState(1);
 
   // Derived Address Display
-  // "C-102, Lotus Residency, 5th Cross Road, JP Nagar, Bangalore, Karnataka – 560078"
-  // Logic:
-  // House -> Replaces start
-  // Area -> Replaces middle
-  // Landmark -> Adds after Area
-  // City, State, Pin -> Fixed from map
   const [displayAddress, setDisplayAddress] = useState(initialState?.addressLine || "");
+
+  const isFormValid = house.trim() !== "" && area.trim() !== "" && name.trim() !== "" && phone.trim().length > 0;
 
   useEffect(() => {
      if (!initialState) return;
@@ -60,16 +56,6 @@ const AddAddressDetails = () => {
      // Construct base parts
      const cityStatePin = `${initialState.city}, ${initialState.state} – ${initialState.postcode}`;
 
-     // Dynamic parts construction
-     // This is a simplified reconstruction logic based on user request.
-     // Ideally, we'd parse the original string, but building it fresh ensures consistency with inputs.
-
-     // If user hasn't typed house, show original if available, else empty?
-     // User said: "upon first launch, this should show the address fetched... as user enters, keep updating"
-     // So we default inputs to empty, but display uses original until input overrides?
-     // Actually, it's cleaner to pre-fill inputs if we can identify them, OR just construct the string.
-
-     // Let's rely on constructing the string:
      const currentHouse = house || initialState.houseNumber || "";
      const currentArea = area || initialState.road || initialState.area || "";
 
@@ -98,8 +84,6 @@ const AddAddressDetails = () => {
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const scrollTop = e.currentTarget.scrollTop;
-    // Calculate opacity: 1 at 0px, 0 at 100px
-    // Using a clamp to ensure it stays between 0 and 1
     const newOpacity = Math.max(0, Math.min(1, 1 - scrollTop / 100));
     setHeaderOpacity(newOpacity);
   };
@@ -115,7 +99,34 @@ const AddAddressDetails = () => {
   const getInputClass = (val: string) =>
     `w-full h-full bg-transparent border-none outline-none text-white transition-all ${
       val ? "font-bold" : "font-light"
-    } text-[14px] font-satoshi placeholder:text-white placeholder:font-light`;
+    } text-[14px] font-satoshi z-10 relative`;
+
+  // Custom Input with Placeholder Overlay
+  const renderInput = (
+    value: string,
+    setValue: (val: string) => void,
+    placeholder: string,
+    mandatory: boolean = false
+  ) => {
+    return (
+      <div className="h-[48px] rounded-full bg-[#191919] border border-[#313131] px-6 flex items-center relative">
+        {!value && (
+          <div className="absolute inset-0 px-6 flex items-center pointer-events-none">
+            <span className="text-white font-light text-[14px] font-satoshi opacity-50">
+              {placeholder}
+              {mandatory && <span className="text-[#FF3B30] ml-1">*</span>}
+            </span>
+          </div>
+        )}
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          className={getInputClass(value)}
+        />
+      </div>
+    );
+  };
 
   return (
     <div
@@ -187,7 +198,7 @@ const AddAddressDetails = () => {
         </p>
 
         {/* Tags Section */}
-        <h2 className="text-[14px] font-medium mb-[8px]">Save address as*</h2>
+        <h2 className="text-[14px] font-medium mb-[8px]">Save address as<span className="text-[#FF3B30] ml-0.5">*</span></h2>
         <div className="flex flex-wrap gap-2 mb-[32px]">
             {tags.map((tag) => {
                 const isSelected = selectedTag === tag.label;
@@ -219,37 +230,13 @@ const AddAddressDetails = () => {
         {/* Input Fields Container */}
         <div className="space-y-[10px] mb-[28px]">
             {/* House / Flat */}
-            <div className="h-[48px] rounded-full bg-[#191919] border border-[#313131] px-6 flex items-center">
-                <input
-                    type="text"
-                    placeholder="House / Flat / Floor *"
-                    value={house}
-                    onChange={(e) => setHouse(e.target.value)}
-                    className={getInputClass(house)}
-                />
-            </div>
+            {renderInput(house, setHouse, "House / Flat / Floor", true)}
 
             {/* Apartment / Road */}
-            <div className="h-[48px] rounded-full bg-[#191919] border border-[#313131] px-6 flex items-center">
-                <input
-                    type="text"
-                    placeholder="Apartment / Road / Area *"
-                    value={area}
-                    onChange={(e) => setArea(e.target.value)}
-                    className={getInputClass(area)}
-                />
-            </div>
+            {renderInput(area, setArea, "Apartment / Road / Area", true)}
 
             {/* Landmark */}
-            <div className="h-[48px] rounded-full bg-[#191919] border border-[#313131] px-6 flex items-center">
-                <input
-                    type="text"
-                    placeholder="Landmark (Optional)"
-                    value={landmark}
-                    onChange={(e) => setLandmark(e.target.value)}
-                    className={getInputClass(landmark)}
-                />
-            </div>
+            {renderInput(landmark, setLandmark, "Landmark (Optional)", false)}
 
             {/* Plus Code */}
             <div className="h-[48px] rounded-full bg-[#191919] border border-[#313131] px-6 flex items-center justify-between">
@@ -266,18 +253,10 @@ const AddAddressDetails = () => {
         </div>
 
         {/* Contact Information */}
-        <h2 className="text-[14px] font-medium mb-[12px]">Enter contact information*</h2>
+        <h2 className="text-[14px] font-medium mb-[12px]">Enter contact information<span className="text-[#FF3B30] ml-0.5">*</span></h2>
         <div className="space-y-[12px] mb-[26px]">
             {/* Name */}
-            <div className="h-[48px] rounded-full bg-[#191919] border border-[#313131] px-6 flex items-center">
-                <input
-                    type="text"
-                    placeholder="Your Name *"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className={getInputClass(name)}
-                />
-            </div>
+            {renderInput(name, setName, "Your Name", true)}
 
             {/* Phone Number */}
             <div className="h-[48px] rounded-full bg-[#191919] border border-[#313131] flex items-center relative overflow-hidden">
@@ -313,6 +292,7 @@ const AddAddressDetails = () => {
             onClick={() => {}} // Does nothing for now
             className="w-full rounded-full"
             variant="gradient"
+            disabled={!isFormValid}
         >
             Save Address
         </Button>
