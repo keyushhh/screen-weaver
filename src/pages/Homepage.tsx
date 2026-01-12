@@ -85,7 +85,7 @@ const Homepage = () => {
           {savedAddress ? (
              <div className="flex items-center gap-1">
                 <img src={getTagIcon(savedAddress.tag)} alt={savedAddress.tag} className="w-3 h-3" />
-                <p className="text-[12px] text-muted-foreground font-medium tracking-wider uppercase">
+                <p className="text-[14px] font-bold text-white font-satoshi tracking-wider uppercase">
                   {savedAddress.tag}
                 </p>
              </div>
