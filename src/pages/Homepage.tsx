@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, ChevronDown } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
@@ -14,10 +14,59 @@ import bannerImage from "@/assets/banner-image.png";
 import avatarImg from "@/assets/avatar.png";
 import BottomNavigation from "@/components/BottomNavigation";
 
+// Tag Icons
+import homeIcon from "@/assets/HomeTag.svg";
+import workIcon from "@/assets/Work.svg";
+import friendsIcon from "@/assets/Friends Family.svg";
+import otherIcon from "@/assets/Other.svg";
+
+interface SavedAddress {
+  tag: string;
+  house: string;
+  area: string;
+  landmark?: string;
+  name: string;
+  phone: string;
+  displayAddress: string;
+  city: string;
+  state: string;
+  postcode: string;
+}
+
 const Homepage = () => {
   const navigate = useNavigate();
   const [showBalance, setShowBalance] = useState(false);
+  const [savedAddress, setSavedAddress] = useState<SavedAddress | null>(null);
   const balance = "0.00";
+
+  useEffect(() => {
+    const addressStr = localStorage.getItem("dotpe_user_address");
+    if (addressStr) {
+      try {
+        setSavedAddress(JSON.parse(addressStr));
+      } catch (e) {
+        console.error("Failed to parse saved address", e);
+      }
+    }
+  }, []);
+
+  const getTagIcon = (tag: string) => {
+    switch (tag) {
+      case "Home": return homeIcon;
+      case "Work": return workIcon;
+      case "Friends & Family": return friendsIcon;
+      case "Other": return otherIcon;
+      default: return homeIcon;
+    }
+  };
+
+  const getAddressDisplay = () => {
+    if (!savedAddress) return "Add Address";
+    // Construct address string: House, Area (Landmark optional but we can stick to house + area)
+    const parts = [savedAddress.house, savedAddress.area];
+    return parts.filter(Boolean).join(", ");
+  };
+
   return (
   <div
     className="h-full w-full overflow-y-auto overscroll-y-none flex flex-col safe-area-top safe-area-bottom pb-[96px]"
@@ -32,14 +81,26 @@ const Homepage = () => {
 
       {/* Header */}
       <div className="px-5 pt-4 flex items-start justify-between">
-        <div className="space-y-1">
-          <p className="text-[12px] text-muted-foreground font-medium tracking-wider">DELIVERING</p>
+        <div className="space-y-1 max-w-[70%]">
+          {savedAddress ? (
+             <div className="flex items-center gap-1">
+                <img src={getTagIcon(savedAddress.tag)} alt={savedAddress.tag} className="w-3 h-3" />
+                <p className="text-[12px] text-muted-foreground font-medium tracking-wider uppercase">
+                  {savedAddress.tag}
+                </p>
+             </div>
+          ) : (
+             <p className="text-[12px] text-muted-foreground font-medium tracking-wider">DELIVERING</p>
+          )}
+
           <button
             onClick={() => navigate('/add-address')}
-            className="flex items-center gap-1 text-foreground text-[14px] font-normal"
+            className="flex items-center gap-1 text-foreground text-[14px] font-normal w-full"
           >
-            Add Address
-            <ChevronDown className="w-4 h-4" />
+            <span className="truncate block">
+              {getAddressDisplay()}
+            </span>
+            <ChevronDown className="w-4 h-4 shrink-0" />
           </button>
         </div>
         <button onClick={() => navigate('/settings')}>
