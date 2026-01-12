@@ -121,7 +121,34 @@ const AddAddressDetails = () => {
         postcode: initialState?.postcode || ""
     };
 
+    // Save as current active address
     localStorage.setItem("dotpe_user_address", JSON.stringify(addressData));
+
+    // Append to saved addresses list
+    const savedAddressesStr = localStorage.getItem("dotpe_saved_addresses");
+    let savedAddresses: any[] = [];
+    if (savedAddressesStr) {
+        try {
+            savedAddresses = JSON.parse(savedAddressesStr);
+        } catch (e) {
+            console.error("Failed to parse saved addresses", e);
+        }
+    }
+
+    // Check if duplicate exists (same tag) to update instead of append
+    // This handles the "Edit" flow simply by overwriting the entry with the same tag
+    const existingIndex = savedAddresses.findIndex((addr) =>
+        addr.tag === addressData.tag && addressData.tag !== "Other" // Don't overwrite distinct "Other" addresses unless we have IDs
+    );
+
+    if (existingIndex >= 0) {
+        savedAddresses[existingIndex] = addressData;
+    } else {
+        savedAddresses.push(addressData);
+    }
+
+    localStorage.setItem("dotpe_saved_addresses", JSON.stringify(savedAddresses));
+
     toast.success("Address saved successfully!");
     navigate("/home", { replace: true });
   };
