@@ -6,12 +6,14 @@ interface SaveAddressSheetProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (label: string) => void;
+  icon?: string;
 }
 
 const SaveAddressSheet: React.FC<SaveAddressSheetProps> = ({
   isOpen,
   onClose,
   onSave,
+  icon,
 }) => {
   const [label, setLabel] = useState('');
 
@@ -40,16 +42,19 @@ const SaveAddressSheet: React.FC<SaveAddressSheetProps> = ({
         >
           {/* Header */}
           <div className="text-left mb-6">
-            <h2 className="text-[18px] font-bold text-white font-satoshi mb-1">
-              Save address as
-            </h2>
+            <div className="flex items-center gap-2 mb-1">
+              {icon && <img src={icon} alt="" className="w-5 h-5" />}
+              <h2 className="text-[18px] font-bold text-white font-satoshi">
+                Save address as
+              </h2>
+            </div>
             <p className="text-[16px] font-medium text-white/80 font-satoshi">
               This is not Home or Work. Name it.
             </p>
           </div>
 
           {/* Input Field */}
-          <div className="relative h-[48px] mb-8">
+          <div className="relative h-[48px] mb-[22px]">
             <input
               type="text"
               value={label}
