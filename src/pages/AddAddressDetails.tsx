@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import SaveAddressSheet from "@/components/SaveAddressSheet";
 
 // Assets
 import topAddressContainerBg from "@/assets/top-address-container.png";
@@ -41,6 +42,8 @@ const AddAddressDetails = () => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [selectedTag, setSelectedTag] = useState<string>("Home");
+  const [customLabel, setCustomLabel] = useState("");
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   // UI State
   const [headerOpacity, setHeaderOpacity] = useState(1);
@@ -88,11 +91,18 @@ const AddAddressDetails = () => {
     setHeaderOpacity(newOpacity);
   };
 
-  const handleSaveAddress = () => {
-    if (!isFormValid) return;
+  const handleSaveAddress = (overrideTag?: string) => {
+    // If saving via Sheet, we trust the caller (overrideTag)
+    // But we still need to validate the main form
+    if (!isFormValid) {
+        toast.error("Please fill all required details first.");
+        return;
+    }
+
+    const tagToSave = overrideTag || (selectedTag === "Other" && customLabel ? customLabel : selectedTag);
 
     const addressData = {
-        tag: selectedTag,
+        tag: tagToSave,
         house,
         area,
         landmark,
@@ -108,6 +118,23 @@ const AddAddressDetails = () => {
     localStorage.setItem("dotpe_user_address", JSON.stringify(addressData));
     toast.success("Address saved successfully!");
     navigate("/home", { replace: true });
+  };
+
+  const handleTagClick = (tagLabel: string) => {
+      if (tagLabel === "Other") {
+          setSelectedTag("Other");
+          setIsSheetOpen(true);
+      } else {
+          setSelectedTag(tagLabel);
+          setCustomLabel(""); // Clear custom label if switching back to standard
+      }
+  };
+
+  const handleSheetSave = (label: string) => {
+      setCustomLabel(label);
+      setIsSheetOpen(false);
+      // Automatically attempt to save when sheet validates
+      handleSaveAddress(label);
   };
 
   const tags = [
@@ -151,175 +178,189 @@ const AddAddressDetails = () => {
   };
 
   return (
-    <div
-      className="h-full w-full text-white relative overflow-y-auto pb-10 font-sans"
-      onScroll={handleScroll}
-      style={{
-        backgroundImage: `url(${bgDarkMode})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundAttachment: "fixed"
-      }}
-    >
-      <div className="safe-area-top pt-4 px-5">
-        {/* Header */}
+    <div className="h-full flex flex-col bg-black text-white relative">
+        {/* Background - Applied to a container to avoid scroll issues if needed, but fixed attachment works on scrollable too */}
         <div
-          className="flex items-center mb-[44px] sticky top-0 z-50"
-          style={{ opacity: headerOpacity, pointerEvents: headerOpacity === 0 ? 'none' : 'auto' }}
-        >
-          <button
-            onClick={() => navigate(-1)}
-            className="w-10 h-10 flex items-center justify-center mr-2 rounded-full border border-white/20 active:bg-white/10"
-          >
-            <ChevronLeft className="w-6 h-6 text-white" />
-          </button>
-          <h1 className="flex-1 text-center text-lg font-medium pr-10">Add New Address</h1>
-        </div>
+            className="absolute inset-0 z-0"
+            style={{
+                backgroundImage: `url(${bgDarkMode})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundAttachment: "fixed"
+            }}
+        />
 
-        {/* Address Container */}
+        {/* Scrollable Content */}
         <div
-            className="relative w-full rounded-[12px] p-[11px] mb-[12px]"
-            style={{ height: "88px" }}
+            className="flex-1 overflow-y-auto pb-10 relative z-10 font-sans"
+            onScroll={handleScroll}
         >
-            {/* Background Image */}
-            <img
-                src={topAddressContainerBg}
-                alt="Background"
-                className="absolute inset-0 w-full h-full object-cover rounded-[12px] z-0 pointer-events-none"
-            />
-
-            <div className="relative z-10 flex flex-col justify-between h-full">
-                {/* Top Row: City/Country + Change Button */}
-                <div className="flex justify-between items-start">
-                    <span className="font-bold text-[16px] truncate pr-2">
-                        {initialState ? `${initialState.city}, India` : "Location Details"}
-                    </span>
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="flex items-center justify-center bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors"
-                        style={{
-                            width: "67px",
-                            height: "22px",
-                            borderRadius: "9999px",
-                        }}
-                    >
-                        <span className="text-[12px] font-medium">Change</span>
-                    </button>
+            <div className="safe-area-top pt-4 px-5">
+                {/* Header */}
+                <div
+                className="flex items-center mb-[44px] sticky top-0 z-50"
+                style={{ opacity: headerOpacity, pointerEvents: headerOpacity === 0 ? 'none' : 'auto' }}
+                >
+                <button
+                    onClick={() => navigate(-1)}
+                    className="w-10 h-10 flex items-center justify-center mr-2 rounded-full border border-white/20 active:bg-white/10"
+                >
+                    <ChevronLeft className="w-6 h-6 text-white" />
+                </button>
+                <h1 className="flex-1 text-center text-lg font-medium pr-10">Add New Address</h1>
                 </div>
 
-                {/* Bottom Row: Full Address */}
-                <p className="text-[12px] font-regular text-gray-300 line-clamp-2 mt-auto">
-                    {displayAddress}
-                </p>
-            </div>
-        </div>
-
-        {/* Helper Text */}
-        <p className="text-[12px] font-regular text-gray-400 mb-[12px]">
-            A detailed address will help our delivery partner reach your doorstep with ease
-        </p>
-
-        {/* Tags Section */}
-        <h2 className="text-[14px] font-medium mb-[8px]">Save address as<span className="text-[#FF3B30] ml-0.5">*</span></h2>
-        <div className="flex flex-wrap gap-2 mb-[32px]">
-            {tags.map((tag) => {
-                const isSelected = selectedTag === tag.label;
-                return (
-                    <button
-                        key={tag.label}
-                        onClick={() => setSelectedTag(tag.label)}
-                        className="relative flex items-center justify-center px-4 h-[32px] rounded-full transition-all border border-white/20"
-                        style={{
-                           backgroundColor: isSelected ? "transparent" : "rgba(255,255,255,0.05)",
-                        }}
-                    >
-                        {isSelected && (
-                            <img
-                                src={selectedTagBg}
-                                alt=""
-                                className="absolute inset-0 w-full h-full object-cover rounded-full z-0"
-                            />
-                        )}
-                        <div className="relative z-10 flex items-center gap-2">
-                             <img src={tag.icon} alt={tag.label} className="w-4 h-4" />
-                             <span className="text-[12px] font-medium">{tag.label}</span>
-                        </div>
-                    </button>
-                )
-            })}
-        </div>
-
-        {/* Input Fields Container */}
-        <div className="space-y-[10px] mb-[28px]">
-            {/* House / Flat */}
-            {renderInput(house, setHouse, "House / Flat / Floor", true)}
-
-            {/* Apartment / Road */}
-            {renderInput(area, setArea, "Apartment / Road / Area", true)}
-
-            {/* Landmark */}
-            {renderInput(landmark, setLandmark, "Landmark (Optional)", false)}
-
-            {/* Plus Code */}
-            <div className="h-[48px] rounded-full bg-[#191919] border border-[#313131] px-6 flex items-center justify-between">
-                <input
-                    type="text"
-                    value={plusCode}
-                    onChange={(e) => setPlusCode(e.target.value)}
-                    className={`${getInputClass(plusCode)} flex-1 mr-2`}
-                />
-                <button onClick={handleCopyPlusCode}>
-                    <img src={copyIcon} alt="Copy" className="w-5 h-5 opacity-70 hover:opacity-100" />
-                </button>
-            </div>
-        </div>
-
-        {/* Contact Information */}
-        <h2 className="text-[14px] font-medium mb-[12px]">Enter contact information<span className="text-[#FF3B30] ml-0.5">*</span></h2>
-        <div className="space-y-[12px] mb-[26px]">
-            {/* Name */}
-            {renderInput(name, setName, "Your Name", true)}
-
-            {/* Phone Number */}
-            <div className="h-[48px] rounded-full bg-[#191919] border border-[#313131] flex items-center relative overflow-hidden">
-                 <span className="text-[14px] font-medium text-white pl-[30px] pr-[22px]">
-                    +91
-                 </span>
-                 {/* Divider */}
-                 <div className="h-[32px] w-[1px] bg-[#313131]"></div>
-
-                 {/* Input */}
-                 <div className="flex-1 ml-[22px] mr-[20px] relative h-full flex items-center">
-                    <input
-                        type="tel"
-                        maxLength={10}
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))} // Numeric only
-                        className={getInputClass(phone)}
-                        style={{ paddingRight: "30px" }}
+                {/* Address Container */}
+                <div
+                    className="relative w-full rounded-[12px] p-[11px] mb-[12px]"
+                    style={{ height: "88px" }}
+                >
+                    {/* Background Image */}
+                    <img
+                        src={topAddressContainerBg}
+                        alt="Background"
+                        className="absolute inset-0 w-full h-full object-cover rounded-[12px] z-0 pointer-events-none"
                     />
-                 </div>
 
-                 {/* Phone Icon */}
-                 <img
-                    src={phoneIcon}
-                    alt="Phone"
-                    className="absolute right-[20px] w-5 h-5 pointer-events-none"
-                 />
+                    <div className="relative z-10 flex flex-col justify-between h-full">
+                        {/* Top Row: City/Country + Change Button */}
+                        <div className="flex justify-between items-start">
+                            <span className="font-bold text-[16px] truncate pr-2">
+                                {initialState ? `${initialState.city}, India` : "Location Details"}
+                            </span>
+                            <button
+                                onClick={() => navigate(-1)}
+                                className="flex items-center justify-center bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors"
+                                style={{
+                                    width: "67px",
+                                    height: "22px",
+                                    borderRadius: "9999px",
+                                }}
+                            >
+                                <span className="text-[12px] font-medium">Change</span>
+                            </button>
+                        </div>
+
+                        {/* Bottom Row: Full Address */}
+                        <p className="text-[12px] font-regular text-gray-300 line-clamp-2 mt-auto">
+                            {displayAddress}
+                        </p>
+                    </div>
+                </div>
+
+                {/* Helper Text */}
+                <p className="text-[12px] font-regular text-gray-400 mb-[12px]">
+                    A detailed address will help our delivery partner reach your doorstep with ease
+                </p>
+
+                {/* Tags Section */}
+                <h2 className="text-[14px] font-medium mb-[8px]">Save address as<span className="text-[#FF3B30] ml-0.5">*</span></h2>
+                <div className="flex flex-wrap gap-2 mb-[32px]">
+                    {tags.map((tag) => {
+                        const isSelected = selectedTag === tag.label;
+                        return (
+                            <button
+                                key={tag.label}
+                                onClick={() => handleTagClick(tag.label)}
+                                className="relative flex items-center justify-center px-4 h-[32px] rounded-full transition-all border border-white/20"
+                                style={{
+                                backgroundColor: isSelected ? "transparent" : "rgba(255,255,255,0.05)",
+                                }}
+                            >
+                                {isSelected && (
+                                    <img
+                                        src={selectedTagBg}
+                                        alt=""
+                                        className="absolute inset-0 w-full h-full object-cover rounded-full z-0"
+                                    />
+                                )}
+                                <div className="relative z-10 flex items-center gap-2">
+                                    <img src={tag.icon} alt={tag.label} className="w-4 h-4" />
+                                    <span className="text-[12px] font-medium">{tag.label}</span>
+                                </div>
+                            </button>
+                        )
+                    })}
+                </div>
+
+                {/* Input Fields Container */}
+                <div className="space-y-[10px] mb-[28px]">
+                    {/* House / Flat */}
+                    {renderInput(house, setHouse, "House / Flat / Floor", true)}
+
+                    {/* Apartment / Road */}
+                    {renderInput(area, setArea, "Apartment / Road / Area", true)}
+
+                    {/* Landmark */}
+                    {renderInput(landmark, setLandmark, "Landmark (Optional)", false)}
+
+                    {/* Plus Code */}
+                    <div className="h-[48px] rounded-full bg-[#191919] border border-[#313131] px-6 flex items-center justify-between">
+                        <input
+                            type="text"
+                            value={plusCode}
+                            onChange={(e) => setPlusCode(e.target.value)}
+                            className={`${getInputClass(plusCode)} flex-1 mr-2`}
+                        />
+                        <button onClick={handleCopyPlusCode}>
+                            <img src={copyIcon} alt="Copy" className="w-5 h-5 opacity-70 hover:opacity-100" />
+                        </button>
+                    </div>
+                </div>
+
+                {/* Contact Information */}
+                <h2 className="text-[14px] font-medium mb-[12px]">Enter contact information<span className="text-[#FF3B30] ml-0.5">*</span></h2>
+                <div className="space-y-[12px] mb-[26px]">
+                    {/* Name */}
+                    {renderInput(name, setName, "Your Name", true)}
+
+                    {/* Phone Number */}
+                    <div className="h-[48px] rounded-full bg-[#191919] border border-[#313131] flex items-center relative overflow-hidden">
+                        <span className="text-[14px] font-medium text-white pl-[30px] pr-[22px]">
+                            +91
+                        </span>
+                        {/* Divider */}
+                        <div className="h-[32px] w-[1px] bg-[#313131]"></div>
+
+                        {/* Input */}
+                        <div className="flex-1 ml-[22px] mr-[20px] relative h-full flex items-center">
+                            <input
+                                type="tel"
+                                maxLength={10}
+                                value={phone}
+                                onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))} // Numeric only
+                                className={getInputClass(phone)}
+                                style={{ paddingRight: "30px" }}
+                            />
+                        </div>
+
+                        {/* Phone Icon */}
+                        <img
+                            src={phoneIcon}
+                            alt="Phone"
+                            className="absolute right-[20px] w-5 h-5 pointer-events-none"
+                        />
+                    </div>
+                </div>
+
+                {/* Save Address CTA */}
+                <Button
+                    onClick={() => handleSaveAddress()}
+                    className="w-full rounded-full"
+                    variant="gradient"
+                    disabled={!isFormValid}
+                >
+                    Save Address
+                </Button>
             </div>
         </div>
 
-        {/* Save Address CTA */}
-        <Button
-            onClick={handleSaveAddress}
-            className="w-full rounded-full"
-            variant="gradient"
-            disabled={!isFormValid}
-        >
-            Save Address
-        </Button>
-
-      </div>
+        {/* "Other" Tag Sheet */}
+        <SaveAddressSheet
+            isOpen={isSheetOpen}
+            onClose={() => setIsSheetOpen(false)}
+            onSave={handleSheetSave}
+        />
     </div>
   );
 };
