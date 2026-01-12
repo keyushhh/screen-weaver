@@ -602,6 +602,7 @@ const AddAddress = () => {
         ) : (
             <div style={{ marginTop: "24px", opacity: isDragging || isLoading ? 0 : 1, transition: 'opacity 0.2s', visibility: isDragging || isLoading ? 'hidden' : 'visible' }}>
                 <Button
+                    variant="gradient"
                     onClick={() => {
                         const addr = currentAddressComponents || {};
 

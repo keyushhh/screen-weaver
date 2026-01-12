@@ -1,0 +1,82 @@
+import React, { useState } from 'react';
+import popupBg from '../assets/popup-bg-remove.png';
+import { Button } from './ui/button';
+
+interface SaveAddressSheetProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (label: string) => void;
+}
+
+const SaveAddressSheet: React.FC<SaveAddressSheetProps> = ({
+  isOpen,
+  onClose,
+  onSave,
+}) => {
+  const [label, setLabel] = useState('');
+
+  if (!isOpen) return null;
+
+  const hasValue = label.length > 0;
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-end justify-center pb-[32px]">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-md"
+        onClick={onClose}
+      />
+
+      {/* Sheet Content */}
+      <div className="relative z-10 w-[360px] max-w-[90%] flex flex-col items-center">
+        <div
+          className="relative w-full overflow-hidden rounded-[32px] p-6 text-center border border-white/10"
+          style={{
+            backgroundImage: `url(${popupBg})`,
+            backgroundSize: '100% 100%',
+            backgroundRepeat: 'no-repeat',
+            backgroundColor: '#000000', // Fallback
+          }}
+        >
+          {/* Header */}
+          <div className="text-left mb-6">
+            <h2 className="text-[18px] font-bold text-white font-satoshi mb-1">
+              Save address as
+            </h2>
+            <p className="text-[16px] font-medium text-white/80 font-satoshi">
+              This is not Home or Work. Name it.
+            </p>
+          </div>
+
+          {/* Input Field */}
+          <div className="relative h-[48px] mb-8">
+            <input
+              type="text"
+              value={label}
+              onChange={(e) => setLabel(e.target.value)}
+              className={`w-full h-full bg-[#191919] border border-[#313131] rounded-full px-6 text-white text-[14px] outline-none transition-all focus:border-white/40 ${hasValue ? 'pt-0' : ''}`}
+            />
+            {!hasValue && (
+                <div className="absolute inset-0 flex items-center px-6 pointer-events-none">
+                    <span className="text-white/40 text-[14px]">Save as</span>
+                    <span className="text-[#FF3B30] ml-1">*</span>
+                </div>
+            )}
+          </div>
+
+          {/* Save Button */}
+          <Button
+            onClick={() => onSave(label)}
+            disabled={!hasValue}
+            variant="gradient"
+            className="w-full rounded-full"
+          >
+            Save Address
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default SaveAddressSheet;
