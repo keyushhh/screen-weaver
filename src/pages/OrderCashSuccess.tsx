@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import bgDarkMode from "@/assets/bg-dark-mode.png";
+import Map, { Marker } from "react-map-gl/maplibre";
+import 'maplibre-gl/dist/maplibre-gl.css';
+import { OpenLocationCode } from "open-location-code";
+import successBg from "@/assets/success-bg.png";
 import checkIcon from "@/assets/check-icon.png";
 import hamburgerMenu from "@/assets/hamburger-menu.svg";
 import currentLocationIcon from "@/assets/current-location.svg";
@@ -11,6 +14,31 @@ const OrderCashSuccess = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { totalAmount, savedAddress } = location.state || {};
+
+  // Map State
+  const [viewState, setViewState] = useState({
+      latitude: 12.9716,
+      longitude: 77.5946,
+      zoom: 13
+  });
+
+  // Decode Plus Code or use default
+  useEffect(() => {
+      if (savedAddress?.plusCode) {
+          try {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const olc = new OpenLocationCode() as any;
+              const decoded = olc.decode(savedAddress.plusCode);
+              setViewState({
+                  latitude: decoded.latitudeCenter,
+                  longitude: decoded.longitudeCenter,
+                  zoom: 14
+              });
+          } catch (e) {
+              console.error("Failed to decode Plus Code", e);
+          }
+      }
+  }, [savedAddress]);
 
   // Generate random transaction ID and date once
   const [transactionDetails] = useState(() => {
@@ -36,11 +64,6 @@ const OrderCashSuccess = () => {
 
   const getAddressDisplay = () => {
     if (!savedAddress) return "Unknown Location";
-    // [apartment name] [city]
-    // The previous logic was House + Area + City.
-    // Spec says: "[apartment name] [city] (based on the address the user selects...)"
-    // savedAddress has: house, area, city.
-    // Let's combine them intelligently.
     const parts = [savedAddress.house, savedAddress.area, savedAddress.city];
     return parts.filter(Boolean).join(", ");
   };
@@ -50,7 +73,7 @@ const OrderCashSuccess = () => {
       className="h-full w-full overflow-hidden flex flex-col safe-area-top safe-area-bottom"
       style={{
         backgroundColor: "#0a0a12",
-        backgroundImage: `url(${bgDarkMode})`,
+        backgroundImage: `url(${successBg})`,
         backgroundSize: "cover",
         backgroundPosition: "top center",
         backgroundRepeat: "no-repeat",
@@ -92,7 +115,7 @@ const OrderCashSuccess = () => {
              }}
           >
               {/* Header Row */}
-              <div className="absolute top-[9px] left-0 right-0 px-[16px] flex justify-between items-center">
+              <div className="absolute top-[9px] left-0 right-0 px-[16px] flex justify-between items-center z-10">
                   <span className="text-white text-[12px] font-medium font-sans">
                       Delivering to - {savedAddress?.tag || "Home"}
                   </span>
@@ -103,7 +126,7 @@ const OrderCashSuccess = () => {
 
               {/* Tracking Sub-Container */}
               <div
-                  className="absolute top-[35px] left-[16px] right-[16px] rounded-[14px] flex"
+                  className="absolute top-[35px] left-0 right-0 rounded-b-[14px] flex"
                   style={{
                       height: "110px",
                       backgroundColor: "rgba(25, 25, 25, 0.34)",
@@ -111,52 +134,44 @@ const OrderCashSuccess = () => {
                   }}
               >
                   {/* Left Text */}
-                  <div className="flex-1 flex flex-col">
+                  <div className="flex-1 flex flex-col justify-between pr-2">
                       <p className="text-white text-[14px] font-medium font-sans leading-snug">
                           We’re assigning a delivery<br />partner soon!
                       </p>
-                      <div className="flex-1" />
                       <p className="text-white text-[12px] font-normal font-sans leading-snug">
                           Assigning a delivery partner in the<br />next 2 minutes.
                       </p>
                   </div>
 
-                  {/* Map Mockup */}
+                  {/* Mini Map */}
                   <div
-                    className="shrink-0 relative rounded-[8px] overflow-hidden ml-[14px]"
+                    className="shrink-0 relative rounded-[8px] overflow-hidden"
                     style={{
                         width: "110px",
                         height: "82px",
-                        backgroundColor: "#EAEAEA" // Light mode map background placeholder
+                        backgroundColor: "#1A1A1A"
                     }}
                   >
-                        {/* Map content placeholder */}
-                        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(#ccc 1px, transparent 1px)", backgroundSize: "10px 10px" }}></div>
+                       <Map
+                           {...viewState}
+                           style={{ width: "100%", height: "100%" }}
+                           mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
+                           attributionControl={false}
+                           interactive={false}
+                       >
+                           {/* Delivery/User Location Marker */}
+                           <Marker latitude={viewState.latitude} longitude={viewState.longitude}>
+                               <img src={currentLocationIcon} alt="User" className="w-4 h-4" />
+                           </Marker>
 
-                        {/* Current Location Pin (Bottom Left-ish) */}
-                        <img
-                            src={currentLocationIcon}
-                            alt="Me"
-                            className="absolute bottom-2 left-2 w-4 h-4 z-10"
-                        />
-
-                        {/* Rider Pin (Top Right-ish) */}
-                        <img
-                            src={deliveryRiderIcon}
-                            alt="Rider"
-                            className="absolute top-2 right-2 w-6 h-6 z-10"
-                        />
-
-                        {/* Dashed Line */}
-                        <svg className="absolute inset-0 w-full h-full pointer-events-none">
-                            <path
-                                d="M 16 70 C 40 70, 70 40, 95 16"
-                                fill="none"
-                                stroke="#A855F7" // Purple-ish
-                                strokeWidth="2"
-                                strokeDasharray="4 2"
-                            />
-                        </svg>
+                           {/* Mock Rider Marker (slightly offset) */}
+                           <Marker
+                                latitude={viewState.latitude + 0.002}
+                                longitude={viewState.longitude + 0.002}
+                           >
+                                <img src={deliveryRiderIcon} alt="Rider" className="w-6 h-6" />
+                           </Marker>
+                       </Map>
                   </div>
               </div>
           </div>
@@ -166,7 +181,7 @@ const OrderCashSuccess = () => {
             className="w-full rounded-[13px] p-[12px] mb-[29px]"
             style={{
                 height: "239px",
-                backgroundColor: "rgba(0, 0, 0, 0.20)"
+                backgroundColor: "rgba(25, 25, 25, 0.34)"
             }}
           >
               <h3 className="text-white text-[16px] font-medium font-sans">
