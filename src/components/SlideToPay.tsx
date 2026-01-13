@@ -7,9 +7,10 @@ import swipeIcon from '@/assets/swipe.svg';
 interface SlideToPayProps {
   onComplete: () => void;
   className?: string;
+  disabled?: boolean;
 }
 
-export const SlideToPay: React.FC<SlideToPayProps> = ({ onComplete, className = "" }) => {
+export const SlideToPay: React.FC<SlideToPayProps> = ({ onComplete, className = "", disabled = false }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragX, setDragX] = useState(0);
   const [completed, setCompleted] = useState(false);
@@ -18,14 +19,14 @@ export const SlideToPay: React.FC<SlideToPayProps> = ({ onComplete, className = 
   const startX = useRef(0);
 
   const handleStart = (e: React.MouseEvent | React.TouchEvent) => {
-    if (completed) return;
+    if (completed || disabled) return;
     setIsDragging(true);
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     startX.current = clientX - dragX;
   };
 
   const handleMove = (e: MouseEvent | TouchEvent) => {
-    if (!isDragging || completed || !trackRef.current || !thumbRef.current) return;
+    if (!isDragging || completed || disabled || !trackRef.current || !thumbRef.current) return;
 
     const clientX = 'touches' in e ? (e as TouchEvent).touches[0].clientX : (e as MouseEvent).clientX;
     const newX = clientX - startX.current;
@@ -86,7 +87,7 @@ export const SlideToPay: React.FC<SlideToPayProps> = ({ onComplete, className = 
     <div
       ref={trackRef}
       data-testid="slide-to-pay-track"
-      className={`relative w-full select-none ${className}`}
+      className={`relative w-full select-none ${disabled ? 'opacity-50 grayscale cursor-not-allowed' : ''} ${className}`}
       style={{
         aspectRatio: '1444/256',
         backgroundImage: `url(${completed ? slideSuccess : slideTrack})`,

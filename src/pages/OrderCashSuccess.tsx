@@ -92,7 +92,7 @@ const OrderCashSuccess = () => {
 
   return (
     <div
-      className="h-full w-full overflow-hidden flex flex-col safe-area-top safe-area-bottom"
+      className="h-full w-full overflow-hidden flex flex-col safe-area-top safe-area-bottom animate-in fade-in duration-500"
       style={{
         backgroundColor: "#0a0a12",
         backgroundImage: `url(${successBg})`,
@@ -130,34 +130,32 @@ const OrderCashSuccess = () => {
 
           {/* Delivery Container */}
           <div
-             className="w-full rounded-[14px] overflow-hidden relative mb-[16px]"
+             className="w-full rounded-[14px] overflow-hidden relative mb-[16px] flex flex-col"
              style={{
-                 height: "176px",
                  background: "linear-gradient(to bottom, #000000 0%, rgba(0,0,0,0) 100%)",
              }}
           >
               {/* Header Row */}
-              <div className="absolute top-[9px] left-0 right-0 px-[16px] flex justify-between items-center z-10">
-                  <span className="text-white text-[12px] font-medium font-sans">
+              <div className="w-full px-[16px] py-[9px] flex justify-between items-start z-10 shrink-0">
+                  <span className="text-white text-[12px] font-medium font-sans whitespace-nowrap mr-2">
                       Delivering to - {savedAddress?.tag || "Home"}
                   </span>
-                  <span className="text-white text-[12px] font-medium font-sans max-w-[150px] truncate">
+                  <span className="text-white text-[12px] font-medium font-sans text-right leading-tight">
                       {getAddressDisplay()}
                   </span>
               </div>
 
               {/* Tracking Sub-Container */}
               <div
-                  className="absolute top-[35px] left-0 right-0 rounded-b-[14px] flex"
+                  className="w-full rounded-b-[14px] flex"
                   style={{
-                      height: "141px",
                       backgroundColor: "rgba(25, 25, 25, 0.34)",
                       padding: "14px"
                   }}
               >
                   {/* Left Text */}
-                  <div className="flex-1 flex flex-col justify-between pr-2">
-                      <p className="text-white text-[14px] font-medium font-sans leading-snug">
+                  <div className="flex-1 flex flex-col justify-between pr-2 min-h-[130px]">
+                      <p className="text-white text-[14px] font-medium font-sans leading-snug mb-2">
                           We’re assigning a delivery<br />partner soon!
                       </p>
                       <p className="text-white text-[12px] font-normal font-sans leading-snug">
@@ -169,8 +167,8 @@ const OrderCashSuccess = () => {
                   <div
                     className="shrink-0 relative rounded-[8px] overflow-hidden"
                     style={{
-                        width: "110px",
-                        height: "113px",
+                        width: "130px",
+                        height: "130px",
                         backgroundColor: "#1A1A1A"
                     }}
                   >
