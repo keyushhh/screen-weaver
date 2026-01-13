@@ -150,25 +150,25 @@ const OrderCashSuccess = () => {
                   className="w-full rounded-b-[14px] flex"
                   style={{
                       backgroundColor: "rgba(25, 25, 25, 0.34)",
-                      padding: "14px"
+                      padding: "12px"
                   }}
               >
                   {/* Left Text */}
-                  <div className="flex-1 flex flex-col justify-between pr-2 min-h-[130px]">
-                      <p className="text-white text-[14px] font-medium font-sans leading-snug mb-2">
+                  <div className="flex-1 flex flex-col justify-start pr-2">
+                      <p className="text-white text-[14px] font-medium font-sans leading-snug mb-[12px]">
                           We’re assigning a delivery<br />partner soon!
                       </p>
-                      <p className="text-white text-[12px] font-normal font-sans leading-snug">
-                          Assigning a delivery partner in the<br />next 2 minutes.
+                      <p className="text-white text-[12px] font-light font-sans leading-snug mb-[4px]">
+                          Assigning a delivery partner in the next 2 minutes.
                       </p>
                   </div>
 
                   {/* Mini Map */}
                   <div
-                    className="shrink-0 relative rounded-[8px] overflow-hidden"
+                    className="shrink-0 relative rounded-[8px] overflow-hidden self-stretch"
                     style={{
                         width: "130px",
-                        height: "130px",
+                        minHeight: "130px",
                         backgroundColor: "#1A1A1A"
                     }}
                   >
