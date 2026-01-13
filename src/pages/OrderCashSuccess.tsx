@@ -129,14 +129,14 @@ const OrderCashSuccess = () => {
           </p>
 
           {/* Delivery Container */}
-          <div
-             className="w-full rounded-[14px] overflow-hidden relative mb-[16px] flex flex-col"
-             style={{
-                 background: "linear-gradient(to bottom, #000000 0%, rgba(0,0,0,0) 100%)",
-             }}
-          >
-              {/* Header Row */}
-              <div className="w-full px-[16px] py-[9px] flex justify-between items-start z-10 shrink-0">
+          <div className="w-full mb-[16px] flex flex-col">
+              {/* Header Row (Top Container) */}
+              <div
+                  className="w-full px-[16px] py-[9px] flex justify-between items-start z-10 shrink-0 rounded-t-[14px]"
+                  style={{
+                      background: "linear-gradient(to bottom, #000000 0%, rgba(0,0,0,0) 100%)",
+                  }}
+              >
                   <span className="text-white text-[12px] font-medium font-sans whitespace-nowrap mr-2">
                       Delivering to - {savedAddress?.tag || "Home"}
                   </span>
@@ -145,12 +145,13 @@ const OrderCashSuccess = () => {
                   </span>
               </div>
 
-              {/* Tracking Sub-Container */}
+              {/* Status & Map Container (Bottom Container) */}
               <div
                   className="w-full rounded-b-[14px] flex"
                   style={{
                       backgroundColor: "rgba(25, 25, 25, 0.34)",
-                      padding: "12px"
+                      padding: "12px",
+                      marginTop: 0
                   }}
               >
                   {/* Left Text */}
@@ -165,10 +166,10 @@ const OrderCashSuccess = () => {
 
                   {/* Mini Map */}
                   <div
-                    className="shrink-0 relative rounded-[8px] overflow-hidden self-stretch"
+                    className="shrink-0 relative rounded-[8px] overflow-hidden"
                     style={{
                         width: "130px",
-                        minHeight: "130px",
+                        height: "130px",
                         backgroundColor: "#1A1A1A"
                     }}
                   >
