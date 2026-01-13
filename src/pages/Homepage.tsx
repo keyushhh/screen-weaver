@@ -52,17 +52,11 @@ const Homepage = () => {
     }
   }, []);
 
-  const handleAddressSelect = (address: any) => {
+  const handleAddressSelect = (address: any | null) => {
      setSavedAddress(address);
-     // Sheet closes automatically via its own internal logic calling onClose, or we close it here if needed?
-     // The sheet component calls onAddressSelect(addr), but doesn't explicitly close itself unless we tell it to.
-     // Checking AddressSelectionSheet implementation:
-     // "onAddressSelect(addr);" then nothing else.
-     // Wait, let's check AddressSelectionSheet again.
-     // It does NOT call onClose automatically in handleSelectAddress.
-     // So we should close it here or inside the sheet.
-     // Usually, selection implies closing.
-     setIsAddressSheetOpen(false);
+     if (address) {
+        setIsAddressSheetOpen(false);
+     }
   };
 
   const getTagIcon = (tag: string) => {

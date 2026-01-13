@@ -38,7 +38,7 @@ interface SavedAddress {
 interface AddressSelectionSheetProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddressSelect: (address: SavedAddress) => void;
+  onAddressSelect: (address: SavedAddress | null) => void;
 }
 
 const AddressSelectionSheet: React.FC<AddressSelectionSheetProps> = ({ isOpen, onClose, onAddressSelect }) => {
@@ -47,7 +47,35 @@ const AddressSelectionSheet: React.FC<AddressSelectionSheetProps> = ({ isOpen, o
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<SavedAddress | null>(null);
-  const [currentLocationName, setCurrentLocationName] = useState<string>("Kormangala"); // Placeholder default
+  const [currentLocationName, setCurrentLocationName] = useState<string>("Fetching...");
+
+  // Fetch Current Location Name on Mount/Open
+  useEffect(() => {
+    const fetchCurrentLocationName = async () => {
+        try {
+            const permission = await Geolocation.checkPermissions();
+            if (permission.location !== 'granted') {
+                 // Attempt request? Or just silent fail?
+                 // For now, silent fail or leave as placeholder
+                 return;
+            }
+            const position = await Geolocation.getCurrentPosition();
+            const { latitude, longitude } = position.coords;
+            const result = await reverseGeocode(latitude, longitude);
+            if (result) {
+                 const area = result.address?.suburb || result.address?.neighbourhood || result.address?.city || "Current Location";
+                 setCurrentLocationName(area);
+            }
+        } catch (e) {
+            console.error("Failed to fetch current location name", e);
+            setCurrentLocationName("Location unavailable");
+        }
+    };
+
+    if (isOpen) {
+        fetchCurrentLocationName();
+    }
+  }, [isOpen]);
 
   // Load addresses
   useEffect(() => {
@@ -166,12 +194,16 @@ const AddressSelectionSheet: React.FC<AddressSelectionSheetProps> = ({ isOpen, o
       setSavedAddresses(newList);
       localStorage.setItem("dotpe_saved_addresses", JSON.stringify(newList));
 
-      // If deleted was selected, clear selection or select first?
-      // For now, if selected was deleted, maybe clear it?
-      if (selectedAddress && JSON.stringify(selectedAddress) === JSON.stringify(removed)) {
+      // If list becomes empty, clear active address
+      if (newList.length === 0) {
           localStorage.removeItem("dotpe_user_address");
-          // Update parent to null?
-          // For now let's leave it, or clear.
+          setSelectedAddress(null);
+          onAddressSelect(null);
+      } else if (selectedAddress && JSON.stringify(selectedAddress) === JSON.stringify(removed)) {
+          // If deleted was selected, clear active address
+           localStorage.removeItem("dotpe_user_address");
+           setSelectedAddress(null);
+           onAddressSelect(null);
       }
   };
 
@@ -209,7 +241,7 @@ const AddressSelectionSheet: React.FC<AddressSelectionSheetProps> = ({ isOpen, o
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center safe-area-bottom">
+    <div className="fixed inset-0 z-[60] flex items-end justify-center">
         {/* Backdrop */}
         <div
             className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
@@ -221,7 +253,8 @@ const AddressSelectionSheet: React.FC<AddressSelectionSheetProps> = ({ isOpen, o
             className="relative w-full bg-black rounded-t-[36px] pt-4 pb-10 px-5 overflow-y-auto"
             style={{
                 height: "794px", // Fixed height as requested
-                boxShadow: "0px -4px 20px rgba(0, 0, 0, 0.5)"
+                boxShadow: "0px -4px 20px rgba(0, 0, 0, 0.5)",
+                bottom: 0 // Start directly from bottom
             }}
         >
             {/* Header */}
@@ -361,15 +394,17 @@ const AddressSelectionSheet: React.FC<AddressSelectionSheetProps> = ({ isOpen, o
                                 </div>
                             </div>
 
-                            <div className="h-[1px] bg-[#747474] w-full opacity-20 mb-[12px]" />
+                            <div className="h-[1px] bg-[#747474] w-full opacity-20 mb-[6px]" />
 
                             {/* Address Details */}
-                            <p className="text-[#AFAFAF] text-[12px] font-regular font-satoshi leading-relaxed line-clamp-2 mb-[15px]">
-                                {addr.displayAddress}
-                            </p>
-                            <p className="text-[#AFAFAF] text-[12px] font-regular font-satoshi">
-                                Phone number: {addr.phone}
-                            </p>
+                            <div className="px-[1px]">
+                                <p className="text-white text-[12px] font-regular font-satoshi leading-relaxed line-clamp-2 mb-[6px]">
+                                    {addr.displayAddress}
+                                </p>
+                                <p className="text-white text-[12px] font-regular font-satoshi">
+                                    Phone number: {addr.phone}
+                                </p>
+                            </div>
                         </div>
                     );
                 })}
