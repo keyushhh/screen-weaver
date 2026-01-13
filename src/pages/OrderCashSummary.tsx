@@ -142,7 +142,12 @@ const OrderCashSummary = () => {
   };
 
   const handlePay = () => {
-      navigate("/order-cash-success");
+      navigate("/order-cash-success", {
+        state: {
+          totalAmount: totalAmount,
+          savedAddress: savedAddress,
+        }
+      });
   };
 
   const handleRewardChange = (e: React.ChangeEvent<HTMLInputElement>) => {
