@@ -1,60 +1,217 @@
-import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
-import successBg from "@/assets/success-bg.png";
 import checkIcon from "@/assets/check-icon.png";
+import hamburgerMenu from "@/assets/hamburger-menu.svg";
+import currentLocationIcon from "@/assets/current-location.svg";
+import deliveryRiderIcon from "@/assets/delivery-rider.svg";
 import buttonPrimary from "@/assets/button-primary-wide.png";
 
 const OrderCashSuccess = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { totalAmount, savedAddress } = location.state || {};
 
-  // Auto redirect after 30 seconds as a fallback
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      navigate("/home");
-    }, 30000);
-    return () => clearTimeout(timer);
-  }, [navigate]);
+  // Generate random transaction ID and date once
+  const [transactionDetails] = useState(() => {
+    const randomId = "20" + Math.random().toString(36).substring(2, 12).toUpperCase();
+    const now = new Date();
+    // Format: 15 June 2025, 11:38 PM
+    const dateStr = now.toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+    });
+    const timeStr = now.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true
+    });
+
+    return {
+        id: randomId,
+        dateTime: `${dateStr}, ${timeStr}`
+    };
+  });
+
+  const getAddressDisplay = () => {
+    if (!savedAddress) return "Unknown Location";
+    // [apartment name] [city]
+    // The previous logic was House + Area + City.
+    // Spec says: "[apartment name] [city] (based on the address the user selects...)"
+    // savedAddress has: house, area, city.
+    // Let's combine them intelligently.
+    const parts = [savedAddress.house, savedAddress.area, savedAddress.city];
+    return parts.filter(Boolean).join(", ");
+  };
 
   return (
     <div
-      className="h-full w-full overflow-hidden flex flex-col items-center safe-area-top safe-area-bottom"
+      className="h-full w-full overflow-hidden flex flex-col safe-area-top safe-area-bottom"
       style={{
         backgroundColor: "#0a0a12",
-        backgroundImage: `url(${successBg})`,
+        backgroundImage: `url(${bgDarkMode})`,
         backgroundSize: "cover",
-        backgroundPosition: "center",
+        backgroundPosition: "top center",
         backgroundRepeat: "no-repeat",
       }}
     >
-      <div className="flex-1 flex flex-col items-center justify-center w-full px-5">
-        {/* Success Icon */}
-        <div className="mb-6 animate-in zoom-in duration-500">
-          <img src={checkIcon} alt="Success" className="w-[80px] h-[80px]" />
-        </div>
-
-        {/* Text */}
-        <h1 className="text-white text-[24px] font-bold font-sans mb-2 text-center">
-          Order Placed!
+      {/* Header */}
+      <div className="flex-none px-5 pt-4 flex items-center justify-between z-10 mb-[21px]">
+        <div className="w-6" /> {/* Spacer */}
+        <h1 className="text-white text-[18px] font-medium font-sans">
+          Order Successful
         </h1>
-        <p className="text-white/60 text-[16px] font-normal font-sans text-center max-w-[280px]">
-            Your cash delivery is on its way.
-        </p>
+        <button className="w-6 h-6 flex items-center justify-center">
+            <img src={hamburgerMenu} alt="Menu" className="w-full h-full" />
+        </button>
       </div>
 
-      {/* Footer */}
-      <div className="w-full px-5 pb-10">
-        <button
-          onClick={() => navigate("/home")}
-          className="w-full h-[48px] flex items-center justify-center text-white text-[16px] font-medium font-sans"
-          style={{
-            backgroundImage: `url(${buttonPrimary})`,
-            backgroundSize: "100% 100%",
-            backgroundRepeat: "no-repeat",
-          }}
-        >
-          Back to Home
-        </button>
+      <div className="flex-1 overflow-y-auto px-5 pb-[100px] no-scrollbar flex flex-col items-center">
+          {/* Check Icon */}
+          <div className="w-[62px] h-[62px] mb-[35px]">
+              <img src={checkIcon} alt="Success" className="w-full h-full object-contain" />
+          </div>
+
+          {/* Status Text */}
+          <h2 className="text-white text-[18px] font-bold font-sans mb-[1px]">
+              Your order is being processed!
+          </h2>
+
+          {/* Amount */}
+          <p className="text-white text-[25px] font-medium font-sans mb-[39px]">
+              ₹{(totalAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </p>
+
+          {/* Delivery Container */}
+          <div
+             className="w-full rounded-[14px] overflow-hidden relative mb-[16px]"
+             style={{
+                 height: "143px",
+                 background: "linear-gradient(to bottom, #000000 0%, rgba(0,0,0,0) 100%)",
+             }}
+          >
+              {/* Header Row */}
+              <div className="absolute top-[9px] left-0 right-0 px-[16px] flex justify-between items-center">
+                  <span className="text-white text-[12px] font-medium font-sans">
+                      Delivering to - {savedAddress?.tag || "Home"}
+                  </span>
+                  <span className="text-white text-[12px] font-medium font-sans max-w-[150px] truncate">
+                      {getAddressDisplay()}
+                  </span>
+              </div>
+
+              {/* Tracking Sub-Container */}
+              <div
+                  className="absolute top-[35px] left-[16px] right-[16px] rounded-[14px] flex"
+                  style={{
+                      height: "110px",
+                      backgroundColor: "rgba(25, 25, 25, 0.34)",
+                      padding: "14px"
+                  }}
+              >
+                  {/* Left Text */}
+                  <div className="flex-1 flex flex-col">
+                      <p className="text-white text-[14px] font-medium font-sans leading-snug">
+                          We’re assigning a delivery<br />partner soon!
+                      </p>
+                      <div className="flex-1" />
+                      <p className="text-white text-[12px] font-normal font-sans leading-snug">
+                          Assigning a delivery partner in the<br />next 2 minutes.
+                      </p>
+                  </div>
+
+                  {/* Map Mockup */}
+                  <div
+                    className="shrink-0 relative rounded-[8px] overflow-hidden ml-[14px]"
+                    style={{
+                        width: "110px",
+                        height: "82px",
+                        backgroundColor: "#EAEAEA" // Light mode map background placeholder
+                    }}
+                  >
+                        {/* Map content placeholder */}
+                        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(#ccc 1px, transparent 1px)", backgroundSize: "10px 10px" }}></div>
+
+                        {/* Current Location Pin (Bottom Left-ish) */}
+                        <img
+                            src={currentLocationIcon}
+                            alt="Me"
+                            className="absolute bottom-2 left-2 w-4 h-4 z-10"
+                        />
+
+                        {/* Rider Pin (Top Right-ish) */}
+                        <img
+                            src={deliveryRiderIcon}
+                            alt="Rider"
+                            className="absolute top-2 right-2 w-6 h-6 z-10"
+                        />
+
+                        {/* Dashed Line */}
+                        <svg className="absolute inset-0 w-full h-full pointer-events-none">
+                            <path
+                                d="M 16 70 C 40 70, 70 40, 95 16"
+                                fill="none"
+                                stroke="#A855F7" // Purple-ish
+                                strokeWidth="2"
+                                strokeDasharray="4 2"
+                            />
+                        </svg>
+                  </div>
+              </div>
+          </div>
+
+          {/* Transaction Details Container */}
+          <div
+            className="w-full rounded-[13px] p-[12px] mb-[29px]"
+            style={{
+                height: "239px",
+                backgroundColor: "rgba(0, 0, 0, 0.20)"
+            }}
+          >
+              <h3 className="text-white text-[16px] font-medium font-sans">
+                  Transaction Details
+              </h3>
+              <div className="w-full h-[1px] bg-[#202020] mt-[10px] mb-[10px]" />
+
+              <div className="flex justify-between items-center mb-[8px]">
+                  <span className="text-white text-[13px] font-normal font-sans">Transaction Number</span>
+                  <span className="text-white text-[13px] font-bold font-sans">{transactionDetails.id}</span>
+              </div>
+
+              <div className="flex justify-between items-center mb-[8px]">
+                  <span className="text-white text-[13px] font-normal font-sans">Date & Time</span>
+                  <span className="text-white text-[13px] font-bold font-sans">{transactionDetails.dateTime}</span>
+              </div>
+
+              <div className="flex justify-between items-center mb-[12px]">
+                  <span className="text-white text-[13px] font-normal font-sans">Payment Mode</span>
+                  <span className="text-white text-[13px] font-bold font-sans">Dot.Pe Wallet</span>
+              </div>
+
+              <p className="text-white/50 text-[13px] font-normal font-sans mb-[14px] leading-snug">
+                  No charges yet — your wallet will only be debited after you confirm the delivery.
+              </p>
+
+              <p className="text-white text-[13px] font-normal font-sans leading-snug">
+                  If you need to cancel, you can do so within 30 seconds or before a delivery partner is assigned, whichever is earlier.
+              </p>
+          </div>
+
+          {/* Footer CTA */}
+          <div className="w-full">
+            <button
+                onClick={() => navigate("/home")}
+                className="w-full h-[48px] flex items-center justify-center text-white text-[16px] font-medium font-sans"
+                style={{
+                    backgroundImage: `url(${buttonPrimary})`,
+                    backgroundSize: "100% 100%",
+                    backgroundRepeat: "no-repeat",
+                }}
+            >
+                Go Home
+            </button>
+          </div>
       </div>
     </div>
   );
