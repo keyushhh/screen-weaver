@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import Map, { Marker } from "react-map-gl/maplibre";
+import Map, { Marker, Source, Layer, LineLayer } from "react-map-gl/maplibre";
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { OpenLocationCode } from "open-location-code";
 import successBg from "@/assets/success-bg.png";
@@ -68,6 +68,28 @@ const OrderCashSuccess = () => {
     return parts.filter(Boolean).join(", ");
   };
 
+  const routeGeoJson = {
+    type: "Feature",
+    properties: {},
+    geometry: {
+      type: "LineString",
+      coordinates: [
+        [viewState.longitude, viewState.latitude],
+        [viewState.longitude + 0.002, viewState.latitude + 0.002],
+      ],
+    },
+  };
+
+  const routeLayer: LineLayer = {
+    id: "route-line",
+    type: "line",
+    paint: {
+      "line-color": "#5260FE",
+      "line-width": 2,
+      "line-dasharray": [2, 1],
+    },
+  };
+
   return (
     <div
       className="h-full w-full overflow-hidden flex flex-col safe-area-top safe-area-bottom"
@@ -110,7 +132,7 @@ const OrderCashSuccess = () => {
           <div
              className="w-full rounded-[14px] overflow-hidden relative mb-[16px]"
              style={{
-                 height: "143px",
+                 height: "176px",
                  background: "linear-gradient(to bottom, #000000 0%, rgba(0,0,0,0) 100%)",
              }}
           >
@@ -128,7 +150,7 @@ const OrderCashSuccess = () => {
               <div
                   className="absolute top-[35px] left-0 right-0 rounded-b-[14px] flex"
                   style={{
-                      height: "110px",
+                      height: "141px",
                       backgroundColor: "rgba(25, 25, 25, 0.34)",
                       padding: "14px"
                   }}
@@ -148,7 +170,7 @@ const OrderCashSuccess = () => {
                     className="shrink-0 relative rounded-[8px] overflow-hidden"
                     style={{
                         width: "110px",
-                        height: "82px",
+                        height: "113px",
                         backgroundColor: "#1A1A1A"
                     }}
                   >
@@ -159,6 +181,11 @@ const OrderCashSuccess = () => {
                            attributionControl={false}
                            interactive={false}
                        >
+                           {/* Dashed Route Line */}
+                           <Source id="route" type="geojson" data={routeGeoJson}>
+                               <Layer {...routeLayer} />
+                           </Source>
+
                            {/* Delivery/User Location Marker */}
                            <Marker latitude={viewState.latitude} longitude={viewState.longitude}>
                                <img src={currentLocationIcon} alt="User" className="w-4 h-4" />
