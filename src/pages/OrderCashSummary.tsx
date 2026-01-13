@@ -14,6 +14,20 @@ import selectedPillBg from "@/assets/selected-pill.png";
 import crossIcon from "@/assets/cross-icon.png";
 import infoIcon from "@/assets/delivery-tip-info.png";
 import { SlideToPay } from "@/components/SlideToPay";
+import AddressSelectionSheet from "@/components/AddressSelectionSheet";
+
+interface SavedAddress {
+  tag: string;
+  house: string;
+  area: string;
+  landmark?: string;
+  name: string;
+  phone: string;
+  displayAddress: string;
+  city: string;
+  state: string;
+  postcode: string;
+}
 
 const OrderCashSummary = () => {
   const navigate = useNavigate();
@@ -22,6 +36,44 @@ const OrderCashSummary = () => {
 
   const [isRewardsOpen, setIsRewardsOpen] = useState(false);
   const [isPayOpen, setIsPayOpen] = useState(false);
+
+  // Address State
+  const [savedAddress, setSavedAddress] = useState<SavedAddress | null>(null);
+  const [isAddressSheetOpen, setIsAddressSheetOpen] = useState(false);
+
+  React.useEffect(() => {
+    const addressStr = localStorage.getItem("dotpe_user_address");
+    if (addressStr) {
+      try {
+        setSavedAddress(JSON.parse(addressStr));
+      } catch (e) {
+        console.error("Failed to parse saved address", e);
+      }
+    }
+  }, []);
+
+  const handleAddressSelect = (address: SavedAddress | null) => {
+    setSavedAddress(address);
+    if (address) {
+        setIsAddressSheetOpen(false);
+    }
+  };
+
+  const getAddressDisplay = () => {
+    if (!savedAddress) return "Add Address";
+    // Construct a nice display string: House, Area, City - Zip
+    // If displayAddress is already formatted well (like from Nominatim), we can use it,
+    // but the user might want specific "House, Area" format.
+    // The previous hardcoded one was: "C102, Pubali Estate, Guwahati - 781005"
+    // My SavedAddress has: house, area, city, postcode.
+
+    const parts = [savedAddress.house, savedAddress.area, savedAddress.city];
+    const base = parts.filter(Boolean).join(", ");
+    if (savedAddress.postcode) {
+        return `${base} - ${savedAddress.postcode}`;
+    }
+    return base;
+  };
 
   // Rewards State
   const [rewardPoints, setRewardPoints] = useState("");
@@ -150,9 +202,11 @@ const OrderCashSummary = () => {
       </div>
 
       <div className="flex-1 overflow-y-auto px-5 space-y-[10px] no-scrollbar pb-[280px]">
+        {/* Address Container */}
         <div
             style={containerStyle}
-            className="w-full relative overflow-hidden"
+            className="w-full relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
+            onClick={() => setIsAddressSheetOpen(true)}
         >
             <div
                 className="flex items-start py-[11px] px-[12px]"
@@ -170,15 +224,17 @@ const OrderCashSummary = () => {
                 </div>
                 <div className="flex-1 pt-1">
                     <div className="flex items-center justify-between">
-                        <span className="text-white text-[16px] font-medium font-sans">Home</span>
+                        <span className="text-white text-[16px] font-medium font-sans capitalize">
+                            {savedAddress ? savedAddress.tag : "No Address"}
+                        </span>
                         <img
                             src={chevronDownIcon}
                             alt="Toggle"
                             className="w-4 h-4"
                         />
                     </div>
-                    <p className="text-white/80 text-[14px] font-normal font-sans mt-1 leading-tight">
-                        C102, Pubali Estate, Guwahati - 781005
+                    <p className="text-white/80 text-[14px] font-normal font-sans mt-1 leading-tight line-clamp-2">
+                        {getAddressDisplay()}
                     </p>
                 </div>
             </div>
@@ -514,6 +570,12 @@ const OrderCashSummary = () => {
         </div>
         <div className="h-4 flex-none" />
       </div>
+
+      <AddressSelectionSheet
+        isOpen={isAddressSheetOpen}
+        onClose={() => setIsAddressSheetOpen(false)}
+        onAddressSelect={handleAddressSelect}
+      />
 
       <div
         className="fixed bottom-0 left-0 right-0 z-50 safe-area-bottom flex flex-col"
