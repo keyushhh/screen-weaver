@@ -18,7 +18,7 @@ import otherIcon from "@/assets/Other.svg";
 import editIcon from "@/assets/edit.svg";
 import shareIcon from "@/assets/share.svg";
 import deleteIcon from "@/assets/delete.svg";
-import selectedPill from "@/assets/selected-pill.png"; // Or similar pill asset
+import selectedAddressBg from "@/assets/selected-address.png";
 
 interface SavedAddress {
   tag: string;
@@ -209,7 +209,7 @@ const AddressSelectionSheet: React.FC<AddressSelectionSheetProps> = ({ isOpen, o
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center safe-area-bottom">
+    <div className="fixed inset-0 z-[60] flex items-end justify-center safe-area-bottom">
         {/* Backdrop */}
         <div
             className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
@@ -218,13 +218,14 @@ const AddressSelectionSheet: React.FC<AddressSelectionSheetProps> = ({ isOpen, o
 
         {/* Sheet */}
         <div
-            className="relative w-full bg-black rounded-t-[36px] pt-4 pb-10 px-5 max-h-[90vh] overflow-y-auto"
+            className="relative w-full bg-black rounded-t-[36px] pt-4 pb-10 px-5 overflow-y-auto"
             style={{
+                height: "794px", // Fixed height as requested
                 boxShadow: "0px -4px 20px rgba(0, 0, 0, 0.5)"
             }}
         >
             {/* Header */}
-            <div className="flex justify-between items-center mb-[18px]">
+            <div className="flex justify-between items-center mb-[18px] pt-2">
                 <h2 className="text-white text-[18px] font-bold font-satoshi">
                     Select Delivery Location
                 </h2>
@@ -265,10 +266,14 @@ const AddressSelectionSheet: React.FC<AddressSelectionSheetProps> = ({ isOpen, o
             </div>
 
             {/* Static Actions Container */}
-            <div className="bg-[#0D0D0D] rounded-[13px] py-[12px] mb-[32px]">
+            <div
+                className="bg-[#0D0D0D] rounded-[13px] mb-[32px] flex flex-col"
+                style={{ height: "150px" }}
+            >
                 {/* 1. Use Current Location */}
                 <div
-                    className="flex items-center justify-between px-4 py-2 cursor-pointer active:bg-white/5"
+                    className="flex items-center justify-between cursor-pointer active:bg-white/5"
+                    style={{ paddingTop: '12px', paddingLeft: '10.5px', paddingRight: '10.5px', paddingBottom: '10px' }}
                     onClick={handleUseCurrentLocation}
                 >
                     <div className="flex items-center gap-3">
@@ -282,11 +287,12 @@ const AddressSelectionSheet: React.FC<AddressSelectionSheetProps> = ({ isOpen, o
                     </div>
                     <img src={chevronRight} alt="" className="w-4 h-4 opacity-50" />
                 </div>
-                <div className="h-[1px] bg-[#2A2A2A] mx-4 my-2" />
+                <div className="h-[1px] bg-[#000000] w-full" />
 
                 {/* 2. Add New Address */}
                 <div
-                    className="flex items-center justify-between px-4 py-3 cursor-pointer active:bg-white/5"
+                    className="flex items-center justify-between cursor-pointer active:bg-white/5"
+                    style={{ paddingTop: '10px', paddingLeft: '10.5px', paddingRight: '10.5px', paddingBottom: '10px' }}
                     onClick={() => navigate('/add-address')}
                 >
                     <div className="flex items-center gap-3">
@@ -295,11 +301,12 @@ const AddressSelectionSheet: React.FC<AddressSelectionSheetProps> = ({ isOpen, o
                     </div>
                     <img src={chevronRight} alt="" className="w-4 h-4 opacity-50" />
                 </div>
-                <div className="h-[1px] bg-[#2A2A2A] mx-4 my-2" />
+                <div className="h-[1px] bg-[#000000] w-full" />
 
                 {/* 3. Request Address */}
                 <div
-                    className="flex items-center justify-between px-4 py-3 cursor-pointer active:bg-white/5"
+                    className="flex items-center justify-between cursor-pointer active:bg-white/5"
+                    style={{ paddingTop: '10px', paddingLeft: '10.5px', paddingRight: '10.5px', paddingBottom: '12px' }}
                     onClick={() => {}} // No-op as requested
                 >
                     <div className="flex items-center gap-3">
@@ -325,7 +332,7 @@ const AddressSelectionSheet: React.FC<AddressSelectionSheetProps> = ({ isOpen, o
                             key={idx}
                             onClick={() => handleSelectAddress(addr)}
                             className={`bg-[#0D0D0D] rounded-[12px] p-[11px] relative border ${isSelected ? 'border-white/20' : 'border-transparent'}`}
-                            style={{ minHeight: "131px" }}
+                            style={{ height: "131px" }}
                         >
                             {/* Header Row */}
                             <div className="flex justify-between items-start mb-4">
@@ -336,7 +343,7 @@ const AddressSelectionSheet: React.FC<AddressSelectionSheetProps> = ({ isOpen, o
                                     </span>
                                     {isSelected && (
                                         <div className="relative h-[26px] w-[79px] ml-2 flex items-center justify-center">
-                                            <img src={selectedPill} alt="Selected" className="absolute inset-0 w-full h-full object-contain" />
+                                            <img src={selectedAddressBg} alt="Selected" className="absolute inset-0 w-full h-full object-contain" />
                                             <span className="relative z-10 text-white text-[12px] font-medium font-satoshi">Selected</span>
                                         </div>
                                     )}
@@ -354,7 +361,7 @@ const AddressSelectionSheet: React.FC<AddressSelectionSheetProps> = ({ isOpen, o
                                 </div>
                             </div>
 
-                            <div className="h-[1px] bg-[#747474] w-full opacity-20 mb-[11px]" />
+                            <div className="h-[1px] bg-[#747474] w-full opacity-20 mb-[12px]" />
 
                             {/* Address Details */}
                             <p className="text-[#AFAFAF] text-[12px] font-regular font-satoshi leading-relaxed line-clamp-2 mb-[15px]">
