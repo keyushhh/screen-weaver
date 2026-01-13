@@ -603,7 +603,7 @@ const OrderCashSummary = () => {
           <p className="text-white text-[16px] font-medium font-sans mb-[34px]">
               You won’t be charged unless the delivery is completed.
           </p>
-          <SlideToPay onComplete={handlePay} />
+          <SlideToPay onComplete={handlePay} disabled={!savedAddress} />
       </div>
     </div>
   );
