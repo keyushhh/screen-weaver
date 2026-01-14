@@ -4,6 +4,7 @@ import Map, { Marker, Source, Layer, LineLayer } from "react-map-gl/maplibre";
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { OpenLocationCode } from "open-location-code";
 import successBg from "@/assets/success-bg.png";
+import popupBg from "@/assets/popup-bg.png";
 import checkIcon from "@/assets/check-icon.png";
 import hamburgerMenu from "@/assets/hamburger-menu.svg";
 import currentLocationIcon from "@/assets/current-location.svg";
@@ -31,7 +32,7 @@ const OrderCashSuccess = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const [showCancelPopup, setShowCancelPopup] = useState(false);
-  const [cancelReason, setCancelReason] = useState<number | null>(null);
+  const [cancelReason, setCancelReason] = useState<number | null>(0);
   const [otherReason, setOtherReason] = useState("");
   const [timer, setTimer] = useState(30);
 
@@ -408,14 +409,13 @@ const OrderCashSuccess = () => {
 
       {/* Cancel Order Popup */}
       {showCancelPopup && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-5">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-5">
               <div
-                  className="w-full max-w-[353px] rounded-[24px] overflow-hidden flex flex-col items-center pt-[24px] pb-[24px] px-[16px]"
+                  className="relative rounded-[24px] p-[24px] w-full max-w-[353px] flex flex-col items-center border border-white/10"
                   style={{
-                      backgroundColor: "rgba(22, 22, 22, 0.9)",
-                      backdropFilter: "blur(40px)",
-                      WebkitBackdropFilter: "blur(40px)",
-                      border: "0.5px solid rgba(255, 255, 255, 0.15)"
+                      backgroundImage: `url(${popupBg})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
                   }}
               >
                   {/* Icon */}
@@ -429,17 +429,31 @@ const OrderCashSuccess = () => {
                   </h2>
 
                   {/* Subtext */}
-                  <p className="text-[#A1A1A1] text-[13px] font-medium font-sans text-center leading-[1.4] mb-[24px]">
+                  <p className="text-white text-[13px] font-medium font-sans text-center leading-[1.4] mb-[24px] px-[13px]">
                       We’re not mad. Just disappointed. Help us understand why you’re cancelling. It helps us improve your experience (and emotionally prepare for this moment).
                   </p>
 
                   {/* Reason List Container */}
-                  <div className="w-full mb-[24px]">
-                      <p className="text-[#6F6F6F] text-[11px] font-medium font-sans mb-[8px] px-1">
-                          Reason for Cancellation? (Required)
-                      </p>
+                  <div
+                    className="flex flex-col mb-[24px] overflow-hidden"
+                    style={{
+                        backgroundColor: "rgba(0, 0, 0, 0.41)",
+                        width: "319px",
+                        borderRadius: "12px",
+                    }}
+                  >
+                      {/* Title inside container */}
+                      <div className="pt-[14px] px-[12px]">
+                           <p className="text-white text-[12px] font-medium font-sans">
+                              Reason for Cancellation? (Required)
+                           </p>
+                      </div>
 
-                      <div className="w-full bg-white/5 rounded-[12px] overflow-hidden border border-white/5">
+                      {/* Divider */}
+                      <div className="mt-[14px] w-full h-[1px] bg-white/10" />
+
+                      {/* List */}
+                      <div className="mt-[14px]">
                           {cancelReasons.map((reason, index) => (
                               <div
                                   key={index}
@@ -460,9 +474,9 @@ const OrderCashSuccess = () => {
                           ))}
                       </div>
 
-                      {/* Other Input */}
-                      {cancelReason === 5 && (
-                          <div className="mt-[12px] w-full animate-in fade-in slide-in-from-top-2 duration-200">
+                       {/* Other Input */}
+                       {cancelReason === 5 && (
+                          <div className="w-full p-[12px] animate-in fade-in slide-in-from-top-2 duration-200">
                               <textarea
                                   value={otherReason}
                                   onChange={(e) => setOtherReason(e.target.value)}
@@ -477,14 +491,19 @@ const OrderCashSuccess = () => {
                   <div className="w-full flex gap-[12px]">
                       <button
                           onClick={() => setShowCancelPopup(false)}
-                          className="flex-1 h-[44px] rounded-full bg-[#333333] text-white text-[14px] font-bold font-sans hover:bg-[#404040] transition-colors"
+                          className="flex-1 h-[44px] rounded-full text-white text-[16px] font-medium font-sans flex items-center justify-center"
+                          style={{
+                              backgroundImage: `url(${buttonPrimary})`,
+                              backgroundSize: "100% 100%",
+                              backgroundRepeat: "no-repeat",
+                          }}
                       >
                           Fine, I'll stay
                       </button>
                       <button
                           // No-op for now as requested
                           onClick={() => {}}
-                          className="flex-1 h-[44px] rounded-full bg-[#FF3B30] text-white text-[14px] font-bold font-sans hover:bg-[#FF3B30]/90 transition-colors"
+                          className="flex-1 h-[44px] rounded-full bg-[#FF3B30] text-white text-[16px] font-medium font-sans hover:bg-[#FF3B30]/90 transition-colors"
                       >
                           Pull the plug
                       </button>
