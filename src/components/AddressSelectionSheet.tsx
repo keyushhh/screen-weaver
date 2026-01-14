@@ -21,6 +21,7 @@ import deleteIcon from "@/assets/delete.svg";
 import selectedAddressBg from "@/assets/selected-address.png";
 
 interface SavedAddress {
+  id?: string;
   tag: string;
   house: string;
   area: string;
@@ -32,7 +33,6 @@ interface SavedAddress {
   state: string;
   postcode: string;
   plusCode?: string;
-  // We can add IDs later, for now we match by content
 }
 
 interface AddressSelectionSheetProps {
@@ -84,7 +84,20 @@ const AddressSelectionSheet: React.FC<AddressSelectionSheetProps> = ({ isOpen, o
         const savedStr = localStorage.getItem("dotpe_saved_addresses");
         if (savedStr) {
             try {
-                setSavedAddresses(JSON.parse(savedStr));
+                let list = JSON.parse(savedStr);
+                // Migration: Ensure all have IDs
+                let changed = false;
+                list = list.map((addr: any) => {
+                    if (!addr.id) {
+                        addr.id = Date.now().toString() + Math.random().toString().slice(2, 6);
+                        changed = true;
+                    }
+                    return addr;
+                });
+                if (changed) {
+                    localStorage.setItem("dotpe_saved_addresses", JSON.stringify(list));
+                }
+                setSavedAddresses(list);
             } catch (e) {
                 console.error("Failed to parse saved addresses", e);
             }
@@ -94,8 +107,10 @@ const AddressSelectionSheet: React.FC<AddressSelectionSheetProps> = ({ isOpen, o
             if (single) {
                 try {
                     const parsed = JSON.parse(single);
+                    if (!parsed.id) {
+                         parsed.id = Date.now().toString();
+                    }
                     setSavedAddresses([parsed]);
-                    // Also migrate it to list?
                     localStorage.setItem("dotpe_saved_addresses", JSON.stringify([parsed]));
                 } catch(e) {}
             }
@@ -199,18 +214,25 @@ const AddressSelectionSheet: React.FC<AddressSelectionSheetProps> = ({ isOpen, o
           localStorage.removeItem("dotpe_user_address");
           setSelectedAddress(null);
           onAddressSelect(null);
-      } else if (selectedAddress && JSON.stringify(selectedAddress) === JSON.stringify(removed)) {
-          // If deleted was selected, clear active address
-           localStorage.removeItem("dotpe_user_address");
-           setSelectedAddress(null);
-           onAddressSelect(null);
+      } else if (selectedAddress) {
+          // Check if deleted was selected
+          const isRemovedSelected = selectedAddress.id && removed.id
+             ? selectedAddress.id === removed.id
+             : JSON.stringify(selectedAddress) === JSON.stringify(removed);
+
+          if (isRemovedSelected) {
+               localStorage.removeItem("dotpe_user_address");
+               setSelectedAddress(null);
+               onAddressSelect(null);
+          }
       }
   };
 
   const handleEdit = (e: React.MouseEvent, addr: SavedAddress) => {
       e.stopPropagation();
       navigate('/add-address-details', { state: {
-          addressTitle: addr.tag, // Not perfect mapping but okay
+          id: addr.id,
+          addressTitle: addr.tag,
           addressLine: addr.displayAddress,
           plusCode: addr.plusCode || "",
           city: addr.city,
@@ -218,13 +240,10 @@ const AddressSelectionSheet: React.FC<AddressSelectionSheetProps> = ({ isOpen, o
           postcode: addr.postcode,
           houseNumber: addr.house,
           road: addr.area,
-          // We might need to pass phone/name too if details page supports editing them from state?
-          // Details page uses: `house || initialState.houseNumber` etc.
-          // It doesn't seem to hydrate Name/Phone from state.
-          // I might need to update AddAddressDetails to read these extra fields if passed.
-          // For now, we follow the standard "Add Address" flow which is Map -> Details.
-          // But "Edit" usually implies going straight to Details.
-          // I will assume AddAddressDetails needs a small tweak to read name/phone or I just pass what I can.
+          landmark: addr.landmark,
+          name: addr.name,
+          phone: addr.phone,
+          tag: addr.tag
       }});
   };
 
@@ -357,8 +376,10 @@ const AddressSelectionSheet: React.FC<AddressSelectionSheetProps> = ({ isOpen, o
 
             <div className="space-y-3 pb-10">
                 {savedAddresses.map((addr, idx) => {
-                    const isSelected = selectedAddress &&
-                        (addr.displayAddress === selectedAddress.displayAddress && addr.tag === selectedAddress.tag);
+                    const isSelected = selectedAddress && (
+                        (selectedAddress.id && addr.id && selectedAddress.id === addr.id) ||
+                        (!selectedAddress.id && addr.displayAddress === selectedAddress.displayAddress && addr.tag === selectedAddress.tag)
+                    );
 
                     return (
                         <div
