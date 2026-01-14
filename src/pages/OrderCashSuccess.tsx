@@ -178,10 +178,10 @@ const OrderCashSuccess = () => {
             </button>
 
             {/* Divider */}
-            <div className="w-full h-[0.5px] bg-white/10" />
+            <div className="w-full h-[0.5px]" />
 
             {/* Cancel Order */}
-            <div className="w-full px-[12px] py-[8px] flex items-center justify-between">
+            <div className="w-full px-[12px] py-[8px] flex items-start justify-between">
               <span className={`text-[12px] font-medium font-sans ${timer === 0 ? 'text-[#878787]' : 'text-white'}`}>
                 {timer > 0 ? `Cancel Order (${timer}s)` : 'Cancel Order (unavailable)'}
               </span>
@@ -192,7 +192,7 @@ const OrderCashSuccess = () => {
                     setShowInfoPopup(true);
                     setIsMenuOpen(false);
                   }}
-                  className="w-[14px] h-[14px] ml-1 flex-shrink-0"
+                  className="w-[14px] h-[14px] ml-1 flex-shrink-0 mt-[2px]"
                 >
                   <img src={infoIcon} alt="Info" className="w-full h-full" />
                 </button>
