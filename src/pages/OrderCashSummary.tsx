@@ -15,7 +15,7 @@ import crossIcon from "@/assets/cross-icon.png";
 import deliveryInfoIcon from "@/assets/delivery tip info.svg";
 import popupBg from "@/assets/popup-bg.png";
 import buttonCloseBg from "@/assets/button-close.png";
-import popupCardIcon from "@/assets/popup-card-icon.png";
+import popupCardIcon from "@/assets/card-ico.svg";
 import { SlideToPay } from "@/components/SlideToPay";
 import AddressSelectionSheet from "@/components/AddressSelectionSheet";
 
