@@ -348,7 +348,7 @@ const OrderCashSuccess = () => {
       {/* Info Popup (Toaster) */}
       {showInfoPopup && (
         <div
-          className="absolute inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          className="absolute inset-0 z-50 flex items-start justify-center pt-4 bg-black/50 backdrop-blur-sm safe-area-top"
           onClick={() => {
               setShowInfoPopup(false);
               setIsMenuOpen(true);
@@ -359,14 +359,16 @@ const OrderCashSuccess = () => {
             className="relative rounded-[12px] border border-white/20 p-[12px] flex items-start"
             style={{
               width: "362px",
-              height: "79px",
+              height: "auto",
+              minHeight: "79px",
               backgroundColor: "rgba(0, 0, 0, 0.7)",
               backdropFilter: "blur(14px)",
               WebkitBackdropFilter: "blur(14px)",
             }}
           >
              <p className="text-white text-[12px] font-medium font-sans leading-[1.4] pr-6">
-                The cancellation window has expired. If something went wrong or you need help, we’ve got your back — reach out anytime.
+                The cancellation window has expired. <br />
+                If something went wrong or you need help, we’ve got your back — reach out anytime.
              </p>
              <button
                 onClick={() => {

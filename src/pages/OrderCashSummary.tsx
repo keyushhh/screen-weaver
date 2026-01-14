@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, X } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import locationIcon from "@/assets/location.svg";
 import deliveryIcon from "@/assets/delivery.svg";
@@ -12,7 +12,10 @@ import checkSvg from "@/assets/check.svg";
 import pillBg from "@/assets/pill.png";
 import selectedPillBg from "@/assets/selected-pill.png";
 import crossIcon from "@/assets/cross-icon.png";
-import infoIcon from "@/assets/delivery-tip-info.png";
+import deliveryInfoIcon from "@/assets/delivery tip info.svg";
+import popupBg from "@/assets/popup-bg.png";
+import buttonCloseBg from "@/assets/button-close.png";
+import popupCardIcon from "@/assets/popup-card-icon.png";
 import { SlideToPay } from "@/components/SlideToPay";
 import AddressSelectionSheet from "@/components/AddressSelectionSheet";
 
@@ -36,6 +39,7 @@ const OrderCashSummary = () => {
 
   const [isRewardsOpen, setIsRewardsOpen] = useState(false);
   const [isPayOpen, setIsPayOpen] = useState(false);
+  const [showDeliveryTipPopup, setShowDeliveryTipPopup] = useState(false);
 
   // Address State
   const [savedAddress, setSavedAddress] = useState<SavedAddress | null>(null);
@@ -367,7 +371,15 @@ const OrderCashSummary = () => {
                 >
                     <div className="flex items-center gap-2">
                         <span className="text-white text-[16px] font-medium font-sans">Delivery Tip</span>
-                        <img src={infoIcon} alt="Info" className="w-4 h-4" />
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setShowDeliveryTipPopup(true);
+                            }}
+                            className="flex items-center justify-center w-[14px] h-[14px]"
+                        >
+                            <img src={deliveryInfoIcon} alt="Info" className="w-full h-full" />
+                        </button>
                     </div>
                     <button
                         onClick={(e) => {
@@ -605,6 +617,47 @@ const OrderCashSummary = () => {
           </p>
           <SlideToPay onComplete={handlePay} disabled={!savedAddress} />
       </div>
+
+      {/* Delivery Tip Popup */}
+      {showDeliveryTipPopup && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center p-6 bg-black/60 backdrop-blur-sm">
+          <div
+            className="relative rounded-2xl p-6 max-w-[320px] w-full z-10 flex flex-col items-center text-center border border-white/10"
+            style={{
+              backgroundImage: `url(${popupBg})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          >
+             <img src={popupCardIcon} alt="Delivery Tip" className="w-8 h-8 mb-4 object-contain" />
+             <h2 className="text-white text-[18px] font-medium mb-4 font-sans">Delivery Tip</h2>
+             <div className="bg-black rounded-xl w-full px-[12px] py-[11px]">
+                <p className="text-white text-[13px] font-normal font-sans leading-relaxed text-left mb-[6px]">
+                    Our delivery partners ride through traffic, harsh weather, and long distances to bring your cash safely to your door.
+                </p>
+                <p className="text-white text-[13px] font-normal font-sans leading-relaxed text-left">
+                    Tipping isn’t mandatory — but it goes directly to them and helps support their daily hustle, fuel, and hard work.
+                    <br />
+                    Even a small amount makes a big difference.
+                    <br />
+                    Every rupee = recognition. 💙
+                </p>
+             </div>
+          </div>
+          <button
+            onClick={() => setShowDeliveryTipPopup(false)}
+            className="relative z-10 mt-6 px-8 py-3 rounded-full flex items-center justify-center gap-2"
+            style={{
+              backgroundImage: `url(${buttonCloseBg})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          >
+            <X className="w-4 h-4 text-foreground" />
+            <span className="text-foreground text-[14px] font-sans">Close</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 };
