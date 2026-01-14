@@ -11,6 +11,9 @@ import deliveryRiderIcon from "@/assets/delivery-rider.svg";
 import buttonPrimary from "@/assets/button-primary-wide.png";
 import infoIcon from "@/assets/delivery tip info.svg";
 import closeIcon from "@/assets/cross icon.svg";
+import cancelIcon from "@/assets/cancel-ico.svg";
+import radioFilled from "@/assets/radio-fill.svg";
+import radioEmpty from "@/assets/radio-empty.svg";
 
 const OrderCashSuccess = () => {
   const navigate = useNavigate();
@@ -27,7 +30,19 @@ const OrderCashSuccess = () => {
   // UI State
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showInfoPopup, setShowInfoPopup] = useState(false);
+  const [showCancelPopup, setShowCancelPopup] = useState(false);
+  const [cancelReason, setCancelReason] = useState<number | null>(null);
+  const [otherReason, setOtherReason] = useState("");
   const [timer, setTimer] = useState(30);
+
+  const cancelReasons = [
+      "I changed my mind",
+      "Wrong address selected",
+      "Payment issue",
+      "Expected quicker delivery",
+      "Found a better alternative",
+      "Other"
+  ];
 
   // Refs for click outside
   const menuRef = useRef<HTMLDivElement>(null);
@@ -181,7 +196,15 @@ const OrderCashSuccess = () => {
             <div className="w-full h-[0.5px]" />
 
             {/* Cancel Order */}
-            <div className="w-full px-[12px] py-[8px] flex items-start justify-between">
+            <div
+              className="w-full px-[12px] py-[8px] flex items-start justify-between cursor-pointer hover:bg-white/10 transition-colors"
+              onClick={() => {
+                  if (timer > 0) {
+                      setShowCancelPopup(true);
+                      setIsMenuOpen(false);
+                  }
+              }}
+            >
               <span className={`text-[12px] font-medium font-sans ${timer === 0 ? 'text-[#878787]' : 'text-white'}`}>
                 {timer > 0 ? `Cancel Order (${timer}s)` : 'Cancel Order (unavailable)'}
               </span>
@@ -381,6 +404,93 @@ const OrderCashSuccess = () => {
              </button>
           </div>
         </div>
+      )}
+
+      {/* Cancel Order Popup */}
+      {showCancelPopup && (
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-5">
+              <div
+                  className="w-full max-w-[353px] rounded-[24px] overflow-hidden flex flex-col items-center pt-[24px] pb-[24px] px-[16px]"
+                  style={{
+                      backgroundColor: "rgba(22, 22, 22, 0.9)",
+                      backdropFilter: "blur(40px)",
+                      WebkitBackdropFilter: "blur(40px)",
+                      border: "0.5px solid rgba(255, 255, 255, 0.15)"
+                  }}
+              >
+                  {/* Icon */}
+                  <div className="w-[32px] h-[32px] mb-[16px]">
+                      <img src={cancelIcon} alt="Cancel" className="w-full h-full" />
+                  </div>
+
+                  {/* Header */}
+                  <h2 className="text-white text-[18px] font-bold font-sans mb-[8px] text-center">
+                      Cancel Order?
+                  </h2>
+
+                  {/* Subtext */}
+                  <p className="text-[#A1A1A1] text-[13px] font-medium font-sans text-center leading-[1.4] mb-[24px]">
+                      We’re not mad. Just disappointed. Help us understand why you’re cancelling. It helps us improve your experience (and emotionally prepare for this moment).
+                  </p>
+
+                  {/* Reason List Container */}
+                  <div className="w-full mb-[24px]">
+                      <p className="text-[#6F6F6F] text-[11px] font-medium font-sans mb-[8px] px-1">
+                          Reason for Cancellation? (Required)
+                      </p>
+
+                      <div className="w-full bg-white/5 rounded-[12px] overflow-hidden border border-white/5">
+                          {cancelReasons.map((reason, index) => (
+                              <div
+                                  key={index}
+                                  onClick={() => setCancelReason(index)}
+                                  className={`w-full h-[44px] flex items-center px-[12px] cursor-pointer ${
+                                      index !== cancelReasons.length - 1 ? 'border-b border-white/5' : ''
+                                  } hover:bg-white/5 transition-colors`}
+                              >
+                                  <img
+                                      src={cancelReason === index ? radioFilled : radioEmpty}
+                                      alt="radio"
+                                      className="w-[16px] h-[16px] mr-[12px]"
+                                  />
+                                  <span className="text-white text-[13px] font-medium font-sans">
+                                      {reason}
+                                  </span>
+                              </div>
+                          ))}
+                      </div>
+
+                      {/* Other Input */}
+                      {cancelReason === 5 && (
+                          <div className="mt-[12px] w-full animate-in fade-in slide-in-from-top-2 duration-200">
+                              <textarea
+                                  value={otherReason}
+                                  onChange={(e) => setOtherReason(e.target.value)}
+                                  placeholder="Tell us more..."
+                                  className="w-full h-[80px] bg-white/5 rounded-[12px] border border-white/10 p-[12px] text-white text-[13px] font-sans focus:outline-none focus:border-white/20 resize-none placeholder:text-[#6F6F6F]"
+                              />
+                          </div>
+                      )}
+                  </div>
+
+                  {/* Buttons */}
+                  <div className="w-full flex gap-[12px]">
+                      <button
+                          onClick={() => setShowCancelPopup(false)}
+                          className="flex-1 h-[44px] rounded-full bg-[#333333] text-white text-[14px] font-bold font-sans hover:bg-[#404040] transition-colors"
+                      >
+                          Fine, I'll stay
+                      </button>
+                      <button
+                          // No-op for now as requested
+                          onClick={() => {}}
+                          className="flex-1 h-[44px] rounded-full bg-[#FF3B30] text-white text-[14px] font-bold font-sans hover:bg-[#FF3B30]/90 transition-colors"
+                      >
+                          Pull the plug
+                      </button>
+                  </div>
+              </div>
+          </div>
       )}
     </div>
   );
