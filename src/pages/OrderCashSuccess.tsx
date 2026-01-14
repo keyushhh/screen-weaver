@@ -4,7 +4,8 @@ import Map, { Marker, Source, Layer, LineLayer } from "react-map-gl/maplibre";
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { OpenLocationCode } from "open-location-code";
 import successBg from "@/assets/success-bg.png";
-import popupBg from "@/assets/popup-bg.png";
+import popBgDefault from "@/assets/pop-bg-default.png";
+import popBgExpanded from "@/assets/pop-bg-expanded.png";
 import checkIcon from "@/assets/check-icon.png";
 import hamburgerMenu from "@/assets/hamburger-menu.svg";
 import currentLocationIcon from "@/assets/current-location.svg";
@@ -413,7 +414,7 @@ const OrderCashSuccess = () => {
               <div
                   className="relative rounded-[13px] p-[22px] w-full max-w-[353px] flex flex-col items-center border border-white/10"
                   style={{
-                      backgroundImage: `url(${popupBg})`,
+                      backgroundImage: `url(${cancelReason === 5 ? popBgExpanded : popBgDefault})`,
                       backgroundSize: '100% 100%',
                       backgroundRepeat: 'no-repeat',
                   }}
@@ -429,8 +430,10 @@ const OrderCashSuccess = () => {
                   </h2>
 
                   {/* Subtext */}
-                  <p className="text-white text-[13px] font-medium font-sans text-center leading-[1.4] mb-[24px] px-[13px] max-w-[280px]">
-                      We’re not mad. Just disappointed. Help us understand why you’re cancelling. It helps us improve your experience (and emotionally prepare for this moment).
+                  <p className="text-white text-[13px] font-medium font-sans text-center leading-[1.4] mb-[24px] px-[13px]">
+                      We’re not mad. Just disappointed. Help us understand why<br/>
+                      you’re cancelling. It helps us improve your experience (and<br/>
+                      emotionally prepare for this moment).
                   </p>
 
                   {/* Reason List Container */}
