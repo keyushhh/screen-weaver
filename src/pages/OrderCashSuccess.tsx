@@ -409,13 +409,13 @@ const OrderCashSuccess = () => {
 
       {/* Cancel Order Popup */}
       {showCancelPopup && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-5">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md px-5">
               <div
-                  className="relative rounded-[24px] p-[24px] w-full max-w-[353px] flex flex-col items-center border border-white/10"
+                  className="relative rounded-[13px] p-[22px] w-full max-w-[353px] flex flex-col items-center border border-white/10"
                   style={{
                       backgroundImage: `url(${popupBg})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
+                      backgroundSize: '100% 100%',
+                      backgroundRepeat: 'no-repeat',
                   }}
               >
                   {/* Icon */}
@@ -429,16 +429,15 @@ const OrderCashSuccess = () => {
                   </h2>
 
                   {/* Subtext */}
-                  <p className="text-white text-[13px] font-medium font-sans text-center leading-[1.4] mb-[24px] px-[13px]">
+                  <p className="text-white text-[13px] font-medium font-sans text-center leading-[1.4] mb-[24px] px-[13px] max-w-[280px]">
                       We’re not mad. Just disappointed. Help us understand why you’re cancelling. It helps us improve your experience (and emotionally prepare for this moment).
                   </p>
 
                   {/* Reason List Container */}
                   <div
-                    className="flex flex-col mb-[24px] overflow-hidden"
+                    className="flex flex-col mb-[24px] overflow-hidden w-full"
                     style={{
-                        backgroundColor: "rgba(0, 0, 0, 0.41)",
-                        width: "319px",
+                        backgroundColor: "rgba(0, 0, 0, 0.60)",
                         borderRadius: "12px",
                     }}
                   >
@@ -453,7 +452,7 @@ const OrderCashSuccess = () => {
                       <div className="mt-[14px] w-full h-[1px] bg-white/10" />
 
                       {/* List */}
-                      <div className="mt-[14px]">
+                      <div>
                           {cancelReasons.map((reason, index) => (
                               <div
                                   key={index}
@@ -488,11 +487,13 @@ const OrderCashSuccess = () => {
                   </div>
 
                   {/* Buttons */}
-                  <div className="w-full flex gap-[12px]">
+                  <div className="w-full flex gap-[12px] justify-center">
                       <button
                           onClick={() => setShowCancelPopup(false)}
-                          className="flex-1 h-[44px] rounded-full text-white text-[16px] font-medium font-sans flex items-center justify-center"
+                          className="rounded-full text-white text-[14px] font-medium font-sans flex items-center justify-center shrink-0"
                           style={{
+                              width: '158px',
+                              height: '37px',
                               backgroundImage: `url(${buttonPrimary})`,
                               backgroundSize: "100% 100%",
                               backgroundRepeat: "no-repeat",
@@ -503,7 +504,11 @@ const OrderCashSuccess = () => {
                       <button
                           // No-op for now as requested
                           onClick={() => {}}
-                          className="flex-1 h-[44px] rounded-full bg-[#FF3B30] text-white text-[16px] font-medium font-sans hover:bg-[#FF3B30]/90 transition-colors"
+                          className="rounded-full bg-[#FF3B30] text-white text-[14px] font-medium font-sans hover:bg-[#FF3B30]/90 transition-colors shrink-0 flex items-center justify-center"
+                          style={{
+                              width: '158px',
+                              height: '37px',
+                          }}
                       >
                           Pull the plug
                       </button>
