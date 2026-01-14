@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Map, { Marker, Source, Layer, LineLayer } from "react-map-gl/maplibre";
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -9,6 +9,8 @@ import hamburgerMenu from "@/assets/hamburger-menu.svg";
 import currentLocationIcon from "@/assets/current-location.svg";
 import deliveryRiderIcon from "@/assets/delivery-rider.svg";
 import buttonPrimary from "@/assets/button-primary-wide.png";
+import infoIcon from "@/assets/delivery tip info.svg";
+import closeIcon from "@/assets/cross icon.svg";
 
 const OrderCashSuccess = () => {
   const navigate = useNavigate();
@@ -21,6 +23,46 @@ const OrderCashSuccess = () => {
       longitude: 77.5946,
       zoom: 13
   });
+
+  // UI State
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showInfoPopup, setShowInfoPopup] = useState(false);
+  const [timer, setTimer] = useState(30);
+
+  // Refs for click outside
+  const menuRef = useRef<HTMLDivElement>(null);
+  const hamburgerRef = useRef<HTMLButtonElement>(null);
+
+  // Timer Logic
+  useEffect(() => {
+    if (timer > 0) {
+      const interval = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [timer]);
+
+  // Click outside to close menu
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node) &&
+        hamburgerRef.current &&
+        !hamburgerRef.current.contains(event.target as Node)
+      ) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isMenuOpen]);
 
   // Decode Plus Code or use default
   useEffect(() => {
@@ -93,7 +135,7 @@ const OrderCashSuccess = () => {
 
   return (
     <div
-      className="h-full w-full overflow-hidden flex flex-col safe-area-top safe-area-bottom animate-in fade-in duration-500"
+      className="h-full w-full overflow-hidden flex flex-col safe-area-top safe-area-bottom animate-in fade-in duration-500 relative"
       style={{
         backgroundColor: "#0a0a12",
         backgroundImage: `url(${successBg})`,
@@ -103,17 +145,64 @@ const OrderCashSuccess = () => {
       }}
     >
       {/* Header */}
-      <div className="flex-none px-5 pt-4 flex items-center justify-between z-10 mb-[21px]">
+      <div className="flex-none px-5 pt-4 flex items-center justify-between z-10 mb-[21px] relative">
         <div className="w-6" /> {/* Spacer */}
         <h1 className="text-white text-[18px] font-medium font-sans">
           Order Successful
         </h1>
-        <button className="w-6 h-6 flex items-center justify-center">
+        <button
+          ref={hamburgerRef}
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="w-6 h-6 flex items-center justify-center"
+        >
             <img src={hamburgerMenu} alt="Menu" className="w-full h-full" />
         </button>
+
+        {/* Hamburger Menu Dropdown */}
+        {isMenuOpen && (
+          <div
+            ref={menuRef}
+            className="absolute top-[50px] right-[20px] rounded-[12px] flex flex-col items-start overflow-hidden z-50 border border-white/20"
+            style={{
+              width: "145px",
+              height: "auto",
+              minHeight: "69px",
+              backgroundColor: "rgba(0, 0, 0, 0.6)",
+              backdropFilter: "blur(12px)",
+              WebkitBackdropFilter: "blur(12px)",
+            }}
+          >
+            {/* Need Help? */}
+            <button className="w-full text-left px-[12px] py-[8px] text-white text-[12px] font-medium font-sans hover:bg-white/10 transition-colors">
+              Need Help?
+            </button>
+
+            {/* Divider */}
+            <div className="w-full h-[0.5px] bg-white/10" />
+
+            {/* Cancel Order */}
+            <div className="w-full px-[12px] py-[8px] flex items-center justify-between">
+              <span className={`text-[12px] font-medium font-sans ${timer === 0 ? 'text-[#878787]' : 'text-white'}`}>
+                {timer > 0 ? `Cancel Order (${timer}s)` : 'Cancel Order (unavailable)'}
+              </span>
+              {timer === 0 && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowInfoPopup(true);
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-[14px] h-[14px] ml-1 flex-shrink-0"
+                >
+                  <img src={infoIcon} alt="Info" className="w-full h-full" />
+                </button>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
-      <div className="flex-1 overflow-y-auto px-5 pb-[100px] no-scrollbar flex flex-col items-center">
+      <div className="flex-1 overflow-hidden px-5 pb-[10px] flex flex-col items-center">
           {/* Check Icon */}
           <div className="w-[62px] h-[62px] mb-[35px]">
               <img src={checkIcon} alt="Success" className="w-full h-full object-contain" />
@@ -255,6 +344,42 @@ const OrderCashSuccess = () => {
             </button>
           </div>
       </div>
+
+      {/* Info Popup (Toaster) */}
+      {showInfoPopup && (
+        <div
+          className="absolute inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          onClick={() => {
+              setShowInfoPopup(false);
+              setIsMenuOpen(true);
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative rounded-[12px] border border-white/20 p-[12px] flex items-start"
+            style={{
+              width: "362px",
+              height: "79px",
+              backgroundColor: "rgba(0, 0, 0, 0.7)",
+              backdropFilter: "blur(14px)",
+              WebkitBackdropFilter: "blur(14px)",
+            }}
+          >
+             <p className="text-white text-[12px] font-medium font-sans leading-[1.4] pr-6">
+                The cancellation window has expired. If something went wrong or you need help, we’ve got your back — reach out anytime.
+             </p>
+             <button
+                onClick={() => {
+                    setShowInfoPopup(false);
+                    setIsMenuOpen(true);
+                }}
+                className="absolute top-[12px] right-[12px] w-[16px] h-[16px]"
+             >
+                <img src={closeIcon} alt="Close" className="w-full h-full" />
+             </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
