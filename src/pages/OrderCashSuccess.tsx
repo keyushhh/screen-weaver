@@ -64,8 +64,9 @@ const OrderCashSuccess = () => {
 
   const getAddressDisplay = () => {
     if (!savedAddress) return "Unknown Location";
-    const parts = [savedAddress.house, savedAddress.area, savedAddress.city];
-    return parts.filter(Boolean).join(", ");
+    const parts = [savedAddress.house, savedAddress.area];
+    const fullString = parts.filter(Boolean).join(", ");
+    return fullString.length > 20 ? fullString.substring(0, 20) + "..." : fullString;
   };
 
   const routeGeoJson = {

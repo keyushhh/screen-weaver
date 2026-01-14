@@ -17,6 +17,7 @@ import phoneIcon from "@/assets/phone.svg";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 
 interface AddressState {
+  id?: string; // Unique ID for editing
   addressTitle: string; // "City, Country" or "Building Name"
   addressLine: string; // Full address
   plusCode: string;
@@ -33,15 +34,16 @@ const AddAddressDetails = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const initialState = location.state as AddressState | null;
+  const isEditMode = !!initialState?.id;
 
   // Form State
-  const [house, setHouse] = useState("");
-  const [area, setArea] = useState("");
-  const [landmark, setLandmark] = useState("");
+  const [house, setHouse] = useState(initialState?.houseNumber || initialState?.house || "");
+  const [area, setArea] = useState(initialState?.road || initialState?.area || "");
+  const [landmark, setLandmark] = useState(initialState?.landmark || "");
   const [plusCode, setPlusCode] = useState(initialState?.plusCode || "");
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [selectedTag, setSelectedTag] = useState<string>("Home");
+  const [name, setName] = useState(initialState?.name || "");
+  const [phone, setPhone] = useState(initialState?.phone || "");
+  const [selectedTag, setSelectedTag] = useState<string>(initialState?.tag || "Home");
   const [customLabel, setCustomLabel] = useState("");
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
@@ -108,6 +110,7 @@ const AddAddressDetails = () => {
     const tagToSave = overrideTag || (selectedTag === "Other" && customLabel ? customLabel : selectedTag);
 
     const addressData = {
+        id: initialState?.id || Date.now().toString(),
         tag: tagToSave,
         house,
         area,
@@ -135,21 +138,23 @@ const AddAddressDetails = () => {
         }
     }
 
-    // Check if duplicate exists (same tag) to update instead of append
-    // This handles the "Edit" flow simply by overwriting the entry with the same tag
-    const existingIndex = savedAddresses.findIndex((addr) =>
-        addr.tag === addressData.tag && addressData.tag !== "Other" // Don't overwrite distinct "Other" addresses unless we have IDs
-    );
-
-    if (existingIndex >= 0) {
-        savedAddresses[existingIndex] = addressData;
+    if (isEditMode) {
+        // Edit Mode: Update existing by ID
+        const existingIndex = savedAddresses.findIndex((addr) => addr.id === addressData.id);
+        if (existingIndex >= 0) {
+            savedAddresses[existingIndex] = addressData;
+        } else {
+            // Should not happen, but safe fallback
+            savedAddresses.push(addressData);
+        }
     } else {
+        // Add Mode: Always append (allow duplicate tags)
         savedAddresses.push(addressData);
     }
 
     localStorage.setItem("dotpe_saved_addresses", JSON.stringify(savedAddresses));
 
-    toast.success("Address saved successfully!");
+    toast.success(isEditMode ? "Address updated!" : "Address saved successfully!");
     navigate("/home", { replace: true });
   };
 
@@ -238,7 +243,9 @@ const AddAddressDetails = () => {
                 >
                     <ChevronLeft className="w-6 h-6 text-white" />
                 </button>
-                <h1 className="flex-1 text-center text-lg font-medium pr-10">Add New Address</h1>
+                <h1 className="flex-1 text-center text-lg font-medium pr-10">
+                    {isEditMode ? "Edit Address" : "Add New Address"}
+                </h1>
                 </div>
 
                 {/* Address Container */}
@@ -375,14 +382,26 @@ const AddAddressDetails = () => {
                 </div>
 
                 {/* Save Address CTA */}
-                <Button
-                    onClick={() => handleSaveAddress()}
-                    className="w-full rounded-full"
-                    variant="gradient"
-                    disabled={!isFormValid}
-                >
-                    Save Address
-                </Button>
+                <div className="flex flex-col gap-3">
+                    <Button
+                        onClick={() => handleSaveAddress()}
+                        className="w-full rounded-full"
+                        variant="gradient"
+                        disabled={!isFormValid}
+                    >
+                        {isEditMode ? "Save Changes" : "Save Address"}
+                    </Button>
+
+                    {isEditMode && (
+                        <Button
+                            onClick={() => navigate(-1)}
+                            className="w-full rounded-full bg-[#191919] hover:bg-[#252525] text-white border border-white/20"
+                            variant="secondary"
+                        >
+                            Cancel
+                        </Button>
+                    )}
+                </div>
             </div>
         </div>
 
