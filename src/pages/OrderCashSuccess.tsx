@@ -134,7 +134,7 @@ const OrderCashSuccess = () => {
               <div
                   className="w-full px-[16px] py-[9px] flex justify-between items-start z-10 shrink-0 rounded-t-[14px]"
                   style={{
-                      background: "linear-gradient(to bottom, #000000 0%, rgba(0,0,0,0) 100%)",
+                      backgroundColor: "#000000",
                   }}
               >
                   <span className="text-white text-[12px] font-medium font-sans whitespace-nowrap mr-2">
@@ -168,8 +168,8 @@ const OrderCashSuccess = () => {
                   <div
                     className="shrink-0 relative rounded-[8px] overflow-hidden"
                     style={{
-                        width: "130px",
-                        height: "130px",
+                        width: "110px",
+                        height: "82px",
                         backgroundColor: "#1A1A1A"
                     }}
                   >
