@@ -44,7 +44,9 @@ const ScheduleDelivery = () => {
          // Parse extraTime to check range
          const getMin = (t: string) => {
              const [timeStr, m] = t.split(' ');
-             let [h, min] = timeStr.split(':').map(Number);
+             const parts = timeStr.split(':').map(Number);
+             let h = parts[0];
+             const min = parts[1];
              if (m.toLowerCase() === 'pm' && h !== 12) h += 12;
              if (m.toLowerCase() === 'am' && h === 12) h = 0;
              return h * 60 + min;
@@ -176,7 +178,9 @@ const ScheduleDelivery = () => {
   // Validation Logic
   const parseTimeMinutes = (t: string) => {
       const [timeStr, m] = t.split(' ');
-      let [h, min] = timeStr.split(':').map(Number);
+      const parts = timeStr.split(':').map(Number);
+      let h = parts[0];
+      const min = parts[1];
       if (m.toLowerCase() === 'pm' && h !== 12) h += 12;
       if (m.toLowerCase() === 'am' && h === 12) h = 0;
       return h * 60 + min;
