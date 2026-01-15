@@ -382,11 +382,11 @@ const Homepage = () => {
             View All
           </button>
         </div>
-        <div className="border-t border-white/10 pt-6 min-h-[100px]">
+        <div className="border-t border-white/10 pt-[14px] min-h-[100px]">
           {transactionHistory.length > 0 ? (
             <div className="w-full">
                {/* Headers */}
-               <div className="grid grid-cols-[1fr_auto_auto] gap-x-6 mb-[12px] px-0">
+               <div className="grid grid-cols-[1fr_100px_80px] gap-x-6 mb-[12px] px-0">
                    <div>
                        <span className="text-[#7E7E7E] text-[12px] font-normal font-sans">
                            Details
@@ -407,7 +407,7 @@ const Homepage = () => {
                {/* Rows */}
                <div className="flex flex-col gap-[16px]">
                    {transactionHistory.map((tx) => (
-                       <div key={tx.id} className="grid grid-cols-[1fr_auto_auto] gap-x-6 items-center">
+                       <div key={tx.id} className="grid grid-cols-[1fr_100px_80px] gap-x-6 items-start">
                            {/* Details Column */}
                            <div className="flex items-start">
                                <img src={ongoingIcon} alt="Status" className="w-[26px] h-[26px]" />
