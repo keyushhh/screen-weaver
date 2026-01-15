@@ -101,11 +101,9 @@ const OrderTracking = () => {
       {/* Header Overlay - Matches AddAddress style */}
       <div className="absolute top-0 left-0 right-0 z-10 pointer-events-none">
         <div
-           className="rounded-b-[32px] overflow-hidden pointer-events-auto"
+           className="overflow-hidden pointer-events-auto"
            style={{
-                backgroundColor: "rgba(7, 7, 7, 0.81)",
-                backdropFilter: "blur(25px)",
-                WebkitBackdropFilter: "blur(25px)",
+                backgroundColor: "transparent",
                 paddingBottom: "24px"
            }}
         >
@@ -239,7 +237,7 @@ const OrderTracking = () => {
 
                     {/* CTA View KYC */}
                     <button
-                        className="mt-[14px] bg-[#1CB956] rounded-[8px] h-[36px] w-[248px] text-white text-[13px] font-medium font-sans flex items-center justify-center"
+                        className="mt-[14px] bg-[#1CB956] rounded-full h-[36px] w-[248px] text-white text-[13px] font-medium font-sans flex items-center justify-center"
                     >
                         View KYC
                     </button>
