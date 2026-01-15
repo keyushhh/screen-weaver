@@ -99,29 +99,46 @@ const OrderCashSuccess = () => {
       }
   }, [savedAddress]);
 
-  // Generate random transaction ID and date once
-  const [transactionDetails] = useState(() => {
-    const randomId = "20" + Math.random().toString(36).substring(2, 12).toUpperCase();
-    const now = new Date();
-    // Format: 15 June 2025, 11:38 PM
-    const dateStr = now.toLocaleDateString("en-GB", {
-        day: "numeric",
-        month: "long",
-        year: "numeric"
-    });
-    const timeStr = now.toLocaleTimeString("en-US", {
-        hour: "numeric",
-        minute: "numeric",
-        hour12: true
-    });
+  // Transaction Details Management
+  const [transactionDetails, setTransactionDetails] = useState<any>(location.state?.transactionDetails || null);
 
-    return {
-        id: randomId,
-        dateTime: `${dateStr}, ${timeStr}`,
-        dateOnly: dateStr,
-        timeOnly: timeStr
-    };
-  });
+  useEffect(() => {
+      // If we don't have stable transaction details in location.state yet, generate them and replace history
+      if (!transactionDetails && totalAmount) {
+          const randomId = "20" + Math.random().toString(36).substring(2, 12).toUpperCase();
+          const now = new Date();
+          const dateStr = now.toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "long",
+              year: "numeric"
+          });
+          const timeStr = now.toLocaleTimeString("en-US", {
+              hour: "numeric",
+              minute: "numeric",
+              hour12: true
+          });
+
+          const newDetails = {
+              id: randomId,
+              dateTime: `${dateStr}, ${timeStr}`,
+              dateOnly: dateStr,
+              timeOnly: timeStr
+          };
+
+          setTransactionDetails(newDetails);
+
+          // Replace current history entry with one that includes the transactionDetails
+          // This ensures that on refresh, we read the SAME details from location.state
+          navigate(location.pathname, {
+              replace: true,
+              state: {
+                  ...location.state,
+                  transactionDetails: newDetails
+              }
+          });
+      }
+  }, [transactionDetails, totalAmount, navigate, location.pathname, location.state]);
+
 
   useEffect(() => {
     if (totalAmount && savedAddress && transactionDetails) {
@@ -147,6 +164,7 @@ const OrderCashSuccess = () => {
             console.error("Failed to parse history", e);
         }
 
+        // Only add if this specific transaction ID is not already in the history
         if (!history.find((h: any) => h.id === order.id)) {
             // Add new order to the beginning of the list
             history.unshift(order);
@@ -183,6 +201,10 @@ const OrderCashSuccess = () => {
       "line-dasharray": [2, 1],
     },
   };
+
+  if (!transactionDetails) {
+      return null; // or a loading spinner while we generate ID
+  }
 
   return (
     <div
