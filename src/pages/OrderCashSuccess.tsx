@@ -117,9 +117,43 @@ const OrderCashSuccess = () => {
 
     return {
         id: randomId,
-        dateTime: `${dateStr}, ${timeStr}`
+        dateTime: `${dateStr}, ${timeStr}`,
+        dateOnly: dateStr,
+        timeOnly: timeStr
     };
   });
+
+  useEffect(() => {
+    if (totalAmount && savedAddress && transactionDetails) {
+        const order = {
+            id: transactionDetails.id,
+            amount: totalAmount,
+            date: transactionDetails.dateOnly,
+            time: transactionDetails.timeOnly,
+            status: "Ongoing",
+            details: "Cash Order",
+            address: savedAddress
+        };
+
+        // Save as active order
+        localStorage.setItem("dotpe_active_order", JSON.stringify(order));
+
+        // Append to history if not already present (check by ID)
+        const historyStr = localStorage.getItem("dotpe_transaction_history");
+        let history = [];
+        try {
+            history = historyStr ? JSON.parse(historyStr) : [];
+        } catch (e) {
+            console.error("Failed to parse history", e);
+        }
+
+        if (!history.find((h: any) => h.id === order.id)) {
+            // Add new order to the beginning of the list
+            history.unshift(order);
+            localStorage.setItem("dotpe_transaction_history", JSON.stringify(history));
+        }
+    }
+  }, [totalAmount, savedAddress, transactionDetails]);
 
   const getAddressDisplay = () => {
     if (!savedAddress) return "Unknown Location";
