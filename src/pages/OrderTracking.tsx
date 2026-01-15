@@ -9,7 +9,10 @@ import arrivingIcon from "@/assets/arriving.svg";
 import riderIcon from "@/assets/rider.svg";
 import verifiedIcon from "@/assets/verified.svg";
 import callIcon from "@/assets/call.svg";
-import awaitingPng from "@/assets/awaiting-otp.png";
+// Use the SVG if available to align with other icons, but PNG is fine if it matches the visual.
+// The file list shows both 'awaiting-otp.png' and 'awaiting.svg'.
+// 'awaiting.svg' is likely the new asset intended for this flow.
+import awaitingIcon from "@/assets/awaiting.svg";
 import currentLocationIcon from "@/assets/current-location.svg";
 
 const OrderTracking = () => {
@@ -25,7 +28,7 @@ const OrderTracking = () => {
   const [userLocation, setUserLocation] = useState<{latitude: number, longitude: number} | null>(null);
 
   // Loader Animation State
-  const [progress, setProgress] = useState(10);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     // 1. Get active order from localStorage
@@ -56,7 +59,7 @@ const OrderTracking = () => {
 
     const interval = setInterval(() => {
       setProgress((prev) => (prev >= 100 ? 0 : prev + 1));
-    }, 100);
+    }, 600); // Slower animation: 600ms * 100 steps = 60000ms = 1 minute
     return () => clearInterval(interval);
   }, []);
 
@@ -93,28 +96,38 @@ const OrderTracking = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#0a0a12] flex flex-col safe-area-top safe-area-bottom pb-8 overflow-y-auto">
+    <div className="min-h-screen w-full bg-[#0a0a12] flex flex-col relative safe-area-bottom pb-8 overflow-y-auto">
 
-      {/* Header Overlay */}
-      <div className="fixed top-0 left-0 right-0 z-20 px-5 pt-4 flex items-center justify-between pointer-events-none">
-          {/* Back Button (Pointer events auto to allow click) */}
-          <button
-            onClick={() => navigate('/home')}
-            className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center pointer-events-auto"
-          >
-             <ChevronLeft className="text-white w-6 h-6" />
-          </button>
+      {/* Header Overlay - Matches AddAddress style */}
+      <div className="absolute top-0 left-0 right-0 z-10 pointer-events-none">
+        <div
+           className="rounded-b-[32px] overflow-hidden pointer-events-auto"
+           style={{
+                backgroundColor: "rgba(7, 7, 7, 0.81)",
+                backdropFilter: "blur(25px)",
+                WebkitBackdropFilter: "blur(25px)",
+                paddingBottom: "24px"
+           }}
+        >
+             <div className="safe-area-top pt-4 px-5 flex items-center justify-between">
+                {/* Back Button */}
+                <button
+                    onClick={() => navigate('/home')}
+                    className="w-10 h-10 flex items-center justify-center -ml-2"
+                >
+                    <ChevronLeft className="text-white w-6 h-6" />
+                </button>
 
-          <h1 className="text-white text-[18px] font-medium font-sans pointer-events-auto">
-            Order Tracking
-          </h1>
-
-          <div className="w-10" /> {/* Spacer for centering */}
+                <h1 className="text-white text-[18px] font-medium font-sans flex-1 text-center pr-8">
+                    Order Tracking
+                </h1>
+             </div>
+        </div>
       </div>
 
-      {/* Map Container */}
+      {/* Map Container - Behind the header */}
       <div
-        className="w-full relative overflow-hidden shrink-0 rounded-b-[32px]"
+        className="w-full relative overflow-hidden shrink-0 rounded-b-[32px] z-0"
         style={{ height: "305px" }}
       >
           <Map
@@ -123,6 +136,8 @@ const OrderTracking = () => {
              style={{ width: "100%", height: "100%" }}
              mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
              attributionControl={false}
+             scrollZoom={false} // Prevent map scroll from hijacking page scroll
+             dragPan={true}
           >
              {/* Route Line */}
              <Source id="route" type="geojson" data={routeGeoJson}>
@@ -145,7 +160,7 @@ const OrderTracking = () => {
       </div>
 
       {/* Status Container */}
-      <div className="px-3 mt-[12px]">
+      <div className="px-3 mt-[12px] relative z-0">
         <div
             className="w-full rounded-[13px] relative"
             style={{
@@ -159,7 +174,7 @@ const OrderTracking = () => {
                     ARRIVING IN
                 </p>
                 <p className="text-white text-[20px] font-bold font-sans mt-[1px] leading-none">
-                    8 Mins
+                    1 Min
                 </p>
             </div>
 
@@ -187,7 +202,7 @@ const OrderTracking = () => {
       </div>
 
       {/* Rider Details Container */}
-      <div className="px-3 mt-[12px]">
+      <div className="px-3 mt-[12px] relative z-0">
         <div
             className="w-full rounded-[13px] p-[12px] relative"
             style={{
@@ -258,7 +273,7 @@ const OrderTracking = () => {
 
             {/* Footer */}
             <div className="mt-[12px] flex items-center gap-2">
-                 <img src={awaitingPng} alt="Awaiting" className="w-5 h-5" />
+                 <img src={awaitingIcon} alt="Awaiting" className="w-5 h-5" />
                  <span className="text-[#D0D0D0] text-[14px] font-normal font-sans">
                     Awaiting delivery confirmation.
                  </span>
@@ -267,7 +282,7 @@ const OrderTracking = () => {
       </div>
 
       {/* Need Help CTA */}
-      <div className="px-5 mt-[16px]">
+      <div className="px-5 mt-[16px] relative z-0">
          <button className="w-full h-[52px] rounded-full border border-white/20 text-white text-[16px] font-medium font-sans flex items-center justify-center bg-transparent">
              Need Help?
          </button>
