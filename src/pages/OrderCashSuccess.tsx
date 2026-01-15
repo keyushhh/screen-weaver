@@ -11,8 +11,8 @@ import hamburgerMenu from "@/assets/hamburger-menu.svg";
 import currentLocationIcon from "@/assets/current-location.svg";
 import deliveryRiderIcon from "@/assets/delivery-rider.svg";
 import buttonPrimary from "@/assets/button-primary-wide.png";
-import infoIcon from "@/assets/delivery tip info.svg";
-import closeIcon from "@/assets/cross icon.svg";
+import infoIcon from "@/assets/delivery-tip-info.svg";
+import closeIcon from "@/assets/cross-icon.svg";
 import cancelIcon from "@/assets/cancel-ico.svg";
 import radioFilled from "@/assets/radio-fill.svg";
 import radioEmpty from "@/assets/radio-empty.svg";
@@ -505,8 +505,10 @@ const OrderCashSuccess = () => {
                           Fine, I'll stay
                       </button>
                       <button
-                          // No-op for now as requested
-                          onClick={() => {}}
+                          onClick={() => {
+                              // Navigate to OrderCancelled with amount state
+                              navigate('/order-cancelled', { state: { totalAmount } });
+                          }}
                           className="rounded-full bg-[#FF3B30] text-white text-[14px] font-medium font-sans hover:bg-[#FF3B30]/90 transition-colors shrink-0 flex items-center justify-center"
                           style={{
                               width: '158px',

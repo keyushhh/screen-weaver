@@ -12,7 +12,7 @@ import checkSvg from "@/assets/check.svg";
 import pillBg from "@/assets/pill.png";
 import selectedPillBg from "@/assets/selected-pill.png";
 import crossIcon from "@/assets/cross-icon.png";
-import deliveryInfoIcon from "@/assets/delivery tip info.svg";
+import deliveryInfoIcon from "@/assets/delivery-tip-info.svg";
 import popupBg from "@/assets/popup-bg.png";
 import buttonCloseBg from "@/assets/button-close.png";
 import popupCardIcon from "@/assets/card-ico.svg";
