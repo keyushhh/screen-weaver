@@ -41,6 +41,7 @@ import ScheduleDelivery from "./pages/ScheduleDelivery";
 import AddAddress from "./pages/AddAddress";
 import AddAddressDetails from "./pages/AddAddressDetails";
 import OrderCancelled from "./pages/OrderCancelled";
+import OrderTracking from "./pages/OrderTracking";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -90,6 +91,7 @@ const App = () => (
             <Route path="/add-address" element={<AddAddress />} />
             <Route path="/add-address-details" element={<AddAddressDetails />} />
             <Route path="/order-cancelled" element={<OrderCancelled />} />
+            <Route path="/order-tracking" element={<OrderTracking />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </HashRouter>

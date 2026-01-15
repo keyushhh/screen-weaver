@@ -315,7 +315,8 @@ const Homepage = () => {
 
                   {/* Mini Map */}
                   <div
-                    className="shrink-0 relative rounded-[8px] overflow-hidden"
+                    onClick={() => navigate('/order-tracking')}
+                    className="shrink-0 relative rounded-[8px] overflow-hidden cursor-pointer active:scale-95 transition-transform"
                     style={{
                         width: "110px",
                         height: "82px",
