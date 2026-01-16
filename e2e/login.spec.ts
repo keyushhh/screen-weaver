@@ -48,4 +48,29 @@ test.describe('Authentication Flow', () => {
 
     await expect(page.getByText('Create a secure 4 digit MPIN')).toBeVisible();
   });
+
+  test('should fail login with invalid OTP', async ({ page }) => {
+    // Setup console listener for debugging
+    page.on('console', msg => console.log(`BROWSER LOG: ${msg.type()}: ${msg.text()}`));
+
+    await page.goto('/');
+
+    // Enter valid phone number
+    await page.getByPlaceholder('Enter your mobile number').fill('9999999999');
+    await page.getByRole('button', { name: 'Request OTP' }).click();
+    await expect(page.getByText('Enter your OTP')).toBeVisible({ timeout: 10000 });
+
+    // Enter INVALID OTP
+    await page.keyboard.type('000000');
+    await page.getByRole('button', { name: 'Continue', exact: true }).click();
+
+    // Expect error message
+    // The exact error message depends on Supabase response, usually "Token has expired or is invalid"
+    // OR our fallback "That code's off target..."
+    // We check for the error text container or content
+    await expect(page.locator('.text-red-500')).toBeVisible({ timeout: 10000 });
+
+    // Ensure we did NOT navigate to MPIN setup
+    await expect(page.getByText('Secure your account')).not.toBeVisible();
+  });
 });
