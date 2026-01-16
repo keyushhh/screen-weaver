@@ -33,13 +33,27 @@ export const fetchAddresses = async (userId: string) => {
 };
 
 export const createAddress = async (address: Omit<Address, 'id' | 'created_at'>) => {
+  // Debug: Check session state inside the library function
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  console.log("createAddress - Lib Auth User:", user?.id, "Error:", authError);
+  console.log("createAddress - Payload:", address);
+
+  if (!user) {
+    console.error("createAddress - No authenticated user found in lib client!");
+  } else if (user.id !== address.user_id) {
+    console.error("createAddress - User ID Mismatch! Session:", user.id, "Payload:", address.user_id);
+  }
+
   const { data, error } = await supabase
     .from('addresses')
     .insert(address)
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) {
+    console.error("createAddress - Insert Error:", error);
+    throw error;
+  }
   return data as Address;
 };
 
