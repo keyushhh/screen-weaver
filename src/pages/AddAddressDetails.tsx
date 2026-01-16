@@ -140,6 +140,9 @@ const AddAddressDetails = () => {
         const lat = Number(locState?.lat) || 0;
         const lng = Number(locState?.lng) || 0;
 
+        // Log Current User ID for debug
+        console.log("Current User ID:", session.user.id);
+
         if (isEditMode && initialState?.id) {
             const updatePayload = {
                 label: tagToSave,
