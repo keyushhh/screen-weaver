@@ -136,11 +136,12 @@ const AddAddressDetails = () => {
 
         // Use type assertion or unsafe access for now since `AddressState` might be incomplete in this file definition
         const locState = location.state as any;
-        const lat = locState?.lat || 0;
-        const lng = locState?.lng || 0;
+        // Ensure strictly numeric (fallback to 0 if missing, though schema might reject 0 if logic dictates range, but type-wise it's fine)
+        const lat = Number(locState?.lat) || 0;
+        const lng = Number(locState?.lng) || 0;
 
         if (isEditMode && initialState?.id) {
-            await updateAddress(initialState.id, {
+            const updatePayload = {
                 label: tagToSave,
                 apartment: house,
                 area: area,
@@ -150,20 +151,12 @@ const AddAddressDetails = () => {
                 plus_code: plusCode,
                 contact_name: name,
                 contact_phone: phone,
-                // On edit, we might update lat/lng if the user moved the pin?
-                // If the user came from "Edit" button, they didn't move pin.
-                // If they came from map, it's a new address usually.
-                // We'll update lat/lng only if provided and non-zero, else keep existing (backend handles partial update).
-                ...(lat && lng ? { latitude: lat, longitude: lng } : {})
-            });
+                ...(lat !== 0 && lng !== 0 ? { latitude: lat, longitude: lng } : {})
+            };
+            console.log("Updating address with payload:", updatePayload);
+            await updateAddress(initialState.id, updatePayload);
         } else {
-            if (!lat || !lng) {
-                // If missing lat/lng on create, we have a problem.
-                // However, for migration sake or quick fix, we might default or warn.
-                // But typically AddAddress (Map) ensures this.
-                // Let's proceed.
-            }
-            const newAddr = await createAddress({
+            const insertPayload = {
                 user_id: session.user.id,
                 label: tagToSave,
                 apartment: house,
@@ -176,7 +169,9 @@ const AddAddressDetails = () => {
                 longitude: lng,
                 contact_name: name,
                 contact_phone: phone
-            });
+            };
+            console.log("Creating address with payload:", insertPayload);
+            const newAddr = await createAddress(insertPayload);
 
             // For immediate UI update (Active Address), we construct a UI object
             // Save as current active address in local storage for session persistence
@@ -200,9 +195,12 @@ const AddAddressDetails = () => {
         toast.success(isEditMode ? "Address updated!" : "Address saved successfully!");
         navigate("/home", { replace: true });
 
-    } catch (err) {
+    } catch (err: any) {
         console.error("Failed to save address", err);
-        toast.error("Failed to save address. Please try again.");
+        if (err.message) console.error("Error Message:", err.message);
+        if (err.details) console.error("Error Details:", err.details);
+        if (err.hint) console.error("Error Hint:", err.hint);
+        toast.error(`Failed to save address: ${err.message || "Unknown error"}`);
     }
   };
 
