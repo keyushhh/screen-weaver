@@ -112,20 +112,11 @@ const AddAddressDetails = () => {
     const tagToSave = overrideTag || (selectedTag === "Other" && customLabel ? customLabel : selectedTag);
 
     try {
-        // Debug: Check Auth State (Directly from server to verify token validity)
-        const { data: authData, error: authError } = await supabase.auth.getUser();
-        console.log("Supabase Auth User (getUser):", authData?.user?.id, "Error:", authError);
-
         const { data: { session } } = await supabase.auth.getSession();
         if (!session?.user) {
             toast.error("You must be logged in to save an address.");
             return;
         }
-        console.log("Session User ID:", session.user.id);
-
-        // Debug: Verify RLS Select Permission (Proof of life for RLS)
-        const { data: testData, error: testError } = await supabase.from('addresses').select('id').limit(1);
-        console.log("Supabase Test Select (Proof of RLS):", testData, "Error:", testError);
 
         // Get lat/lng from location state if available (from map selection)
         // AddAddress page passes { lat, lng } in state.
@@ -149,9 +140,6 @@ const AddAddressDetails = () => {
         const lat = Number(locState?.lat) || 0;
         const lng = Number(locState?.lng) || 0;
 
-        // Log Current User ID for debug
-        console.log("Current User ID:", session.user.id);
-
         if (isEditMode && initialState?.id) {
             const updatePayload = {
                 label: tagToSave,
@@ -165,7 +153,6 @@ const AddAddressDetails = () => {
                 contact_phone: phone,
                 ...(lat !== 0 && lng !== 0 ? { latitude: lat, longitude: lng } : {})
             };
-            console.log("Updating address with payload:", updatePayload);
             await updateAddress(initialState.id, updatePayload);
         } else {
             const insertPayload = {
@@ -182,7 +169,6 @@ const AddAddressDetails = () => {
                 contact_name: name,
                 contact_phone: phone
             };
-            console.log("Creating address with payload:", insertPayload);
             const newAddr = await createAddress(insertPayload);
 
             // For immediate UI update (Active Address), we construct a UI object
@@ -209,9 +195,6 @@ const AddAddressDetails = () => {
 
     } catch (err: any) {
         console.error("Failed to save address", err);
-        if (err.message) console.error("Error Message:", err.message);
-        if (err.details) console.error("Error Details:", err.details);
-        if (err.hint) console.error("Error Hint:", err.hint);
         toast.error(`Failed to save address: ${err.message || "Unknown error"}`);
     }
   };
