@@ -1,5 +1,12 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
+interface UserProfile {
+  id: string;
+  phone: string | null;
+  name: string | null;
+  created_at?: string;
+}
+
 interface UserState {
   phoneNumber: string;
   name: string;
@@ -10,6 +17,7 @@ interface UserState {
   kycSubmittedAt: number | null;
   mpin: string | null;
   biometricEnabled: boolean;
+  profile: UserProfile | null;
 }
 
 interface UserContextType extends UserState {
@@ -21,6 +29,7 @@ interface UserContextType extends UserState {
   setKycStatus: (status: 'incomplete' | 'pending' | 'complete') => void;
   setMpin: (mpin: string) => void;
   setBiometricEnabled: (enabled: boolean) => void;
+  setProfile: (profile: UserProfile | null) => void;
   submitKyc: () => void;
   resetForDemo: () => void;
 }
@@ -37,6 +46,7 @@ const defaultState: UserState = {
   kycSubmittedAt: null,
   mpin: null,
   biometricEnabled: false,
+  profile: null,
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -102,6 +112,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setState(prev => ({ ...prev, biometricEnabled: enabled }));
   };
 
+  const setProfile = (profile: UserProfile | null) => {
+    setState(prev => ({ ...prev, profile }));
+  };
+
   const submitKyc = () => {
     setState(prev => ({
       ...prev,
@@ -115,22 +129,23 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem(USER_STORAGE_KEY);
   };
 
+  const contextValue = {
+    ...state,
+    setPhoneNumber,
+    setName,
+    setEmail,
+    setEmailVerified,
+    setProfileImage,
+    setKycStatus,
+    setMpin,
+    setBiometricEnabled,
+    setProfile,
+    submitKyc,
+    resetForDemo,
+  };
+
   return (
-    <UserContext.Provider
-      value={{
-        ...state,
-        setPhoneNumber,
-        setName,
-        setEmail,
-        setEmailVerified,
-        setProfileImage,
-        setKycStatus,
-        setMpin,
-        setBiometricEnabled,
-        submitKyc,
-        resetForDemo,
-      }}
-    >
+    <UserContext.Provider value={contextValue}>
       {children}
     </UserContext.Provider>
   );

@@ -22,7 +22,7 @@ import { supabase } from "@/lib/supabase";
 
 const OnboardingScreen = () => {
   const navigate = useNavigate();
-  const { setPhoneNumber: savePhoneNumber, setMpin: saveMpin, setBiometricEnabled: saveBiometricEnabled } = useUser();
+  const { setPhoneNumber: savePhoneNumber, setMpin: saveMpin, setBiometricEnabled: saveBiometricEnabled, setProfile } = useUser();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [otp, setOtp] = useState("");
   const [showOtpInput, setShowOtpInput] = useState(false);
@@ -131,6 +131,36 @@ const OnboardingScreen = () => {
       }
 
       if (data.session) {
+        const user = data.user;
+        if (user) {
+          // Fetch or create profile
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+
+          if (profileError || !profileData) {
+            // Create new profile
+            const { data: newProfile, error: createError } = await supabase
+              .from('profiles')
+              .insert({
+                id: user.id,
+                phone: phoneToSend, // Use the actual formatted phone we sent to auth
+              })
+              .select()
+              .single();
+
+            if (!createError && newProfile) {
+              setProfile(newProfile);
+              console.log('Profile confirmed:', newProfile);
+            }
+          } else {
+            setProfile(profileData);
+            console.log('Profile confirmed:', profileData);
+          }
+        }
+
         // Save verified phone number to context/localStorage
         // We still save with +91 for consistency in the UI
         savePhoneNumber(`+91 ${phoneNumber}`);
