@@ -112,19 +112,20 @@ const AddAddressDetails = () => {
     const tagToSave = overrideTag || (selectedTag === "Other" && customLabel ? customLabel : selectedTag);
 
     try {
-        // Debug: Check Auth State
+        // Debug: Check Auth State (Directly from server to verify token validity)
         const { data: authData, error: authError } = await supabase.auth.getUser();
-        console.log("Supabase Auth User:", authData?.user, "Error:", authError);
+        console.log("Supabase Auth User (getUser):", authData?.user?.id, "Error:", authError);
 
         const { data: { session } } = await supabase.auth.getSession();
         if (!session?.user) {
             toast.error("You must be logged in to save an address.");
             return;
         }
+        console.log("Session User ID:", session.user.id);
 
-        // Debug: Verify RLS Select Permission
+        // Debug: Verify RLS Select Permission (Proof of life for RLS)
         const { data: testData, error: testError } = await supabase.from('addresses').select('id').limit(1);
-        console.log("Supabase Test Select:", testData, "Error:", testError);
+        console.log("Supabase Test Select (Proof of RLS):", testData, "Error:", testError);
 
         // Get lat/lng from location state if available (from map selection)
         // AddAddress page passes { lat, lng } in state.
