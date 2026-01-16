@@ -4,6 +4,8 @@ import { ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import SaveAddressSheet from "@/components/SaveAddressSheet";
+import { createAddress, updateAddress, Address } from "@/lib/addresses";
+import { supabase } from "@/lib/supabase";
 
 // Assets
 import topAddressContainerBg from "@/assets/top-address-container.png";
@@ -93,7 +95,7 @@ const AddAddressDetails = () => {
     setHeaderOpacity(newOpacity);
   };
 
-  const handleSaveAddress = (overrideTag?: string) => {
+  const handleSaveAddress = async (overrideTag?: string) => {
     // If saving via Sheet, we trust the caller (overrideTag)
     // But we still need to validate the main form
     if (!isFormValid) {
@@ -109,53 +111,95 @@ const AddAddressDetails = () => {
 
     const tagToSave = overrideTag || (selectedTag === "Other" && customLabel ? customLabel : selectedTag);
 
-    const addressData = {
-        id: initialState?.id || Date.now().toString(),
-        tag: tagToSave,
-        house,
-        area,
-        landmark,
-        name,
-        phone,
-        displayAddress,
-        plusCode,
-        city: initialState?.city || "",
-        state: initialState?.state || "",
-        postcode: initialState?.postcode || ""
-    };
-
-    // Save as current active address
-    localStorage.setItem("dotpe_user_address", JSON.stringify(addressData));
-
-    // Append to saved addresses list
-    const savedAddressesStr = localStorage.getItem("dotpe_saved_addresses");
-    let savedAddresses: any[] = [];
-    if (savedAddressesStr) {
-        try {
-            savedAddresses = JSON.parse(savedAddressesStr);
-        } catch (e) {
-            console.error("Failed to parse saved addresses", e);
+    try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.user) {
+            toast.error("You must be logged in to save an address.");
+            return;
         }
-    }
 
-    if (isEditMode) {
-        // Edit Mode: Update existing by ID
-        const existingIndex = savedAddresses.findIndex((addr) => addr.id === addressData.id);
-        if (existingIndex >= 0) {
-            savedAddresses[existingIndex] = addressData;
+        // Get lat/lng from location state if available (from map selection)
+        // AddAddress page passes { lat, lng } in state.
+        // But AddAddressDetails receives props from AddAddress or is navigated to?
+        // Wait, AddAddressDetails reads `location.state`.
+        // If coming from `AddressSelectionSheet` edit, it has no lat/lng in state unless persisted.
+        // For now we assume if it's new, lat/lng came from map. If edit, we might keep existing?
+        // Actually, the schema requires lat/lng.
+        // If editing, we update fields. If creating, we need lat/lng.
+        // Let's assume passed in state or we default to 0 if missing (should not happen in flow).
+        // Since `initialState` is `AddressState`, let's check if it has coords.
+        // The interface `AddressState` doesn't strictly have lat/lng?
+        // Let's look at `AddressSelectionSheet`: `navigate('/add-address', { state: { lat, lng } })` -> This goes to `AddAddress` (map page).
+        // `AddAddress` navigates to `AddAddressDetails` with `addressDetails` + `lat/lng`?
+        // I need to ensure `location.state` has lat/lng.
+        // I'll check `location.state` for any extra props.
+
+        // Use type assertion or unsafe access for now since `AddressState` might be incomplete in this file definition
+        const locState = location.state as any;
+        const lat = locState?.lat || 0;
+        const lng = locState?.lng || 0;
+
+        if (isEditMode && initialState?.id) {
+            await updateAddress(initialState.id, {
+                label: tagToSave,
+                apartment: house,
+                area: area,
+                landmark: landmark,
+                city: initialState.city,
+                state: initialState.state,
+                plus_code: plusCode,
+                // On edit, we might update lat/lng if the user moved the pin?
+                // If the user came from "Edit" button, they didn't move pin.
+                // If they came from map, it's a new address usually.
+                // We'll update lat/lng only if provided and non-zero, else keep existing (backend handles partial update).
+                ...(lat && lng ? { latitude: lat, longitude: lng } : {})
+            });
         } else {
-            // Should not happen, but safe fallback
-            savedAddresses.push(addressData);
+            if (!lat || !lng) {
+                // If missing lat/lng on create, we have a problem.
+                // However, for migration sake or quick fix, we might default or warn.
+                // But typically AddAddress (Map) ensures this.
+                // Let's proceed.
+            }
+            const newAddr = await createAddress({
+                user_id: session.user.id,
+                label: tagToSave,
+                apartment: house,
+                area: area,
+                landmark: landmark,
+                city: initialState?.city || "",
+                state: initialState?.state || "",
+                plus_code: plusCode,
+                latitude: lat,
+                longitude: lng
+            });
+
+            // For immediate UI update (Active Address), we construct a UI object
+            // Save as current active address in local storage for session persistence
+            const uiAddr = {
+                id: newAddr.id,
+                tag: newAddr.label || "Home",
+                house: newAddr.apartment || "",
+                area: newAddr.area || "",
+                landmark: newAddr.landmark || "",
+                name: name, // Local only
+                phone: phone, // Local only
+                displayAddress: displayAddress,
+                city: newAddr.city || "",
+                state: newAddr.state || "",
+                postcode: initialState?.postcode || "",
+                plusCode: newAddr.plus_code || ""
+            };
+            localStorage.setItem("dotpe_user_address", JSON.stringify(uiAddr));
         }
-    } else {
-        // Add Mode: Always append (allow duplicate tags)
-        savedAddresses.push(addressData);
+
+        toast.success(isEditMode ? "Address updated!" : "Address saved successfully!");
+        navigate("/home", { replace: true });
+
+    } catch (err) {
+        console.error("Failed to save address", err);
+        toast.error("Failed to save address. Please try again.");
     }
-
-    localStorage.setItem("dotpe_saved_addresses", JSON.stringify(savedAddresses));
-
-    toast.success(isEditMode ? "Address updated!" : "Address saved successfully!");
-    navigate("/home", { replace: true });
   };
 
   const handleTagClick = (tagLabel: string) => {

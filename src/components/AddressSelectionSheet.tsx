@@ -4,6 +4,8 @@ import { X, Search } from "lucide-react";
 import { forwardGeocode } from "@/utils/geoUtils";
 import { Geolocation } from '@capacitor/geolocation';
 import { reverseGeocode } from "@/utils/geoUtils";
+import { fetchAddresses, deleteAddress, Address } from "@/lib/addresses";
+import { supabase } from "@/lib/supabase";
 
 // Assets
 import locationIcon from "@/assets/location-pin.svg"; // Fallback, will try to use specific assets
@@ -20,15 +22,16 @@ import shareIcon from "@/assets/share.svg";
 import deleteIcon from "@/assets/delete.svg";
 import selectedAddressBg from "@/assets/selected-address.png";
 
-interface SavedAddress {
+// Adapted to match UI needs while using DB Address type
+interface SavedAddress extends Partial<Address> {
   id?: string;
-  tag: string;
-  house: string;
-  area: string;
+  tag: string; // Mapped from label
+  house: string; // Mapped from apartment
+  area: string; // Mapped from area
   landmark?: string;
-  name: string;
-  phone: string;
-  displayAddress: string;
+  name: string; // Local only
+  phone: string; // Local only
+  displayAddress: string; // Constructed
   city: string;
   state: string;
   postcode: string;
@@ -79,51 +82,47 @@ const AddressSelectionSheet: React.FC<AddressSelectionSheetProps> = ({ isOpen, o
 
   // Load addresses
   useEffect(() => {
-    if (isOpen) {
-        // Load Saved Addresses
-        const savedStr = localStorage.getItem("dotpe_saved_addresses");
-        if (savedStr) {
-            try {
-                let list = JSON.parse(savedStr);
-                // Migration: Ensure all have IDs
-                let changed = false;
-                list = list.map((addr: any) => {
-                    if (!addr.id) {
-                        addr.id = Date.now().toString() + Math.random().toString().slice(2, 6);
-                        changed = true;
-                    }
-                    return addr;
-                });
-                if (changed) {
-                    localStorage.setItem("dotpe_saved_addresses", JSON.stringify(list));
-                }
-                setSavedAddresses(list);
-            } catch (e) {
-                console.error("Failed to parse saved addresses", e);
-            }
-        } else {
-            // Backward compatibility: check dotpe_user_address if list is empty
-            const single = localStorage.getItem("dotpe_user_address");
-            if (single) {
-                try {
-                    const parsed = JSON.parse(single);
-                    if (!parsed.id) {
-                         parsed.id = Date.now().toString();
-                    }
-                    setSavedAddresses([parsed]);
-                    localStorage.setItem("dotpe_saved_addresses", JSON.stringify([parsed]));
-                } catch(e) {}
-            }
+    const loadAddresses = async () => {
+      if (isOpen) {
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.user) {
+            const data = await fetchAddresses(session.user.id);
+
+            // Map DB Address to SavedAddress UI Model
+            const mapped: SavedAddress[] = data.map(d => ({
+              id: d.id,
+              tag: d.label || "Home",
+              house: d.apartment || "",
+              area: d.area || "",
+              landmark: d.landmark || "",
+              name: "", // Not stored in DB
+              phone: "", // Not stored in DB
+              displayAddress: `${d.apartment ? d.apartment + ', ' : ''}${d.area || ''}${d.city ? ', ' + d.city : ''}`,
+              city: d.city || "",
+              state: d.state || "",
+              postcode: "", // Not stored
+              plusCode: d.plus_code || "",
+              latitude: d.latitude,
+              longitude: d.longitude
+            }));
+            setSavedAddresses(mapped);
+          }
+        } catch (e) {
+          console.error("Failed to load addresses", e);
         }
 
-        // Load Selected Address
+        // Load Selected Address from local state only (active session)
+        // We still keep the *currently selected* address in local storage for persistence across reloads during a session
         const current = localStorage.getItem("dotpe_user_address");
         if (current) {
             try {
                 setSelectedAddress(JSON.parse(current));
             } catch (e) {}
         }
-    }
+      }
+    };
+    loadAddresses();
   }, [isOpen]);
 
   // Search Logic
@@ -202,29 +201,33 @@ const AddressSelectionSheet: React.FC<AddressSelectionSheetProps> = ({ isOpen, o
       onAddressSelect(addr);
   };
 
-  const handleDelete = (e: React.MouseEvent, index: number) => {
+  const handleDelete = async (e: React.MouseEvent, index: number) => {
       e.stopPropagation();
-      const newList = [...savedAddresses];
-      const removed = newList.splice(index, 1)[0];
-      setSavedAddresses(newList);
-      localStorage.setItem("dotpe_saved_addresses", JSON.stringify(newList));
+      const addrToDelete = savedAddresses[index];
+      if (!addrToDelete.id) return;
 
-      // If list becomes empty, clear active address
-      if (newList.length === 0) {
-          localStorage.removeItem("dotpe_user_address");
-          setSelectedAddress(null);
-          onAddressSelect(null);
-      } else if (selectedAddress) {
-          // Check if deleted was selected
-          const isRemovedSelected = selectedAddress.id && removed.id
-             ? selectedAddress.id === removed.id
-             : JSON.stringify(selectedAddress) === JSON.stringify(removed);
+      try {
+        await deleteAddress(addrToDelete.id);
 
-          if (isRemovedSelected) {
-               localStorage.removeItem("dotpe_user_address");
-               setSelectedAddress(null);
-               onAddressSelect(null);
-          }
+        const newList = [...savedAddresses];
+        const removed = newList.splice(index, 1)[0];
+        setSavedAddresses(newList);
+
+        // If list becomes empty, clear active address
+        if (newList.length === 0) {
+            localStorage.removeItem("dotpe_user_address");
+            setSelectedAddress(null);
+            onAddressSelect(null);
+        } else if (selectedAddress) {
+            // Check if deleted was selected
+            if (selectedAddress.id === removed.id) {
+                 localStorage.removeItem("dotpe_user_address");
+                 setSelectedAddress(null);
+                 onAddressSelect(null);
+            }
+        }
+      } catch (err) {
+        console.error("Failed to delete address", err);
       }
   };
 
