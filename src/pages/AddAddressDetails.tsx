@@ -148,6 +148,8 @@ const AddAddressDetails = () => {
                 city: initialState.city,
                 state: initialState.state,
                 plus_code: plusCode,
+                contact_name: name,
+                contact_phone: phone,
                 // On edit, we might update lat/lng if the user moved the pin?
                 // If the user came from "Edit" button, they didn't move pin.
                 // If they came from map, it's a new address usually.
@@ -171,7 +173,9 @@ const AddAddressDetails = () => {
                 state: initialState?.state || "",
                 plus_code: plusCode,
                 latitude: lat,
-                longitude: lng
+                longitude: lng,
+                contact_name: name,
+                contact_phone: phone
             });
 
             // For immediate UI update (Active Address), we construct a UI object

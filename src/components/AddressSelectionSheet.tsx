@@ -96,8 +96,8 @@ const AddressSelectionSheet: React.FC<AddressSelectionSheetProps> = ({ isOpen, o
               house: d.apartment || "",
               area: d.area || "",
               landmark: d.landmark || "",
-              name: "", // Not stored in DB
-              phone: "", // Not stored in DB
+              name: d.contact_name || "",
+              phone: d.contact_phone || "",
               displayAddress: `${d.apartment ? d.apartment + ', ' : ''}${d.area || ''}${d.city ? ', ' + d.city : ''}`,
               city: d.city || "",
               state: d.state || "",
