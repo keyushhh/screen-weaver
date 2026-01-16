@@ -18,6 +18,7 @@ import mpinInputError from "@/assets/mpin-input-error.png";
 import buttonBiometricBg from "@/assets/button-biometric-bg.png";
 import biometricIcon from "@/assets/biometric-icon.png";
 import { isWeakMpin } from "@/utils/validationUtils";
+import { supabase } from "@/lib/supabase";
 
 const OnboardingScreen = () => {
   const navigate = useNavigate();
@@ -83,25 +84,67 @@ const OnboardingScreen = () => {
       return;
     }
     setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setIsLoading(false);
-    setShowOtpInput(true);
-    setResendTimer(20);
+
+    try {
+      // Special handling for the test number to match Supabase config exactly
+      const phoneToSend = phoneNumber === "9999999999" ? phoneNumber : `+91${phoneNumber}`;
+
+      const { error } = await supabase.auth.signInWithOtp({
+        phone: phoneToSend,
+      });
+
+      if (error) {
+        setPhoneError(error.message);
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(false);
+      setShowOtpInput(true);
+      setResendTimer(20);
+    } catch (err) {
+      console.error(err);
+      setPhoneError("Something went wrong. Please try again.");
+      setIsLoading(false);
+    }
   };
 
   const handleVerifyOTP = async () => {
     setOtpError("");
-    if (otp !== "123456") {
-      setOtpError("That code's off target. Double-check your SMS.");
-      return;
-    }
+
     setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setIsLoading(false);
-    // Save verified phone number to context/localStorage
-    savePhoneNumber(`+91 ${phoneNumber}`);
-    setShowOtpInput(false);
-    setShowMpinSetup(true);
+
+    try {
+      // Special handling for the test number to match Supabase config exactly
+      const phoneToSend = phoneNumber === "9999999999" ? phoneNumber : `+91${phoneNumber}`;
+
+      const { data, error } = await supabase.auth.verifyOtp({
+        phone: phoneToSend,
+        token: otp,
+        type: 'sms',
+      });
+
+      if (error) {
+        setOtpError(error.message || "That code's off target. Double-check your SMS.");
+        setIsLoading(false);
+        return;
+      }
+
+      if (data.session) {
+        // Save verified phone number to context/localStorage
+        // We still save with +91 for consistency in the UI
+        savePhoneNumber(`+91 ${phoneNumber}`);
+        setShowOtpInput(false);
+        setShowMpinSetup(true);
+      } else {
+        setOtpError("Session validation failed. Please try again.");
+      }
+    } catch (err) {
+      console.error(err);
+      setOtpError("Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleMpinChange = (val: string) => {
