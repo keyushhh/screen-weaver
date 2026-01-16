@@ -88,6 +88,10 @@ test.describe('Address Management Flow', () => {
     // Check if "Work" address is visible
     await expect(page.getByText('Tech Park').first()).toBeVisible();
 
+    // Verify contact phone is displayed (checking data persistence)
+    // The sheet displays "Phone number: <phone>"
+    await expect(page.getByText('Phone number: 9876543210')).toBeVisible();
+
     // 7. Delete the address
     // Find the delete button for the address we just made.
     // It's usually a trash icon inside the address card.

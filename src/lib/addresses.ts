@@ -12,12 +12,14 @@ export interface Address {
   latitude: number;
   longitude: number;
   plus_code: string | null;
+  contact_name: string | null;
+  contact_phone: string | null;
   created_at?: string;
 }
 
 // Helper to map UI fields to DB fields
-// UI uses: tag, house, area, landmark, city, state, plusCode, lat, lng
-// DB uses: label, apartment, area, landmark, city, state, plus_code, latitude, longitude
+// UI uses: tag, house, area, landmark, city, state, plusCode, lat, lng, name, phone
+// DB uses: label, apartment, area, landmark, city, state, plus_code, latitude, longitude, contact_name, contact_phone
 
 export const fetchAddresses = async (userId: string) => {
   const { data, error } = await supabase
