@@ -7,6 +7,9 @@ test.describe('Authentication Flow', () => {
   });
 
   test('should successfully login with test phone number and OTP', async ({ page }) => {
+    // Setup console listener for debugging
+    page.on('console', msg => console.log(`BROWSER LOG: ${msg.type()}: ${msg.text()}`));
+
     // Wait for the "Let's get started!" text
     await expect(page.getByText("Let's get started!")).toBeVisible();
 
@@ -26,20 +29,23 @@ test.describe('Authentication Flow', () => {
     await expect(page.getByText('+91 9999999999')).toBeVisible();
 
     // Enter OTP "123456"
-    // Since InputOTP might be complex, typing generally works if focus is correct.
-    // The previous error was about the button, so typing likely worked.
     await page.keyboard.type('123456');
 
-    // Click Continue - Be strict
+    // Click Continue
     const continueButton = page.getByRole('button', { name: 'Continue', exact: true });
-
-    // Wait for it to be enabled (it might take a moment after typing)
     await expect(continueButton).toBeEnabled();
     await continueButton.click();
 
-    // Expect transition to MPIN setup screen
-    // This confirms the verifyOtp call succeeded and we moved to the next screen
-    await expect(page.getByText('Secure your account')).toBeVisible({ timeout: 15000 });
+    // Check for error messages if we don't succeed
+    try {
+        await expect(page.getByText('Secure your account')).toBeVisible({ timeout: 15000 });
+    } catch (e) {
+        // Look for error text in the UI
+        const errorText = await page.locator('.text-red-500').allTextContents();
+        console.log('UI Errors found:', errorText);
+        throw e;
+    }
+
     await expect(page.getByText('Create a secure 4 digit MPIN')).toBeVisible();
   });
 });
