@@ -21,6 +21,9 @@ import editIcon from "@/assets/edit.svg";
 import shareIcon from "@/assets/share.svg";
 import deleteIcon from "@/assets/delete.svg";
 import selectedAddressBg from "@/assets/selected-address.png";
+import popBgDefault from "@/assets/pop-bg-default.png";
+import buttonCancelWide from "@/assets/button-cancel-wide.png";
+import { useCustomToaster } from "@/contexts/CustomToasterContext";
 
 // Adapted to match UI needs while using DB Address type
 interface SavedAddress extends Partial<Address> {
@@ -46,11 +49,13 @@ interface AddressSelectionSheetProps {
 
 const AddressSelectionSheet: React.FC<AddressSelectionSheetProps> = ({ isOpen, onClose, onAddressSelect }) => {
   const navigate = useNavigate();
+  const { showToaster } = useCustomToaster();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<SavedAddress | null>(null);
   const [currentLocationName, setCurrentLocationName] = useState<string>("Fetching...");
+  const [addressToDelete, setAddressToDelete] = useState<SavedAddress | null>(null);
 
   // Fetch Current Location Name on Mount/Open
   useEffect(() => {
@@ -201,26 +206,40 @@ const AddressSelectionSheet: React.FC<AddressSelectionSheetProps> = ({ isOpen, o
       onAddressSelect(addr);
   };
 
-  const handleDelete = async (e: React.MouseEvent, index: number) => {
+  const handleDelete = (e: React.MouseEvent, index: number) => {
       e.stopPropagation();
-      const addrToDelete = savedAddresses[index];
-      if (!addrToDelete.id) return;
+      setAddressToDelete(savedAddresses[index]);
+  };
+
+  const confirmDelete = async () => {
+      if (!addressToDelete || !addressToDelete.id) return;
 
       try {
-        await deleteAddress(addrToDelete.id);
+        await deleteAddress(addressToDelete.id);
 
-        const newList = [...savedAddresses];
-        const removed = newList.splice(index, 1)[0];
+        // Show Toaster
+        // "Nisha Paliwal | C102..." -> we need the name from contact info
+        // Requirement: "Nisha Paliwal has been successfully deleted."
+        const name = addressToDelete.name || "Address";
+        showToaster(`${name} has been successfully deleted.`);
+
+        const newList = savedAddresses.filter(a => a.id !== addressToDelete.id);
         setSavedAddresses(newList);
+        setAddressToDelete(null);
 
-        // If list becomes empty, clear active address
+        // If list becomes empty, clear active address and maybe redirect
         if (newList.length === 0) {
             localStorage.removeItem("dotpe_user_address");
             setSelectedAddress(null);
             onAddressSelect(null);
+            // Requirement: "redirect the user to the address selection screen, or back home (if there's 0 addresses saved after the deletion)"
+            // Since we are IN the address selection screen (sheet), if it's empty, we might want to close it and go home?
+            // "back home (if there's 0 addresses...)" implies leaving the sheet context if it was opened from somewhere else, or just going to /home
+            navigate('/home');
+            onClose();
         } else if (selectedAddress) {
             // Check if deleted was selected
-            if (selectedAddress.id === removed.id) {
+            if (selectedAddress.id === addressToDelete.id) {
                  localStorage.removeItem("dotpe_user_address");
                  setSelectedAddress(null);
                  onAddressSelect(null);
@@ -435,6 +454,77 @@ const AddressSelectionSheet: React.FC<AddressSelectionSheetProps> = ({ isOpen, o
             </div>
 
         </div>
+
+        {/* Delete Confirmation Popup */}
+        {addressToDelete && (
+            <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+                {/* Backdrop */}
+                <div
+                    className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                    onClick={() => setAddressToDelete(null)}
+                />
+
+                {/* Modal */}
+                <div
+                    className="relative flex flex-col items-center"
+                    style={{
+                        width: '362px',
+                        height: '270px',
+                        backgroundImage: `url(${popBgDefault})`,
+                        backgroundSize: '100% 100%',
+                        backgroundRepeat: 'no-repeat',
+                        paddingTop: '20px',
+                        paddingBottom: '20px',
+                        paddingLeft: '17px',
+                        paddingRight: '17px',
+                        borderRadius: '32px'
+                    }}
+                >
+                    {/* Header */}
+                    <h2 className="text-white text-[18px] font-bold font-satoshi text-center leading-tight">
+                        Are you sure you want to<br/>delete this address?
+                    </h2>
+
+                    <div className="h-[16px]" />
+
+                    {/* Body */}
+                    <p className="text-white text-[14px] font-regular font-satoshi text-center px-2 line-clamp-2">
+                        {addressToDelete.name} | {addressToDelete.displayAddress}
+                    </p>
+
+                    <div className="h-[24px]" />
+
+                    {/* CTA 1: Yes, Delete */}
+                    <button
+                        onClick={confirmDelete}
+                        className="w-full h-[48px] rounded-full flex items-center justify-center text-white text-[16px] font-bold font-satoshi"
+                        style={{
+                            backgroundColor: '#FF1E1E',
+                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.25)'
+                        }}
+                    >
+                        Yes, Delete
+                    </button>
+
+                    <div className="h-[10px]" />
+
+                    {/* CTA 2: No */}
+                    <button
+                        onClick={() => setAddressToDelete(null)}
+                        className="w-full h-[48px] relative flex items-center justify-center"
+                    >
+                        <img
+                            src={buttonCancelWide}
+                            alt="No"
+                            className="absolute inset-0 w-full h-full object-fill"
+                        />
+                        <span className="relative z-10 text-white text-[16px] font-bold font-satoshi">
+                            No
+                        </span>
+                    </button>
+                </div>
+            </div>
+        )}
     </div>
   );
 };
