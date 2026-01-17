@@ -76,16 +76,14 @@ const App = () => {
                   });
               }
           }
-          // Check for ?code=... (PKCE)
-          else if (url.includes('code=')) {
-              // This is tricky as we need to detect query params vs fragment
-              // Capacitor URL might be dotpe://auth-callback?code=...
-              const query = url.split('?')[1];
-              if (query) {
-                  const params = new URLSearchParams(query);
-                  const code = params.get('code');
-                  if (code) {
-                       await supabase.auth.exchangeCodeForSession(code);
+          // Check for ?code=... (PKCE) or #code=...
+          else {
+              const codeMatch = url.match(/[?#&]code=([^&]+)/);
+              if (codeMatch && codeMatch[1]) {
+                  const code = codeMatch[1];
+                  const { error } = await supabase.auth.exchangeCodeForSession(code);
+                  if (error) {
+                      console.error("Auth error:", error);
                   }
               }
           }

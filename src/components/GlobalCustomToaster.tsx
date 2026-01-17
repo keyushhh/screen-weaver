@@ -2,15 +2,11 @@ import React from 'react';
 import { useCustomToaster } from '@/contexts/CustomToasterContext';
 import toasterBg from '@/assets/toaster-bg.png';
 import trashIcon from '@/assets/trash.svg';
-import correctIcon from '@/assets/correct.svg';
 
 const GlobalCustomToaster: React.FC = () => {
-  const { isVisible, message, type } = useCustomToaster();
+  const { isVisible, message } = useCustomToaster();
 
   if (!isVisible) return null;
-
-  const icon = type === 'success' ? correctIcon : trashIcon;
-  const altText = type === 'success' ? 'Success' : 'Deleted';
 
   return (
     <div className="fixed bottom-8 left-0 right-0 z-[100] flex justify-center pointer-events-none">
@@ -26,7 +22,7 @@ const GlobalCustomToaster: React.FC = () => {
         }}
       >
         <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-            <img src={icon} alt={altText} className="w-full h-full" />
+            <img src={trashIcon} alt="Deleted" className="w-full h-full" />
         </div>
         <div className="w-[8px]" /> {/* Spacer */}
         <span className="text-white text-[14px] font-medium font-satoshi truncate">

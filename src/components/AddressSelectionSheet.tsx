@@ -221,7 +221,7 @@ const AddressSelectionSheet: React.FC<AddressSelectionSheetProps> = ({ isOpen, o
         // "Nisha Paliwal | C102..." -> we need the name from contact info
         // Requirement: "Nisha Paliwal has been successfully deleted."
         const name = addressToDelete.name || "Address";
-        showToaster(`${name} has been successfully deleted.`, 'delete');
+        showToaster(`${name} has been successfully deleted.`);
 
         const newList = savedAddresses.filter(a => a.id !== addressToDelete.id);
         setSavedAddresses(newList);
