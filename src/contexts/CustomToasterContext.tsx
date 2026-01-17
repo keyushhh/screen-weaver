@@ -1,9 +1,12 @@
 import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 
+export type ToasterType = 'delete' | 'success';
+
 interface CustomToasterContextType {
   isVisible: boolean;
   message: string;
-  showToaster: (message: string) => void;
+  type: ToasterType;
+  showToaster: (message: string, type?: ToasterType) => void;
   hideToaster: () => void;
 }
 
@@ -12,9 +15,11 @@ const CustomToasterContext = createContext<CustomToasterContextType | undefined>
 export const CustomToasterProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [message, setMessage] = useState('');
+  const [type, setType] = useState<ToasterType>('delete');
 
-  const showToaster = useCallback((msg: string) => {
+  const showToaster = useCallback((msg: string, toasterType: ToasterType = 'delete') => {
     setMessage(msg);
+    setType(toasterType);
     setIsVisible(true);
     // Auto hide after 3 seconds
     setTimeout(() => {
@@ -27,7 +32,7 @@ export const CustomToasterProvider: React.FC<{ children: ReactNode }> = ({ child
   }, []);
 
   return (
-    <CustomToasterContext.Provider value={{ isVisible, message, showToaster, hideToaster }}>
+    <CustomToasterContext.Provider value={{ isVisible, message, type, showToaster, hideToaster }}>
       {children}
     </CustomToasterContext.Provider>
   );
