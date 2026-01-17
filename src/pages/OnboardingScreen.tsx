@@ -137,6 +137,8 @@ const OnboardingScreen = () => {
           .eq('id', user.id)
           .single();
 
+        const socialName = user.user_metadata?.full_name || user.user_metadata?.name || user.user_metadata?.preferred_username;
+
         if (profileError || !profileData) {
           // Create new profile
           const { data: newProfile, error: createError } = await supabase
@@ -144,7 +146,7 @@ const OnboardingScreen = () => {
             .insert({
               id: user.id,
               phone: user.phone || null,
-              name: user.user_metadata?.full_name || user.email || null // Capture basic info from OAuth if available
+              name: socialName || user.email || null
             })
             .select()
             .single();
@@ -154,8 +156,25 @@ const OnboardingScreen = () => {
             console.log('Profile confirmed:', newProfile);
           }
         } else {
-          setProfile(profileData);
-          console.log('Profile confirmed:', profileData);
+            // Check if existing profile lacks a name but we have one from social login
+            if (!profileData.name && socialName) {
+                const { data: updatedProfile, error: updateError } = await supabase
+                    .from('profiles')
+                    .update({ name: socialName })
+                    .eq('id', user.id)
+                    .select()
+                    .single();
+
+                if (!updateError && updatedProfile) {
+                    setProfile(updatedProfile);
+                    console.log('Profile updated with social name:', updatedProfile);
+                } else {
+                    setProfile(profileData);
+                }
+            } else {
+                setProfile(profileData);
+                console.log('Profile confirmed:', profileData);
+            }
         }
       }
 
