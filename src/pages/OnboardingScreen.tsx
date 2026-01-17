@@ -237,7 +237,7 @@ const OnboardingScreen = () => {
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: `${window.location.protocol}//${window.location.host}/`
+                    redirectTo: `dotpe://auth-callback`
                 }
             });
             if (error) throw error;

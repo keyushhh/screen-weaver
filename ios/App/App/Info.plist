@@ -51,5 +51,16 @@
     <string>We need your location to show available delivery addresses nearby.</string>
     <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
     <string>We need your location to show available delivery addresses nearby.</string>
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLName</key>
+            <string>com.dotpe.customer</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>dotpe</string>
+            </array>
+        </dict>
+    </array>
 </dict>
 </plist>

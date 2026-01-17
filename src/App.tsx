@@ -3,6 +3,9 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter, Routes, Route } from "react-router-dom";
+import { App as CapacitorApp } from '@capacitor/app';
+import { useEffect } from "react";
+import { supabase } from "./lib/supabase";
 import { UserProvider } from "./contexts/UserContext";
 import { CustomToasterProvider } from "./contexts/CustomToasterContext";
 import GlobalCustomToaster from "./components/GlobalCustomToaster";
@@ -48,7 +51,53 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const App = () => (
+const App = () => {
+  useEffect(() => {
+    // Handle deep links for OAuth
+    const listener = CapacitorApp.addListener('appUrlOpen', async ({ url }) => {
+      if (url.startsWith('dotpe://')) {
+          // Extract params from fragment (#) or query (?)
+          // Supabase usually sends params in fragment for implicit flow
+          // But for PKCE flow (default in v2) it sends 'code' in query?
+          // Let's handle generic case:
+
+          // Check for #access_token=...
+          if (url.includes('access_token') && url.includes('refresh_token')) {
+              // Parse fragment
+              const fragment = url.split('#')[1];
+              const params = new URLSearchParams(fragment);
+              const access_token = params.get('access_token');
+              const refresh_token = params.get('refresh_token');
+
+              if (access_token && refresh_token) {
+                  await supabase.auth.setSession({
+                      access_token,
+                      refresh_token
+                  });
+              }
+          }
+          // Check for ?code=... (PKCE)
+          else if (url.includes('code=')) {
+              // This is tricky as we need to detect query params vs fragment
+              // Capacitor URL might be dotpe://auth-callback?code=...
+              const query = url.split('?')[1];
+              if (query) {
+                  const params = new URLSearchParams(query);
+                  const code = params.get('code');
+                  if (code) {
+                       await supabase.auth.exchangeCodeForSession(code);
+                  }
+              }
+          }
+      }
+    });
+
+    return () => {
+        listener.then(handle => handle.remove());
+    };
+  }, []);
+
+  return (
   <QueryClientProvider client={queryClient}>
     <UserProvider>
       <CustomToasterProvider>
@@ -103,6 +152,7 @@ const App = () => (
       </CustomToasterProvider>
     </UserProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;
