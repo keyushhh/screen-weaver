@@ -51,6 +51,23 @@ const OnboardingScreen = () => {
     }
   }, [resendTimer]);
 
+  // Check for existing session (e.g. returning from Google OAuth)
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        handleSession(session.user);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+         // handleSession(session.user); // Optional: Avoid double-trigger if getSession handles it, but good for real-time updates
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   // Validation Logic
   useEffect(() => {
     // Reset success/error on change
@@ -111,6 +128,46 @@ const OnboardingScreen = () => {
     }
   };
 
+  const handleSession = async (user: any) => {
+      if (user) {
+        // Fetch or create profile
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (profileError || !profileData) {
+          // Create new profile
+          const { data: newProfile, error: createError } = await supabase
+            .from('profiles')
+            .insert({
+              id: user.id,
+              phone: user.phone || null,
+              name: user.user_metadata?.full_name || user.email || null // Capture basic info from OAuth if available
+            })
+            .select()
+            .single();
+
+          if (!createError && newProfile) {
+            setProfile(newProfile);
+            console.log('Profile confirmed:', newProfile);
+          }
+        } else {
+          setProfile(profileData);
+          console.log('Profile confirmed:', profileData);
+        }
+      }
+
+      // Save verified phone number to context if available (OTP flow)
+      // For Google Auth, phone might be missing, so we skip or handle accordingly
+      if (user.phone) {
+          savePhoneNumber(user.phone);
+      }
+      setShowOtpInput(false);
+      setShowMpinSetup(true);
+  };
+
   const handleVerifyOTP = async () => {
     setOtpError("");
 
@@ -135,41 +192,7 @@ const OnboardingScreen = () => {
       }
 
       if (data.session) {
-        const user = data.user;
-        if (user) {
-          // Fetch or create profile
-          const { data: profileData, error: profileError } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', user.id)
-            .single();
-
-          if (profileError || !profileData) {
-            // Create new profile
-            const { data: newProfile, error: createError } = await supabase
-              .from('profiles')
-              .insert({
-                id: user.id,
-                phone: phoneToSend, // Use the actual formatted phone we sent to auth
-              })
-              .select()
-              .single();
-
-            if (!createError && newProfile) {
-              setProfile(newProfile);
-              console.log('Profile confirmed:', newProfile);
-            }
-          } else {
-            setProfile(profileData);
-            console.log('Profile confirmed:', profileData);
-          }
-        }
-
-        // Save verified phone number to context/localStorage
-        // We still save with +91 for consistency in the UI
-        savePhoneNumber(`+91 ${phoneNumber}`);
-        setShowOtpInput(false);
-        setShowMpinSetup(true);
+        await handleSession(data.user);
       } else {
         setOtpError("Session validation failed. Please try again.");
       }
@@ -207,8 +230,22 @@ const OnboardingScreen = () => {
     navigate("/home");
   };
 
-  const handleSocialLogin = (provider: string) => {
+  const handleSocialLogin = async (provider: string) => {
     console.log(`${provider} Login clicked`);
+    if (provider === "Google") {
+        try {
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: window.location.origin
+                }
+            });
+            if (error) throw error;
+        } catch (error) {
+            console.error("Google login error:", error);
+            setPhoneError("Failed to initiate Google login.");
+        }
+    }
   };
 
   const handlePhoneChange = (val: string) => {
