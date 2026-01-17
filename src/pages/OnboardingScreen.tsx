@@ -86,8 +86,10 @@ const OnboardingScreen = () => {
     setIsLoading(true);
 
     try {
-      // Special handling for the test number to match Supabase config exactly
-      const phoneToSend = phoneNumber === "9999999999" ? phoneNumber : `+91${phoneNumber}`;
+      // Format to strict E.164 (+91XXXXXXXXXX)
+      const digitsOnly = phoneNumber.replace(/\D/g, '');
+      const cleanNumber = digitsOnly.slice(-10); // Take last 10 digits
+      const phoneToSend = `+91${cleanNumber}`;
 
       const { error } = await supabase.auth.signInWithOtp({
         phone: phoneToSend,
@@ -115,8 +117,10 @@ const OnboardingScreen = () => {
     setIsLoading(true);
 
     try {
-      // Special handling for the test number to match Supabase config exactly
-      const phoneToSend = phoneNumber === "9999999999" ? phoneNumber : `+91${phoneNumber}`;
+      // Format to strict E.164 (+91XXXXXXXXXX)
+      const digitsOnly = phoneNumber.replace(/\D/g, '');
+      const cleanNumber = digitsOnly.slice(-10); // Take last 10 digits
+      const phoneToSend = `+91${cleanNumber}`;
 
       const { data, error } = await supabase.auth.verifyOtp({
         phone: phoneToSend,
