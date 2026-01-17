@@ -61,7 +61,7 @@ const OnboardingScreen = () => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
-         // handleSession(session.user); // Optional: Avoid double-trigger if getSession handles it, but good for real-time updates
+         handleSession(session.user);
       }
     });
 

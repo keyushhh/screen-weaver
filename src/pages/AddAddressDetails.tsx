@@ -4,7 +4,6 @@ import { ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import SaveAddressSheet from "@/components/SaveAddressSheet";
-import { useCustomToaster } from "@/contexts/CustomToasterContext";
 import { createAddress, updateAddress, Address } from "@/lib/addresses";
 import { supabase } from "@/lib/supabase";
 
@@ -36,7 +35,6 @@ interface AddressState {
 const AddAddressDetails = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { showToaster } = useCustomToaster();
   const initialState = location.state as AddressState | null;
   const isEditMode = !!initialState?.id;
 
@@ -192,8 +190,7 @@ const AddAddressDetails = () => {
             localStorage.setItem("dotpe_user_address", JSON.stringify(uiAddr));
         }
 
-        // Use custom toaster instead of Sonner
-        showToaster("Address saved successfully.", 'success');
+        toast.success(isEditMode ? "Address updated!" : "Address saved successfully!");
         navigate("/home", { replace: true });
 
     } catch (err: any) {
