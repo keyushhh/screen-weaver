@@ -206,7 +206,7 @@ const OrderCashSummary = () => {
                   payment_mode: 'wallet',
               });
 
-              navigate("/order-cash-success", {
+              navigate(`/order-details/${order.id}`, {
                 state: {
                   totalAmount: totalAmount,
                   savedAddress: savedAddress,
@@ -249,7 +249,7 @@ const OrderCashSummary = () => {
                           payment_mode: 'wallet',
                       });
 
-                      navigate("/order-cash-success", {
+                      navigate(`/order-details/${order.id}`, {
                         state: {
                           totalAmount: totalAmount,
                           savedAddress: updatedAddr,
