@@ -4,7 +4,7 @@ import { Eye, EyeOff, ChevronDown } from "lucide-react";
 import Map, { Marker, Source, Layer, LineLayer } from "react-map-gl/maplibre";
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { OpenLocationCode } from "open-location-code";
-import { fetchRecentOrders, fetchActiveOrder, Order } from "@/lib/orders";
+import { fetchRecentOrders, fetchActiveOrders, Order } from "@/lib/orders";
 import { supabase } from "@/lib/supabase";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import addIcon from "@/assets/add-icon.svg";
@@ -74,8 +74,9 @@ const Homepage = () => {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
             try {
-                const active = await fetchActiveOrder(session.user.id);
-                setActiveOrder(active);
+                const activeOrders = await fetchActiveOrders(session.user.id);
+                // Homepage only shows one active order banner (the latest one)
+                setActiveOrder(activeOrders.length > 0 ? activeOrders[0] : null);
 
                 const recent = await fetchRecentOrders(session.user.id);
                 setTransactionHistory(recent);

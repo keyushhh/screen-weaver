@@ -17,7 +17,7 @@ import closeIcon from "@/assets/cross-icon.svg";
 import cancelIcon from "@/assets/cancel-ico.svg";
 import radioFilled from "@/assets/radio-fill.svg";
 import radioEmpty from "@/assets/radio-empty.svg";
-import { Order } from "@/lib/orders";
+import { Order, dev_updateOrderStatus } from "@/lib/orders";
 
 const OrderDetails = () => {
   const navigate = useNavigate();
@@ -228,6 +228,40 @@ const OrderDetails = () => {
             backgroundRepeat: "no-repeat",
           }}
         >
+          {/* DEV CONTROLS */}
+          {import.meta.env.DEV && (
+              <div className="fixed top-24 right-4 z-[9999] flex flex-col gap-2 bg-black/90 p-2 rounded-lg border border-red-500/50 shadow-xl">
+                  <span className="text-white text-[10px] font-bold text-center border-b border-white/20 pb-1">DEV CONTROLS</span>
+                  <button
+                    onClick={async () => {
+                        await dev_updateOrderStatus(order.id, 'success');
+                        setOrder({ ...order, status: 'success' });
+                    }}
+                    className="px-2 py-1 bg-green-600 text-white text-[10px] rounded hover:bg-green-500"
+                  >
+                      Set Success
+                  </button>
+                  <button
+                    onClick={async () => {
+                        await dev_updateOrderStatus(order.id, 'failed');
+                        setOrder({ ...order, status: 'failed' });
+                    }}
+                    className="px-2 py-1 bg-red-600 text-white text-[10px] rounded hover:bg-red-500"
+                  >
+                      Set Failed
+                  </button>
+                  <button
+                    onClick={async () => {
+                        await dev_updateOrderStatus(order.id, 'cancelled');
+                        setOrder({ ...order, status: 'cancelled', metadata: { ...order.metadata, cancel_reason_type: 'Simulated dev cancellation' } as any });
+                    }}
+                    className="px-2 py-1 bg-gray-600 text-white text-[10px] rounded hover:bg-gray-500"
+                  >
+                      Set Cancelled
+                  </button>
+              </div>
+          )}
+
           {/* Header */}
           <div className="flex-none px-5 pt-4 flex items-center justify-between z-10 mb-[21px] relative">
             <div className="w-6" /> {/* Spacer */}
