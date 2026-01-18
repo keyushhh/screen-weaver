@@ -10,11 +10,11 @@ import failedIcon from "@/assets/failed.svg";
 import checkIcon from "@/assets/check.svg";
 import crossIcon from "@/assets/cross.svg";
 import { supabase } from "@/lib/supabase";
-import { fetchActiveOrder, fetchRecentOrders, Order } from "@/lib/orders";
+import { fetchActiveOrders, fetchRecentOrders, Order } from "@/lib/orders";
 
 const OrderHistory = () => {
   const navigate = useNavigate();
-  const [activeOrder, setActiveOrder] = useState<Order | null>(null);
+  const [activeOrders, setActiveOrders] = useState<Order[]>([]);
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredRecentOrders, setFilteredRecentOrders] = useState<Order[]>([]);
@@ -24,9 +24,9 @@ const OrderHistory = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         try {
-          // Fetch Active Order
-          const active = await fetchActiveOrder(session.user.id);
-          setActiveOrder(active);
+          // Fetch Active Orders
+          const active = await fetchActiveOrders(session.user.id);
+          setActiveOrders(active);
 
           // Fetch Recent Orders (limit to more than 5 for history page, ideally all, but let's stick to fetchRecentOrders logic for now or create a new fetchAllHistory if needed.
           // Re-using fetchRecentOrders which limits to 5. For a full history page we might want more.
@@ -169,8 +169,6 @@ const OrderHistory = () => {
                 style={{
                     height: '67px',
                     backgroundColor: '#000000',
-                    borderTopLeftRadius: '13px',
-                    borderTopRightRadius: '13px',
                 }}
             >
                 <div className="flex items-start justify-between py-[14px] pl-[16px] pr-[14px]">
@@ -242,12 +240,12 @@ const OrderHistory = () => {
       </div>
 
       {/* Active Orders */}
-      {activeOrder && (
+      {activeOrders.length > 0 && (
           <div className="px-5 mb-[35px]">
               <h2 className="text-white text-[16px] font-bold font-satoshi mb-[12px]">
                   Active orders
               </h2>
-              {renderOrderCard(activeOrder, true)}
+              {activeOrders.map(order => renderOrderCard(order, true))}
           </div>
       )}
 

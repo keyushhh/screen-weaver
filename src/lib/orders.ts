@@ -37,16 +37,44 @@ export const fetchRecentOrders = async (userId: string) => {
   return data as Order[];
 };
 
-export const fetchActiveOrder = async (userId: string) => {
+export const dev_updateOrderStatus = async (orderId: string, status: 'success' | 'failed' | 'cancelled') => {
+  // Only allow in development
+  if (!import.meta.env.DEV) {
+      console.warn("dev_updateOrderStatus called in non-dev environment");
+      return;
+  }
+
+  let metadata = {};
+
+  if (status === 'failed') {
+      metadata = { failure_reason: "Simulated dev failure" };
+  } else if (status === 'cancelled') {
+      metadata = {
+          cancelled_by: "dev",
+          cancel_reason_type: "Simulated dev cancellation",
+          cancelled_at: new Date().toISOString()
+      };
+  }
+
+  const { error } = await supabase
+      .from('orders')
+      .update({
+          status: status,
+          metadata: metadata
+      })
+      .eq('id', orderId);
+
+  if (error) throw error;
+};
+
+export const fetchActiveOrders = async (userId: string) => {
   const { data, error } = await supabase
     .from('orders')
     .select('*, addresses(*)')
     .eq('user_id', userId)
     .eq('status', 'processing')
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .order('created_at', { ascending: false });
 
   if (error) throw error;
-  return data as Order | null;
+  return data as Order[];
 };
