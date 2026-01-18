@@ -169,6 +169,8 @@ const OrderHistory = () => {
                 style={{
                     height: '67px',
                     backgroundColor: '#000000',
+                    borderTopLeftRadius: '13px',
+                    borderTopRightRadius: '13px',
                 }}
             >
                 <div className="flex items-start justify-between py-[14px] pl-[16px] pr-[14px]">
@@ -250,16 +252,14 @@ const OrderHistory = () => {
       )}
 
       {/* Recent Orders */}
-      <div className="px-5 pb-10">
-          <h2 className="text-white text-[16px] font-bold font-satoshi mb-[12px]">
-              Recent orders
-          </h2>
-          {filteredRecentOrders.length > 0 ? (
-              filteredRecentOrders.map(order => renderOrderCard(order, false))
-          ) : (
-              <p className="text-white/40 text-[14px] text-center mt-4">No recent orders found</p>
-          )}
-      </div>
+      {filteredRecentOrders.length > 0 && (
+          <div className="px-5 pb-10">
+              <h2 className="text-white text-[16px] font-bold font-satoshi mb-[12px]">
+                  Recent orders
+              </h2>
+              {filteredRecentOrders.map(order => renderOrderCard(order, false))}
+          </div>
+      )}
 
     </div>
   );
