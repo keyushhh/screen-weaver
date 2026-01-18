@@ -18,8 +18,13 @@ import buttonCloseBg from "@/assets/button-close.png";
 import popupCardIcon from "@/assets/card-ico.svg";
 import { SlideToPay } from "@/components/SlideToPay";
 import AddressSelectionSheet from "@/components/AddressSelectionSheet";
+import { createOrder } from "@/lib/orders";
+import { createAddress } from "@/lib/addresses";
+import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
 
 interface SavedAddress {
+  id?: string;
   tag: string;
   house: string;
   area: string;
@@ -145,13 +150,73 @@ const OrderCashSummary = () => {
       }
   };
 
-  const handlePay = () => {
-      navigate("/order-cash-success", {
-        state: {
-          totalAmount: totalAmount,
-          savedAddress: savedAddress,
-        }
-      });
+  const handlePay = async () => {
+      try {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) {
+              toast.error("You must be logged in to place an order.");
+              return;
+          }
+
+          let addressId = savedAddress?.id;
+
+          if (!addressId && savedAddress) {
+              // Address exists in state but not DB (e.g. from previous local storage structure or temp selection)
+              // We must create it.
+              try {
+                  const newAddress = await createAddress({
+                      user_id: user.id,
+                      label: savedAddress.tag,
+                      apartment: savedAddress.house,
+                      area: savedAddress.area,
+                      landmark: savedAddress.landmark || "",
+                      city: savedAddress.city,
+                      state: savedAddress.state,
+                      plus_code: null, // We might not have this if it's legacy data, or we could try to generate it
+                      latitude: 0, // Fallback if missing
+                      longitude: 0, // Fallback if missing
+                      contact_name: savedAddress.name,
+                      contact_phone: savedAddress.phone
+                  });
+                  addressId = newAddress.id;
+
+                  // Update local state to include the new ID to prevent re-creation
+                  const updatedAddr = { ...savedAddress, id: addressId };
+                  setSavedAddress(updatedAddr);
+                  localStorage.setItem("dotpe_user_address", JSON.stringify(updatedAddr));
+
+              } catch (err) {
+                  console.error("Failed to save address before order", err);
+                  toast.error("Failed to save address details. Please try again.");
+                  return;
+              }
+          }
+
+          if (!addressId) {
+              toast.error("Please select a valid address.");
+              return;
+          }
+
+          const order = await createOrder({
+              user_id: user.id,
+              amount: totalAmount,
+              address_id: addressId,
+              status: 'processing',
+              payment_mode: 'wallet',
+              details: `Order to ${savedAddress!.tag}`,
+          });
+
+          navigate("/order-cash-success", {
+            state: {
+              totalAmount: totalAmount,
+              savedAddress: savedAddress,
+              order: order
+            }
+          });
+      } catch (error) {
+          console.error("Failed to create order", error);
+          toast.error("Failed to place order. Please try again.");
+      }
   };
 
   const handleRewardChange = (e: React.ChangeEvent<HTMLInputElement>) => {

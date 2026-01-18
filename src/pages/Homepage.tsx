@@ -4,6 +4,8 @@ import { Eye, EyeOff, ChevronDown } from "lucide-react";
 import Map, { Marker, Source, Layer, LineLayer } from "react-map-gl/maplibre";
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { OpenLocationCode } from "open-location-code";
+import { fetchRecentOrders, fetchActiveOrder, Order } from "@/lib/orders";
+import { supabase } from "@/lib/supabase";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import addIcon from "@/assets/add-icon.svg";
 import iconWallet from "@/assets/wallet.svg";
@@ -45,8 +47,8 @@ const Homepage = () => {
   const [showBalance, setShowBalance] = useState(false);
   const [savedAddress, setSavedAddress] = useState<SavedAddress | null>(null);
   const [isAddressSheetOpen, setIsAddressSheetOpen] = useState(false);
-  const [activeOrder, setActiveOrder] = useState<any>(null);
-  const [transactionHistory, setTransactionHistory] = useState<any[]>([]);
+  const [activeOrder, setActiveOrder] = useState<Order | null>(null);
+  const [transactionHistory, setTransactionHistory] = useState<Order[]>([]);
   const balance = "0.00";
 
   // Map State
@@ -57,41 +59,41 @@ const Homepage = () => {
   });
 
   useEffect(() => {
-    const addressStr = localStorage.getItem("dotpe_user_address");
-    if (addressStr) {
-      try {
-        setSavedAddress(JSON.parse(addressStr));
-      } catch (e) {
-        console.error("Failed to parse saved address", e);
-      }
-    }
-
-    const activeOrderStr = localStorage.getItem("dotpe_active_order");
-    if (activeOrderStr) {
-        try {
-            setActiveOrder(JSON.parse(activeOrderStr));
-        } catch(e) {
-            console.error("Failed to parse active order", e);
+    const loadData = async () => {
+        // Load Saved Address from Local Storage (Active Session Context)
+        const addressStr = localStorage.getItem("dotpe_user_address");
+        if (addressStr) {
+          try {
+            setSavedAddress(JSON.parse(addressStr));
+          } catch (e) {
+            console.error("Failed to parse saved address", e);
+          }
         }
-    }
 
-    const historyStr = localStorage.getItem("dotpe_transaction_history");
-    if (historyStr) {
-        try {
-            setTransactionHistory(JSON.parse(historyStr));
-        } catch (e) {
-            console.error("Failed to parse transaction history", e);
+        // Fetch Orders
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+            try {
+                const active = await fetchActiveOrder(session.user.id);
+                setActiveOrder(active);
+
+                const recent = await fetchRecentOrders(session.user.id);
+                setTransactionHistory(recent);
+            } catch (e) {
+                console.error("Failed to fetch orders", e);
+            }
         }
-    }
+    };
+    loadData();
   }, []);
 
   // Update map viewState when active order address changes
   useEffect(() => {
-      if (activeOrder?.address?.plusCode) {
+      if (activeOrder?.addresses?.plus_code) {
           try {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const olc = new OpenLocationCode() as any;
-              const decoded = olc.decode(activeOrder.address.plusCode);
+              const decoded = olc.decode(activeOrder.addresses.plus_code);
               setViewState({
                   latitude: decoded.latitudeCenter,
                   longitude: decoded.longitudeCenter,
@@ -100,6 +102,12 @@ const Homepage = () => {
           } catch (e) {
               console.error("Failed to decode Plus Code", e);
           }
+      } else if (activeOrder?.addresses?.latitude && activeOrder?.addresses?.longitude) {
+           setViewState({
+               latitude: activeOrder.addresses.latitude,
+               longitude: activeOrder.addresses.longitude,
+               zoom: 14
+           });
       }
   }, [activeOrder]);
 
@@ -128,8 +136,8 @@ const Homepage = () => {
   };
 
   const getActiveOrderAddressDisplay = () => {
-    if (!activeOrder?.address) return "Unknown Location";
-    const parts = [activeOrder.address.house, activeOrder.address.area];
+    if (!activeOrder?.addresses) return "Unknown Location";
+    const parts = [activeOrder.addresses.apartment, activeOrder.addresses.area];
     const fullString = parts.filter(Boolean).join(", ");
     return fullString.length > 20 ? fullString.substring(0, 20) + "..." : fullString;
   };
@@ -287,7 +295,7 @@ const Homepage = () => {
                   }}
               >
                   <span className="text-white text-[12px] font-medium font-sans whitespace-nowrap mr-2">
-                      Delivering to - {activeOrder.address?.tag || "Home"}
+                      Delivering to - {activeOrder.addresses?.label || "Home"}
                   </span>
                   <span className="text-white text-[12px] font-medium font-sans text-right leading-tight">
                       {getActiveOrderAddressDisplay()}
@@ -414,10 +422,12 @@ const Homepage = () => {
                                <img src={ongoingIcon} alt="Status" className="w-[26px] h-[26px]" />
                                <div className="ml-[7px] flex flex-col">
                                    <span className="text-white text-[13px] font-normal font-sans leading-none mb-[2px]">
-                                       {tx.details}
+                                       {tx.details || (tx.addresses?.label ? `Order to ${tx.addresses.label}` : "Cash Order")}
                                    </span>
                                    <span className="text-[#7E7E7E] text-[12px] font-normal font-sans leading-none">
-                                       {tx.time}
+                                       {new Date(tx.created_at).toLocaleDateString('en-IN', {
+                                            day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+                                       })}
                                    </span>
                                </div>
                            </div>
@@ -431,7 +441,7 @@ const Homepage = () => {
 
                            {/* Status Column */}
                            <div className="text-right">
-                               <span className="text-[#FACC15] text-[13px] font-normal font-sans">
+                               <span className="text-[#FACC15] text-[13px] font-normal font-sans capitalize">
                                    {tx.status}
                                </span>
                            </div>
