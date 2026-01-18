@@ -422,7 +422,7 @@ const Homepage = () => {
                                <img src={ongoingIcon} alt="Status" className="w-[26px] h-[26px]" />
                                <div className="ml-[7px] flex flex-col">
                                    <span className="text-white text-[13px] font-normal font-sans leading-none mb-[2px]">
-                                       {tx.details || (tx.addresses?.label ? `Order to ${tx.addresses.label}` : "Cash Order")}
+                                       {tx.addresses?.label ? `Order to ${tx.addresses.label}` : "Cash Order"}
                                    </span>
                                    <span className="text-[#7E7E7E] text-[12px] font-normal font-sans leading-none">
                                        {new Date(tx.created_at).toLocaleDateString('en-IN', {
