@@ -41,7 +41,8 @@ import MpinSettings from "./pages/MpinSettings";
 import ForgotMpin from "./pages/ForgotMpin";
 import OrderCash from "./pages/OrderCash";
 import OrderCashSummary from "./pages/OrderCashSummary";
-import OrderCashSuccess from "./pages/OrderCashSuccess";
+import OrderHistory from "./pages/OrderHistory";
+import OrderDetails from "./pages/OrderDetails";
 import ScheduleDelivery from "./pages/ScheduleDelivery";
 import AddAddress from "./pages/AddAddress";
 import AddAddressDetails from "./pages/AddAddressDetails";
@@ -137,7 +138,8 @@ const App = () => {
             <Route path="/forgot-mpin" element={<ForgotMpin />} />
             <Route path="/order-cash" element={<OrderCash />} />
             <Route path="/order-cash-summary" element={<OrderCashSummary />} />
-            <Route path="/order-cash-success" element={<OrderCashSuccess />} />
+            <Route path="/order-history" element={<OrderHistory />} />
+            <Route path="/order-details/:orderId" element={<OrderDetails />} />
             <Route path="/schedule-delivery" element={<ScheduleDelivery />} />
             <Route path="/add-address" element={<AddAddress />} />
             <Route path="/add-address-details" element={<AddAddressDetails />} />

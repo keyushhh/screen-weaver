@@ -304,12 +304,13 @@ const Homepage = () => {
 
               {/* Status & Map Container (Bottom Container) */}
               <div
-                  className="w-full rounded-b-[14px] flex"
+                  className="w-full rounded-b-[14px] flex cursor-pointer"
                   style={{
                       backgroundColor: "rgba(25, 25, 25, 0.34)",
                       padding: "12px",
                       marginTop: 0
                   }}
+                  onClick={() => navigate(`/order-details/${activeOrder.id}`, { state: { order: activeOrder } })}
               >
                   {/* Left Text */}
                   <div className="flex-1 flex flex-col justify-start pr-2">
@@ -387,7 +388,15 @@ const Homepage = () => {
       <div className="mx-5 mt-6 flex-1">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-foreground text-[16px] font-medium">Recent Transactions</h3>
-          <button className="text-primary text-[14px] hover:text-primary/80 transition-colors">
+          <button
+             onClick={() => navigate('/order-history')}
+             disabled={transactionHistory.length === 0 && !activeOrder}
+             className={`text-primary text-[14px] transition-colors ${
+                 transactionHistory.length === 0 && !activeOrder
+                 ? 'opacity-50 cursor-not-allowed'
+                 : 'hover:text-primary/80 cursor-pointer'
+             }`}
+          >
             View All
           </button>
         </div>
@@ -416,7 +425,11 @@ const Homepage = () => {
                {/* Rows */}
                <div className="flex flex-col gap-[16px]">
                    {transactionHistory.map((tx) => (
-                       <div key={tx.id} className="grid grid-cols-[1fr_100px_80px] gap-x-6 items-start">
+                       <div
+                           key={tx.id}
+                           className="grid grid-cols-[1fr_100px_80px] gap-x-6 items-start cursor-pointer hover:opacity-80 transition-opacity"
+                           onClick={() => navigate(`/order-details/${tx.id}`, { state: { order: tx } })}
+                       >
                            {/* Details Column */}
                            <div className="flex items-start">
                                <img src={ongoingIcon} alt="Status" className="w-[26px] h-[26px]" />
