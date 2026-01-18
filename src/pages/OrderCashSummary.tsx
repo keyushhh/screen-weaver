@@ -197,25 +197,77 @@ const OrderCashSummary = () => {
               return;
           }
 
-          const order = await createOrder({
-              user_id: user.id,
-              amount: totalAmount,
-              address_id: addressId,
-              status: 'processing',
-              payment_mode: 'wallet',
-              details: `Order to ${savedAddress!.tag}`,
-          });
+          try {
+              const order = await createOrder({
+                  user_id: user.id,
+                  amount: totalAmount,
+                  address_id: addressId,
+                  status: 'processing',
+                  payment_mode: 'wallet',
+              });
 
-          navigate("/order-cash-success", {
-            state: {
-              totalAmount: totalAmount,
-              savedAddress: savedAddress,
-              order: order
-            }
-          });
-      } catch (error) {
+              navigate("/order-cash-success", {
+                state: {
+                  totalAmount: totalAmount,
+                  savedAddress: savedAddress,
+                  order: order
+                }
+              });
+          } catch (orderError: any) {
+              // Retry Logic: If address ID is invalid (FK violation), try to create a new address record
+              // Error code 23503 is foreign_key_violation in Postgres
+              if (orderError?.code === '23503' || orderError?.message?.includes('foreign key constraint')) {
+                 console.log("Stale address ID detected. Creating new address record...");
+                 try {
+                      const newAddress = await createAddress({
+                          user_id: user.id,
+                          label: savedAddress.tag,
+                          apartment: savedAddress.house,
+                          area: savedAddress.area,
+                          landmark: savedAddress.landmark || "",
+                          city: savedAddress.city,
+                          state: savedAddress.state,
+                          plus_code: null,
+                          latitude: 0,
+                          longitude: 0,
+                          contact_name: savedAddress.name,
+                          contact_phone: savedAddress.phone
+                      });
+
+                      const newAddressId = newAddress.id;
+                      // Update local state
+                      const updatedAddr = { ...savedAddress, id: newAddressId };
+                      setSavedAddress(updatedAddr);
+                      localStorage.setItem("dotpe_user_address", JSON.stringify(updatedAddr));
+
+                      // Retry Order Creation
+                      const order = await createOrder({
+                          user_id: user.id,
+                          amount: totalAmount,
+                          address_id: newAddressId,
+                          status: 'processing',
+                          payment_mode: 'wallet',
+                      });
+
+                      navigate("/order-cash-success", {
+                        state: {
+                          totalAmount: totalAmount,
+                          savedAddress: updatedAddr,
+                          order: order
+                        }
+                      });
+                      return; // Success after retry
+                 } catch (retryError) {
+                     console.error("Retry failed", retryError);
+                     // Fall through to generic error
+                 }
+              }
+
+              throw orderError; // Re-throw if not recoverable or retry failed
+          }
+      } catch (error: any) {
           console.error("Failed to create order", error);
-          toast.error("Failed to place order. Please try again.");
+          toast.error(`Failed to place order: ${error.message || "Please try again."}`);
       }
   };
 

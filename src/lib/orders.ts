@@ -8,7 +8,6 @@ export interface Order {
   status: string; // 'processing', 'out_for_delivery', 'delivered', 'cancelled'
   payment_mode: string; // 'wallet', 'cash', 'upi'
   address_id: string | null;
-  details: string | null;
   created_at: string;
   updated_at?: string;
   // Join fields
