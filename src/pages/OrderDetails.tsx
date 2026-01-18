@@ -230,7 +230,7 @@ const OrderDetails = () => {
         >
           {/* DEV CONTROLS */}
           {import.meta.env.DEV && (
-              <div className="fixed top-24 right-4 z-[9999] flex flex-col gap-2 bg-black/90 p-2 rounded-lg border border-red-500/50 shadow-xl">
+              <div className="fixed top-24 right-4 z-[9999] flex flex-col gap-2 bg-black/90 p-2 rounded-lg border border-red-500/50 shadow-xl pointer-events-auto">
                   <span className="text-white text-[10px] font-bold text-center border-b border-white/20 pb-1">DEV CONTROLS</span>
                   <button
                     onClick={async () => {
@@ -662,7 +662,8 @@ const OrderDetails = () => {
               <p className="text-white/60 mb-6">Order #{order.id.slice(0,8).toUpperCase()}</p>
 
               <div className="bg-[#1A1A1A] rounded-xl p-4 mb-6">
-                  <p className="text-white">Something went wrong with this order.</p>
+                  {/* @ts-ignore */}
+                  <p className="text-white">{order.metadata?.failure_reason || "Something went wrong with this order."}</p>
                   <p className="text-sm text-white/60 mt-2">Don't worry, if any amount was deducted, it will be refunded shortly.</p>
               </div>
 
