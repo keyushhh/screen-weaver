@@ -57,6 +57,8 @@ const App = () => {
     // Handle deep links for OAuth
     const listener = CapacitorApp.addListener('appUrlOpen', async ({ url }) => {
       if (url.startsWith('dotpe://')) {
+          console.log("App opened with URL:", url); // Debug logging
+
           // Extract params from fragment (#) or query (?)
           // Supabase usually sends params in fragment for implicit flow
           // But for PKCE flow (default in v2) it sends 'code' in query?
@@ -71,21 +73,29 @@ const App = () => {
               const refresh_token = params.get('refresh_token');
 
               if (access_token && refresh_token) {
-                  await supabase.auth.setSession({
+                  const { error } = await supabase.auth.setSession({
                       access_token,
                       refresh_token
                   });
+                  if (error) console.error("Set session error:", error);
+                  else console.log("Session set from tokens");
               }
           }
           // Check for ?code=... (PKCE) or #code=...
           else {
+              // Robust parsing for code in query or fragment
               const codeMatch = url.match(/[?#&]code=([^&]+)/);
               if (codeMatch && codeMatch[1]) {
                   const code = codeMatch[1];
-                  const { error } = await supabase.auth.exchangeCodeForSession(code);
+                  console.log("Exchanging code for session...");
+                  const { data, error } = await supabase.auth.exchangeCodeForSession(code);
                   if (error) {
-                      console.error("Auth error:", error);
+                      console.error("Auth exchange error:", error);
+                  } else {
+                      console.log("Session exchanged successfully", data.session ? "Active" : "No Session");
                   }
+              } else {
+                  console.log("No code or tokens found in URL");
               }
           }
       }
