@@ -279,7 +279,10 @@ const OnboardingScreen = () => {
                 ? 'dotpe://auth-callback'
                 : `${window.location.origin}/#/auth/v1/callback`;
 
-            console.log(`Initiating ${provider} login with redirect: ${redirectTo}`);
+            if (import.meta.env.DEV) {
+                console.log("[Diagnostic] VITE_SUPABASE_URL:", import.meta.env.VITE_SUPABASE_URL);
+                console.log(`[Diagnostic] Initiating ${provider} login with redirect: ${redirectTo}`);
+            }
 
             const { error } = await supabase.auth.signInWithOAuth({
                 provider,
