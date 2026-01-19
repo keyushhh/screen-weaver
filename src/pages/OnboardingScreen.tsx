@@ -188,15 +188,9 @@ const OnboardingScreen = () => {
           savePhoneNumber(user.phone);
       }
 
-      // FIX: If user already has an MPIN set up (returning user), go to home
-      if (storedMpin && storedMpin.length === 4) {
-          console.log("User already has MPIN, skipping setup. Navigating to Home.");
-          navigate("/home");
-          return;
-      }
-
-      setShowOtpInput(false);
-      setShowMpinSetup(true);
+      // Simplify auth: Skip MPIN setup for now and route straight to home
+      console.log("Session established, navigating to Home.");
+      navigate("/home");
   };
 
   const handleVerifyOTP = async () => {
