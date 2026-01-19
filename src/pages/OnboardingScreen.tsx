@@ -133,54 +133,61 @@ const OnboardingScreen = () => {
 
   const handleSession = async (user: any) => {
       console.log("handleSession started for user:", user?.id);
-      if (user) {
-        // Fetch or create profile
-        const { data: profileData, error: profileError } = await supabase
+
+      if (!user) return;
+
+      let currentProfile = null;
+
+      // Fetch or create profile
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      const socialName = user.user_metadata?.full_name || user.user_metadata?.name || user.user_metadata?.preferred_username;
+
+      if (profileError || !profileData) {
+        // Create new profile
+        const { data: newProfile, error: createError } = await supabase
           .from('profiles')
-          .select('*')
-          .eq('id', user.id)
+          .insert({
+            id: user.id,
+            phone: user.phone || null,
+            name: socialName || user.email || null
+          })
+          .select()
           .single();
 
-        const socialName = user.user_metadata?.full_name || user.user_metadata?.name || user.user_metadata?.preferred_username;
-
-        if (profileError || !profileData) {
-          // Create new profile
-          const { data: newProfile, error: createError } = await supabase
-            .from('profiles')
-            .insert({
-              id: user.id,
-              phone: user.phone || null,
-              name: socialName || user.email || null
-            })
-            .select()
-            .single();
-
-          if (!createError && newProfile) {
-            setProfile(newProfile);
-            console.log('Profile confirmed:', newProfile);
-          }
-        } else {
-            // Update profile name if social name is available and different/missing
-            if (socialName && profileData.name !== socialName) {
-                const { data: updatedProfile, error: updateError } = await supabase
-                    .from('profiles')
-                    .update({ name: socialName })
-                    .eq('id', user.id)
-                    .select()
-                    .single();
-
-                if (!updateError && updatedProfile) {
-                    setProfile(updatedProfile);
-                    console.log('Profile updated with social name:', updatedProfile);
-                } else {
-                    setProfile(profileData);
-                    console.error("Failed to update profile name:", updateError);
-                }
-            } else {
-                setProfile(profileData);
-                console.log('Profile confirmed:', profileData);
-            }
+        if (!createError && newProfile) {
+          currentProfile = newProfile;
+          setProfile(newProfile);
+          console.log('Profile confirmed:', newProfile);
         }
+      } else {
+          // Update profile name if social name is available and different/missing
+          if (socialName && profileData.name !== socialName) {
+              const { data: updatedProfile, error: updateError } = await supabase
+                  .from('profiles')
+                  .update({ name: socialName })
+                  .eq('id', user.id)
+                  .select()
+                  .single();
+
+              if (!updateError && updatedProfile) {
+                  currentProfile = updatedProfile;
+                  setProfile(updatedProfile);
+                  console.log('Profile updated with social name:', updatedProfile);
+              } else {
+                  currentProfile = profileData;
+                  setProfile(profileData);
+                  console.error("Failed to update profile name:", updateError);
+              }
+          } else {
+              currentProfile = profileData;
+              setProfile(profileData);
+              console.log('Profile confirmed:', profileData);
+          }
       }
 
       // Save verified phone number to context if available (OTP flow)
@@ -190,8 +197,7 @@ const OnboardingScreen = () => {
       }
 
       // Check mpin_set flag from profile (server-side state)
-      // profileData is fetched above.
-      const isMpinSet = profileData?.mpin_set || false;
+      const isMpinSet = currentProfile?.mpin_set || false;
 
       if (isMpinSet) {
           console.log("User has MPIN set (server flag), navigating to Home.");
