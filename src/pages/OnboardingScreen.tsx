@@ -19,6 +19,8 @@ import buttonBiometricBg from "@/assets/button-biometric-bg.png";
 import biometricIcon from "@/assets/biometric-icon.png";
 import { isWeakMpin } from "@/utils/validationUtils";
 import { supabase } from "@/lib/supabase";
+import { Capacitor } from "@capacitor/core";
+import { Provider } from "@supabase/supabase-js";
 
 const OnboardingScreen = () => {
   const navigate = useNavigate();
@@ -250,20 +252,33 @@ const OnboardingScreen = () => {
     navigate("/home");
   };
 
-  const handleSocialLogin = async (provider: string) => {
-    console.log(`${provider} Login clicked`);
-    if (provider === "Google") {
+  const handleSocialLogin = async (providerName: string) => {
+    console.log(`${providerName} Login clicked`);
+
+    let provider: Provider | undefined;
+    if (providerName === "Google") provider = 'google';
+    if (providerName === "X" || providerName === "Twitter") provider = 'twitter';
+
+    if (provider) {
         try {
+            const isNative = Capacitor.isNativePlatform();
+            // Use 'dotpe://auth-callback' for native, or '/auth/v1/callback' (relative to origin) for web
+            const redirectTo = isNative
+                ? 'dotpe://auth-callback'
+                : `${window.location.origin}/#/auth/v1/callback`;
+
+            console.log(`Initiating ${provider} login with redirect: ${redirectTo}`);
+
             const { error } = await supabase.auth.signInWithOAuth({
-                provider: 'google',
+                provider,
                 options: {
-                    redirectTo: `dotpe://auth-callback`
+                    redirectTo
                 }
             });
             if (error) throw error;
         } catch (error) {
-            console.error("Google login error:", error);
-            setPhoneError("Failed to initiate Google login.");
+            console.error(`${providerName} login error:`, error);
+            setPhoneError(`Failed to initiate ${providerName} login.`);
         }
     }
   };
