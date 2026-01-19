@@ -198,6 +198,15 @@ const OrderCashSummary = () => {
           }
 
           try {
+              // VERIFICATION LOG:
+              console.log("Creating Order with payload:", {
+                  user_id: user.id,
+                  amount: totalAmount,
+                  address_id: addressId,
+                  status: 'processing',
+                  payment_mode: 'wallet',
+              });
+
               const order = await createOrder({
                   user_id: user.id,
                   amount: totalAmount,

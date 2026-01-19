@@ -24,7 +24,7 @@ import { Provider } from "@supabase/supabase-js";
 
 const OnboardingScreen = () => {
   const navigate = useNavigate();
-  const { setPhoneNumber: savePhoneNumber, setMpin: saveMpin, setBiometricEnabled: saveBiometricEnabled, setProfile } = useUser();
+  const { setPhoneNumber: savePhoneNumber, setMpin: saveMpin, setBiometricEnabled: saveBiometricEnabled, setProfile, mpin: storedMpin } = useUser();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [otp, setOtp] = useState("");
   const [showOtpInput, setShowOtpInput] = useState(false);
@@ -131,6 +131,7 @@ const OnboardingScreen = () => {
   };
 
   const handleSession = async (user: any) => {
+      console.log("handleSession started for user:", user?.id);
       if (user) {
         // Fetch or create profile
         const { data: profileData, error: profileError } = await supabase
@@ -186,6 +187,14 @@ const OnboardingScreen = () => {
       if (user.phone) {
           savePhoneNumber(user.phone);
       }
+
+      // FIX: If user already has an MPIN set up (returning user), go to home
+      if (storedMpin && storedMpin.length === 4) {
+          console.log("User already has MPIN, skipping setup. Navigating to Home.");
+          navigate("/home");
+          return;
+      }
+
       setShowOtpInput(false);
       setShowMpinSetup(true);
   };
@@ -257,7 +266,10 @@ const OnboardingScreen = () => {
 
     let provider: Provider | undefined;
     if (providerName === "Google") provider = 'google';
-    if (providerName === "X" || providerName === "Twitter") provider = 'twitter';
+    if (providerName === "X" || providerName === "Twitter") {
+        console.log("Using provider 'twitter'");
+        provider = 'twitter';
+    }
 
     if (provider) {
         try {
