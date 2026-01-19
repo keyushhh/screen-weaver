@@ -6,7 +6,7 @@ import { getCards } from "@/utils/cardUtils";
 import { getBankAccounts } from "@/utils/bankUtils";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import avatarImg from "@/assets/avatar.png";
-import gridPeLogo from "@/assets/grid-pe-logo.svg";
+import gridPeLogo from "@/assets/grid.pe.svg";
 import iconSecurity from "@/assets/icon-security.svg";
 import iconLinkedCards from "@/assets/icon-linked-cards.svg";
 import iconBankAcc from "@/assets/icon-bank-acc.svg";
