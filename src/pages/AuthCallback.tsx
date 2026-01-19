@@ -6,28 +6,37 @@ const AuthCallback = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check for session and redirect
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+    // 1. Listen for auth state changes (SIGNED_IN)
+    // This is the robust way to handle the race condition where session isn't ready immediately
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        navigate("/home");
+      }
+    });
+
+    // 2. Also check getSession once immediately, for cases where session is already hydrated
+    supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         navigate("/home");
-      } else {
-        // If no session immediately, wait for onAuthStateChange to fire in global context or here
-        // But usually, if we landed here, Supabase client should have handled the hash
-        // If not, we might need to handle hash parsing manually?
-        // Supabase-js v2 automatically parses hash if configured correctly.
-        // Let's verify if we are stuck.
-
-        // If we are here, it means we are on /auth/v1/callback
-        // We can just redirect to home and let the global auth guard handle it?
-        // But let's give it a moment.
-        setTimeout(() => {
-             navigate("/");
-        }, 2000);
       }
-    };
+    });
 
-    checkSession();
+    // 3. Fallback timeout: If nothing happens after 6 seconds, assume failure or stuck state
+    const timeout = setTimeout(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (!session) {
+                // If still no session, go back to login
+                navigate("/");
+            } else {
+                navigate("/home");
+            }
+        });
+    }, 6000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, [navigate]);
 
   return (
