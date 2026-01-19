@@ -156,8 +156,8 @@ const OnboardingScreen = () => {
             console.log('Profile confirmed:', newProfile);
           }
         } else {
-            // Check if existing profile lacks a name but we have one from social login
-            if (!profileData.name && socialName) {
+            // Update profile name if social name is available and different/missing
+            if (socialName && profileData.name !== socialName) {
                 const { data: updatedProfile, error: updateError } = await supabase
                     .from('profiles')
                     .update({ name: socialName })
@@ -170,6 +170,7 @@ const OnboardingScreen = () => {
                     console.log('Profile updated with social name:', updatedProfile);
                 } else {
                     setProfile(profileData);
+                    console.error("Failed to update profile name:", updateError);
                 }
             } else {
                 setProfile(profileData);
