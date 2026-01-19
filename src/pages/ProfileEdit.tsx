@@ -7,7 +7,7 @@ import avatarImg from "@/assets/avatar.png";
 import verifiedIcon from "@/assets/verified-icon.png";
 import inputFieldBg from "@/assets/input-field-bg.png";
 import buttonCancel from "@/assets/button-cancel.png";
-import gridPeLogo from "@/assets/grid-pe-logo.svg";
+import gridPeLogo from "@/assets/grid.pe.svg";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";

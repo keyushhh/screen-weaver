@@ -6,7 +6,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import { LockOpen } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
-import logo from "@/assets/logo.svg";
+import logo from "@/assets/grid.pe.svg";
 import iconGoogle from "@/assets/icon-google.svg";
 import iconApple from "@/assets/icon-apple.svg";
 import iconX from "@/assets/frame-2095585539.svg";
