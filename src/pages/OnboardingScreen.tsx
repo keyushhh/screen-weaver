@@ -188,13 +188,17 @@ const OnboardingScreen = () => {
           savePhoneNumber(user.phone);
       }
 
-      // FIX: If user already has an MPIN set up (returning user), go to home
-      if (storedMpin && storedMpin.length === 4) {
-          console.log("User already has MPIN, skipping setup. Navigating to Home.");
+      // Check mpin_set flag from profile (server-side state)
+      // profileData is fetched above.
+      const isMpinSet = profileData?.mpin_set || false;
+
+      if (isMpinSet) {
+          console.log("User has MPIN set (server flag), navigating to Home.");
           navigate("/home");
           return;
       }
 
+      console.log("MPIN not set, showing setup screen.");
       setShowOtpInput(false);
       setShowMpinSetup(true);
   };
@@ -250,7 +254,23 @@ const OnboardingScreen = () => {
     if (mpinError || !mpinSuccess) return;
 
     setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    // Update profile on server
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+        const { error } = await supabase
+            .from('profiles')
+            .update({ mpin_set: true })
+            .eq('id', user.id);
+
+        if (error) {
+            console.error("Failed to update MPIN status:", error);
+            // Optional: Show error to user? For now logging it.
+        } else {
+            console.log("MPIN status updated on server.");
+        }
+    }
+
     setIsLoading(false);
 
     // Save MPIN to context/storage

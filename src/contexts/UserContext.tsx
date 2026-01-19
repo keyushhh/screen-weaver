@@ -5,6 +5,7 @@ interface UserProfile {
   phone: string | null;
   name: string | null;
   created_at?: string;
+  mpin_set?: boolean;
 }
 
 interface UserState {
