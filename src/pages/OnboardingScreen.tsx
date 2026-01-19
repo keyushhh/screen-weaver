@@ -501,6 +501,14 @@ const OnboardingScreen = () => {
           </div>
         )}
 
+        {/* Debug Info (Dev Only) */}
+        {import.meta.env.DEV && !showMpinSetup && !showOtpInput && (
+            <div className="px-6 pb-2 text-xs text-muted-foreground break-all opacity-50">
+                <p>Project: {import.meta.env.VITE_SUPABASE_URL}</p>
+                <p>Platform: {Capacitor.getPlatform()}</p>
+            </div>
+        )}
+
         {/* MPIN Setup Screen */}
         {showMpinSetup && (
           <div className="space-y-6 animate-fade-in flex-1 flex flex-col">
