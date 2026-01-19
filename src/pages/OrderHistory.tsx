@@ -26,18 +26,18 @@ const OrderHistory = () => {
         try {
           // Fetch Active Orders
           const active = await fetchActiveOrders(session.user.id);
+          console.log("Active Orders fetched:", active);
           setActiveOrders(active);
 
-          // Fetch Recent Orders (limit to more than 5 for history page, ideally all, but let's stick to fetchRecentOrders logic for now or create a new fetchAllHistory if needed.
-          // Re-using fetchRecentOrders which limits to 5. For a full history page we might want more.
-          // Let's assume for now 5 is enough or I'll query more manually here.)
-
+          // Fetch Recent Orders
           const { data, error } = await supabase
             .from('orders')
             .select('*, addresses(*)')
             .eq('user_id', session.user.id)
             .neq('status', 'processing') // Exclude active/processing from recent list
             .order('created_at', { ascending: false });
+
+          console.log("Recent Orders fetched:", data, "Error:", error);
 
           if (!error && data) {
               setRecentOrders(data as Order[]);
