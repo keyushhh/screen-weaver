@@ -97,6 +97,7 @@ const OnboardingScreen = () => {
   }, [mpin, confirmMpin]);
 
   const handleRequestOTP = async () => {
+    if (isLoading) return;
     setPhoneError("");
     if (phoneNumber.length < 10) {
       setPhoneError("Don't ghost us, drop your number.");
@@ -204,6 +205,7 @@ const OnboardingScreen = () => {
   };
 
   const handleVerifyOTP = async () => {
+    if (isLoading) return;
     setOtpError("");
 
     setIsLoading(true);
@@ -214,9 +216,11 @@ const OnboardingScreen = () => {
       const cleanNumber = digitsOnly.slice(-10); // Take last 10 digits
       const phoneToSend = `+91${cleanNumber}`;
 
+      console.log(`Verifying OTP for ${phoneToSend}`);
+
       const { data, error } = await supabase.auth.verifyOtp({
         phone: phoneToSend,
-        token: otp,
+        token: otp.trim(),
         type: 'sms',
       });
 
@@ -469,7 +473,8 @@ const OnboardingScreen = () => {
                 onClick={() => {
                   if (resendTimer === 0) {
                     console.log("Resend OTP");
-                    setResendTimer(20);
+                    setOtp(""); // Clear previous OTP
+                    handleRequestOTP();
                   }
                 }}
                 disabled={resendTimer > 0}
