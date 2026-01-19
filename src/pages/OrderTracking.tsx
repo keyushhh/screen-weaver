@@ -32,7 +32,7 @@ const OrderTracking = () => {
 
   useEffect(() => {
     // 1. Get active order from localStorage
-    const activeOrderStr = localStorage.getItem("dotpe_active_order");
+    const activeOrderStr = localStorage.getItem("gridpe_active_order");
     if (activeOrderStr) {
         try {
             const activeOrder = JSON.parse(activeOrderStr);

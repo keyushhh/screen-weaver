@@ -119,7 +119,7 @@ const AddressSelectionSheet: React.FC<AddressSelectionSheetProps> = ({ isOpen, o
 
         // Load Selected Address from local state only (active session)
         // We still keep the *currently selected* address in local storage for persistence across reloads during a session
-        const current = localStorage.getItem("dotpe_user_address");
+        const current = localStorage.getItem("gridpe_user_address");
         if (current) {
             try {
                 setSelectedAddress(JSON.parse(current));
@@ -189,7 +189,7 @@ const AddressSelectionSheet: React.FC<AddressSelectionSheetProps> = ({ isOpen, o
                 postcode: result.address?.postcode || ""
             };
 
-            localStorage.setItem("dotpe_user_address", JSON.stringify(tempAddr));
+            localStorage.setItem("gridpe_user_address", JSON.stringify(tempAddr));
             onAddressSelect(tempAddr);
             onClose();
         }
@@ -200,7 +200,7 @@ const AddressSelectionSheet: React.FC<AddressSelectionSheetProps> = ({ isOpen, o
 
   const handleSelectAddress = (addr: SavedAddress) => {
       setSelectedAddress(addr);
-      localStorage.setItem("dotpe_user_address", JSON.stringify(addr));
+      localStorage.setItem("gridpe_user_address", JSON.stringify(addr));
       // Notify parent immediately (optional, or wait for close)
       // "user taps ... automatically become selected"
       onAddressSelect(addr);
@@ -229,7 +229,7 @@ const AddressSelectionSheet: React.FC<AddressSelectionSheetProps> = ({ isOpen, o
 
         // If list becomes empty, clear active address and maybe redirect
         if (newList.length === 0) {
-            localStorage.removeItem("dotpe_user_address");
+            localStorage.removeItem("gridpe_user_address");
             setSelectedAddress(null);
             onAddressSelect(null);
             // Requirement: "redirect the user to the address selection screen, or back home (if there's 0 addresses saved after the deletion)"
@@ -240,7 +240,7 @@ const AddressSelectionSheet: React.FC<AddressSelectionSheetProps> = ({ isOpen, o
         } else if (selectedAddress) {
             // Check if deleted was selected
             if (selectedAddress.id === addressToDelete.id) {
-                 localStorage.removeItem("dotpe_user_address");
+                 localStorage.removeItem("gridpe_user_address");
                  setSelectedAddress(null);
                  onAddressSelect(null);
             }

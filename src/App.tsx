@@ -57,7 +57,7 @@ const App = () => {
   useEffect(() => {
     // Handle deep links for OAuth
     const listener = CapacitorApp.addListener('appUrlOpen', async ({ url }) => {
-      if (url.startsWith('dotpe://')) {
+      if (url.startsWith('gridpe://')) {
           console.log("App opened with URL:", url); // Debug logging
 
           // Extract params from fragment (#) or query (?)

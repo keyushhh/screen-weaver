@@ -20,7 +20,7 @@ const DeleteAccountMobile = () => {
   useEffect(() => {
     if (mobile.length === 10) {
       if (mobile !== normalizedUserPhone) {
-        setError("Please enter the same number you used to login to Dot.Pe");
+        setError("Please enter the same number you used to login to grid.pe");
       } else {
         setError(null);
       }

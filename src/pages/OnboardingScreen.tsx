@@ -294,9 +294,9 @@ const OnboardingScreen = () => {
     if (provider) {
         try {
             const isNative = Capacitor.isNativePlatform();
-            // Use 'dotpe://auth-callback' for native, or '/auth/v1/callback' (relative to origin) for web
+            // Use 'gridpe://auth-callback' for native, or '/auth/v1/callback' (relative to origin) for web
             const redirectTo = isNative
-                ? 'dotpe://auth-callback'
+                ? 'gridpe://auth-callback'
                 : `${window.location.origin}/#/auth/v1/callback`;
 
             if (import.meta.env.DEV) {
@@ -347,7 +347,7 @@ const OnboardingScreen = () => {
       {!showMpinSetup && (
         <div className="flex-1 flex flex-col items-center justify-center px-6 pt-12">
           <div className="animate-fade-in flex flex-col items-center" style={{ animationDelay: "0.1s" }}>
-            <img src={logo} alt="dot.pe" className="h-12 mb-3" />
+            <img src={logo} alt="grid.pe" className="h-12 mb-3" />
             <p className="text-muted-foreground text-[18px] font-normal text-center">
               Cash access, reimagined.
             </p>
@@ -416,7 +416,7 @@ const OnboardingScreen = () => {
             </div>
 
             <p style={{ animationDelay: "0.7s" }} className="text-center text-muted-foreground leading-relaxed animate-fade-in px-4 text-sm font-normal">
-              By continuing, you agree to Dot.Pe's{" "}
+              By continuing, you agree to grid.pe's{" "}
               <a href="#" className="text-link hover:underline">Terms & Conditions</a>{" "}
               and{" "}
               <a href="#" className="text-link hover:underline">Privacy Policy</a>
@@ -513,7 +513,7 @@ const OnboardingScreen = () => {
             </div>
 
             <p className="text-center text-muted-foreground leading-relaxed px-4 pt-2 font-normal text-sm">
-              By continuing, you agree to Dot.Pe's{" "}
+              By continuing, you agree to grid.pe's{" "}
               <a href="#" className="text-link hover:underline">Terms & Conditions</a>{" "}
               and{" "}
               <a href="#" className="text-link hover:underline">Privacy Policy</a>

@@ -20,10 +20,10 @@ const AccountDeleted = () => {
 
   const handleTimeout = () => {
     // Clear user state
-    localStorage.removeItem("dotpe_user_state");
-    localStorage.removeItem("dotpe_user_cards");
-    localStorage.removeItem("dotpe_user_bank_accounts");
-    localStorage.removeItem("dotpe_user_mpin");
+    localStorage.removeItem("gridpe_user_state");
+    localStorage.removeItem("gridpe_user_cards");
+    localStorage.removeItem("gridpe_user_bank_accounts");
+    localStorage.removeItem("gridpe_user_mpin");
 
     // Redirect to root
     navigate("/");

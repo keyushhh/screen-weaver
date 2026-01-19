@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.dotpe.customer',
-  appName: 'Dot.Pe',
+  appId: 'com.gridpe.customer',
+  appName: 'Grid.Pe',
   webDir: 'dist'
 };
 
