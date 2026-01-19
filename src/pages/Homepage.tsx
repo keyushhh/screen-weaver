@@ -61,7 +61,7 @@ const Homepage = () => {
   useEffect(() => {
     const loadData = async () => {
         // Load Saved Address from Local Storage (Active Session Context)
-        const addressStr = localStorage.getItem("dotpe_user_address");
+        const addressStr = localStorage.getItem("gridpe_user_address");
         if (addressStr) {
           try {
             setSavedAddress(JSON.parse(addressStr));

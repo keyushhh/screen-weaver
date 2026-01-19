@@ -447,7 +447,7 @@ const OrderDetails = () => {
 
                   <div className="flex justify-between items-center mb-[12px]">
                       <span className="text-white text-[13px] font-normal font-sans">Payment Mode</span>
-                      <span className="text-white text-[13px] font-bold font-sans">Dot.Pe Wallet</span>
+                      <span className="text-white text-[13px] font-bold font-sans">grid.pe Wallet</span>
                   </div>
 
                   <p className="text-white/50 text-[13px] font-normal font-sans mb-[14px] leading-snug">

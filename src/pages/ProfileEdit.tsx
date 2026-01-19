@@ -7,7 +7,7 @@ import avatarImg from "@/assets/avatar.png";
 import verifiedIcon from "@/assets/verified-icon.png";
 import inputFieldBg from "@/assets/input-field-bg.png";
 import buttonCancel from "@/assets/button-cancel.png";
-import dotPeLogo from "@/assets/dot-pe-logo.svg";
+import gridPeLogo from "@/assets/grid-pe-logo.svg";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -275,7 +275,7 @@ const ProfileEdit = () => {
 
       {/* Footer Info - Matched to Settings Page structure */}
       <div className="px-5 mt-14 pb-10 opacity-40 flex flex-col items-start">
-        <img src={dotPeLogo} className="h-8 mb-1" />
+        <img src={gridPeLogo} className="h-8 mb-1" />
         <p className="font-grotesk font-medium text-[14px] text-left">
             App Version v1.0.0 — 100% drama compatible.
         </p>

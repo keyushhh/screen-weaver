@@ -51,7 +51,7 @@ const OrderCashSummary = () => {
   const [isAddressSheetOpen, setIsAddressSheetOpen] = useState(false);
 
   React.useEffect(() => {
-    const addressStr = localStorage.getItem("dotpe_user_address");
+    const addressStr = localStorage.getItem("gridpe_user_address");
     if (addressStr) {
       try {
         setSavedAddress(JSON.parse(addressStr));
@@ -183,7 +183,7 @@ const OrderCashSummary = () => {
                   // Update local state to include the new ID to prevent re-creation
                   const updatedAddr = { ...savedAddress, id: addressId };
                   setSavedAddress(updatedAddr);
-                  localStorage.setItem("dotpe_user_address", JSON.stringify(updatedAddr));
+                  localStorage.setItem("gridpe_user_address", JSON.stringify(updatedAddr));
 
               } catch (err) {
                   console.error("Failed to save address before order", err);
@@ -247,7 +247,7 @@ const OrderCashSummary = () => {
                       // Update local state
                       const updatedAddr = { ...savedAddress, id: newAddressId };
                       setSavedAddress(updatedAddr);
-                      localStorage.setItem("dotpe_user_address", JSON.stringify(updatedAddr));
+                      localStorage.setItem("gridpe_user_address", JSON.stringify(updatedAddr));
 
                       // Retry Order Creation
                       const order = await createOrder({

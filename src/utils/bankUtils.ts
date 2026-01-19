@@ -15,7 +15,7 @@ export interface BankAccount {
   backgroundIndex?: number;
 }
 
-const STORAGE_KEY = "dotpe_user_bank_accounts";
+const STORAGE_KEY = "gridpe_user_bank_accounts";
 
 // Export available banks for the Linked Accounts flow
 export const AVAILABLE_BANKS: BankAccount[] = [

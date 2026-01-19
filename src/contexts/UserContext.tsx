@@ -35,7 +35,7 @@ interface UserContextType extends UserState {
   resetForDemo: () => void;
 }
 
-const USER_STORAGE_KEY = 'dotpe_user_state';
+const USER_STORAGE_KEY = 'gridpe_user_state';
 
 const defaultState: UserState = {
   phoneNumber: '',

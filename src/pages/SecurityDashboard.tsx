@@ -15,7 +15,7 @@ import deleteAccountIcon from "@/assets/delete-account-icon.png";
 import toggleActive from "@/assets/toggle-active.png";
 import toggleInactive from "@/assets/toggle-inactive.png";
 import Lottie from "lottie-react";
-import dotpeRadarAnimation from "@/assets/dotpe-radar.json";
+import gridpeRadarAnimation from "@/assets/gridpe-radar.json";
 import errorRadarAnimation from "@/assets/error.json";
 import inProgressRadarAnimation from "@/assets/in-progress.json";
 import MpinSheet from "@/components/MpinSheet";
@@ -201,9 +201,9 @@ const SecurityDashboard = () => {
       case "pending":
         return inProgressRadarAnimation;
       case "complete":
-        return dotpeRadarAnimation;
+        return gridpeRadarAnimation;
       default:
-        return dotpeRadarAnimation;
+        return gridpeRadarAnimation;
     }
   };
 

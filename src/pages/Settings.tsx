@@ -6,7 +6,7 @@ import { getCards } from "@/utils/cardUtils";
 import { getBankAccounts } from "@/utils/bankUtils";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import avatarImg from "@/assets/avatar.png";
-import dotPeLogo from "@/assets/dot-pe-logo.svg";
+import gridPeLogo from "@/assets/grid-pe-logo.svg";
 import iconSecurity from "@/assets/icon-security.svg";
 import iconLinkedCards from "@/assets/icon-linked-cards.svg";
 import iconBankAcc from "@/assets/icon-bank-acc.svg";
@@ -290,7 +290,7 @@ const Settings = () => {
         onTouchStart={handleLogoPress}
         onTouchEnd={handleLogoRelease}
       >
-        <img src={dotPeLogo} className="h-8" />
+        <img src={gridPeLogo} className="h-8" />
         <p className="text-sm">This is not where you find love.</p>
       </div>
     </div>

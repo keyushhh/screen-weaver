@@ -187,7 +187,7 @@ const AddAddressDetails = () => {
                 postcode: initialState?.postcode || "",
                 plusCode: newAddr.plus_code || ""
             };
-            localStorage.setItem("dotpe_user_address", JSON.stringify(uiAddr));
+            localStorage.setItem("gridpe_user_address", JSON.stringify(uiAddr));
         }
 
         toast.success(isEditMode ? "Address updated!" : "Address saved successfully!");

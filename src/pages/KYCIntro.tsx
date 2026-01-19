@@ -54,7 +54,7 @@ const KYCIntro = () => {
       {/* Content */}
       <div className="flex-1 px-5 pt-6">
         <p className="text-foreground text-[16px] leading-relaxed mb-6">
-          Complete your eKYC to start using Dot.pe with all it's features:
+          Complete your eKYC to start using grid.pe with all it's features:
         </p>
 
         <div className="space-y-5">

@@ -8,7 +8,7 @@ export interface Card {
   backgroundIndex: number;
 }
 
-const STORAGE_KEY = "dotpe_user_cards";
+const STORAGE_KEY = "gridpe_user_cards";
 
 export const getCards = (): Card[] => {
   try {

@@ -51,7 +51,7 @@ export const reverseGeocode = async (lat: number, lng: number): Promise<GeocodeR
       `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`,
       {
         headers: {
-          'User-Agent': 'DotPe-Clone/1.0', // Good practice to identify your app
+          'User-Agent': 'gridpe-clone/1.0', // Good practice to identify your app
         },
       }
     );
@@ -91,7 +91,7 @@ export const forwardGeocode = async (query: string, userLat?: number, userLng?: 
 
         const response = await fetch(url, {
             headers: {
-                'User-Agent': 'DotPe-Clone/1.0',
+                'User-Agent': 'gridpe-clone/1.0',
             },
         });
 

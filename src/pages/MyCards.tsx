@@ -65,7 +65,7 @@ const MyCards = () => {
     setIsStacked(loadedCards.length > 1);
 
     // Check for tutorial
-    const hasSeenTutorial = localStorage.getItem("dotpe_stack_tutorial_seen");
+    const hasSeenTutorial = localStorage.getItem("gridpe_stack_tutorial_seen");
     if (!hasSeenTutorial && loadedCards.length > 1) {
         setTutorialStep(1);
     }
@@ -92,7 +92,7 @@ const MyCards = () => {
           setTutorialStep(2);
       } else if (tutorialStep === 2) {
           setTutorialStep(0);
-          localStorage.setItem("dotpe_stack_tutorial_seen", "true");
+          localStorage.setItem("gridpe_stack_tutorial_seen", "true");
       }
   };
 
