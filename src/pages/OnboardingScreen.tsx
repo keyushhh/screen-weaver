@@ -139,7 +139,7 @@ const OnboardingScreen = () => {
       let currentProfile = null;
 
       // Fetch or create profile
-      const { data: profileData, error: profileError } = await supabase
+      let { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
@@ -147,24 +147,35 @@ const OnboardingScreen = () => {
 
       const socialName = user.user_metadata?.full_name || user.user_metadata?.name || user.user_metadata?.preferred_username;
 
-      if (profileError || !profileData) {
-        // Create new profile
+      if (profileError && profileError.code === 'PGRST116') {
+        // Profile not found, create new one
+        console.log("Profile not found, creating new profile...");
         const { data: newProfile, error: createError } = await supabase
           .from('profiles')
           .insert({
             id: user.id,
             phone: user.phone || null,
-            name: socialName || user.email || null
+            name: socialName || user.email || null,
+            mpin_set: false
           })
           .select()
           .single();
 
-        if (!createError && newProfile) {
-          currentProfile = newProfile;
-          setProfile(newProfile);
-          console.log('Profile confirmed:', newProfile);
+        if (createError) {
+          console.error("Error creating profile:", createError);
+          return;
         }
-      } else {
+
+        profileData = newProfile;
+        currentProfile = newProfile;
+        setProfile(newProfile);
+        console.log('Profile created:', newProfile);
+      } else if (profileError) {
+        console.error("Error fetching profile:", profileError);
+        return;
+      }
+
+      if (profileData) {
           // Update profile name if social name is available and different/missing
           if (socialName && profileData.name !== socialName) {
               const { data: updatedProfile, error: updateError } = await supabase
@@ -268,16 +279,18 @@ const OnboardingScreen = () => {
     // Update profile on server
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-        const { error } = await supabase
+        const { data: updatedProfile, error } = await supabase
             .from('profiles')
             .update({ mpin_set: true })
-            .eq('id', user.id);
+            .eq('id', user.id)
+            .select()
+            .single();
 
         if (error) {
             console.error("Failed to update MPIN status:", error);
-            // Optional: Show error to user? For now logging it.
         } else {
-            console.log("MPIN status updated on server.");
+            console.log("MPIN status updated on server:", updatedProfile);
+            setProfile(updatedProfile);
         }
     }
 

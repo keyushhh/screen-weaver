@@ -234,7 +234,11 @@ const OrderDetails = () => {
                   <span className="text-white text-[10px] font-bold text-center border-b border-white/20 pb-1">DEV CONTROLS</span>
                   <button
                     onClick={async () => {
-                        await dev_updateOrderStatus(order.id, 'success');
+                        try {
+                            await dev_updateOrderStatus(order.id, 'success');
+                        } catch (e) {
+                            console.error("Dev update failed (likely RLS), proceeding with local mock", e);
+                        }
                         setOrder({ ...order, status: 'success' });
                     }}
                     className="px-2 py-1 bg-green-600 text-white text-[10px] rounded hover:bg-green-500"
@@ -243,7 +247,11 @@ const OrderDetails = () => {
                   </button>
                   <button
                     onClick={async () => {
-                        await dev_updateOrderStatus(order.id, 'failed');
+                        try {
+                            await dev_updateOrderStatus(order.id, 'failed');
+                        } catch (e) {
+                            console.error("Dev update failed (likely RLS), proceeding with local mock", e);
+                        }
                         setOrder({ ...order, status: 'failed' });
                     }}
                     className="px-2 py-1 bg-red-600 text-white text-[10px] rounded hover:bg-red-500"
@@ -252,7 +260,11 @@ const OrderDetails = () => {
                   </button>
                   <button
                     onClick={async () => {
-                        await dev_updateOrderStatus(order.id, 'cancelled');
+                        try {
+                            await dev_updateOrderStatus(order.id, 'cancelled');
+                        } catch (e) {
+                            console.error("Dev update failed (likely RLS), proceeding with local mock", e);
+                        }
                         setOrder({ ...order, status: 'cancelled', metadata: { ...order.metadata, cancel_reason_type: 'Simulated dev cancellation' } as any });
                     }}
                     className="px-2 py-1 bg-gray-600 text-white text-[10px] rounded hover:bg-gray-500"
