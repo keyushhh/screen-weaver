@@ -5,9 +5,11 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { OpenLocationCode } from "open-location-code";
 import { supabase } from "@/lib/supabase";
 import successBg from "@/assets/success-bg.png";
+import errorBg from "@/assets/error-bg.png";
 import popBgDefault from "@/assets/pop-bg-default.png";
 import popBgExpanded from "@/assets/pop-bg-expanded.png";
 import checkIcon from "@/assets/check-icon.png";
+import crossIcon from "@/assets/cross-icon.png";
 import hamburgerMenu from "@/assets/hamburger-menu.svg";
 import currentLocationIcon from "@/assets/current-location.svg";
 import deliveryRiderIcon from "@/assets/delivery-rider.svg";
@@ -213,410 +215,479 @@ const OrderDetails = () => {
       return <div className="h-full w-full bg-black flex items-center justify-center text-white">Loading...</div>;
   }
 
-  // --- RENDERERS FOR DIFFERENT STATES ---
+  // --- CONFIG FOR DIFFERENT STATES ---
+  const getStatusConfig = (currentOrder: Order) => {
+      // Default / Processing
+      let config = {
+          bgImage: successBg,
+          mainIcon: checkIcon,
+          headerTitle: "Order Successful",
+          statusTitle: "Your order is being processed!",
+          statusAmount: currentOrder.amount,
+          showMap: true,
+          deliveryText: "We’re assigning a delivery\npartner soon!",
+          deliverySubText: "Assigning a delivery partner in the next 2 minutes.",
+          transactionNote: "No charges yet — your wallet will only be debited after you confirm the delivery.",
+          canCancel: true
+      };
 
-  // 1. PROCESSING (Original Layout)
-  if (order.status === 'processing') {
-      return (
-        <div
-          className="h-full w-full overflow-hidden flex flex-col safe-area-top safe-area-bottom animate-in fade-in duration-500 relative"
-          style={{
-            backgroundColor: "#0a0a12",
-            backgroundImage: `url(${successBg})`,
-            backgroundSize: "cover",
-            backgroundPosition: "top center",
-            backgroundRepeat: "no-repeat",
-          }}
+      if (currentOrder.status === 'success' || currentOrder.status === 'delivered') {
+          config = {
+              bgImage: successBg,
+              mainIcon: checkIcon,
+              headerTitle: "Order Delivered",
+              statusTitle: "Order delivered successfully!",
+              statusAmount: currentOrder.amount,
+              showMap: true,
+              deliveryText: "Order Delivered",
+              deliverySubText: "Your package has arrived.",
+              transactionNote: "Amount deducted from your wallet.",
+              canCancel: false
+          };
+      } else if (currentOrder.status === 'failed') {
+          config = {
+              bgImage: errorBg,
+              mainIcon: crossIcon,
+              headerTitle: "Order Failed",
+              statusTitle: "Order could not be processed",
+              statusAmount: currentOrder.amount,
+              showMap: false,
+              deliveryText: "Payment Failed",
+              // @ts-ignore
+              deliverySubText: currentOrder.metadata?.failure_reason || "Something went wrong.",
+              transactionNote: "If any amount was deducted, it will be refunded instantly.",
+              canCancel: false
+          };
+      } else if (currentOrder.status === 'cancelled') {
+          config = {
+              bgImage: errorBg,
+              mainIcon: cancelIcon,
+              headerTitle: "Order Cancelled",
+              statusTitle: "Order Cancelled",
+              statusAmount: currentOrder.amount,
+              showMap: false,
+              deliveryText: "Order Cancelled",
+              // @ts-ignore
+              deliverySubText: currentOrder.metadata?.cancel_reason_type || "Order cancelled by user.",
+              transactionNote: "Refund has been initiated to your wallet.",
+              canCancel: false
+          };
+      }
+
+      return config;
+  };
+
+  const statusConfig = getStatusConfig(order);
+
+  // --- RENDER ---
+  return (
+    <div
+      className="h-full w-full overflow-hidden flex flex-col safe-area-top safe-area-bottom animate-in fade-in duration-500 relative"
+      style={{
+        backgroundColor: "#0a0a12",
+        backgroundImage: `url(${statusConfig.bgImage})`,
+        backgroundSize: "cover",
+        backgroundPosition: "top center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      {/* DEV CONTROLS */}
+      {import.meta.env.DEV && (
+          <div className="fixed top-24 right-4 z-[9999] flex flex-col gap-2 bg-black/90 p-2 rounded-lg border border-red-500/50 shadow-xl pointer-events-auto">
+              <span className="text-white text-[10px] font-bold text-center border-b border-white/20 pb-1">DEV CONTROLS</span>
+              <button
+                onClick={async () => {
+                    try {
+                        await dev_updateOrderStatus(order.id, 'success');
+                    } catch (e) {
+                        console.error("Dev update failed (likely RLS), proceeding with local mock", e);
+                    }
+                    setOrder({ ...order, status: 'success' });
+                }}
+                className="px-2 py-1 bg-green-600 text-white text-[10px] rounded hover:bg-green-500"
+              >
+                  Set Success
+              </button>
+              <button
+                onClick={async () => {
+                    try {
+                        await dev_updateOrderStatus(order.id, 'failed');
+                    } catch (e) {
+                        console.error("Dev update failed (likely RLS), proceeding with local mock", e);
+                    }
+                    setOrder({ ...order, status: 'failed' });
+                }}
+                className="px-2 py-1 bg-red-600 text-white text-[10px] rounded hover:bg-red-500"
+              >
+                  Set Failed
+              </button>
+              <button
+                onClick={async () => {
+                    try {
+                        await dev_updateOrderStatus(order.id, 'cancelled');
+                    } catch (e) {
+                        console.error("Dev update failed (likely RLS), proceeding with local mock", e);
+                    }
+                    setOrder({ ...order, status: 'cancelled', metadata: { ...order.metadata, cancel_reason_type: 'Simulated dev cancellation' } as any });
+                }}
+                className="px-2 py-1 bg-gray-600 text-white text-[10px] rounded hover:bg-gray-500"
+              >
+                  Set Cancelled
+              </button>
+          </div>
+      )}
+
+      {/* Header */}
+      <div className="flex-none px-5 pt-4 flex items-center justify-between z-10 mb-[21px] relative">
+        <div className="w-6" /> {/* Spacer */}
+        <h1 className="text-white text-[18px] font-medium font-sans">
+          {statusConfig.headerTitle}
+        </h1>
+        <button
+          ref={hamburgerRef}
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="w-6 h-6 flex items-center justify-center"
         >
-          {/* DEV CONTROLS */}
-          {import.meta.env.DEV && (
-              <div className="fixed top-24 right-4 z-[9999] flex flex-col gap-2 bg-black/90 p-2 rounded-lg border border-red-500/50 shadow-xl pointer-events-auto">
-                  <span className="text-white text-[10px] font-bold text-center border-b border-white/20 pb-1">DEV CONTROLS</span>
-                  <button
-                    onClick={async () => {
-                        try {
-                            await dev_updateOrderStatus(order.id, 'success');
-                        } catch (e) {
-                            console.error("Dev update failed (likely RLS), proceeding with local mock", e);
-                        }
-                        setOrder({ ...order, status: 'success' });
-                    }}
-                    className="px-2 py-1 bg-green-600 text-white text-[10px] rounded hover:bg-green-500"
-                  >
-                      Set Success
-                  </button>
-                  <button
-                    onClick={async () => {
-                        try {
-                            await dev_updateOrderStatus(order.id, 'failed');
-                        } catch (e) {
-                            console.error("Dev update failed (likely RLS), proceeding with local mock", e);
-                        }
-                        setOrder({ ...order, status: 'failed' });
-                    }}
-                    className="px-2 py-1 bg-red-600 text-white text-[10px] rounded hover:bg-red-500"
-                  >
-                      Set Failed
-                  </button>
-                  <button
-                    onClick={async () => {
-                        try {
-                            await dev_updateOrderStatus(order.id, 'cancelled');
-                        } catch (e) {
-                            console.error("Dev update failed (likely RLS), proceeding with local mock", e);
-                        }
-                        setOrder({ ...order, status: 'cancelled', metadata: { ...order.metadata, cancel_reason_type: 'Simulated dev cancellation' } as any });
-                    }}
-                    className="px-2 py-1 bg-gray-600 text-white text-[10px] rounded hover:bg-gray-500"
-                  >
-                      Set Cancelled
-                  </button>
-              </div>
-          )}
+            <img src={hamburgerMenu} alt="Menu" className="w-full h-full" />
+        </button>
 
-          {/* Header */}
-          <div className="flex-none px-5 pt-4 flex items-center justify-between z-10 mb-[21px] relative">
-            <div className="w-6" /> {/* Spacer */}
-            <h1 className="text-white text-[18px] font-medium font-sans">
-              Order Successful
-            </h1>
-            <button
-              ref={hamburgerRef}
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="w-6 h-6 flex items-center justify-center"
-            >
-                <img src={hamburgerMenu} alt="Menu" className="w-full h-full" />
+        {/* Hamburger Menu Dropdown */}
+        {isMenuOpen && (
+          <div
+            ref={menuRef}
+            className="absolute top-[50px] right-[20px] rounded-[12px] flex flex-col items-start overflow-hidden z-50 border border-white/20"
+            style={{
+              width: "145px",
+              height: "auto",
+              minHeight: "69px",
+              backgroundColor: "rgba(0, 0, 0, 0.6)",
+              backdropFilter: "blur(12px)",
+              WebkitBackdropFilter: "blur(12px)",
+            }}
+          >
+            {/* Need Help? */}
+            <button className="w-full text-left px-[12px] py-[8px] text-white text-[12px] font-medium font-sans hover:bg-white/10 transition-colors">
+              Need Help?
             </button>
 
-            {/* Hamburger Menu Dropdown */}
-            {isMenuOpen && (
-              <div
-                ref={menuRef}
-                className="absolute top-[50px] right-[20px] rounded-[12px] flex flex-col items-start overflow-hidden z-50 border border-white/20"
-                style={{
-                  width: "145px",
-                  height: "auto",
-                  minHeight: "69px",
-                  backgroundColor: "rgba(0, 0, 0, 0.6)",
-                  backdropFilter: "blur(12px)",
-                  WebkitBackdropFilter: "blur(12px)",
-                }}
-              >
-                {/* Need Help? */}
-                <button className="w-full text-left px-[12px] py-[8px] text-white text-[12px] font-medium font-sans hover:bg-white/10 transition-colors">
-                  Need Help?
-                </button>
+            {/* Divider (Only if canCancel) */}
+            {statusConfig.canCancel && <div className="w-full h-[0.5px]" />}
 
-                {/* Divider */}
-                <div className="w-full h-[0.5px]" />
-
-                {/* Cancel Order */}
-                <div
-                  className="w-full px-[12px] py-[8px] flex items-start justify-between cursor-pointer hover:bg-white/10 transition-colors"
-                  onClick={() => {
-                      if (timer > 0) {
-                          setShowCancelPopup(true);
-                          setIsMenuOpen(false);
-                      }
-                  }}
-                >
-                  <span className={`text-[12px] font-medium font-sans ${timer === 0 ? 'text-[#878787]' : 'text-white'}`}>
-                    {timer > 0 ? `Cancel Order (${timer}s)` : 'Cancel Order (unavailable)'}
-                  </span>
-                  {timer === 0 && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowInfoPopup(true);
-                        setIsMenuOpen(false);
-                      }}
-                      className="w-[14px] h-[14px] ml-1 flex-shrink-0 mt-[2px]"
-                    >
-                      <img src={infoIcon} alt="Info" className="w-full h-full" />
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="flex-1 overflow-hidden px-5 pb-[10px] flex flex-col items-center">
-              {/* Check Icon */}
-              <div className="w-[62px] h-[62px] mb-[35px]">
-                  <img src={checkIcon} alt="Success" className="w-full h-full object-contain" />
-              </div>
-
-              {/* Status Text */}
-              <h2 className="text-white text-[18px] font-bold font-sans mb-[1px]">
-                  Your order is being processed!
-              </h2>
-
-              {/* Amount */}
-              <p className="text-white text-[25px] font-medium font-sans mb-[39px]">
-                  ₹{(order.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </p>
-
-              {/* Delivery Container */}
-              <div className="w-full mb-[16px] flex flex-col">
-                  {/* Header Row (Top Container) */}
-                  <div
-                      className="w-full px-[16px] py-[9px] flex justify-between items-start z-10 shrink-0 rounded-t-[14px]"
-                      style={{
-                          backgroundColor: "#000000",
-                      }}
-                  >
-                      <span className="text-white text-[12px] font-medium font-sans whitespace-nowrap mr-2">
-                          Delivering to - {order.addresses?.label || "Home"}
-                      </span>
-                      <span className="text-white text-[12px] font-medium font-sans text-right leading-tight">
-                          {getAddressDisplay()}
-                      </span>
-                  </div>
-
-                  {/* Status & Map Container (Bottom Container) */}
-                  <div
-                      className="w-full rounded-b-[14px] flex"
-                      style={{
-                          backgroundColor: "rgba(25, 25, 25, 0.34)",
-                          padding: "12px",
-                          marginTop: 0
-                      }}
-                  >
-                      {/* Left Text */}
-                      <div className="flex-1 flex flex-col justify-start pr-2">
-                          <p className="text-white text-[14px] font-medium font-sans leading-snug mb-[12px]">
-                              We’re assigning a delivery<br />partner soon!
-                          </p>
-                          <p className="text-white text-[12px] font-light font-sans leading-snug mb-[4px]">
-                              Assigning a delivery partner in the next 2 minutes.
-                          </p>
-                      </div>
-
-                      {/* Mini Map */}
-                      <div
-                        className="shrink-0 relative rounded-[8px] overflow-hidden"
-                        style={{
-                            width: "110px",
-                            height: "82px",
-                            backgroundColor: "#1A1A1A"
-                        }}
-                      >
-                           <Map
-                               {...viewState}
-                               style={{ width: "100%", height: "100%" }}
-                               mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
-                               attributionControl={false}
-                               interactive={false}
-                           >
-                               {/* Dashed Route Line */}
-                               <Source id="route" type="geojson" data={routeGeoJson}>
-                                   <Layer {...routeLayer} />
-                               </Source>
-
-                               {/* Delivery/User Location Marker */}
-                               <Marker latitude={viewState.latitude} longitude={viewState.longitude}>
-                                   <img src={currentLocationIcon} alt="User" className="w-4 h-4" />
-                               </Marker>
-
-                               {/* Mock Rider Marker (slightly offset) */}
-                               <Marker
-                                    latitude={viewState.latitude + 0.002}
-                                    longitude={viewState.longitude + 0.002}
-                               >
-                                    <img src={deliveryRiderIcon} alt="Rider" className="w-6 h-6" />
-                               </Marker>
-                           </Map>
-                      </div>
-                  </div>
-              </div>
-
-              {/* Transaction Details Container */}
-              <div
-                className="w-full rounded-[13px] p-[12px] mb-[29px]"
-                style={{
-                    height: "239px",
-                    backgroundColor: "rgba(25, 25, 25, 0.34)"
-                }}
-              >
-                  <h3 className="text-white text-[16px] font-medium font-sans">
-                      Transaction Details
-                  </h3>
-                  <div className="w-full h-[1px] bg-[#202020] mt-[10px] mb-[10px]" />
-
-                  <div className="flex justify-between items-center mb-[8px]">
-                      <span className="text-white text-[13px] font-normal font-sans">Transaction Number</span>
-                      <span className="text-white text-[13px] font-bold font-sans">{order.id.slice(0, 8).toUpperCase()}...</span>
-                  </div>
-
-                  <div className="flex justify-between items-center mb-[8px]">
-                      <span className="text-white text-[13px] font-normal font-sans">Date & Time</span>
-                      <span className="text-white text-[13px] font-bold font-sans">
-                          {new Date(order.created_at).toLocaleString('en-IN', {
-                              day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit'
-                          })}
-                      </span>
-                  </div>
-
-                  <div className="flex justify-between items-center mb-[12px]">
-                      <span className="text-white text-[13px] font-normal font-sans">Payment Mode</span>
-                      <span className="text-white text-[13px] font-bold font-sans">grid.pe Wallet</span>
-                  </div>
-
-                  <p className="text-white/50 text-[13px] font-normal font-sans mb-[14px] leading-snug">
-                      No charges yet — your wallet will only be debited after you confirm the delivery.
-                  </p>
-
-                  <p className="text-white text-[13px] font-normal font-sans leading-snug">
-                      If you need to cancel, you can do so within 30 seconds or before a delivery partner is assigned, whichever is earlier.
-                  </p>
-              </div>
-
-              {/* Footer CTA */}
-              <div className="w-full">
-                <button
-                    onClick={() => navigate("/home")}
-                    className="w-full h-[48px] flex items-center justify-center text-white text-[16px] font-medium font-sans"
-                    style={{
-                        backgroundImage: `url(${buttonPrimary})`,
-                        backgroundSize: "100% 100%",
-                        backgroundRepeat: "no-repeat",
-                    }}
-                >
-                    Go Home
-                </button>
-              </div>
-          </div>
-
-          {/* Info Popup (Toaster) */}
-          {showInfoPopup && (
+            {/* Cancel Order (Only if canCancel) */}
+            {statusConfig.canCancel && (
             <div
-              className="absolute inset-0 z-50 flex items-start justify-center pt-4 bg-black/50 backdrop-blur-sm safe-area-top"
+              className="w-full px-[12px] py-[8px] flex items-start justify-between cursor-pointer hover:bg-white/10 transition-colors"
               onClick={() => {
-                  setShowInfoPopup(false);
-                  setIsMenuOpen(true);
+                  if (timer > 0) {
+                      setShowCancelPopup(true);
+                      setIsMenuOpen(false);
+                  }
               }}
             >
-              <div
-                onClick={(e) => e.stopPropagation()}
-                className="relative rounded-[12px] border border-white/20 p-[12px] flex items-start"
-                style={{
-                  width: "362px",
-                  height: "auto",
-                  minHeight: "79px",
-                  backgroundColor: "rgba(0, 0, 0, 0.7)",
-                  backdropFilter: "blur(14px)",
-                  WebkitBackdropFilter: "blur(14px)",
-                }}
-              >
-                 <p className="text-white text-[12px] font-medium font-sans leading-[1.4] pr-6">
-                    The cancellation window has expired. <br />
-                    If something went wrong or you need help, we’ve got your back — reach out anytime.
-                 </p>
-                 <button
-                    onClick={() => {
-                        setShowInfoPopup(false);
-                        setIsMenuOpen(true);
-                    }}
-                    className="absolute top-[12px] right-[12px] w-[16px] h-[16px]"
-                 >
-                    <img src={closeIcon} alt="Close" className="w-full h-full" />
-                 </button>
-              </div>
+              <span className={`text-[12px] font-medium font-sans ${timer === 0 ? 'text-[#878787]' : 'text-white'}`}>
+                {timer > 0 ? `Cancel Order (${timer}s)` : 'Cancel Order (unavailable)'}
+              </span>
+              {timer === 0 && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowInfoPopup(true);
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-[14px] h-[14px] ml-1 flex-shrink-0 mt-[2px]"
+                >
+                  <img src={infoIcon} alt="Info" className="w-full h-full" />
+                </button>
+              )}
             </div>
-          )}
+            )}
+          </div>
+        )}
+      </div>
 
-          {/* Cancel Order Popup */}
-          {showCancelPopup && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md px-5">
-                  <div
-                      className="relative rounded-[13px] p-[22px] w-full max-w-[353px] flex flex-col items-center border border-white/10"
-                      style={{
-                          backgroundImage: `url(${cancelReason === 5 ? popBgExpanded : popBgDefault})`,
-                          backgroundSize: '100% 100%',
-                          backgroundRepeat: 'no-repeat',
-                      }}
-                  >
-                      {/* Icon */}
-                      <div className="w-[32px] h-[32px] mb-[16px]">
-                          <img src={cancelIcon} alt="Cancel" className="w-full h-full" />
-                      </div>
+      <div className="flex-1 overflow-hidden px-5 pb-[10px] flex flex-col items-center">
+          {/* Main Icon */}
+          <div className="w-[62px] h-[62px] mb-[35px]">
+              <img src={statusConfig.mainIcon} alt="Status" className="w-full h-full object-contain" />
+          </div>
 
-                      {/* Header */}
-                      <h2 className="text-white text-[18px] font-bold font-sans mb-[8px] text-center">
-                          Cancel Order?
-                      </h2>
+          {/* Status Text */}
+          <h2 className="text-white text-[18px] font-bold font-sans mb-[1px]">
+              {statusConfig.statusTitle}
+          </h2>
 
-                      {/* Subtext */}
-                      <p className="text-white text-[13px] font-medium font-sans text-center leading-[1.4] mb-[24px] px-[13px]">
-                          We’re not mad. Just disappointed. Help us understand why<br/>
-                          you’re cancelling. It helps us improve your experience (and<br/>
-                          emotionally prepare for this moment).
+          {/* Amount */}
+          <p className="text-white text-[25px] font-medium font-sans mb-[39px]">
+              ₹{(statusConfig.statusAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </p>
+
+          {/* Delivery Container */}
+          <div className="w-full mb-[16px] flex flex-col">
+              {/* Header Row (Top Container) */}
+              <div
+                  className="w-full px-[16px] py-[9px] flex justify-between items-start z-10 shrink-0 rounded-t-[14px]"
+                  style={{
+                      backgroundColor: "#000000",
+                  }}
+              >
+                  <span className="text-white text-[12px] font-medium font-sans whitespace-nowrap mr-2">
+                      Delivering to - {order.addresses?.label || "Home"}
+                  </span>
+                  <span className="text-white text-[12px] font-medium font-sans text-right leading-tight">
+                      {getAddressDisplay()}
+                  </span>
+              </div>
+
+              {/* Status & Map Container (Bottom Container) */}
+              <div
+                  className="w-full rounded-b-[14px] flex"
+                  style={{
+                      backgroundColor: "rgba(25, 25, 25, 0.34)",
+                      padding: "12px",
+                      marginTop: 0
+                  }}
+              >
+                  {/* Left Text */}
+                  <div className="flex-1 flex flex-col justify-start pr-2">
+                      <p className="text-white text-[14px] font-medium font-sans leading-snug mb-[12px] whitespace-pre-line">
+                          {statusConfig.deliveryText}
                       </p>
+                      <p className="text-white text-[12px] font-light font-sans leading-snug mb-[4px]">
+                          {statusConfig.deliverySubText}
+                      </p>
+                  </div>
 
-                      {/* Reason List Container */}
-                      <div
-                        className="flex flex-col mb-[24px] overflow-hidden w-full"
-                        style={{
-                            backgroundColor: "rgba(0, 0, 0, 0.60)",
-                            borderRadius: "12px",
-                        }}
-                      >
-                          {/* Title inside container */}
-                          <div className="pt-[14px] px-[12px]">
-                               <p className="text-white text-[12px] font-medium font-sans">
-                                  Reason for Cancellation? (Required)
-                               </p>
-                          </div>
+                  {/* Mini Map (Only if showMap is true) */}
+                  {statusConfig.showMap && (
+                  <div
+                    className="shrink-0 relative rounded-[8px] overflow-hidden"
+                    style={{
+                        width: "110px",
+                        height: "82px",
+                        backgroundColor: "#1A1A1A"
+                    }}
+                  >
+                       <Map
+                           {...viewState}
+                           style={{ width: "100%", height: "100%" }}
+                           mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
+                           attributionControl={false}
+                           interactive={false}
+                       >
+                           {/* Dashed Route Line */}
+                           <Source id="route" type="geojson" data={routeGeoJson}>
+                               <Layer {...routeLayer} />
+                           </Source>
 
-                          {/* Divider */}
-                          <div className="mt-[14px] w-full h-[1px] bg-white/10" />
+                           {/* Delivery/User Location Marker */}
+                           <Marker latitude={viewState.latitude} longitude={viewState.longitude}>
+                               <img src={currentLocationIcon} alt="User" className="w-4 h-4" />
+                           </Marker>
 
-                          {/* List */}
-                          <div>
-                              {cancelReasons.map((reason, index) => (
-                                  <div
-                                      key={index}
-                                      onClick={() => setCancelReason(index)}
-                                      className={`w-full h-[44px] flex items-center px-[12px] cursor-pointer ${
-                                          index !== cancelReasons.length - 1 ? 'border-b border-white/5' : ''
-                                      } hover:bg-white/5 transition-colors`}
-                                  >
-                                      <img
-                                          src={cancelReason === index ? radioFilled : radioEmpty}
-                                          alt="radio"
-                                          className="w-[16px] h-[16px] mr-[12px]"
-                                      />
-                                      <span className="text-white text-[13px] font-medium font-sans">
-                                          {reason}
-                                      </span>
-                                  </div>
-                              ))}
-                          </div>
+                           {/* Mock Rider Marker (only for processing?) */}
+                           {order.status === 'processing' && (
+                           <Marker
+                                latitude={viewState.latitude + 0.002}
+                                longitude={viewState.longitude + 0.002}
+                           >
+                                <img src={deliveryRiderIcon} alt="Rider" className="w-6 h-6" />
+                           </Marker>
+                           )}
+                       </Map>
+                  </div>
+                  )}
+              </div>
+          </div>
 
-                           {/* Other Input */}
-                           {cancelReason === 5 && (
-                              <div className="w-full p-[12px] animate-in fade-in slide-in-from-top-2 duration-200">
-                                  <textarea
-                                      value={otherReason}
-                                      onChange={(e) => setOtherReason(e.target.value)}
-                                      placeholder="Tell us more..."
-                                      className="w-full h-[80px] bg-white/5 rounded-[12px] border border-white/10 p-[12px] text-white text-[13px] font-sans focus:outline-none focus:border-white/20 resize-none placeholder:text-[#6F6F6F]"
-                                  />
-                              </div>
-                          )}
+          {/* Transaction Details Container */}
+          <div
+            className="w-full rounded-[13px] p-[12px] mb-[29px]"
+            style={{
+                height: "239px",
+                backgroundColor: "rgba(25, 25, 25, 0.34)"
+            }}
+          >
+              <h3 className="text-white text-[16px] font-medium font-sans">
+                  Transaction Details
+              </h3>
+              <div className="w-full h-[1px] bg-[#202020] mt-[10px] mb-[10px]" />
+
+              <div className="flex justify-between items-center mb-[8px]">
+                  <span className="text-white text-[13px] font-normal font-sans">Transaction Number</span>
+                  <span className="text-white text-[13px] font-bold font-sans">{order.id.slice(0, 8).toUpperCase()}...</span>
+              </div>
+
+              <div className="flex justify-between items-center mb-[8px]">
+                  <span className="text-white text-[13px] font-normal font-sans">Date & Time</span>
+                  <span className="text-white text-[13px] font-bold font-sans">
+                      {new Date(order.created_at).toLocaleString('en-IN', {
+                          day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit'
+                      })}
+                  </span>
+              </div>
+
+              <div className="flex justify-between items-center mb-[12px]">
+                  <span className="text-white text-[13px] font-normal font-sans">Payment Mode</span>
+                  <span className="text-white text-[13px] font-bold font-sans">grid.pe Wallet</span>
+              </div>
+
+              <p className="text-white/50 text-[13px] font-normal font-sans mb-[14px] leading-snug">
+                  {statusConfig.transactionNote}
+              </p>
+
+              {statusConfig.canCancel && (
+              <p className="text-white text-[13px] font-normal font-sans leading-snug">
+                  If you need to cancel, you can do so within 30 seconds or before a delivery partner is assigned, whichever is earlier.
+              </p>
+              )}
+          </div>
+
+          {/* Footer CTA */}
+          <div className="w-full">
+            <button
+                onClick={() => navigate("/home")}
+                className="w-full h-[48px] flex items-center justify-center text-white text-[16px] font-medium font-sans"
+                style={{
+                    backgroundImage: `url(${buttonPrimary})`,
+                    backgroundSize: "100% 100%",
+                    backgroundRepeat: "no-repeat",
+                }}
+            >
+                Go Home
+            </button>
+          </div>
+      </div>
+
+      {/* Info Popup (Toaster) */}
+      {showInfoPopup && (
+        <div
+          className="absolute inset-0 z-50 flex items-start justify-center pt-4 bg-black/50 backdrop-blur-sm safe-area-top"
+          onClick={() => {
+              setShowInfoPopup(false);
+              setIsMenuOpen(true);
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative rounded-[12px] border border-white/20 p-[12px] flex items-start"
+            style={{
+              width: "362px",
+              height: "auto",
+              minHeight: "79px",
+              backgroundColor: "rgba(0, 0, 0, 0.7)",
+              backdropFilter: "blur(14px)",
+              WebkitBackdropFilter: "blur(14px)",
+            }}
+          >
+             <p className="text-white text-[12px] font-medium font-sans leading-[1.4] pr-6">
+                The cancellation window has expired. <br />
+                If something went wrong or you need help, we’ve got your back — reach out anytime.
+             </p>
+             <button
+                onClick={() => {
+                    setShowInfoPopup(false);
+                    setIsMenuOpen(true);
+                }}
+                className="absolute top-[12px] right-[12px] w-[16px] h-[16px]"
+             >
+                <img src={closeIcon} alt="Close" className="w-full h-full" />
+             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Cancel Order Popup */}
+      {showCancelPopup && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md px-5">
+              <div
+                  className="relative rounded-[13px] p-[22px] w-full max-w-[353px] flex flex-col items-center border border-white/10"
+                  style={{
+                      backgroundImage: `url(${cancelReason === 5 ? popBgExpanded : popBgDefault})`,
+                      backgroundSize: '100% 100%',
+                      backgroundRepeat: 'no-repeat',
+                  }}
+              >
+                  {/* Icon */}
+                  <div className="w-[32px] h-[32px] mb-[16px]">
+                      <img src={cancelIcon} alt="Cancel" className="w-full h-full" />
+                  </div>
+
+                  {/* Header */}
+                  <h2 className="text-white text-[18px] font-bold font-sans mb-[8px] text-center">
+                      Cancel Order?
+                  </h2>
+
+                  {/* Subtext */}
+                  <p className="text-white text-[13px] font-medium font-sans text-center leading-[1.4] mb-[24px] px-[13px]">
+                      We’re not mad. Just disappointed. Help us understand why<br/>
+                      you’re cancelling. It helps us improve your experience (and<br/>
+                      emotionally prepare for this moment).
+                  </p>
+
+                  {/* Reason List Container */}
+                  <div
+                    className="flex flex-col mb-[24px] overflow-hidden w-full"
+                    style={{
+                        backgroundColor: "rgba(0, 0, 0, 0.60)",
+                        borderRadius: "12px",
+                    }}
+                  >
+                      {/* Title inside container */}
+                      <div className="pt-[14px] px-[12px]">
+                           <p className="text-white text-[12px] font-medium font-sans">
+                              Reason for Cancellation? (Required)
+                           </p>
                       </div>
 
-                      {/* Buttons */}
-                      <div className="w-full flex gap-[12px] justify-center">
-                          <button
-                              onClick={() => setShowCancelPopup(false)}
-                              className="rounded-full text-white text-[14px] font-medium font-sans flex items-center justify-center shrink-0"
-                              style={{
-                                  width: '158px',
-                                  height: '37px',
-                                  backgroundImage: `url(${buttonPrimary})`,
-                                  backgroundSize: "100% 100%",
-                                  backgroundRepeat: "no-repeat",
+                      {/* Divider */}
+                      <div className="mt-[14px] w-full h-[1px] bg-white/10" />
+
+                      {/* List */}
+                      <div>
+                          {cancelReasons.map((reason, index) => (
+                              <div
+                                  key={index}
+                                  onClick={() => setCancelReason(index)}
+                                  className={`w-full h-[44px] flex items-center px-[12px] cursor-pointer ${
+                                      index !== cancelReasons.length - 1 ? 'border-b border-white/5' : ''
+                                  } hover:bg-white/5 transition-colors`}
+                              >
+                                  <img
+                                      src={cancelReason === index ? radioFilled : radioEmpty}
+                                      alt="radio"
+                                      className="w-[16px] h-[16px] mr-[12px]"
+                                  />
+                                  <span className="text-white text-[13px] font-medium font-sans">
+                                      {reason}
+                                  </span>
+                              </div>
+                          ))}
+                      </div>
+
+                       {/* Other Input */}
+                       {cancelReason === 5 && (
+                          <div className="w-full p-[12px] animate-in fade-in slide-in-from-top-2 duration-200">
+                              <textarea
+                                  value={otherReason}
+                                  onChange={(e) => setOtherReason(e.target.value)}
+                                  placeholder="Tell us more..."
+                                  className="w-full h-[80px] bg-white/5 rounded-[12px] border border-white/10 p-[12px] text-white text-[13px] font-sans focus:outline-none focus:border-white/20 resize-none placeholder:text-[#6F6F6F]"
+                              />
+                          </div>
+                      )}
+                  </div>
+
+                  {/* Buttons */}
+                  <div className="w-full flex gap-[12px] justify-center">
+                      <button
+                          onClick={() => setShowCancelPopup(false)}
+                          className="rounded-full text-white text-[14px] font-medium font-sans flex items-center justify-center shrink-0"
+                          style={{
+                              width: '158px',
+                              height: '37px',
+                              backgroundImage: `url(${buttonPrimary})`,
+                              backgroundSize: "100% 100%",
+                              backgroundRepeat: "no-repeat",
                               }}
                           >
                               Fine, I'll stay
@@ -638,79 +709,5 @@ const OrderDetails = () => {
         </div>
       );
   }
-
-  // 2. CANCELLED
-  if (order.status === 'cancelled') {
-      return (
-          <div className="h-full w-full bg-black flex flex-col text-white px-5 pt-6 safe-area-top">
-              <button onClick={() => navigate(-1)} className="mb-4 w-10 h-10 rounded-full border border-white/20 flex items-center justify-center">
-                  <span className="text-xl">←</span>
-              </button>
-              <h1 className="text-2xl font-bold mb-2">Order Cancelled</h1>
-              <p className="text-white/60 mb-6">Order #{order.id.slice(0,8).toUpperCase()}</p>
-
-              <div className="bg-[#1A1A1A] rounded-xl p-4 mb-6">
-                  <p className="text-sm text-white/80 mb-2">Cancellation Reason:</p>
-                  {/* @ts-ignore */}
-                  <p className="text-lg font-medium">{order.metadata?.cancel_reason_type || "Changed mind"}</p>
-              </div>
-
-              <div className="bg-[#1A1A1A] rounded-xl p-4">
-                  <p className="text-sm text-white/80 mb-2">Wallet Status:</p>
-                  <p className="text-sm text-green-400">Amount released to wallet.</p>
-              </div>
-          </div>
-      );
-  }
-
-  // 3. FAILED (Generic)
-  if (order.status === 'failed') {
-      return (
-          <div className="h-full w-full bg-black flex flex-col text-white px-5 pt-6 safe-area-top">
-              <button onClick={() => navigate(-1)} className="mb-4 w-10 h-10 rounded-full border border-white/20 flex items-center justify-center">
-                  <span className="text-xl">←</span>
-              </button>
-              <h1 className="text-2xl font-bold mb-2 text-red-500">Order Failed</h1>
-              <p className="text-white/60 mb-6">Order #{order.id.slice(0,8).toUpperCase()}</p>
-
-              <div className="bg-[#1A1A1A] rounded-xl p-4 mb-6">
-                  {/* @ts-ignore */}
-                  <p className="text-white">{order.metadata?.failure_reason || "Something went wrong with this order."}</p>
-                  <p className="text-sm text-white/60 mt-2">Don't worry, if any amount was deducted, it will be refunded shortly.</p>
-              </div>
-
-              <button className="w-full h-12 bg-white/10 rounded-full font-medium">Need Help?</button>
-          </div>
-      );
-  }
-
-  // 4. SUCCESS / DELIVERED
-  return (
-      <div className="h-full w-full bg-black flex flex-col text-white px-5 pt-6 safe-area-top">
-          <button onClick={() => navigate(-1)} className="mb-4 w-10 h-10 rounded-full border border-white/20 flex items-center justify-center">
-              <span className="text-xl">←</span>
-          </button>
-          <div className="flex flex-col items-center mb-8">
-              <img src={checkIcon} className="w-16 h-16 mb-4" alt="Success" />
-              <h1 className="text-2xl font-bold text-green-500">Order Delivered</h1>
-              <p className="text-white/60 mt-2">Order #{order.id.slice(0,8).toUpperCase()}</p>
-          </div>
-
-          <div className="bg-[#1A1A1A] rounded-xl p-4 mb-6">
-              <div className="flex justify-between mb-4">
-                  <span>Amount Paid</span>
-                  <span className="font-bold">₹{order.amount}</span>
-              </div>
-              <div className="flex justify-between">
-                  <span>Delivered to</span>
-                  <span>{order.addresses?.label || "Home"}</span>
-              </div>
-          </div>
-
-          <button className="w-full h-12 bg-blue-600 rounded-full font-medium mb-3">Add Tip</button>
-          <button className="w-full h-12 bg-white/10 rounded-full font-medium">Repeat Order</button>
-      </div>
-  );
-};
 
 export default OrderDetails;
