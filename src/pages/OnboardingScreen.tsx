@@ -285,7 +285,7 @@ const OnboardingScreen = () => {
     try {
       // Update profile on server
       const { data: { user } } = await supabase.auth.getUser();
-
+      
       if (!user) {
         setGeneralError("Session expired. Please try logging in again.");
         setIsLoading(false);
