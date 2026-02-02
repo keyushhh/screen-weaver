@@ -138,19 +138,17 @@ const OnboardingScreen = () => {
 
       let currentProfile = null;
 
-      // Fetch or create profile
-      const { data: initialProfileData, error: profileError } = await supabase
+      // 1. Attempt to fetch existing profile
+      const { data: existingProfile, error: fetchError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .single();
 
-      let profileData = initialProfileData;
-
       const socialName = user.user_metadata?.full_name || user.user_metadata?.name || user.user_metadata?.preferred_username;
 
-      if (profileError && profileError.code === 'PGRST116') {
-        // Profile not found, create new one
+      if (fetchError && fetchError.code === 'PGRST116') {
+        // 2. Profile doesn't exist -> Create it
         console.log("Profile not found, creating new profile...");
         const { data: newProfile, error: createError } = await supabase
           .from('profiles')
@@ -167,50 +165,47 @@ const OnboardingScreen = () => {
           console.error("Error creating profile:", createError);
           return;
         }
-
-        profileData = newProfile;
         currentProfile = newProfile;
-        setProfile(newProfile);
-        console.log('Profile created:', newProfile);
-      } else if (profileError) {
-        console.error("Error fetching profile:", profileError);
+        console.log('Profile created:', currentProfile);
+
+      } else if (fetchError) {
+        console.error("Error fetching profile:", fetchError);
         return;
+      } else {
+        // 3. Profile exists -> Use it
+        currentProfile = existingProfile;
+        console.log('Profile found:', currentProfile);
+
+        // Optional: Sync social name if needed
+        if (socialName && currentProfile.name !== socialName) {
+            const { data: updatedProfile, error: updateError } = await supabase
+                .from('profiles')
+                .update({ name: socialName })
+                .eq('id', user.id)
+                .select()
+                .single();
+
+            if (!updateError && updatedProfile) {
+                currentProfile = updatedProfile;
+                console.log('Profile name synced:', currentProfile);
+            }
+        }
       }
 
-      if (profileData) {
-          // Update profile name if social name is available and different/missing
-          if (socialName && profileData.name !== socialName) {
-              const { data: updatedProfile, error: updateError } = await supabase
-                  .from('profiles')
-                  .update({ name: socialName })
-                  .eq('id', user.id)
-                  .select()
-                  .single();
-
-              if (!updateError && updatedProfile) {
-                  currentProfile = updatedProfile;
-                  setProfile(updatedProfile);
-                  console.log('Profile updated with social name:', updatedProfile);
-              } else {
-                  currentProfile = profileData;
-                  setProfile(profileData);
-                  console.error("Failed to update profile name:", updateError);
-              }
-          } else {
-              currentProfile = profileData;
-              setProfile(profileData);
-              console.log('Profile confirmed:', profileData);
-          }
+      // Update local context
+      if (currentProfile) {
+          setProfile(currentProfile);
       }
 
       // Save verified phone number to context if available (OTP flow)
-      // For Google Auth, phone might be missing, so we skip or handle accordingly
       if (user.phone) {
           savePhoneNumber(user.phone);
       }
 
-      // Check mpin_set flag from profile (server-side state)
-      const isMpinSet = currentProfile?.mpin_set || false;
+      // 4. Check MPIN Status
+      // We rely on the server-side 'mpin_set' flag we just fetched.
+      const isMpinSet = currentProfile?.mpin_set === true;
+      console.log(`MPIN Status Check: ${isMpinSet} (from DB: ${currentProfile?.mpin_set})`);
 
       if (isMpinSet) {
           console.log("User has MPIN set (server flag), navigating to Home.");
