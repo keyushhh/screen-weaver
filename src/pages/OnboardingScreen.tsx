@@ -319,15 +319,19 @@ const OnboardingScreen = () => {
     if (provider) {
         try {
             const isNative = Capacitor.isNativePlatform();
-            // Use 'gridpe://auth-callback' for native, or '/auth/v1/callback' (relative to origin) for web
-            // Special handling for X: It rejects custom schemes (gridpe://), so we must use the HTTPS callback
-            let redirectTo = isNative
-                ? 'gridpe://auth-callback'
-                : `${window.location.origin}/#/auth/v1/callback`;
+            let redirectTo: string;
 
-            if (isNative && provider === 'x') {
-                redirectTo = `${import.meta.env.VITE_SUPABASE_URL}/auth/v1/callback`;
-            }
+            // X OAuth is strict. Always go through Supabase HTTPS callback.
+            if (provider === 'x') {
+            redirectTo = `${import.meta.env.VITE_SUPABASE_URL}/auth/v1/callback`;
+          } 
+          else {
+          redirectTo = isNative
+          ? 'gridpe://auth-callback'
+           : `${window.location.origin}/#/auth/v1/callback`;
+          }
+
+
 
             if (import.meta.env.DEV) {
                 console.log("[Diagnostic] VITE_SUPABASE_URL:", import.meta.env.VITE_SUPABASE_URL);
