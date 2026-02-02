@@ -132,6 +132,19 @@ const OnboardingScreen = () => {
     }
   };
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    localStorage.clear(); // Clear all local storage to be safe
+    setPhoneNumber("");
+    setOtp("");
+    setMpin("");
+    setConfirmMpin("");
+    setShowMpinSetup(false);
+    setShowOtpInput(false);
+    setGeneralError("");
+    navigate("/");
+  };
+
   const handleSession = async (user: User) => {
       console.log("handleSession started for user:", user?.id);
 
@@ -285,7 +298,7 @@ const OnboardingScreen = () => {
     try {
       // Update profile on server
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         setGeneralError("Session expired. Please try logging in again.");
         setIsLoading(false);
@@ -704,6 +717,13 @@ const OnboardingScreen = () => {
                 </span>
               ) : "Setup"}
             </Button>
+
+            <button
+              onClick={handleLogout}
+              className="w-full text-center text-muted-foreground text-sm hover:text-white transition-colors pb-4"
+            >
+              Not you? Use a different number
+            </button>
           </div>
         )}
       </div>
