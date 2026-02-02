@@ -20,7 +20,7 @@ import biometricIcon from "@/assets/biometric-icon.png";
 import { isWeakMpin } from "@/utils/validationUtils";
 import { supabase } from "@/lib/supabase";
 import { Capacitor } from "@capacitor/core";
-import { Provider } from "@supabase/supabase-js";
+import { Provider, User } from "@supabase/supabase-js";
 
 const OnboardingScreen = () => {
   const navigate = useNavigate();
@@ -131,7 +131,7 @@ const OnboardingScreen = () => {
     }
   };
 
-  const handleSession = async (user: any) => {
+  const handleSession = async (user: User) => {
       console.log("handleSession started for user:", user?.id);
 
       if (!user) return;
@@ -139,11 +139,13 @@ const OnboardingScreen = () => {
       let currentProfile = null;
 
       // Fetch or create profile
-      let { data: profileData, error: profileError } = await supabase
+      const { data: initialProfileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .single();
+
+      let profileData = initialProfileData;
 
       const socialName = user.user_metadata?.full_name || user.user_metadata?.name || user.user_metadata?.preferred_username;
 
@@ -310,8 +312,8 @@ const OnboardingScreen = () => {
     let provider: Provider | undefined;
     if (providerName === "Google") provider = 'google';
     if (providerName === "X" || providerName === "Twitter") {
-        console.log("Using provider 'twitter'");
-        provider = 'twitter';
+        console.log("Using provider 'x'");
+        provider = 'x' as Provider;
     }
 
     if (provider) {
