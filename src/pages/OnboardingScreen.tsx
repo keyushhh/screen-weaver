@@ -42,6 +42,7 @@ const OnboardingScreen = () => {
   const [mpinError, setMpinError] = useState("");
   const [mpinSuccess, setMpinSuccess] = useState(false);
   const [biometricEnabled, setBiometricEnabled] = useState(false);
+  const [generalError, setGeneralError] = useState("");
 
   // Resend timer countdown
   useEffect(() => {
@@ -265,11 +266,13 @@ const OnboardingScreen = () => {
   const handleMpinChange = (val: string) => {
     const numericOnly = val.replace(/\D/g, '');
     setMpin(numericOnly);
+    if (generalError) setGeneralError("");
   };
 
   const handleConfirmMpinChange = (val: string) => {
     const numericOnly = val.replace(/\D/g, '');
     setConfirmMpin(numericOnly);
+    if (generalError) setGeneralError("");
   };
 
   const handleSetupMpin = async () => {
@@ -277,33 +280,46 @@ const OnboardingScreen = () => {
     if (mpinError || !mpinSuccess) return;
 
     setIsLoading(true);
+    setGeneralError("");
 
-    // Update profile on server
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-        const { data: updatedProfile, error } = await supabase
-            .from('profiles')
-            .update({ mpin_set: true })
-            .eq('id', user.id)
-            .select()
-            .single();
+    try {
+      // Update profile on server
+      const { data: { user } } = await supabase.auth.getUser();
 
-        if (error) {
-            console.error("Failed to update MPIN status:", error);
-        } else {
-            console.log("MPIN status updated on server:", updatedProfile);
-            setProfile(updatedProfile);
-        }
+      if (!user) {
+        setGeneralError("Session expired. Please try logging in again.");
+        setIsLoading(false);
+        return;
+      }
+
+      const { data: updatedProfile, error } = await supabase
+          .from('profiles')
+          .update({ mpin_set: true })
+          .eq('id', user.id)
+          .select()
+          .single();
+
+      if (error) {
+          console.error("Failed to update MPIN status:", error);
+          setGeneralError("Failed to save MPIN. Please try again.");
+          setIsLoading(false);
+          return;
+      }
+
+      console.log("MPIN status updated on server:", updatedProfile);
+      setProfile(updatedProfile);
+
+      // Save MPIN to context/storage
+      saveMpin(mpin);
+      saveBiometricEnabled(biometricEnabled);
+
+      console.log("MPIN Setup Complete!", { biometricEnabled });
+      navigate("/home");
+    } catch (err) {
+      console.error("Unexpected error in MPIN setup:", err);
+      setGeneralError("An unexpected error occurred. Please try again.");
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
-
-    // Save MPIN to context/storage
-    saveMpin(mpin);
-    saveBiometricEnabled(biometricEnabled);
-
-    console.log("MPIN Setup Complete!", { biometricEnabled });
-    navigate("/home");
   };
 
   const handleSocialLogin = async (providerName: string) => {
@@ -663,6 +679,13 @@ const OnboardingScreen = () => {
 
             {/* Spacer */}
             <div className="flex-1" />
+
+            {/* General Error Message */}
+            {generalError && (
+              <p className="text-red-500 text-[14px] font-normal text-center pb-2">
+                {generalError}
+              </p>
+            )}
 
             {/* Setup Button */}
             <Button
