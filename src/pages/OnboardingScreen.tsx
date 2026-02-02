@@ -24,7 +24,7 @@ import { Provider, User } from "@supabase/supabase-js";
 
 const OnboardingScreen = () => {
   const navigate = useNavigate();
-  const { setPhoneNumber: savePhoneNumber, setMpin: saveMpin, setBiometricEnabled: saveBiometricEnabled, setProfile, mpin: storedMpin } = useUser();
+  const { setPhoneNumber: savePhoneNumber, setMpin: saveMpin, setBiometricEnabled: saveBiometricEnabled, setProfile, mpin: storedMpin, resetForDemo } = useUser();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [otp, setOtp] = useState("");
   const [showOtpInput, setShowOtpInput] = useState(false);
@@ -56,15 +56,20 @@ const OnboardingScreen = () => {
 
   // Check for existing session (e.g. returning from Google OAuth)
   useEffect(() => {
+    // 1. Initial Launch / Restore Session Check
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
-        handleSession(session.user);
+        // App Launch: treat as Restore (isExplicitLogin = false)
+        handleSession(session.user, false);
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-         handleSession(session.user);
+    // 2. Auth Listener for Explicit Logins (OAuth, etc.)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log(`Auth Event: ${event}`);
+      if (event === 'SIGNED_IN' && session?.user) {
+         // Explicit Login: treat as Login (isExplicitLogin = true)
+         handleSession(session.user, true);
       }
     });
 
@@ -133,6 +138,7 @@ const OnboardingScreen = () => {
   };
 
   const handleLogout = async () => {
+    resetForDemo(); // Reset Context state
     await supabase.auth.signOut();
     localStorage.clear(); // Clear all local storage to be safe
     setPhoneNumber("");
@@ -145,14 +151,14 @@ const OnboardingScreen = () => {
     navigate("/");
   };
 
-  const handleSession = async (user: User) => {
-      console.log("handleSession started for user:", user?.id);
+  const handleSession = async (user: User, isExplicitLogin: boolean) => {
+      console.log(`handleSession started for user: ${user?.id}, mode: ${isExplicitLogin ? 'LOGIN' : 'RESTORE'}`);
 
       if (!user) return;
 
       let currentProfile = null;
 
-      // Fetch or create profile
+      // 1. Fetch existing profile
       const { data: initialProfileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
@@ -160,12 +166,21 @@ const OnboardingScreen = () => {
         .single();
 
       let profileData = initialProfileData;
-
       const socialName = user.user_metadata?.full_name || user.user_metadata?.name || user.user_metadata?.preferred_username;
 
+      // 2. Handle Profile Logic based on Mode
       if (profileError && profileError.code === 'PGRST116') {
-        // Profile not found, create new one
-        console.log("Profile not found, creating new profile...");
+        // Profile Not Found
+        if (!isExplicitLogin) {
+            // Restore Mode: If profile is missing, state is corrupted or incomplete.
+            // Sign out to force clean login.
+            console.warn("Restore Mode: Profile missing. Signing out to force re-auth.");
+            await supabase.auth.signOut();
+            return;
+        }
+
+        // Login Mode: Create new profile (New User)
+        console.log("Login Mode: Profile not found, creating new profile...");
         const { data: newProfile, error: createError } = await supabase
           .from('profiles')
           .insert({
@@ -179,6 +194,7 @@ const OnboardingScreen = () => {
 
         if (createError) {
           console.error("Error creating profile:", createError);
+          // If we fail to create profile on login, better show error or stay on login
           return;
         }
 
@@ -191,8 +207,9 @@ const OnboardingScreen = () => {
         return;
       }
 
+      // Profile Exists (or just created)
       if (profileData) {
-          // Update profile name if social name is available and different/missing
+          // Optional: Update name if social login provides newer info
           if (socialName && profileData.name !== socialName) {
               const { data: updatedProfile, error: updateError } = await supabase
                   .from('profiles')
@@ -204,37 +221,54 @@ const OnboardingScreen = () => {
               if (!updateError && updatedProfile) {
                   currentProfile = updatedProfile;
                   setProfile(updatedProfile);
-                  console.log('Profile updated with social name:', updatedProfile);
               } else {
                   currentProfile = profileData;
                   setProfile(profileData);
-                  console.error("Failed to update profile name:", updateError);
               }
           } else {
               currentProfile = profileData;
               setProfile(profileData);
-              console.log('Profile confirmed:', profileData);
           }
       }
 
-      // Save verified phone number to context if available (OTP flow)
-      // For Google Auth, phone might be missing, so we skip or handle accordingly
+      // 3. Save Context Data
       if (user.phone) {
           savePhoneNumber(user.phone);
       }
 
-      // Check mpin_set flag from profile (server-side state)
+      // 4. Navigation Logic based on Mode & MPIN Status
       const isMpinSet = currentProfile?.mpin_set || false;
 
-      if (isMpinSet) {
-          console.log("User has MPIN set (server flag), navigating to Home.");
-          navigate("/home");
-          return;
+      if (isExplicitLogin) {
+          // Login Mode
+          if (isMpinSet) {
+              // Existing User -> Home
+              console.log("Login Mode: MPIN set. Navigating to Home.");
+              navigate("/home");
+          } else {
+              // New User (or incomplete) -> Create MPIN
+              console.log("Login Mode: MPIN not set. Showing Setup.");
+              setShowOtpInput(false);
+              setShowMpinSetup(true);
+          }
+      } else {
+          // Restore Mode (App Launch)
+          if (isMpinSet) {
+              // Valid Session -> Home
+              console.log("Restore Mode: MPIN set. Navigating to Home.");
+              navigate("/home");
+          } else {
+              // Invalid State (Zombie session) -> Sign Out -> Login Screen
+              console.log("Restore Mode: MPIN NOT set. Force Sign Out.");
+              resetForDemo();
+              await supabase.auth.signOut();
+              // UI is already on Login Screen (default state), so just ensure cleanup
+              setPhoneNumber("");
+              setOtp("");
+              setShowOtpInput(false);
+              setShowMpinSetup(false);
+          }
       }
-
-      console.log("MPIN not set, showing setup screen.");
-      setShowOtpInput(false);
-      setShowMpinSetup(true);
   };
 
   const handleVerifyOTP = async () => {
@@ -264,7 +298,7 @@ const OnboardingScreen = () => {
       }
 
       if (data.session) {
-        await handleSession(data.user);
+        await handleSession(data.user, true);
       } else {
         setOtpError("Session validation failed. Please try again.");
       }
