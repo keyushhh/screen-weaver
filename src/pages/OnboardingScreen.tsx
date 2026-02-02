@@ -24,12 +24,15 @@ import { Provider, User } from "@supabase/supabase-js";
 
 const OnboardingScreen = () => {
   const navigate = useNavigate();
-  const { setPhoneNumber: savePhoneNumber, setMpin: saveMpin, setBiometricEnabled: saveBiometricEnabled, setProfile, mpin: storedMpin } = useUser();
+  const { setPhoneNumber: savePhoneNumber, setMpin: saveMpin, setBiometricEnabled: saveBiometricEnabled, setProfile, mpin: storedMpin, resetForDemo } = useUser();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [otp, setOtp] = useState("");
   const [showOtpInput, setShowOtpInput] = useState(false);
   const [showMpinSetup, setShowMpinSetup] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Auth Flow State
+  const [justAuthenticated, setJustAuthenticated] = useState(false);
 
   // Validation State
   const [phoneError, setPhoneError] = useState("");
@@ -56,15 +59,24 @@ const OnboardingScreen = () => {
 
   // Check for existing session (e.g. returning from Google OAuth)
   useEffect(() => {
+    // 1. Initial Launch / Restore Session Check
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
-        handleSession(session.user);
+        // App Launch: treat as Restore (justAuthenticated = false)
+        // Note: justAuthenticated default is false, so we just call handler
+        handleSession(session.user, false);
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-         handleSession(session.user);
+    // 2. Auth Listener for Explicit Logins (OAuth, etc.)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log(`Auth Event: ${event}`);
+      if (event === 'SIGNED_IN' && session?.user) {
+         // Explicit Login: treat as Login
+         // We set the flag here, though the effect might run after handler.
+         // We pass true explicitly to handleSession to be safe.
+         setJustAuthenticated(true);
+         handleSession(session.user, true);
       }
     });
 
@@ -133,6 +145,8 @@ const OnboardingScreen = () => {
   };
 
   const handleLogout = async () => {
+    setJustAuthenticated(false); // Reset flag
+    resetForDemo(); // Reset Context state
     await supabase.auth.signOut();
     localStorage.clear(); // Clear all local storage to be safe
     setPhoneNumber("");
@@ -145,14 +159,19 @@ const OnboardingScreen = () => {
     navigate("/");
   };
 
-  const handleSession = async (user: User) => {
-      console.log("handleSession started for user:", user?.id);
+  /**
+   * Central Auth Logic Handler
+   * @param user Supabase User object
+   * @param isExplicitAuth True if this is a fresh login (OTP/OAuth), False if session restore
+   */
+  const handleSession = async (user: User, isExplicitAuth: boolean) => {
+      console.log(`handleSession started for user: ${user?.id}, isExplicitAuth: ${isExplicitAuth}`);
 
       if (!user) return;
 
       let currentProfile = null;
 
-      // Fetch or create profile
+      // 1. Fetch existing profile
       const { data: initialProfileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
@@ -160,12 +179,21 @@ const OnboardingScreen = () => {
         .single();
 
       let profileData = initialProfileData;
-
       const socialName = user.user_metadata?.full_name || user.user_metadata?.name || user.user_metadata?.preferred_username;
 
+      // 2. Handle Profile Logic
       if (profileError && profileError.code === 'PGRST116') {
-        // Profile not found, create new one
-        console.log("Profile not found, creating new profile...");
+        // Profile Not Found
+        if (!isExplicitAuth) {
+            // RESTORE MODE + NO PROFILE = INVALID STATE
+            // User likely deleted account or DB wiped, but session persisted.
+            console.warn("Restore Mode: Profile missing. Signing out to force re-auth.");
+            await handleLogout();
+            return;
+        }
+
+        // LOGIN MODE + NO PROFILE = NEW USER
+        console.log("Login Mode: Profile not found, creating new profile...");
         const { data: newProfile, error: createError } = await supabase
           .from('profiles')
           .insert({
@@ -179,6 +207,7 @@ const OnboardingScreen = () => {
 
         if (createError) {
           console.error("Error creating profile:", createError);
+          setPhoneError("Failed to create account. Please try again.");
           return;
         }
 
@@ -188,53 +217,59 @@ const OnboardingScreen = () => {
         console.log('Profile created:', newProfile);
       } else if (profileError) {
         console.error("Error fetching profile:", profileError);
-        return;
+        return; // Network error or other issue
       }
 
+      // Profile Exists (or just created)
       if (profileData) {
-          // Update profile name if social name is available and different/missing
+          // Optional: Update name if social login provides newer info
           if (socialName && profileData.name !== socialName) {
-              const { data: updatedProfile, error: updateError } = await supabase
+             // We don't await this to speed up flow, it can happen in background
+             supabase
                   .from('profiles')
                   .update({ name: socialName })
                   .eq('id', user.id)
-                  .select()
-                  .single();
-
-              if (!updateError && updatedProfile) {
-                  currentProfile = updatedProfile;
-                  setProfile(updatedProfile);
-                  console.log('Profile updated with social name:', updatedProfile);
-              } else {
-                  currentProfile = profileData;
-                  setProfile(profileData);
-                  console.error("Failed to update profile name:", updateError);
-              }
-          } else {
-              currentProfile = profileData;
-              setProfile(profileData);
-              console.log('Profile confirmed:', profileData);
+                  .then(({ data }) => {
+                      if (data) setProfile(data as any);
+                  });
           }
+          currentProfile = profileData;
+          setProfile(profileData);
       }
 
-      // Save verified phone number to context if available (OTP flow)
-      // For Google Auth, phone might be missing, so we skip or handle accordingly
+      // 3. Save Context Data
       if (user.phone) {
           savePhoneNumber(user.phone);
       }
 
-      // Check mpin_set flag from profile (server-side state)
+      // 4. Decision Table Implementation
       const isMpinSet = currentProfile?.mpin_set || false;
 
-      if (isMpinSet) {
-          console.log("User has MPIN set (server flag), navigating to Home.");
-          navigate("/home");
-          return;
+      if (isExplicitAuth) {
+          // Scenario: New user login OR Existing user login
+          if (isMpinSet) {
+              // Existing user login -> Home
+              console.log("Login Mode: MPIN set. Navigating to Home.");
+              navigate("/home");
+          } else {
+              // New user login -> Create MPIN
+              console.log("Login Mode: MPIN not set. Showing Setup.");
+              setShowOtpInput(false);
+              setShowMpinSetup(true);
+          }
+      } else {
+          // Scenario: App Launch (Restore)
+          if (isMpinSet) {
+              // Valid Session -> Home
+              console.log("Restore Mode: MPIN set. Navigating to Home.");
+              navigate("/home");
+          } else {
+              // Invalid State (Session exists, but setup incomplete)
+              // "Otherwise → stay on Login screen"
+              console.log("Restore Mode: MPIN NOT set. Force Sign Out/Login Screen.");
+              await handleLogout();
+          }
       }
-
-      console.log("MPIN not set, showing setup screen.");
-      setShowOtpInput(false);
-      setShowMpinSetup(true);
   };
 
   const handleVerifyOTP = async () => {
@@ -264,7 +299,9 @@ const OnboardingScreen = () => {
       }
 
       if (data.session) {
-        await handleSession(data.user);
+        // Explicit Login
+        setJustAuthenticated(true);
+        await handleSession(data.user, true);
       } else {
         setOtpError("Session validation failed. Please try again.");
       }
@@ -296,7 +333,7 @@ const OnboardingScreen = () => {
     setGeneralError("");
 
     try {
-      // Update profile on server
+      // 1. Get current user
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
@@ -305,6 +342,7 @@ const OnboardingScreen = () => {
         return;
       }
 
+      // 2. Attempt Update
       const { data: updatedProfile, error } = await supabase
           .from('profiles')
           .update({ mpin_set: true })
@@ -314,7 +352,10 @@ const OnboardingScreen = () => {
 
       if (error) {
           console.error("Failed to update MPIN status:", error);
-          setGeneralError("Failed to save MPIN. Please try again.");
+          // If the profile is missing (e.g. RLS or logic error), we might need to recreate it.
+          // But strict flow says we should have created it in handleSession.
+          // We'll show a more descriptive error.
+          setGeneralError(`Failed to save MPIN (${error.code}). Please try again.`);
           setIsLoading(false);
           return;
       }
@@ -360,12 +401,13 @@ const OnboardingScreen = () => {
            : `${window.location.origin}/#/auth/v1/callback`;
           }
 
-
-
             if (import.meta.env.DEV) {
                 console.log("[Diagnostic] VITE_SUPABASE_URL:", import.meta.env.VITE_SUPABASE_URL);
                 console.log(`[Diagnostic] Initiating ${provider} login with redirect: ${redirectTo}`);
             }
+
+            // We do NOT set justAuthenticated here because the user leaves the app.
+            // When they return, onAuthStateChange will fire SIGNED_IN.
 
             const { error } = await supabase.auth.signInWithOAuth({
                 provider,
