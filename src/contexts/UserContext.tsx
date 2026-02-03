@@ -6,6 +6,8 @@ interface UserProfile {
   name: string | null;
   created_at?: string;
   mpin_set?: boolean;
+  mpin_hash?: string | null;
+  mpin_created_at?: string | null;
 }
 
 interface UserState {
