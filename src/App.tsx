@@ -49,6 +49,7 @@ import AddAddressDetails from "./pages/AddAddressDetails";
 import OrderCancelled from "./pages/OrderCancelled";
 import OrderTracking from "./pages/OrderTracking";
 import AuthCallback from "./pages/AuthCallback";
+import Wallet from "./pages/Wallet";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -156,6 +157,7 @@ const App = () => {
             <Route path="/add-address-details" element={<AddAddressDetails />} />
             <Route path="/order-cancelled" element={<OrderCancelled />} />
             <Route path="/order-tracking" element={<OrderTracking />} />
+            <Route path="/wallet" element={<Wallet />} />
             <Route path="/auth/v1/callback" element={<AuthCallback />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
