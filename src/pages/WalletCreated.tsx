@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, EyeOff } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import walletCardBg from "@/assets/wallet - card.png";
 import diamondIcon from "@/assets/diamond.png";
@@ -67,14 +67,14 @@ const WalletCreated = () => {
                       <span className="text-white text-[15px] font-medium font-sans mt-[3px]">
                           WALLET BALANCE
                       </span>
-                      <img src={diamondIcon} alt="Diamond" className="w-6 h-6 mt-[3px]" />
+                      {/* Diamond Icon increased by 50% from w-6 h-6 (24px) to 36px */}
+                      <img src={diamondIcon} alt="Diamond" className="w-[36px] h-[36px] mt-[3px]" />
                   </div>
 
                   <div className="flex items-center justify-between mt-[17px]">
                       <span className="text-white text-[34px] font-bold font-sans">
                           ₹ 0.00
                       </span>
-                      <EyeOff className="w-5 h-5 text-white/70" />
                   </div>
 
                   <div className="mt-[8px]">
@@ -83,7 +83,8 @@ const WalletCreated = () => {
                       </span>
                   </div>
 
-                  <div className="mt-[25px]">
+                  {/* Reduced margin from 25px to 20px */}
+                  <div className="mt-[20px]">
                       <p className="text-white/90 text-[14px] font-medium font-sans leading-tight">
                           Uh ho! Looks a little empty here, let’s fix that?<br/>
                           Press the button below!
@@ -134,20 +135,27 @@ const WalletCreated = () => {
 
       {/* Footer CTA */}
       <div className="shrink-0 px-5 pb-[30px] pt-4 w-full bg-transparent flex justify-center">
+        {/* Adjusted to avoid distortion by using img instead of background-size stretch on button, or better background handling */}
         <button
             onClick={() => {
                 // TODO: Add Money Logic
                 console.log("Add Money clicked");
             }}
-            className="w-full h-[48px] flex items-center justify-center text-white text-[16px] font-medium font-sans"
+            className="w-full relative flex items-center justify-center text-white text-[16px] font-medium font-sans"
             style={{
-                backgroundImage: `url(${buttonAddMoney})`,
-                backgroundSize: "100% 100%",
-                backgroundRepeat: "no-repeat",
-                maxWidth: '360px' // Ensure it matches card width if needed
+                height: '48px',
+                maxWidth: '360px',
+                background: 'transparent',
+                border: 'none',
+                padding: 0
             }}
         >
-            Add Money
+            <img
+               src={buttonAddMoney}
+               alt="Add Money"
+               className="absolute inset-0 w-full h-full object-fill rounded-full"
+            />
+            <span className="relative z-10">Add Money</span>
         </button>
       </div>
 
