@@ -48,17 +48,17 @@ const Wallet = () => {
           <div
              className="mt-[66px] relative flex items-center justify-center"
              style={{
-                 width: '384px',
-                 height: '76px',
+                 width: '362px',
+                 height: '62px',
                  backgroundImage: `url(${switchTabBg})`,
                  backgroundSize: '100% 100%',
                  backgroundRepeat: 'no-repeat'
              }}
           >
-              <div className="flex w-full h-full relative px-[11px] pt-[2px]">
+              <div className="flex w-full h-full relative">
                   {/* Selection Indicator */}
                   <div
-                     className={`absolute top-[13px] transition-all duration-300 ease-in-out flex items-center justify-center`}
+                     className={`absolute top-[4px] transition-all duration-300 ease-in-out flex items-center justify-center`}
                      style={{
                          width: '173px',
                          height: '54px',
@@ -66,7 +66,7 @@ const Wallet = () => {
                          backgroundSize: '100% 100%',
                          backgroundRepeat: 'no-repeat',
                          left: 0,
-                         transform: activeTab === 'how-it-works' ? 'translateX(15px)' : 'translateX(196px)'
+                         transform: activeTab === 'how-it-works' ? 'translateX(4px)' : 'translateX(185px)'
                      }}
                   />
 
