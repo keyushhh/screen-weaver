@@ -22,12 +22,9 @@ import { hashMpin } from "@/utils/cryptoUtils";
 import { supabase } from "@/lib/supabase";
 import { Capacitor } from "@capacitor/core";
 import { Provider, User } from "@supabase/supabase-js";
-import { useSignIn, useUser as useClerkUser } from "@clerk/clerk-react";
 
 const OnboardingScreen = () => {
   const navigate = useNavigate();
-  const { signIn, isLoaded: isSignInLoaded } = useSignIn();
-  const { user: clerkUser } = useClerkUser();
   const { setPhoneNumber: savePhoneNumber, setMpin: saveMpin, setBiometricEnabled: saveBiometricEnabled, setProfile, profile, mpin: storedMpin, resetForDemo } = useUser();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [otp, setOtp] = useState("");
@@ -59,16 +56,6 @@ const OnboardingScreen = () => {
       return () => clearInterval(interval);
     }
   }, [resendTimer]);
-
-  // Log Clerk User when available
-  useEffect(() => {
-    if (clerkUser) {
-      console.log("[Clerk] User authenticated:", clerkUser);
-      console.log("[Clerk] User ID:", clerkUser.id);
-      console.log("[Clerk] User Email:", clerkUser.primaryEmailAddress?.emailAddress);
-      console.log("[Clerk] Full User Object:", JSON.stringify(clerkUser, null, 2));
-    }
-  }, [clerkUser]);
 
   // Check for existing session (e.g. returning from Google OAuth)
   useEffect(() => {
@@ -467,24 +454,8 @@ const OnboardingScreen = () => {
   const handleSocialLogin = async (providerName: string) => {
     console.log(`${providerName} Login clicked`);
 
-    if (providerName === "Google") {
-      if (!isSignInLoaded || !signIn) return;
-
-      try {
-        console.log("[Clerk] Initiating Google Sign-In...");
-        await signIn.authenticateWithRedirect({
-          strategy: "oauth_google",
-          redirectUrl: "/",
-          redirectUrlComplete: "/"
-        });
-        console.log("[Clerk] Google Sign-In initiated.");
-      } catch (err) {
-        console.error("[Clerk] Google Sign-In error:", err);
-      }
-      return;
-    }
-
     let provider: Provider | undefined;
+    if (providerName === "Google") provider = 'google';
     if (providerName === "X" || providerName === "Twitter") {
         console.log("Using provider 'x'");
         provider = 'x' as Provider;
