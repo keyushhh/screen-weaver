@@ -230,8 +230,7 @@ const Wallet = () => {
       <div className="shrink-0 px-5 pb-[30px] pt-4 w-full bg-transparent">
         <button
             onClick={() => {
-                // TODO: Implement Get Started Logic
-                console.log("Get Started clicked");
+                navigate('/wallet-created');
             }}
             className="w-full h-[48px] flex items-center justify-center text-white text-[16px] font-medium font-sans"
             style={{
