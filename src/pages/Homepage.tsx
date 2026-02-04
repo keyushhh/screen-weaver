@@ -264,12 +264,18 @@ const Homepage = () => {
         {/* Other Actions */}
         {[{
           icon: iconWallet,
-          label: "Wallet"
+          label: "Wallet",
+          action: () => navigate('/wallet')
         }, {
           icon: iconFxConvert,
-          label: "FX Convert"
+          label: "FX Convert",
+          action: () => {}
         }].map(action => (
-          <button key={action.label} className="flex flex-col items-center gap-2">
+          <button
+            key={action.label}
+            onClick={action.action}
+            className="flex flex-col items-center gap-2"
+          >
             <div
               className="w-[52px] h-[52px] flex items-center justify-center"
               style={{
