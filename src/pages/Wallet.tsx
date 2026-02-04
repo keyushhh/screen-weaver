@@ -24,7 +24,7 @@ const Wallet = () => {
     >
       {/* Header Container (Fixed) */}
       <div className="shrink-0 flex flex-col items-center w-full relative z-10">
-          
+
           {/* Back Button Row */}
           <div className="w-full px-5 pt-4 flex items-center justify-start">
              <button
@@ -37,28 +37,28 @@ const Wallet = () => {
 
           {/* Logo */}
           <div className="mt-[-20px] flex justify-center pointer-events-none">
-               <img 
-                  src={peLogo} 
-                  alt="Grid.Pe" 
-                  style={{ width: '150px', height: '101px' }} 
-               /> 
+               <img
+                  src={peLogo}
+                  alt="Grid.Pe"
+                  style={{ width: '150px', height: '101px' }}
+               />
           </div>
 
           {/* Switch Tab */}
-          <div 
+          <div
              className="mt-[66px] relative flex items-center justify-center"
              style={{
-                 width: '362px',
-                 height: '62px',
+                 width: '384px',
+                 height: '76px',
                  backgroundImage: `url(${switchTabBg})`,
                  backgroundSize: '100% 100%',
                  backgroundRepeat: 'no-repeat'
              }}
           >
-              <div className="flex w-full h-full relative">
+              <div className="flex w-full h-full relative px-[11px] pt-[2px]">
                   {/* Selection Indicator */}
-                  <div 
-                     className={`absolute top-[4px] transition-all duration-300 ease-in-out flex items-center justify-center`}
+                  <div
+                     className={`absolute top-[13px] transition-all duration-300 ease-in-out flex items-center justify-center`}
                      style={{
                          width: '173px',
                          height: '54px',
@@ -66,27 +66,27 @@ const Wallet = () => {
                          backgroundSize: '100% 100%',
                          backgroundRepeat: 'no-repeat',
                          left: 0,
-                         transform: activeTab === 'how-it-works' ? 'translateX(4px)' : 'translateX(185px)' 
+                         transform: activeTab === 'how-it-works' ? 'translateX(15px)' : 'translateX(196px)'
                      }}
                   />
- 
+
                   {/* Buttons */}
-                  <button 
+                  <button
                      onClick={() => setActiveTab('how-it-works')}
                      className="flex-1 relative z-10 h-full flex items-center justify-center text-white"
                   >
-                      <span 
+                      <span
                          className="font-sans font-bold text-[12px]"
                          style={{ opacity: activeTab === 'how-it-works' ? 1 : 0.5 }}
                       >
                          How it works
                       </span>
                   </button>
-                  <button 
+                  <button
                      onClick={() => setActiveTab('refund-policy')}
                      className="flex-1 relative z-10 h-full flex items-center justify-center text-white"
                   >
-                      <span 
+                      <span
                          className="font-sans font-bold text-[12px]"
                          style={{ opacity: activeTab === 'refund-policy' ? 1 : 0.5 }}
                       >
