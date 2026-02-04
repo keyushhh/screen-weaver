@@ -22,82 +22,85 @@ const Wallet = () => {
         backgroundRepeat: "no-repeat",
       }}
     >
-      {/* Header */}
-      <div className="relative px-5 pt-4 flex items-center justify-between z-10">
-        {/* Back Button - Top Left */}
-        <button
-          onClick={() => navigate(-1)}
-          className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md relative z-20"
-        >
-          <ChevronLeft className="w-6 h-6 text-white" />
-        </button>
+      {/* Header Container (Fixed) */}
+      <div className="shrink-0 flex flex-col items-center w-full relative z-10">
+          
+          {/* Back Button Row */}
+          <div className="w-full px-5 pt-4 flex items-center justify-start">
+             <button
+               onClick={() => navigate(-1)}
+               className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md z-20"
+             >
+               <ChevronLeft className="w-6 h-6 text-white" />
+             </button>
+          </div>
 
-        {/* Logo - Top Center */}
-        <div className="absolute left-0 right-0 flex justify-center pointer-events-none">
-             <img src={peLogo} alt="Grid.Pe" className="h-[24px]" />
-        </div>
+          {/* Logo */}
+          <div className="mt-[-20px] flex justify-center pointer-events-none">
+               <img 
+                  src={peLogo} 
+                  alt="Grid.Pe" 
+                  style={{ width: '150px', height: '101px' }} 
+               /> 
+          </div>
 
-        {/* Spacer for symmetry */}
-        <div className="w-10" />
+          {/* Switch Tab */}
+          <div 
+             className="mt-[66px] relative flex items-center justify-center"
+             style={{
+                 width: '362px',
+                 height: '62px',
+                 backgroundImage: `url(${switchTabBg})`,
+                 backgroundSize: '100% 100%',
+                 backgroundRepeat: 'no-repeat'
+             }}
+          >
+              <div className="flex w-full h-full relative">
+                  {/* Selection Indicator */}
+                  <div 
+                     className={`absolute top-[4px] transition-all duration-300 ease-in-out flex items-center justify-center`}
+                     style={{
+                         width: '173px',
+                         height: '54px',
+                         backgroundImage: `url(${selectedTabBg})`,
+                         backgroundSize: '100% 100%',
+                         backgroundRepeat: 'no-repeat',
+                         left: 0,
+                         transform: activeTab === 'how-it-works' ? 'translateX(4px)' : 'translateX(185px)' 
+                     }}
+                  />
+ 
+                  {/* Buttons */}
+                  <button 
+                     onClick={() => setActiveTab('how-it-works')}
+                     className="flex-1 relative z-10 h-full flex items-center justify-center text-white"
+                  >
+                      <span 
+                         className="font-sans font-bold text-[12px]"
+                         style={{ opacity: activeTab === 'how-it-works' ? 1 : 0.5 }}
+                      >
+                         How it works
+                      </span>
+                  </button>
+                  <button 
+                     onClick={() => setActiveTab('refund-policy')}
+                     className="flex-1 relative z-10 h-full flex items-center justify-center text-white"
+                  >
+                      <span 
+                         className="font-sans font-bold text-[12px]"
+                         style={{ opacity: activeTab === 'refund-policy' ? 1 : 0.5 }}
+                      >
+                         Refund Policy
+                      </span>
+                  </button>
+              </div>
+          </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center w-full px-5 pt-[66px] overflow-y-auto no-scrollbar pb-[100px]">
-
-         {/* Switch Tab */}
-         <div
-            className="shrink-0 relative flex items-center justify-center max-w-full"
-            style={{
-                width: '362px',
-                height: '62px',
-                backgroundImage: `url(${switchTabBg})`,
-                backgroundSize: '100% 100%',
-                backgroundRepeat: 'no-repeat'
-            }}
-         >
-             <div className="flex w-full h-full relative">
-                 {/* Selection Indicator */}
-                 <div
-                    className={`absolute top-[4px] transition-all duration-300 ease-in-out flex items-center justify-center`}
-                    style={{
-                        width: '173px',
-                        height: '54px',
-                        backgroundImage: `url(${selectedTabBg})`,
-                        backgroundSize: '100% 100%',
-                        backgroundRepeat: 'no-repeat',
-                        left: 0,
-                        transform: activeTab === 'how-it-works' ? 'translateX(4px)' : 'translateX(185px)'
-                    }}
-                 />
-
-                 {/* Buttons */}
-                 <button
-                    onClick={() => setActiveTab('how-it-works')}
-                    className="flex-1 relative z-10 h-full flex items-center justify-center text-white"
-                 >
-                     <span
-                        className="font-sans font-bold text-[12px]"
-                        style={{ opacity: activeTab === 'how-it-works' ? 1 : 0.5 }}
-                     >
-                        How it works
-                     </span>
-                 </button>
-                 <button
-                    onClick={() => setActiveTab('refund-policy')}
-                    className="flex-1 relative z-10 h-full flex items-center justify-center text-white"
-                 >
-                     <span
-                        className="font-sans font-bold text-[12px]"
-                        style={{ opacity: activeTab === 'refund-policy' ? 1 : 0.5 }}
-                     >
-                        Refund Policy
-                     </span>
-                 </button>
-             </div>
-         </div>
-
+      {/* Main Content (Scrollable) */}
+      <div className="flex-1 w-full px-5 pt-[28px] overflow-y-auto no-scrollbar pb-[20px]">
          {/* Content Pointers */}
-         <div className="w-full mt-[28px] flex flex-col gap-[24px]">
+         <div className="flex flex-col gap-[24px]">
              {activeTab === 'how-it-works' ? (
                  <>
                     {/* Point 1 */}
@@ -223,8 +226,8 @@ const Wallet = () => {
          </div>
       </div>
 
-      {/* Footer CTA */}
-      <div className="px-5 pb-[30px] pt-4 w-full bg-transparent">
+      {/* Footer CTA (Fixed) */}
+      <div className="shrink-0 px-5 pb-[30px] pt-4 w-full bg-transparent">
         <button
             onClick={() => {
                 // TODO: Implement Get Started Logic
