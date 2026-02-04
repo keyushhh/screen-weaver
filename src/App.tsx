@@ -50,6 +50,7 @@ import OrderCancelled from "./pages/OrderCancelled";
 import OrderTracking from "./pages/OrderTracking";
 import AuthCallback from "./pages/AuthCallback";
 import Wallet from "./pages/Wallet";
+import WalletCreated from "./pages/WalletCreated";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -158,6 +159,7 @@ const App = () => {
             <Route path="/order-cancelled" element={<OrderCancelled />} />
             <Route path="/order-tracking" element={<OrderTracking />} />
             <Route path="/wallet" element={<Wallet />} />
+            <Route path="/wallet-created" element={<WalletCreated />} />
             <Route path="/auth/v1/callback" element={<AuthCallback />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
