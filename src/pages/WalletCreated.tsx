@@ -144,9 +144,7 @@ const WalletCreated = () => {
             {/* Footer CTA */}
             <div className="shrink-0 px-5 pb-[30px] pt-4 w-full bg-transparent">
                 <button
-                    onClick={() => {
-                        // intentionally empty
-                    }}
+                    onClick={() => navigate('/wallet-add-money', { state: { balance: "0.00" } })}
                     className="w-full h-[48px] flex items-center justify-center text-white text-[16px] font-medium font-sans"
                     style={{
                         backgroundImage: `url(${buttonPrimary})`,

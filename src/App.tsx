@@ -51,6 +51,7 @@ import OrderTracking from "./pages/OrderTracking";
 import AuthCallback from "./pages/AuthCallback";
 import Wallet from "./pages/Wallet";
 import WalletCreated from "./pages/WalletCreated";
+import WalletAddMoney from "./pages/WalletAddMoney";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -160,6 +161,7 @@ const App = () => {
             <Route path="/order-tracking" element={<OrderTracking />} />
             <Route path="/wallet" element={<Wallet />} />
             <Route path="/wallet-created" element={<WalletCreated />} />
+            <Route path="/wallet-add-money" element={<WalletAddMoney />} />
             <Route path="/auth/v1/callback" element={<AuthCallback />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
