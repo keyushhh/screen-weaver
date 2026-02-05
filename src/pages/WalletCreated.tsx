@@ -6,6 +6,7 @@ import walletCardBg from "@/assets/wallet - card.png";
 import diamondIcon from "@/assets/diamond.png";
 import settingsIcon from "@/assets/settings.svg";
 import buttonAddMoney from "@/assets/button-add-money.png";
+import buttonPrimary from "@/assets/button-primary-wide.png";
 
 const WalletCreated = () => {
     const navigate = useNavigate();
@@ -64,14 +65,16 @@ const WalletCreated = () => {
 
                     {/* Card Content */}
                     {/* Reduced horizontal padding to px-5 to give more space for text */}
-                    <div className="absolute inset-0 px-5 py-6 flex flex-col">
+                    <div className="absolute inset-0 px-5 py-6 flex flex-col overflow-hidden">
                         <div className="flex justify-between items-center">
-                            <span className="text-white text-[15px] font-medium font-sans mt-[3px]">
+                            <span className="text-white text-[15px] font-medium font-sans">
                                 WALLET BALANCE
                             </span>
-                            {/* Diamond Icon increased by 50% more from 36px to 54px */}
-                            {/* Moved up by 20px as requested */}
-                            <img src={diamondIcon} alt="Diamond" className="w-[54px] h-[54px] mt-[3px] relative -top-[55px]" />
+                            <img
+                                src={diamondIcon}
+                                alt="Diamond"
+                                className="w-[36px] h-[36px]"
+                            />
                         </div>
 
                         {/* Decreased spacing from 17px to 12px */}
@@ -139,27 +142,21 @@ const WalletCreated = () => {
             </div>
 
             {/* Footer CTA */}
-            <div className="w-full h-[56px] flex items-center justify-center text-white text-[16px] font-medium font-sans overflow-hidden">
+            <div className="shrink-0 px-5 pb-[30px] pt-4 w-full bg-transparent">
                 <button
                     onClick={() => {
-                        // TODO: Add Money Logic
-                        console.log("Add Money clicked");
+                        // intentionally empty
                     }}
                     className="w-full h-[48px] flex items-center justify-center text-white text-[16px] font-medium font-sans"
                     style={{
-                        maxWidth: "360px",
-                        backgroundImage: `url(${buttonAddMoney})`,
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
+                        backgroundImage: `url(${buttonPrimary})`,
+                        backgroundSize: "100% 100%",
                         backgroundRepeat: "no-repeat",
-                        border: "none",
-                        borderRadius: "9999px",
                     }}
                 >
                     Add Money
                 </button>
             </div>
-
         </div>
     );
 };
