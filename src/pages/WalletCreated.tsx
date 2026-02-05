@@ -49,7 +49,8 @@ const WalletCreated = () => {
       <div className="flex-1 w-full px-5 pt-4 overflow-y-auto no-scrollbar">
 
           {/* Wallet Card */}
-          <div className="w-full relative mx-auto" style={{ width: '100%', maxWidth: '360px', height: '218px' }}>
+          {/* Increased height to 240px to accommodate larger icon and text */}
+          <div className="w-full relative mx-auto" style={{ width: '100%', maxWidth: '360px', height: '240px' }}>
               {/* Card Background */}
               <div
                 className="absolute inset-0 w-full h-full"
@@ -62,16 +63,18 @@ const WalletCreated = () => {
               />
 
               {/* Card Content */}
-              <div className="absolute inset-0 p-6 flex flex-col">
+              {/* Reduced horizontal padding to px-5 to give more space for text */}
+              <div className="absolute inset-0 px-5 py-6 flex flex-col">
                   <div className="flex justify-between items-start">
                       <span className="text-white text-[15px] font-medium font-sans mt-[3px]">
                           WALLET BALANCE
                       </span>
-                      {/* Diamond Icon increased by 50% from w-6 h-6 (24px) to 36px */}
-                      <img src={diamondIcon} alt="Diamond" className="w-[36px] h-[36px] mt-[3px]" />
+                      {/* Diamond Icon increased by 50% more from 36px to 54px */}
+                      <img src={diamondIcon} alt="Diamond" className="w-[54px] h-[54px] mt-[3px]" />
                   </div>
 
-                  <div className="flex items-center justify-between mt-[17px]">
+                  {/* Decreased spacing from 17px to 12px */}
+                  <div className="flex items-center justify-between mt-[12px]">
                       <span className="text-white text-[34px] font-bold font-sans">
                           ₹ 0.00
                       </span>
@@ -83,10 +86,11 @@ const WalletCreated = () => {
                       </span>
                   </div>
 
-                  {/* Reduced margin from 25px to 20px */}
-                  <div className="mt-[20px]">
-                      <p className="text-white/90 text-[14px] font-medium font-sans leading-tight">
-                          Uh ho! Looks a little empty here, let’s fix that?<br/>
+                  {/* Helper Text with strict 2-line layout */}
+                  {/* Adjusted margin to mt-[15px] */}
+                  <div className="mt-[15px]">
+                      <p className="text-white/90 text-[13px] font-medium font-sans leading-tight tracking-tight">
+                          Uh ho! Looks like a little empty here, let’s fix that?<br/>
                           Press the button below!
                       </p>
                   </div>
@@ -135,7 +139,6 @@ const WalletCreated = () => {
 
       {/* Footer CTA */}
       <div className="shrink-0 px-5 pb-[30px] pt-4 w-full bg-transparent flex justify-center">
-        {/* Adjusted to avoid distortion by using img instead of background-size stretch on button, or better background handling */}
         <button
             onClick={() => {
                 // TODO: Add Money Logic
