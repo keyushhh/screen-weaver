@@ -70,7 +70,8 @@ const WalletCreated = () => {
                           WALLET BALANCE
                       </span>
                       {/* Diamond Icon increased by 50% more from 36px to 54px */}
-                      <img src={diamondIcon} alt="Diamond" className="w-[54px] h-[54px] mt-[3px]" />
+                      {/* Moved up by 20px as requested */}
+                      <img src={diamondIcon} alt="Diamond" className="w-[54px] h-[54px] mt-[3px] relative -top-[20px]" />
                   </div>
 
                   {/* Decreased spacing from 17px to 12px */}
@@ -144,21 +145,16 @@ const WalletCreated = () => {
                 // TODO: Add Money Logic
                 console.log("Add Money clicked");
             }}
-            className="w-full relative flex items-center justify-center text-white text-[16px] font-medium font-sans"
+            className="w-full h-[48px] flex items-center justify-center text-white text-[16px] font-medium font-sans"
             style={{
-                height: '48px',
                 maxWidth: '360px',
-                background: 'transparent',
+                backgroundImage: `url(${buttonAddMoney})`,
+                backgroundSize: "100% 100%",
+                backgroundRepeat: "no-repeat",
                 border: 'none',
-                padding: 0
             }}
         >
-            <img
-               src={buttonAddMoney}
-               alt="Add Money"
-               className="absolute inset-0 w-full h-full object-fill rounded-full"
-            />
-            <span className="relative z-10">Add Money</span>
+            Add Money
         </button>
       </div>
 
