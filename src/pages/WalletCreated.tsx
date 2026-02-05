@@ -71,7 +71,7 @@ const WalletCreated = () => {
                             </span>
                             {/* Diamond Icon increased by 50% more from 36px to 54px */}
                             {/* Moved up by 20px as requested */}
-                            <img src={diamondIcon} alt="Diamond" className="w-[54px] h-[54px] mt-[3px] relative -top-[35px]" />
+                            <img src={diamondIcon} alt="Diamond" className="w-[54px] h-[54px] mt-[3px] relative -top-[55px]" />
                         </div>
 
                         {/* Decreased spacing from 17px to 12px */}
@@ -149,7 +149,8 @@ const WalletCreated = () => {
                     style={{
                         maxWidth: "360px",
                         backgroundImage: `url(${buttonAddMoney})`,
-                        backgroundSize: "100% 100%",
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
                         backgroundRepeat: "no-repeat",
                         border: "none",
                         borderRadius: "9999px",
