@@ -92,7 +92,7 @@ const WalletCreated = () => {
 
                         {/* Helper Text with strict 2-line layout */}
 
-                        <div className="mt-[auto]">
+                        <div className="mt-[14px]">
                             <p className="text-white/90 text-[13px] font-medium font-sans leading-tight tracking-tight">
                                 Uh ho! Looks like a little empty here, let’s fix that?<br />
                                 Press the button below!
