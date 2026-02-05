@@ -51,7 +51,7 @@ const WalletCreated = () => {
 
                 {/* Wallet Card */}
                 {/* Increased height to 240px to accommodate larger icon and text */}
-                <div className="w-full relative mx-auto" style={{ width: '100%', maxWidth: '360px', height: '220px' }}>
+                <div className="w-full relative mx-auto" style={{ width: '100%', maxWidth: '360px', height: '232px' }}>
                     {/* Card Background */}
                     <div
                         className="absolute inset-0 w-full h-full"
