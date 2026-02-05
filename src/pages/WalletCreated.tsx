@@ -65,7 +65,7 @@ const WalletCreated = () => {
 
                     {/* Card Content */}
                     {/* Reduced horizontal padding to px-5 to give more space for text */}
-                    <div className="absolute inset-0 px-5 py-6 flex flex-col overflow-hidden">
+                    <div className="absolute inset-0 px-5 pt-6 pb-[42px] flex flex-col overflow-hidden">
                         <div className="flex justify-between items-center">
                             <span className="text-white text-[15px] font-medium font-sans">
                                 WALLET BALANCE
@@ -91,8 +91,8 @@ const WalletCreated = () => {
                         </div>
 
                         {/* Helper Text with strict 2-line layout */}
-                        {/* Adjusted margin to mt-[15px] */}
-                        <div className="mt-[15px]">
+
+                        <div className="mt-[auto]">
                             <p className="text-white/90 text-[13px] font-medium font-sans leading-tight tracking-tight">
                                 Uh ho! Looks like a little empty here, let’s fix that?<br />
                                 Press the button below!
