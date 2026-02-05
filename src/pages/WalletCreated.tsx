@@ -73,7 +73,7 @@ const WalletCreated = () => {
                             <img
                                 src={diamondIcon}
                                 alt="Diamond"
-                                className="w-[36px] h-[36px]"
+                                className="w-[42px] h-[42px] translate-y-[3px]"
                             />
                         </div>
 
