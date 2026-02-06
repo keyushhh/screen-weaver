@@ -29,7 +29,7 @@ const WalletAddMoney = () => {
       if (prev.includes(".")) {
         const [whole, decimal] = prev.split(".");
         if (decimal && decimal.length >= 2) {
-            return prev;
+          return prev;
         }
       }
 
@@ -56,7 +56,7 @@ const WalletAddMoney = () => {
     >
       {icon ? (
         <div className="group-active:brightness-200">
-           {icon}
+          {icon}
         </div>
       ) : (
         <span className="text-white group-active:text-white font-bold font-sans text-[32px]">{label}</span>
@@ -79,7 +79,7 @@ const WalletAddMoney = () => {
     >
       {/* Header - Standard Single Row */}
       <div className="px-5 pt-4 flex items-center justify-between z-10">
-         {/* Back Button */}
+        {/* Back Button */}
         <button
           onClick={() => navigate("/home")}
           className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md relative z-20"
@@ -100,8 +100,8 @@ const WalletAddMoney = () => {
       <div className="flex-1 flex flex-col items-center pt-[60px]">
         {/* Amount Display */}
         <div className={`flex items-center justify-center transition-opacity duration-200 ${isZero ? 'opacity-50' : 'opacity-100'}`}>
-            <span className="text-white text-[32px] font-black font-sans mr-1">₹</span>
-            <span className="text-white text-[32px] font-black font-sans">{amount}</span>
+          <span className="text-white text-[32px] font-black font-sans mr-1">₹</span>
+          <span className="text-white text-[32px] font-black font-sans">{amount}</span>
         </div>
 
         {/* Divider */}
@@ -109,7 +109,7 @@ const WalletAddMoney = () => {
 
         {/* Balance Text */}
         <p className="text-white/60 text-[12px] font-sans font-normal mt-[8px] mb-[17px]">
-            Total Available Balance ₹ {balance}
+          Total Available Balance ₹ {balance}
         </p>
 
         {/* Error Message */}
@@ -121,25 +121,25 @@ const WalletAddMoney = () => {
 
         {/* Pills */}
         <div className="flex gap-4 mb-8">
-            {["500", "1000", "1500"].map((val) => (
-                <button
-                    key={val}
-                    onClick={() => handlePillClick(val)}
-                    className="relative h-[30px] flex items-center justify-center px-3 py-[6px] transition-transform active:scale-95"
-                >
-                    <div
-                        className="absolute inset-0 w-full h-full"
-                        style={{
-                            backgroundImage: `url(${pillContainerBg})`,
-                            backgroundSize: "100% 100%",
-                            backgroundRepeat: "no-repeat",
-                        }}
-                    />
-                    <span className="relative z-10 text-white text-[12px] font-medium font-sans">
-                        +₹{val}
-                    </span>
-                </button>
-            ))}
+          {["500", "1000", "1500"].map((val) => (
+            <button
+              key={val}
+              onClick={() => handlePillClick(val)}
+              className="relative h-[30px] flex items-center justify-center px-3 py-[6px] transition-transform active:scale-95"
+            >
+              <div
+                className="absolute inset-0 w-full h-full"
+                style={{
+                  backgroundImage: `url(${pillContainerBg})`,
+                  backgroundSize: "100% 100%",
+                  backgroundRepeat: "no-repeat",
+                }}
+              />
+              <span className="relative z-10 text-white text-[12px] font-medium font-sans">
+                +₹{val}
+              </span>
+            </button>
+          ))}
         </div>
 
         {/* Spacer to push everything else down to bottom */}
@@ -147,87 +147,90 @@ const WalletAddMoney = () => {
 
         {/* Info Container */}
         <div className="w-full px-5 pb-[16px]">
-            <div
-                className="w-full h-[61px] relative flex flex-col justify-center px-[18px] py-[10px]"
-                style={{
-                    backgroundImage: `url(${infoContainerBg})`,
-                    backgroundSize: "100% 100%",
-                    backgroundRepeat: "no-repeat",
-                }}
-            >
-                <p className="text-white text-[14px] font-medium font-sans mb-[9px] leading-none">
-                    Note:
-                </p>
-                <p className="text-white text-[14px] font-normal font-sans leading-none">
-                    Some payment methods may include a small processing fee. UPI is always free.
-                </p>
-            </div>
+          <div
+            className="w-full h-[81px] rounded-[13px] flex flex-col justify-center"
+            style={{
+              padding: "9px 19px",
+              backgroundColor: "rgba(25, 25, 25, 0.31)",
+              backdropFilter: "blur(20px)",
+              WebkitBackdropFilter: "blur(20px)",
+              boxShadow: "inset 0 0 0 0.63px rgba(255, 255, 255, 0.12)",
+            }}
+          >
+            <p className="text-white text-[14px] font-medium font-sans mb-[6px] leading-none">
+              Note:
+            </p>
+            <p className="text-white text-[14px] font-normal font-sans leading-none">
+              Some payment methods may include a small processing fee. UPI is always free.
+            </p>
+          </div>
         </div>
+
 
         {/* Keypad Container */}
         <div className="w-full relative rounded-t-[32px] overflow-hidden">
-             {/* Gradient Border Wrapper */}
-             {/* We use a pseudo-element or absolute div for the gradient border */}
-             <div
-                className="absolute inset-0 rounded-t-[32px] pointer-events-none"
-                style={{
-                    padding: '0.63px', // Border width
-                    background: 'linear-gradient(to bottom right, rgba(255,255,255,0.12), rgba(0,0,0,0.20))',
-                    mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                    maskComposite: 'exclude',
-                    WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                    WebkitMaskComposite: 'xor'
-                }}
-             />
+          {/* Gradient Border Wrapper */}
+          {/* We use a pseudo-element or absolute div for the gradient border */}
+          <div
+            className="absolute inset-0 rounded-t-[32px] pointer-events-none"
+            style={{
+              padding: '0.63px', // Border width
+              background: 'linear-gradient(to bottom right, rgba(255,255,255,0.12), rgba(0,0,0,0.20))',
+              mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+              maskComposite: 'exclude',
+              WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+              WebkitMaskComposite: 'xor'
+            }}
+          />
 
-             {/* Inner Content Background */}
-             <div
-                className="w-full h-full p-[20px] pb-[40px] backdrop-blur-[25px]"
-                style={{
-                    backgroundColor: 'rgba(23, 23, 23, 0.31)', // #171717 at 31%
-                }}
-             >
-                <div className="flex flex-col gap-[10px] items-center relative z-10">
-                    {/* Row 1 */}
-                    <div className="flex gap-[10px]">
-                        <KeypadButton label="1" onClick={() => handleKeyPress("1")} />
-                        <KeypadButton label="2" onClick={() => handleKeyPress("2")} />
-                        <KeypadButton label="3" onClick={() => handleKeyPress("3")} />
-                    </div>
-                    {/* Row 2 */}
-                    <div className="flex gap-[10px]">
-                        <KeypadButton label="4" onClick={() => handleKeyPress("4")} />
-                        <KeypadButton label="5" onClick={() => handleKeyPress("5")} />
-                        <KeypadButton label="6" onClick={() => handleKeyPress("6")} />
-                    </div>
-                    {/* Row 3 */}
-                    <div className="flex gap-[10px]">
-                        <KeypadButton label="7" onClick={() => handleKeyPress("7")} />
-                        <KeypadButton label="8" onClick={() => handleKeyPress("8")} />
-                        <KeypadButton label="9" onClick={() => handleKeyPress("9")} />
-                    </div>
-                    {/* Row 4 */}
-                    <div className="flex gap-[10px]">
-                        <KeypadButton label="." onClick={() => handleKeyPress(".")} />
-                        <KeypadButton label="0" onClick={() => handleKeyPress("0")} />
-                        <KeypadButton
-                            onClick={handleBackspace}
-                            icon={<img src={backspaceIcon} alt="Backspace" className="w-[18px] h-[18px] object-contain" />}
-                        />
-                    </div>
+          {/* Inner Content Background */}
+          <div
+            className="w-full h-full p-[20px] pb-[40px] backdrop-blur-[25px]"
+            style={{
+              backgroundColor: 'rgba(23, 23, 23, 0.31)', // #171717 at 31%
+            }}
+          >
+            <div className="flex flex-col gap-[10px] items-center relative z-10">
+              {/* Row 1 */}
+              <div className="flex gap-[10px]">
+                <KeypadButton label="1" onClick={() => handleKeyPress("1")} />
+                <KeypadButton label="2" onClick={() => handleKeyPress("2")} />
+                <KeypadButton label="3" onClick={() => handleKeyPress("3")} />
+              </div>
+              {/* Row 2 */}
+              <div className="flex gap-[10px]">
+                <KeypadButton label="4" onClick={() => handleKeyPress("4")} />
+                <KeypadButton label="5" onClick={() => handleKeyPress("5")} />
+                <KeypadButton label="6" onClick={() => handleKeyPress("6")} />
+              </div>
+              {/* Row 3 */}
+              <div className="flex gap-[10px]">
+                <KeypadButton label="7" onClick={() => handleKeyPress("7")} />
+                <KeypadButton label="8" onClick={() => handleKeyPress("8")} />
+                <KeypadButton label="9" onClick={() => handleKeyPress("9")} />
+              </div>
+              {/* Row 4 */}
+              <div className="flex gap-[10px]">
+                <KeypadButton label="." onClick={() => handleKeyPress(".")} />
+                <KeypadButton label="0" onClick={() => handleKeyPress("0")} />
+                <KeypadButton
+                  onClick={handleBackspace}
+                  icon={<img src={backspaceIcon} alt="Backspace" className="w-[18px] h-[18px] object-contain" />}
+                />
+              </div>
 
-                    {/* CTA */}
-                    <div className="w-full mt-[32px]">
-                        <Button
-                            onClick={() => {}}
-                            disabled={parseFloat(amount) < 500}
-                            className="w-full h-[48px] bg-[#5260FE] hover:bg-[#5260FE]/90 text-white rounded-full text-[16px] font-medium font-sans disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            Add Money
-                        </Button>
-                    </div>
-                </div>
+              {/* CTA */}
+              <div className="w-full mt-[32px]">
+                <Button
+                  onClick={() => { }}
+                  disabled={parseFloat(amount) < 500}
+                  className="w-full h-[48px] bg-[#5260FE] hover:bg-[#5260FE]/90 text-white rounded-full text-[16px] font-medium font-sans disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Add Money
+                </Button>
+              </div>
             </div>
+          </div>
         </div>
       </div>
     </div>
