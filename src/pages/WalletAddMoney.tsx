@@ -221,7 +221,11 @@ const WalletAddMoney = () => {
               {/* CTA */}
               <div className="w-full mt-[32px]">
                 <Button
+wallet-add-money-screen-4169795578244559689
                   onClick={() => navigate('/add-payment-method')}
+
+                  onClick={() => { }}
+ main
                   disabled={parseFloat(amount) < 500}
                   className="w-full h-[48px] bg-[#5260FE] hover:bg-[#5260FE]/90 text-white rounded-full text-[16px] font-medium font-sans disabled:opacity-50 disabled:cursor-not-allowed"
                 >
