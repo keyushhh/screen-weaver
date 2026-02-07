@@ -12,8 +12,8 @@ const OrderSummary = () => {
     const { amount } = location.state || { amount: "0.00" };
 
     const parsedAmount = parseFloat(amount) || 0;
-    const processingFee = 5.00;
-    const platformFee = 0.00;
+    const processingFee = 5.0;
+    const platformFee = 0.0;
     const totalPayable = parsedAmount + processingFee + platformFee;
 
     const glassContainerStyle: React.CSSProperties = {
@@ -21,7 +21,23 @@ const OrderSummary = () => {
         backdropFilter: "blur(20px)",
         WebkitBackdropFilter: "blur(20px)",
         borderRadius: "22px",
+        position: "relative",
     };
+
+    const StrokeOverlay = () => (
+        <div
+            className="absolute inset-0 pointer-events-none rounded-[22px]"
+            style={{
+                padding: "0.63px",
+                background:
+                    "linear-gradient(180deg, rgba(255,255,255,0.12), rgba(0,0,0,0.20))",
+                WebkitMask:
+                    "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+                WebkitMaskComposite: "xor",
+                maskComposite: "exclude",
+            }}
+        />
+    );
 
     const Divider = () => (
         <div className="w-[340px] h-[1px] bg-[#202020] mx-auto" />
@@ -64,10 +80,16 @@ const OrderSummary = () => {
 
                 {/* Payment Method Container */}
                 <div
-                    className="w-[363px] h-[66px] rounded-[22px] flex items-center px-[15px]"
+                    className="w-[363px] h-[66px] rounded-[22px] flex items-center px-[15px] overflow-hidden"
                     style={glassContainerStyle}
                 >
-                    <img src={hdfcIcon} alt="HDFC" className="w-[32px] h-[32px] object-contain" />
+                    <StrokeOverlay />
+
+                    <img
+                        src={hdfcIcon}
+                        alt="HDFC"
+                        className="w-[32px] h-[32px] object-contain"
+                    />
                     <span className="ml-[20px] text-white text-[14px] font-medium font-sans tracking-wider">
                         3232 **** **** 5233
                     </span>
@@ -75,14 +97,18 @@ const OrderSummary = () => {
 
                 {/* To Pay Container */}
                 <div
-                    className="w-[363px] mt-[15px] flex flex-col px-[11px] py-[14px]"
+                    className="w-[363px] mt-[15px] flex flex-col px-[11px] py-[14px] overflow-hidden"
                     style={glassContainerStyle}
                 >
+                    <StrokeOverlay />
+
                     <span className="text-white text-[16px] font-bold font-sans">
                         To Pay
                     </span>
+
                     <p className="text-white text-[14px] font-light font-sans mt-[10px] leading-tight">
-                        No additional taxes apply. Processing fee is inclusive of all charges.
+                        No additional taxes apply. Processing fee is inclusive of all
+                        charges.
                     </p>
 
                     <div className="mt-[15px] mb-[12px]">
@@ -132,23 +158,26 @@ const OrderSummary = () => {
                             Total Payable
                         </span>
                         <span className="text-white text-[14px] font-bold font-sans">
-                            ₹{totalPayable.toLocaleString('en-IN')}
+                            ₹{totalPayable.toLocaleString("en-IN")}
                         </span>
                     </div>
                 </div>
 
                 {/* Info Container */}
                 <div
-                    className="w-[362px] h-[65px] mt-[14px] relative flex items-start"
+                    className="w-[362px] h-[65px] mt-[14px] relative flex items-start overflow-hidden"
                     style={glassContainerStyle}
                 >
+                    <StrokeOverlay />
+
                     <img
                         src={infoIcon}
                         alt="Info"
                         className="w-[12px] h-[12px] absolute top-[14px] left-[6px]"
                     />
                     <p className="text-white text-[14px] font-normal font-sans leading-snug absolute top-[14px] left-[25px] right-[10px]">
-                        This fee helps cover gateway and transaction costs. UPI methods are free.
+                        This fee helps cover gateway and transaction costs. UPI methods are
+                        free.
                     </p>
                 </div>
             </div>
