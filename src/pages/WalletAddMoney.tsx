@@ -221,7 +221,7 @@ const WalletAddMoney = () => {
               {/* CTA */}
               <div className="w-full mt-[32px]">
                 <Button
-                  onClick={() => navigate('/add-payment-method')}
+                  onClick={() => navigate('/add-payment-method', { state: { amount } })}
                   className="w-full h-[48px] bg-[#5260FE] hover:bg-[#5260FE]/90 text-white rounded-full text-[16px] font-medium font-sans"
                 >
                   Add Money

@@ -8,9 +8,10 @@ interface SlideToPayProps {
   onComplete: () => void;
   className?: string;
   disabled?: boolean;
+  label?: string;
 }
 
-export const SlideToPay: React.FC<SlideToPayProps> = ({ onComplete, className = "", disabled = false }) => {
+export const SlideToPay: React.FC<SlideToPayProps> = ({ onComplete, className = "", disabled = false, label = "Confirm and Place Order" }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragX, setDragX] = useState(0);
   const [completed, setCompleted] = useState(false);
@@ -102,7 +103,7 @@ export const SlideToPay: React.FC<SlideToPayProps> = ({ onComplete, className = 
             className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-300`}
         >
              <span className={`text-white text-[16px] font-medium font-sans tracking-wide drop-shadow-md ${!completed && 'ml-8'}`}>
-                {completed ? "Verifying Order" : "Confirm and Place Order"}
+                {completed ? "Verifying Order" : label}
              </span>
         </div>
 
