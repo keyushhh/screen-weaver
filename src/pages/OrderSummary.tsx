@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import hdfcIcon from "@/assets/hdfc-bank-logo.png";
-import infoIcon from "@/assets/info ico.svg";
+import infoIcon from "@/assets/infopurple.svg";
 import { SlideToPay } from "@/components/SlideToPay";
 
 const OrderSummary = () => {
@@ -129,6 +129,7 @@ const OrderSummary = () => {
                         <Divider />
                     </div>
 
+                    {/* Wallet Top Up */}
                     <div className="flex items-center justify-between w-full px-1">
                         <span className="text-white text-[14px] font-medium font-sans">
                             Wallet top up
@@ -138,16 +139,16 @@ const OrderSummary = () => {
                         </span>
                     </div>
 
+                    {/* Processing Fee */}
                     <div className="flex items-center justify-between w-full mt-[8px] px-1">
-                        <div className="flex items-center">
-                            <span className="text-white text-[14px] font-medium font-sans mr-[6px]">
+                        <div className="flex items-center gap-[6px]">
+                            <span className="text-white text-[14px] font-medium font-sans">
                                 Processing Fee
                             </span>
                             <img
                                 src={infoIcon}
                                 alt="Info"
                                 className="w-[12px] h-[12px]"
-                                style={{ filter: "invert(41%) sepia(89%) saturate(748%) hue-rotate(209deg) brightness(99%) contrast(97%)" }}
                             />
                         </div>
                         <span className="text-white text-[14px] font-bold font-sans">
@@ -155,6 +156,7 @@ const OrderSummary = () => {
                         </span>
                     </div>
 
+                    {/* Platform Fee */}
                     <div className="flex items-center justify-between w-full mt-[8px] px-1">
                         <span className="text-white text-[14px] font-medium font-sans">
                             Platform Fee
@@ -168,6 +170,7 @@ const OrderSummary = () => {
                         <Divider />
                     </div>
 
+                    {/* Total Payable */}
                     <div className="flex items-center justify-between w-full px-1">
                         <span className="text-white text-[14px] font-medium font-sans">
                             Total Payable
@@ -186,9 +189,11 @@ const OrderSummary = () => {
                     <StrokeOverlay13 />
 
                     <div className="flex items-start gap-[10px] px-[14px] py-[12px]">
-                        <div className="w-[20px] h-[20px] flex items-center justify-center rounded-full bg-[#5260FE]">
-                            <span className="text-white text-[12px] font-bold">?</span>
-                        </div>
+                        <img
+                            src={infoIcon}
+                            alt="Info"
+                            className="w-[12px] h-[12px] mt-[2px]"
+                        />
 
                         <p className="text-white text-[14px] font-normal font-sans leading-snug">
                             This fee helps cover gateway and transaction costs. UPI methods are free.
