@@ -156,7 +156,7 @@ const OrderSummary = () => {
             {/* Bottom Slider CTA */}
             <div className="w-full px-5 pb-[20px]">
                 <SlideToPay
-                    onComplete={() => console.log("Order Placed")}
+                    onComplete={() => navigate('/wallet-topup-success', { state: { totalAmount: totalPayable } })}
                     label="Confirm and Place Order"
                 />
             </div>
