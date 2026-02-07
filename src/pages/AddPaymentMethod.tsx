@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import chevronIcon from "@/assets/chevron.svg";
@@ -13,6 +13,8 @@ import amazonIcon from "@/assets/amazon.png";
 
 const AddPaymentMethod = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const { amount } = location.state || { amount: "0.00" };
 
     const glassContainerStyle: React.CSSProperties = {
         backgroundColor: "rgba(25, 25, 25, 0.31)",
@@ -213,7 +215,10 @@ const AddPaymentMethod = () => {
                         <Divider />
 
                         {/* Netbanking */}
-                        <div className="flex items-center mt-[9px] relative h-[40px]">
+                        <div
+                            className="flex items-center mt-[9px] relative h-[40px] cursor-pointer"
+                            onClick={() => navigate('/order-summary', { state: { amount } })}
+                        >
                             <div className="flex flex-col justify-center">
                                 <span className="text-white text-[16px] font-bold font-sans leading-none mb-[6px]">
                                     Netbanking
@@ -228,7 +233,7 @@ const AddPaymentMethod = () => {
                                 </div>
                             </div>
 
-                            <div className="absolute right-0 top-1 flex items-center gap-2 cursor-pointer">
+                            <div className="absolute right-0 top-1 flex items-center gap-2">
                                 <span className="text-white text-[12px] font-medium font-sans">
                                     Select Bank
                                 </span>
