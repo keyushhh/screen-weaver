@@ -93,7 +93,7 @@ const OrderSummary = () => {
                     </span>
                 </div>
 
-                {/* Payment Method Container (22px stays) */}
+                {/* Payment Method Container */}
                 <div
                     className="w-[363px] h-[66px] rounded-[22px] flex items-center px-[15px] overflow-hidden"
                     style={glassContainerStyle}
@@ -110,7 +110,7 @@ const OrderSummary = () => {
                     </span>
                 </div>
 
-                {/* To Pay Container (13px) */}
+                {/* To Pay Container */}
                 <div
                     className="w-[363px] mt-[15px] flex flex-col px-[11px] py-[14px] overflow-hidden rounded-[13px]"
                     style={{ ...glassContainerStyle, borderRadius: "13px" }}
@@ -122,8 +122,7 @@ const OrderSummary = () => {
                     </span>
 
                     <p className="text-white text-[14px] font-light font-sans mt-[10px] leading-tight">
-                        No additional taxes apply. Processing fee is inclusive of all
-                        charges.
+                        No additional taxes apply. Processing fee is inclusive of all charges.
                     </p>
 
                     <div className="mt-[15px] mb-[12px]">
@@ -144,7 +143,12 @@ const OrderSummary = () => {
                             <span className="text-white text-[14px] font-medium font-sans mr-[6px]">
                                 Processing Fee
                             </span>
-                            <img src={infoIcon} alt="Info" className="w-[12px] h-[12px]" />
+                            <img
+                                src={infoIcon}
+                                alt="Info"
+                                className="w-[12px] h-[12px]"
+                                style={{ filter: "invert(41%) sepia(89%) saturate(748%) hue-rotate(209deg) brightness(99%) contrast(97%)" }}
+                            />
                         </div>
                         <span className="text-white text-[14px] font-bold font-sans">
                             ₹{processingFee.toFixed(2)}
@@ -174,25 +178,26 @@ const OrderSummary = () => {
                     </div>
                 </div>
 
-                {/* Info Container (13px) */}
+                {/* Info Container */}
                 <div
-                    className="w-[362px] h-[65px] mt-[14px] relative flex items-start overflow-hidden rounded-[13px]"
+                    className="w-[362px] mt-[14px] overflow-hidden rounded-[13px]"
                     style={{ ...glassContainerStyle, borderRadius: "13px" }}
                 >
                     <StrokeOverlay13 />
 
-                    <img
-                        src={infoIcon}
-                        alt="Info"
-                        className="w-[12px] h-[12px] absolute top-[14px] left-[6px]"
-                    />
-                    <p className="text-white text-[14px] font-normal font-sans leading-snug absolute top-[14px] left-[25px] right-[10px]">
-                        This fee helps cover gateway and transaction costs. UPI methods are
-                        free.
-                    </p>
+                    <div className="flex items-start gap-[10px] px-[14px] py-[12px]">
+                        <div className="w-[20px] h-[20px] flex items-center justify-center rounded-full bg-[#5260FE]">
+                            <span className="text-white text-[12px] font-bold">?</span>
+                        </div>
+
+                        <p className="text-white text-[14px] font-normal font-sans leading-snug">
+                            This fee helps cover gateway and transaction costs. UPI methods are free.
+                        </p>
+                    </div>
                 </div>
             </div>
 
+            {/* Bottom Slider CTA */}
             <div className="w-full px-5 pb-[20px]">
                 <SlideToPay
                     onComplete={() => console.log("Order Placed")}
