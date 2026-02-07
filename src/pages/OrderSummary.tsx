@@ -24,9 +24,24 @@ const OrderSummary = () => {
         position: "relative",
     };
 
-    const StrokeOverlay = () => (
+    const StrokeOverlay22 = () => (
         <div
             className="absolute inset-0 pointer-events-none rounded-[22px]"
+            style={{
+                padding: "0.63px",
+                background:
+                    "linear-gradient(180deg, rgba(255,255,255,0.12), rgba(0,0,0,0.20))",
+                WebkitMask:
+                    "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+                WebkitMaskComposite: "xor",
+                maskComposite: "exclude",
+            }}
+        />
+    );
+
+    const StrokeOverlay13 = () => (
+        <div
+            className="absolute inset-0 pointer-events-none rounded-[13px]"
             style={{
                 padding: "0.63px",
                 background:
@@ -78,12 +93,12 @@ const OrderSummary = () => {
                     </span>
                 </div>
 
-                {/* Payment Method Container */}
+                {/* Payment Method Container (22px stays) */}
                 <div
                     className="w-[363px] h-[66px] rounded-[22px] flex items-center px-[15px] overflow-hidden"
                     style={glassContainerStyle}
                 >
-                    <StrokeOverlay />
+                    <StrokeOverlay22 />
 
                     <img
                         src={hdfcIcon}
@@ -95,12 +110,12 @@ const OrderSummary = () => {
                     </span>
                 </div>
 
-                {/* To Pay Container */}
+                {/* To Pay Container (13px) */}
                 <div
-                    className="w-[363px] mt-[15px] flex flex-col px-[11px] py-[14px] overflow-hidden"
-                    style={glassContainerStyle}
+                    className="w-[363px] mt-[15px] flex flex-col px-[11px] py-[14px] overflow-hidden rounded-[13px]"
+                    style={{ ...glassContainerStyle, borderRadius: "13px" }}
                 >
-                    <StrokeOverlay />
+                    <StrokeOverlay13 />
 
                     <span className="text-white text-[16px] font-bold font-sans">
                         To Pay
@@ -115,7 +130,6 @@ const OrderSummary = () => {
                         <Divider />
                     </div>
 
-                    {/* Wallet Top Up */}
                     <div className="flex items-center justify-between w-full px-1">
                         <span className="text-white text-[14px] font-medium font-sans">
                             Wallet top up
@@ -125,7 +139,6 @@ const OrderSummary = () => {
                         </span>
                     </div>
 
-                    {/* Processing Fee */}
                     <div className="flex items-center justify-between w-full mt-[8px] px-1">
                         <div className="flex items-center">
                             <span className="text-white text-[14px] font-medium font-sans mr-[6px]">
@@ -138,7 +151,6 @@ const OrderSummary = () => {
                         </span>
                     </div>
 
-                    {/* Platform Fee */}
                     <div className="flex items-center justify-between w-full mt-[8px] px-1">
                         <span className="text-white text-[14px] font-medium font-sans">
                             Platform Fee
@@ -152,7 +164,6 @@ const OrderSummary = () => {
                         <Divider />
                     </div>
 
-                    {/* Total Payable */}
                     <div className="flex items-center justify-between w-full px-1">
                         <span className="text-white text-[14px] font-medium font-sans">
                             Total Payable
@@ -163,12 +174,12 @@ const OrderSummary = () => {
                     </div>
                 </div>
 
-                {/* Info Container */}
+                {/* Info Container (13px) */}
                 <div
-                    className="w-[362px] h-[65px] mt-[14px] relative flex items-start overflow-hidden"
-                    style={glassContainerStyle}
+                    className="w-[362px] h-[65px] mt-[14px] relative flex items-start overflow-hidden rounded-[13px]"
+                    style={{ ...glassContainerStyle, borderRadius: "13px" }}
                 >
-                    <StrokeOverlay />
+                    <StrokeOverlay13 />
 
                     <img
                         src={infoIcon}
@@ -182,7 +193,6 @@ const OrderSummary = () => {
                 </div>
             </div>
 
-            {/* Bottom Slider CTA */}
             <div className="w-full px-5 pb-[20px]">
                 <SlideToPay
                     onComplete={() => console.log("Order Placed")}
