@@ -9,7 +9,7 @@ import { SlideToPay } from "@/components/SlideToPay";
 const OrderSummary = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { amount } = location.state || { amount: "0.00" };
+    const { amount, retry } = location.state || { amount: "0.00", retry: false };
 
     const parsedAmount = parseFloat(amount) || 0;
     const processingFee = 5.00;
@@ -156,7 +156,13 @@ const OrderSummary = () => {
             {/* Bottom Slider CTA */}
             <div className="w-full px-5 pb-[20px]">
                 <SlideToPay
-                    onComplete={() => navigate('/wallet-topup-success', { state: { totalAmount: totalPayable } })}
+                    onComplete={() => {
+                        if (retry) {
+                            navigate('/wallet-topup-success', { state: { totalAmount: totalPayable } });
+                        } else {
+                            navigate('/wallet-topup-failed', { state: { amount } });
+                        }
+                    }}
                     label="Confirm and Place Order"
                 />
             </div>
