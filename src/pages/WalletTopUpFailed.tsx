@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import errorBg from '../assets/error-bg.png';
-import crossIcon from '../assets/cross-icon.png';
+import crossFailedIcon from '../assets/cross failed.svg';
+import buttonPrimaryWide from '@/assets/button-primary-wide.png';
 
 const WalletTopUpFailed: React.FC = () => {
   const navigate = useNavigate();
@@ -14,26 +15,23 @@ const WalletTopUpFailed: React.FC = () => {
     }
   }, [location.state]);
 
-  const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat('en-IN', {
+  const formatCurrency = (val: number) =>
+    new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
     }).format(val);
-  };
 
   const handleTryAgain = () => {
-    // Navigate back to OrderSummary to retry
-    // We pass 'retry: true' to signal the logic
     navigate('/order-summary', { state: { amount, retry: true } });
   };
 
   const handleGoBack = () => {
-     navigate('/wallet-add-money');
+    navigate('/wallet-add-money');
   };
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-between p-6 relative overflow-hidden font-sans"
+      className="min-h-screen flex flex-col items-center p-6 relative overflow-hidden font-sans"
       style={{
         backgroundImage: `url(${errorBg})`,
         backgroundSize: 'cover',
@@ -43,63 +41,101 @@ const WalletTopUpFailed: React.FC = () => {
     >
       {/* Top Content */}
       <div className="flex flex-col items-center w-full mt-10 z-10">
-        <h1 className="text-white text-[28px] font-bold mb-8">
+        {/* Heading */}
+        <h1 className="text-white text-[26px] font-medium">
           Payment Failed!
         </h1>
 
-        <div className="mb-8 relative">
-             <div className="bg-[#FF0000] rounded-full p-3 shadow-[0_0_20px_rgba(255,0,0,0.5)]">
-                <img src={crossIcon} alt="Failed" className="w-12 h-12 object-contain" />
-             </div>
+        {/* Failed Icon – 12px below heading */}
+        <div className="mt-[12px]">
+          <img
+            src={crossFailedIcon}
+            alt="Failed"
+            className="w-[62px] h-[62px] object-contain"
+          />
         </div>
 
-        <h2 className="text-white text-[18px] font-medium text-center max-w-[85%] leading-relaxed mb-8">
+        {/* Error Text – 35px below icon */}
+        <h2 className="mt-[35px] text-white text-[18px] font-medium text-center max-w-[85%] leading-relaxed">
           Something went horribly wrong... financially.
         </h2>
 
+        {/* Info Card – 20px below text */}
         {/* Info Card */}
-        <div className="w-full bg-[#000000]/60 backdrop-blur-md rounded-[22px] p-6 border border-white/10 shadow-lg">
-            <p className="text-white text-[16px] font-medium mb-4 leading-normal">
-              We tried. Your bank tried. Even your card looked motivated.
-            </p>
+        <div
+          className="mt-[20px] w-full rounded-[22px] px-[19px] pt-[13px] pb-[18px] relative overflow-hidden"
+          style={{
+            backgroundColor: "rgba(25, 25, 25, 0.31)", // #191919 @ 31%
+            backdropFilter: "blur(25px)",
+            WebkitBackdropFilter: "blur(25px)",
+          }}
+        >
+          {/* Linear Stroke Overlay */}
+          <div
+            className="absolute inset-0 pointer-events-none rounded-[22px]"
+            style={{
+              padding: "0.63px",
+              background:
+                "linear-gradient(180deg, rgba(255,255,255,0.12), rgba(0,0,0,0.20))",
+              WebkitMask:
+                "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+              WebkitMaskComposite: "xor",
+              maskComposite: "exclude",
+            }}
+          />
 
-            <p className="text-[#A4A4A4] text-[14px] font-normal mb-4 leading-relaxed">
-              But something tripped in the matrix, and <span className="text-white font-bold">{formatCurrency(amount)}</span> didn't make it to your wallet.
-            </p>
+          <p className="relative z-10 text-white text-[16px] font-medium leading-normal mb-[12px]">
+            We tried. Your bank tried. Even your card looked motivated.
+          </p>
 
-            <p className="text-[#A4A4A4] text-[14px] font-normal mb-4 leading-relaxed">
-              Don’t worry - if any money was deducted, it’ll crawl back to you within 2-3 biz days.
-            </p>
+          <p className="relative z-10 text-[#AFAFAF] text-[16px] font-normal leading-snug">
+            But something tripped in the matrix, and{" "}
+            <span className="text-white font-medium">
+              {formatCurrency(amount)}
+            </span>{" "}
+            didn’t make it to your wallet. Don’t worry – if any money was deducted,
+            it’ll crawl back to you within 2–3 biz days. In the meantime? Deep breaths
+            an check your balance. Emotionally and otherwise.
+          </p>
 
-            <p className="text-[#A4A4A4] text-[14px] font-normal mb-6 leading-relaxed">
-              In the meantime? Deep breaths an check your balance. Emotionally and otherwise.
-            </p>
-
-            {/* Status Footer */}
-            <div className="flex items-center gap-3 mt-2">
-                <div className="w-3 h-3 rounded-full bg-[#FF0000] shadow-[0_0_8px_rgba(255,0,0,0.8)]"></div>
-                <span className="text-[#A4A4A4] text-[14px] font-medium">Transaction ghosted.</span>
-            </div>
+          <div className="relative z-10 flex items-center gap-[12px] mt-[18px]">
+            <div className="w-[14px] h-[14px] rounded-full bg-[#FF3B30]" />
+            <span className="text-[#AFAFAF] text-[14px] font-medium">
+              Transaction ghosted.
+            </span>
+          </div>
         </div>
+
       </div>
 
-      {/* Buttons */}
-      <div className="w-full flex flex-col gap-4 mb-8 z-10">
+      {/* CTAs – 45px below container */}
+      <div className="w-full mt-[45px] flex flex-col gap-4 z-10">
         <button
-            onClick={handleTryAgain}
-            className="w-full py-4 rounded-[16px] bg-[#1A1A1A]/90 border border-white/20 text-white font-bold text-[16px] active:scale-95 transition-transform backdrop-blur-sm shadow-md"
+          onClick={handleTryAgain}
+          className="w-full h-[48px] flex items-center justify-center text-white text-[16px] font-medium font-sans active:scale-95 transition-transform"
+          style={{
+            backgroundImage: `url(${buttonPrimaryWide})`,
+            backgroundSize: '100% 100%',
+            backgroundPosition: 'center',
+            filter: 'brightness(0.8) contrast(1.2)',
+          }}
         >
-            Try Again (If you dare)
+          Try Again (If you dare)
         </button>
 
         <button
-            onClick={handleGoBack}
-            className="w-full py-4 rounded-[16px] bg-[#1A1A1A]/90 border border-white/20 text-white font-bold text-[16px] active:scale-95 transition-transform backdrop-blur-sm shadow-md"
+          onClick={handleGoBack}
+          className="w-full h-[48px] flex items-center justify-center text-white text-[16px] font-medium font-sans active:scale-95 transition-transform"
+          style={{
+            backgroundImage: `url(${buttonPrimaryWide})`,
+            backgroundSize: '100% 100%',
+            backgroundPosition: 'center',
+            filter: 'brightness(0.8) contrast(1.2)',
+          }}
         >
-            Go Back!
+          Go Back!
         </button>
       </div>
-
     </div>
   );
 };

@@ -25,10 +25,10 @@ const WalletTopUpSuccess = () => {
         // Process the transaction only once
         if (creditAmount && !processedRef.current) {
             processedRef.current = true;
-
+            
             // update balance
             addWalletBalance(creditAmount);
-
+            
             // log transaction
             addTransaction({
                 id: crypto.randomUUID(),
@@ -38,7 +38,7 @@ const WalletTopUpSuccess = () => {
                 date: new Date().toISOString(),
                 description: 'Added via Netbanking'
             });
-
+            
             // Activate wallet (skip intro in future)
             activateWallet();
         }
@@ -71,7 +71,7 @@ const WalletTopUpSuccess = () => {
             </h2>
 
             {/* Info Container */}
-            <div
+            <div 
                 className="mt-[45px] w-full rounded-[22px] px-[15px] pt-[11px] pb-[18px]"
                 style={{
                     backgroundColor: "rgba(25, 25, 25, 0.31)",
@@ -91,7 +91,7 @@ const WalletTopUpSuccess = () => {
                     <br />
                     Just pure financial laziness, powered by tech.
                 </p>
-
+                
                 <p className="text-[#AFAFAF] text-[16px] font-normal font-sans mt-[18px]">
                     We respect it.
                 </p>
