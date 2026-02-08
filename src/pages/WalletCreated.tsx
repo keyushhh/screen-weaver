@@ -49,30 +49,30 @@ const WalletCreated = () => {
             title = `Amount Credited - ₹${formattedAmount}`;
             description = `₹${formattedAmount} was added to your wallet via UPI.`;
         } else {
-             // Fallback
-             return null;
+            // Fallback
+            return null;
         }
 
         return (
             <div className="mt-[16px]">
-                 <div className="flex items-center">
-                      {/* Circle Indicator */}
-                      <div
-                          style={{
-                              width: '14px',
-                              height: '14px',
-                              borderRadius: '50%',
-                              backgroundColor: statusColor,
-                              boxShadow: `0 0 0 5px ${strokeColor}`
-                          }}
-                      />
-                      <span className="ml-[13px] text-white text-[14px] font-medium font-sans">
-                          {title}
-                      </span>
-                 </div>
-                 <p className="mt-[10px] text-white text-[12px] font-normal font-sans leading-snug">
-                     {description}
-                 </p>
+                <div className="flex items-center">
+                    {/* Circle Indicator */}
+                    <div
+                        style={{
+                            width: '14px',
+                            height: '14px',
+                            borderRadius: '50%',
+                            backgroundColor: statusColor,
+                            boxShadow: `0 0 0 5px ${strokeColor}`
+                        }}
+                    />
+                    <span className="ml-[13px] text-white text-[14px] font-medium font-sans">
+                        {title}
+                    </span>
+                </div>
+                <p className="mt-[10px] text-white text-[12px] font-normal font-sans leading-snug">
+                    {description}
+                </p>
             </div>
         );
     };
@@ -193,40 +193,39 @@ const WalletCreated = () => {
 
                     {walletTransactions.length > 0 ? (
                         <div className="w-full flex flex-col gap-[16px]">
-                             {/* Headers Row */}
-                             <div className="grid grid-cols-[1fr_100px_80px] gap-x-6 px-0 mb-[8px]">
-                                 <div className="text-[#7E7E7E] text-[12px] font-normal font-sans">Details</div>
-                                 <div className="text-right text-[#7E7E7E] text-[12px] font-normal font-sans">Price</div>
-                                 <div className="text-right text-[#7E7E7E] text-[12px] font-normal font-sans">Status</div>
-                             </div>
+                            {/* Headers Row */}
+                            <div className="grid grid-cols-[1fr_100px_80px] gap-x-6 px-0 mb-[8px]">
+                                <div className="text-[#7E7E7E] text-[12px] font-normal font-sans">Details</div>
+                                <div className="text-right text-[#7E7E7E] text-[12px] font-normal font-sans">Price</div>
+                                <div className="text-right text-[#7E7E7E] text-[12px] font-normal font-sans">Status</div>
+                            </div>
 
-                             {walletTransactions.map(tx => (
-                                 <div key={tx.id} className="grid grid-cols-[1fr_100px_80px] gap-x-6 items-start">
-                                     <div className="flex flex-col">
-                                         <span className="text-white text-[13px] font-normal font-sans leading-none mb-[2px]">
-                                             {tx.description}
-                                         </span>
-                                         <span className="text-[#7E7E7E] text-[12px] font-normal font-sans leading-none">
-                                             {new Date(tx.date).toLocaleDateString('en-IN', {
-                                                  day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
-                                             })}
-                                         </span>
-                                     </div>
-                                     <div className="text-right">
-                                         <span className="text-white text-[13px] font-normal font-sans">
-                                             {tx.type === 'credit' ? '+' : '-'}₹{tx.amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                         </span>
-                                     </div>
-                                     <div className="text-right">
-                                         <span className={`text-[13px] font-normal font-sans capitalize ${
-                                             tx.status === 'success' ? 'text-[#5CFF00]' :
-                                             tx.status === 'failed' ? 'text-[#FF3B30]' : 'text-[#FACC15]'
-                                         }`}>
-                                             {tx.status}
-                                         </span>
-                                     </div>
-                                 </div>
-                             ))}
+                            {walletTransactions.map(tx => (
+                                <div key={tx.id} className="grid grid-cols-[1fr_100px_80px] gap-x-6 items-start">
+                                    <div className="flex flex-col">
+                                        <span className="text-white text-[13px] font-normal font-sans leading-none mb-[2px]">
+                                            {tx.description}
+                                        </span>
+                                        <span className="text-[#7E7E7E] text-[12px] font-normal font-sans leading-none">
+                                            {new Date(tx.date).toLocaleDateString('en-IN', {
+                                                day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+                                            })}
+                                        </span>
+                                    </div>
+                                    <div className="text-right">
+                                        <span className="text-white text-[13px] font-normal font-sans">
+                                            {tx.type === 'credit' ? '+' : '-'}₹{tx.amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                        </span>
+                                    </div>
+                                    <div className="text-right">
+                                        <span className={`text-[13px] font-normal font-sans capitalize ${tx.status === 'success' ? 'text-[#5CFF00]' :
+                                            status === 'failed' ? 'text-[#FF3B30]' : 'text-[#FACC15]'
+                                            }`}>
+                                            {tx.status}
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     ) : (
                         <div className="w-full py-10 flex items-center justify-center">
@@ -255,8 +254,8 @@ const WalletCreated = () => {
 
                 {walletBalance > 0 && (
                     <button
-                        onClick={() => {}} // Do nothing as requested
-                        className="w-full h-[48px] flex items-center justify-center text-white text-[16px] font-medium font-sans rounded-[14px] active:scale-95 transition-transform"
+                        onClick={() => { }} // Do nothing as requested
+                        className="w-full h-[48px] flex items-center justify-center text-white text-[16px] font-medium font-sans rounded-full active:scale-95 transition-transform"
                         style={{
                             backgroundColor: "#171717", // Dark background
                             border: "1px solid rgba(255,255,255,0.1)"
