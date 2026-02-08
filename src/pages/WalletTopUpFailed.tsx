@@ -48,11 +48,11 @@ const WalletTopUpFailed: React.FC = () => {
 
         {/* Failed Icon */}
         <div className="mb-8 relative">
-          <div className="rounded-full p-3 shadow-[0_0_20px_rgba(255,0,0,0.5)]">
+          <div className="rounded-full p-3">
             <img
               src={crossFailedIcon}
               alt="Failed"
-              className="w-12 h-12 object-contain"
+              className="w-62 h-62 object-contain"
             />
           </div>
         </div>
@@ -65,7 +65,7 @@ const WalletTopUpFailed: React.FC = () => {
         <div
           className="w-full rounded-[22px] p-6 relative overflow-hidden"
           style={{
-            backgroundColor: 'rgba(25, 25, 25, 0.31)', // #191919 @ 31%
+            backgroundColor: 'rgba(25, 25, 25, 0.2)', // #191919 @ 20%
             backdropFilter: 'blur(25px)',
             WebkitBackdropFilter: 'blur(25px)',
           }}
