@@ -55,9 +55,9 @@ const WalletTopUpSuccess = () => {
             <div
                 className="mt-[45px] w-full rounded-[22px] px-[15px] pt-[11px] pb-[18px] relative overflow-hidden"
                 style={{
-                    backgroundColor: "rgba(25, 25, 25, 0.31)",
-                    backdropFilter: "blur(20px)",
-                    WebkitBackdropFilter: "blur(20px)",
+                    backgroundColor: "rgba(25, 25, 25, 0.31)", // #191919 @ 31%
+                    backdropFilter: "blur(25px)",
+                    WebkitBackdropFilter: "blur(25px)",
                 }}
             >
                 {/* Linear Stroke */}
@@ -92,7 +92,7 @@ const WalletTopUpSuccess = () => {
                 </p>
 
                 {/* Wallet Loaded Row */}
-                <div className="flex items-center gap-[8px] mt-[18px] relative z-10">
+                <div className="flex items-center mt-[18px] relative z-10">
                     {/* Green Status Dot */}
                     <div
                         className="w-[14px] h-[14px] rounded-full"
@@ -101,7 +101,7 @@ const WalletTopUpSuccess = () => {
                             boxShadow: "0 0 0 5px rgba(28, 185, 86, 0.25)",
                         }}
                     />
-                    <span className="text-[#D0D0D0] text-[12px] font-normal font-sans">
+                    <span className="ml-[13px] text-[#D0D0D0] text-[12px] font-normal font-sans">
                         Wallet loaded.
                     </span>
                 </div>
