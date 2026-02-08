@@ -23,7 +23,7 @@ const WalletTopUpSuccess = () => {
 
     return (
         <div
-            className="h-full w-full flex flex-col items-center relative safe-area-top safe-area-bottom px-5"
+            className="h-full w-full overflow-hidden flex flex-col items-center relative safe-area-top safe-area-bottom px-5"
             style={{
                 backgroundImage: `url(${successBg})`,
                 backgroundSize: "cover",
@@ -53,7 +53,7 @@ const WalletTopUpSuccess = () => {
 
             {/* Info Container */}
             <div
-                className="mt-[45px] w-full rounded-[22px] px-[15px] pt-[11px] pb-[18px] relative overflow-hidden"
+                className="mt-[45px] w-full rounded-[22px] px-[19px] pt-[13px] pb-[18px] relative overflow-hidden"
                 style={{
                     backgroundColor: "rgba(25, 25, 25, 0.31)", // #191919 @ 31%
                     backdropFilter: "blur(25px)",
@@ -81,8 +81,9 @@ const WalletTopUpSuccess = () => {
 
                 {/* Body Text */}
                 <p className="text-[#AFAFAF] text-[16px] font-normal font-sans mt-[12px] leading-snug relative z-10">
-                    You didn’t add it to spend digitally. You added it... to make that cash come to YOU.
-                    No ATMs, no queues, no awkward eye contact with security guards.
+                    You didn’t add it to spend digitally. You added it... to make
+                    that cash come to YOU. No ATMs, no queues, no awkward eye
+                    contact with security guards.
                     <br />
                     Just pure financial laziness, powered by tech.
                 </p>
@@ -98,7 +99,7 @@ const WalletTopUpSuccess = () => {
                         className="w-[14px] h-[14px] rounded-full"
                         style={{
                             backgroundColor: "#1CB956",
-                            boxShadow: "0 0 0 5px rgba(28, 185, 86, 0.25)",
+                            boxShadow: "0 0 0 5px rgba(28,185,86,0.17)",
                         }}
                     />
                     <span className="ml-[13px] text-[#D0D0D0] text-[12px] font-normal font-sans">
