@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
+import { useUser } from "@/contexts/UserContext";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import peLogo from "@/assets/pe_logo.svg";
 import switchTabBg from "@/assets/switch tab.png";
@@ -9,7 +10,14 @@ import buttonPrimary from "@/assets/button-primary-wide.png";
 
 const Wallet = () => {
   const navigate = useNavigate();
+  const { isWalletActivated } = useUser();
   const [activeTab, setActiveTab] = useState<'how-it-works' | 'refund-policy'>('how-it-works');
+
+  useEffect(() => {
+    if (isWalletActivated) {
+        navigate('/wallet-created', { replace: true });
+    }
+  }, [isWalletActivated, navigate]);
 
   return (
     <div

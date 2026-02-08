@@ -22,6 +22,7 @@ import deliveryRiderIcon from "@/assets/delivery-rider.svg";
 import ongoingIcon from "@/assets/ongoing.svg";
 import BottomNavigation from "@/components/BottomNavigation";
 import AddressSelectionSheet from "@/components/AddressSelectionSheet";
+import { useUser } from "@/contexts/UserContext";
 
 // Tag Icons
 import homeIcon from "@/assets/HomeTag.svg";
@@ -44,12 +45,12 @@ interface SavedAddress {
 
 const Homepage = () => {
   const navigate = useNavigate();
+  const { walletBalance } = useUser();
   const [showBalance, setShowBalance] = useState(false);
   const [savedAddress, setSavedAddress] = useState<SavedAddress | null>(null);
   const [isAddressSheetOpen, setIsAddressSheetOpen] = useState(false);
   const [activeOrder, setActiveOrder] = useState<Order | null>(null);
   const [transactionHistory, setTransactionHistory] = useState<Order[]>([]);
-  const balance = "0.00";
 
   // Map State
   const [viewState, setViewState] = useState({
@@ -228,7 +229,7 @@ const Homepage = () => {
           </button>
         </div>
         <p className="text-foreground text-[32px] font-semibold">
-          ₹{showBalance ? balance : "******"}
+          ₹{showBalance ? walletBalance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "******"}
         </p>
         <button
           onClick={() => navigate('/order-cash')}
@@ -247,7 +248,10 @@ const Homepage = () => {
       {/* Quick Actions */}
       <div className="flex justify-center gap-6 mt-8 px-5">
         {/* Add Money - Custom Circle Button */}
-        <button className="flex flex-col items-center gap-2">
+        <button
+          onClick={() => navigate('/wallet-add-money')}
+          className="flex flex-col items-center gap-2"
+        >
           <div
             className="w-[52px] h-[52px] flex items-center justify-center"
             style={{

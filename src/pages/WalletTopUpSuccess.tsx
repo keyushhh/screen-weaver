@@ -1,20 +1,48 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import successBg from "@/assets/success-bg.png";
 import checkIcon from "@/assets/check-icon.png";
 import buttonPrimaryWide from "@/assets/button-primary-wide.png";
+import { useUser } from "@/contexts/UserContext";
 
 const WalletTopUpSuccess = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { totalAmount } = location.state || { totalAmount: 0 };
+    const { addWalletBalance, addTransaction, activateWallet } = useUser();
+    const processedRef = useRef(false);
+
+    // creditAmount is the actual amount added to wallet. totalAmount includes fees.
+    const { totalAmount, creditAmount } = location.state || { totalAmount: 0, creditAmount: 0 };
     const [formattedAmount, setFormattedAmount] = useState<string>("0.00");
 
     useEffect(() => {
-        if (totalAmount) {
-            setFormattedAmount(totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+        // Display the amount that actually landed in the wallet
+        const amountDisplay = creditAmount || totalAmount;
+        if (amountDisplay) {
+            setFormattedAmount(amountDisplay.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
         }
-    }, [totalAmount]);
+
+        // Process the transaction only once
+        if (creditAmount && !processedRef.current) {
+            processedRef.current = true;
+
+            // update balance
+            addWalletBalance(creditAmount);
+
+            // log transaction
+            addTransaction({
+                id: crypto.randomUUID(),
+                type: 'credit',
+                amount: creditAmount,
+                status: 'success',
+                date: new Date().toISOString(),
+                description: 'Added via Netbanking'
+            });
+
+            // Activate wallet (skip intro in future)
+            activateWallet();
+        }
+    }, [creditAmount, totalAmount, addWalletBalance, addTransaction, activateWallet]);
 
     return (
         <div

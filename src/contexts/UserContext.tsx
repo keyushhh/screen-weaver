@@ -10,6 +10,16 @@ interface UserProfile {
   mpin_created_at?: string | null;
 }
 
+export interface WalletTransaction {
+  id: string;
+  type: 'credit' | 'debit' | 'hold';
+  amount: number;
+  status: 'success' | 'failed' | 'pending';
+  date: string;
+  description: string;
+  metadata?: Record<string, unknown>;
+}
+
 interface UserState {
   phoneNumber: string;
   name: string;
@@ -21,6 +31,9 @@ interface UserState {
   mpin: string | null;
   biometricEnabled: boolean;
   profile: UserProfile | null;
+  walletBalance: number;
+  walletTransactions: WalletTransaction[];
+  isWalletActivated: boolean;
 }
 
 interface UserContextType extends UserState {
@@ -35,6 +48,9 @@ interface UserContextType extends UserState {
   setProfile: (profile: UserProfile | null) => void;
   submitKyc: () => void;
   resetForDemo: () => void;
+  addWalletBalance: (amount: number) => void;
+  addTransaction: (transaction: WalletTransaction) => void;
+  activateWallet: () => void;
 }
 
 const USER_STORAGE_KEY = 'gridpe_user_state';
@@ -50,6 +66,9 @@ const defaultState: UserState = {
   mpin: null,
   biometricEnabled: false,
   profile: null,
+  walletBalance: 0,
+  walletTransactions: [],
+  isWalletActivated: false,
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -57,7 +76,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [state, setState] = useState<UserState>(() => {
     const stored = localStorage.getItem(USER_STORAGE_KEY);
-    return stored ? JSON.parse(stored) : defaultState;
+    return stored ? { ...defaultState, ...JSON.parse(stored) } : defaultState;
   });
 
   // Persist to localStorage on change
@@ -132,6 +151,21 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem(USER_STORAGE_KEY);
   };
 
+  const addWalletBalance = (amount: number) => {
+    setState(prev => ({ ...prev, walletBalance: prev.walletBalance + amount }));
+  };
+
+  const addTransaction = (transaction: WalletTransaction) => {
+    setState(prev => ({
+      ...prev,
+      walletTransactions: [transaction, ...prev.walletTransactions]
+    }));
+  };
+
+  const activateWallet = () => {
+    setState(prev => ({ ...prev, isWalletActivated: true }));
+  };
+
   const contextValue = {
     ...state,
     setPhoneNumber,
@@ -145,6 +179,9 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setProfile,
     submitKyc,
     resetForDemo,
+    addWalletBalance,
+    addTransaction,
+    activateWallet,
   };
 
   return (
