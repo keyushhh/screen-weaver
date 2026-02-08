@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import errorBg from '../assets/error-bg.png';
 import crossFailedIcon from '../assets/cross failed.svg';
+import buttonPrimaryWide from "@/assets/button-primary-wide.png";
 
 const WalletTopUpFailed: React.FC = () => {
   const navigate = useNavigate();
