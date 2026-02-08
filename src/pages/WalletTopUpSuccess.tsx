@@ -53,20 +53,20 @@ const WalletTopUpSuccess = () => {
 
             {/* Info Container */}
             <div
-                className="mt-[45px] w-full rounded-[22px] px-[19px] pt-[13px] pb-[18px] relative overflow-hidden"
+                className="mt-[45px] w-[362px] h-[228px] rounded-[13px] px-[19px] pt-[13px] pb-[18px] relative overflow-hidden flex flex-col items-start"
                 style={{
                     backgroundColor: "rgba(25, 25, 25, 0.31)", // #191919 @ 31%
-                    backdropFilter: "blur(25px)",
-                    WebkitBackdropFilter: "blur(25px)",
+                    backdropFilter: "blur(25.02px)",
+                    WebkitBackdropFilter: "blur(25.02px)",
                 }}
             >
                 {/* Linear Stroke */}
                 <div
-                    className="absolute inset-0 pointer-events-none rounded-[22px]"
+                    className="absolute inset-0 pointer-events-none rounded-[13px]"
                     style={{
                         padding: "0.63px",
                         background:
-                            "linear-gradient(180deg, rgba(255,255,255,0.12), rgba(0,0,0,0.20))",
+                            "linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 100%)",
                         WebkitMask:
                             "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
                         WebkitMaskComposite: "xor",
