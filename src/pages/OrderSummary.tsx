@@ -207,7 +207,8 @@ const OrderSummary = () => {
                 <SlideToPay
                     onComplete={() => {
                         if (retry) {
-                            navigate('/wallet-topup-success', { state: { totalAmount: totalPayable } });
+                            // Pass the original entered amount for wallet credit
+                            navigate('/wallet-topup-success', { state: { totalAmount: totalPayable, creditAmount: parsedAmount } });
                         } else {
                             navigate('/wallet-topup-failed', { state: { amount } });
                         }

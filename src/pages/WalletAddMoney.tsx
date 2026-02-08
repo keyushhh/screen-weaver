@@ -112,10 +112,19 @@ const WalletAddMoney = () => {
         </p>
 
         {/* Error Message */}
-        {parseFloat(amount) > 0 && parseFloat(amount) < 500 && (
-          <p className="text-[#FF3B30] text-[12px] font-normal font-sans mb-[17px] -mt-[12px]">
-            Amount needs to be ₹500 or more
-          </p>
+        {parseFloat(amount) > 0 && (
+          <>
+            {parseFloat(amount) < 500 && (
+              <p className="text-[#FF3B30] text-[12px] font-normal font-sans mb-[17px] -mt-[12px]">
+                Amount needs to be ₹500 or more
+              </p>
+            )}
+            {parseFloat(amount) > 5000 && (
+              <p className="text-[#FF3B30] text-[12px] font-normal font-sans mb-[17px] -mt-[12px]">
+                Amount cannot exceed ₹5,000
+              </p>
+            )}
+          </>
         )}
 
         {/* Pills */}
@@ -221,13 +230,20 @@ const WalletAddMoney = () => {
               {/* CTA */}
               <div className="w-full mt-[32px]">
                 <Button
-                  onClick={() => navigate('/add-payment-method', { state: { amount } })}
-                  disabled={parseFloat(amount) <= 0}
-                  className="w-full h-[48px] bg-[#5260FE] hover:bg-[#5260FE]/90 text-white rounded-full text-[16px] font-medium font-sans disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={() => {
+                    const val = parseFloat(amount);
+                    if (val >= 500 && val <= 5000) {
+                      navigate('/add-payment-method', { state: { amount } });
+                    }
+                  }}
+                  className={`w-full h-[48px] text-white rounded-full text-[16px] font-medium font-sans ${
+                    parseFloat(amount) >= 500 && parseFloat(amount) <= 5000
+                      ? "bg-[#5260FE] hover:bg-[#5260FE]/90"
+                      : "bg-[#5260FE]/50 cursor-not-allowed"
+                  }`}
                 >
                   Add Money
                 </Button>
-
               </div>
             </div>
           </div>
