@@ -61,50 +61,51 @@ const WalletTopUpFailed: React.FC = () => {
         </h2>
 
         {/* Info Card – 20px below text */}
+        {/* Info Card */}
         <div
-          className="mt-[20px] w-full rounded-[22px] p-6 relative overflow-hidden"
+          className="mt-[20px] w-full rounded-[22px] px-[19px] pt-[13px] pb-[18px] relative overflow-hidden"
           style={{
-            backgroundColor: 'rgba(0, 0, 0, 0.2)',
-            backdropFilter: 'blur(25px)',
-            WebkitBackdropFilter: 'blur(25px)',
+            backgroundColor: "rgba(25, 25, 25, 0.31)", // #191919 @ 31%
+            backdropFilter: "blur(25px)",
+            WebkitBackdropFilter: "blur(25px)",
           }}
         >
           {/* Linear Stroke Overlay */}
           <div
             className="absolute inset-0 pointer-events-none rounded-[22px]"
             style={{
-              padding: '0.63px',
+              padding: "0.63px",
               background:
-                'linear-gradient(180deg, rgba(255,255,255,0.12), rgba(0,0,0,0.20))',
+                "linear-gradient(180deg, rgba(255,255,255,0.12), rgba(0,0,0,0.20))",
               WebkitMask:
-                'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-              WebkitMaskComposite: 'xor',
-              maskComposite: 'exclude',
+                "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+              WebkitMaskComposite: "xor",
+              maskComposite: "exclude",
             }}
           />
 
-          <p className="relative z-10 text-white text-[16px] font-medium leading-normal mb-4">
+          <p className="relative z-10 text-white text-[16px] font-medium leading-normal mb-[12px]">
             We tried. Your bank tried. Even your card looked motivated.
           </p>
 
-          <p className="relative z-10 text-[#A4A4A4] text-[14px] font-normal leading-relaxed mb-6">
-            But something tripped in the matrix, and{' '}
-            <span className="text-white font-bold">
+          <p className="relative z-10 text-[#AFAFAF] text-[16px] font-normal leading-snug">
+            But something tripped in the matrix, and{" "}
+            <span className="text-white font-medium">
               {formatCurrency(amount)}
-            </span>{' '}
-            didn’t make it to your wallet. Don’t worry – if any money was
-            deducted, it’ll crawl back to you within 2–3 biz days. In the
-            meantime? Deep breaths an check your balance. Emotionally and
-            otherwise.
+            </span>{" "}
+            didn’t make it to your wallet. Don’t worry – if any money was deducted,
+            it’ll crawl back to you within 2–3 biz days. In the meantime? Deep breaths
+            an check your balance. Emotionally and otherwise.
           </p>
 
-          <div className="relative z-10 flex items-center gap-3">
-            <div className="w-3 h-3 rounded-full bg-[#FF0000] shadow-[0_0_8px_rgba(255,0,0,0.8)]" />
-            <span className="text-[#A4A4A4] text-[14px] font-medium">
+          <div className="relative z-10 flex items-center gap-[12px] mt-[18px]">
+            <div className="w-[14px] h-[14px] rounded-full bg-[#FF3B30]" />
+            <span className="text-[#AFAFAF] text-[14px] font-medium">
               Transaction ghosted.
             </span>
           </div>
         </div>
+
       </div>
 
       {/* CTAs – 45px below container */}
