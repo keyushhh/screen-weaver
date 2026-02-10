@@ -103,14 +103,14 @@ const WalletSettings = () => {
             }}
         >
             {/* Header */}
-            <div className="shrink-0 flex items-center w-full px-5 pt-6 pb-4 z-10 gap-4">
+            <div className="shrink-0 relative flex items-center justify-center w-full px-5 pt-6 pb-0 z-10">
                 <button
                     onClick={() => navigate(-1)}
-                    className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md active:scale-95 transition-transform"
+                    className="absolute left-5 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md active:scale-95 transition-transform"
                 >
                     <ChevronLeft className="w-6 h-6 text-white" />
                 </button>
-                <h1 className="text-white text-[20px] font-medium tracking-tight">
+                <h1 className="text-white text-[22px] font-medium tracking-normal text-center">
                     Wallet Settings
                 </h1>
             </div>
@@ -119,7 +119,7 @@ const WalletSettings = () => {
             <div className="flex-1 w-full overflow-y-auto no-scrollbar pb-[40px]">
 
                 {/* -------- TOP TIER SUMMARY CARD -------- */}
-                <div className="px-5 mb-[20px]">
+                <div className="px-5 mb-[20px] mt-[28px]">
                     <div
                         className="relative w-full rounded-[28px] overflow-hidden"
                         style={{
