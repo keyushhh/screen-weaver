@@ -134,7 +134,7 @@ const WalletSettings = () => {
                                 <img
                                     src={tierIconMap[currentTier.name]}
                                     alt={currentTier.name}
-                                    className="w-[47px] h-[40px] object-contain"
+                                    className="w-[52px] h-[48px] object-contain"
                                 />
 
                                 <div className="flex flex-col">
@@ -174,7 +174,7 @@ const WalletSettings = () => {
                                 <div
                                     key={tier.name}
                                     className="snap-center shrink-0 relative transition-transform"
-                                    style={{ width: "290px", height: "420px" }}
+                                    style={{ width: "290px", height: "276px" }}
                                 >
                                     {/* Selected / Non-selected background ONLY */}
                                     <div
@@ -194,7 +194,7 @@ const WalletSettings = () => {
                                             <img
                                                 src={tier.diamond}
                                                 alt={tier.name}
-                                                className="w-[34px] h-[28px] object-contain relative z-20"
+                                                className="w-[52px] h-[48px] object-contain relative z-20"
                                             />
 
                                             {/* Chip badge with text (right) */}
@@ -238,7 +238,7 @@ const WalletSettings = () => {
                                                 <p className="text-[18px]">{tier.withdrawLimit}</p>
                                             </div>
 
-                                            <div className="pt-4 mt-auto">
+                                            <div>
                                                 <p className="text-white/50 text-[14px] mb-1">
                                                     Limitations
                                                 </p>
@@ -255,7 +255,7 @@ const WalletSettings = () => {
                 </div>
 
                 {/* -------- INFO SECTIONS -------- */}
-                <div className="px-5 pb-10 flex flex-col gap-12">
+                <div className="px-5 pb-10 flex flex-col gap-6">
                     <div>
                         <h3 className="text-white text-[16px] font-medium mb-6">
                             How to Upgrade?
