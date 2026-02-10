@@ -130,7 +130,7 @@ const WalletSettings = () => {
                         }}
                     >
                         <div className="relative z-10 p-6 flex flex-col gap-6 h-full">
-                            <div className="flex items-center h-[66px] pl-[77px]">
+                            <div className="flex items-center h-[66px] pl-[57px]">
                                 <img
                                     src={tierIconMap[currentTier.name]}
                                     alt={currentTier.name}
@@ -178,7 +178,7 @@ const WalletSettings = () => {
                                 >
                                     {/* Selected / Non-selected background ONLY */}
                                     <div
-                                        className="absolute inset-0 rounded-[24px] overflow-hidden"
+                                        className="absolute inset-0 rounded-[13px] overflow-hidden"
                                         style={{
                                             backgroundImage: `url(${isActive ? tierCardActive : tierCardInactive
                                                 })`,
