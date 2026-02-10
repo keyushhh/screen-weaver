@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { useUser, WalletTier } from "@/contexts/UserContext";
 
-import starterDiamond from "@/assets/starter-diamond.png";
+import starterDiamond from "@/assets/starter diamond.png";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import freeChip from "@/assets/free chip.png";
 import proChip from "@/assets/pro chip.png";
