@@ -37,8 +37,8 @@ const WalletSettings = () => {
                 badge: "Free",
                 chip: freeChip,
                 diamond: starterDiamond,
-                walletLimit: "₹ 5,000",
-                withdrawLimit: "₹ 5,000",
+                walletLimit: "₹5,000",
+                withdrawLimit: "₹5,000",
                 verification: "Mobile number, basic information",
                 limitations: "Add money cooldown, withdraw cannot exceed ₹5,000 a day.",
             },
@@ -47,24 +47,24 @@ const WalletSettings = () => {
                 badge: "₹25/month",
                 chip: proChip,
                 diamond: proDiamond,
-                walletLimit: "₹ 15,000",
-                withdrawLimit: "₹ 10,000",
+                walletLimit: "₹15,000",
+                withdrawLimit: "₹10,000",
                 verification: "PAN, Address proof",
                 limitations: "Add money cooldown, withdraw cannot exceed ₹10,000 a day.",
             },
             {
                 name: "Elite",
-                badge: "₹100/month",
+                badge: "₹50/month",
                 chip: eliteChip,
                 diamond: eliteDiamond,
-                walletLimit: "₹ 1,00,000",
-                withdrawLimit: "₹ 50,000",
+                walletLimit: "₹1,00,000",
+                withdrawLimit: "₹50,000",
                 verification: "Video KYC needed",
                 limitations: "Higher limits, priority support.",
             },
             {
                 name: "Supreme",
-                badge: "Invite Only",
+                badge: "₹100/month",
                 chip: supremeChip,
                 diamond: supremeDiamond,
                 walletLimit: "No limit",
@@ -174,7 +174,7 @@ const WalletSettings = () => {
                                 <div
                                     key={tier.name}
                                     className="snap-center shrink-0 relative transition-transform"
-                                    style={{ width: "290px", height: "276px" }}
+                                    style={{ width: "205px", height: "276px" }}
                                 >
                                     {/* Selected / Non-selected background ONLY */}
                                     <div
@@ -188,19 +188,21 @@ const WalletSettings = () => {
                                     />
 
                                     {/* Content */}
-                                    <div className="relative z-10 p-6 flex flex-col h-full text-white">
-                                        <div className="flex justify-between items-start mb-6">
-                                            {/* Diamond icon (left) */}
+                                    <div className="relative z-10 flex flex-col h-full text-white">
+                                        <div className="flex justify-between items-start">
+                                            {/* Diamond icon (top-left) */}
                                             <img
                                                 src={tier.diamond}
                                                 alt={tier.name}
-                                                className="w-[52px] h-[48px] object-contain relative z-20"
+                                                className="absolute top-0 left-0 w-[65px] h-[55px] object-contain z-20"
                                             />
 
-                                            {/* Chip badge with text (right) */}
+                                            {/* Chip badge with text (top-right) */}
                                             <div
-                                                className="flex items-center justify-center rounded-full text-[10px] font-medium text-white"
+                                                className="absolute flex items-center justify-center rounded-full text-[10px] font-medium text-white z-20"
                                                 style={{
+                                                    top: "12px",
+                                                    right: "12px",
                                                     width: "88px",
                                                     height: "24px",
                                                     backgroundImage: `url(${tier.chip})`,
@@ -212,11 +214,14 @@ const WalletSettings = () => {
                                             </div>
                                         </div>
 
-                                        <h3 className="text-[22px] font-bold mb-6">
+                                        <h3
+                                            className="text-[15px] font-bold leading-none absolute z-10"
+                                            style={{ top: "51px", left: "12px" }}
+                                        >
                                             {tier.name.toUpperCase()} WALLET
                                         </h3>
 
-                                        <div className="flex flex-col gap-[6px]">
+                                        <div className="flex flex-col gap-[6px] pl-[12px]">
                                             <div>
                                                 <p className="text-white/50 text-[14px] mb-1">
                                                     Verification
