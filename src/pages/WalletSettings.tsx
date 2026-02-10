@@ -130,7 +130,7 @@ const WalletSettings = () => {
                         }}
                     >
                         <div className="relative z-10 p-6 flex flex-col gap-6 h-full">
-                            <div className="flex items-center h-[66px] pl-[90px]">
+                            <div className="flex items-center h-[66px] pl-[77px]">
                                 <img
                                     src={tierIconMap[currentTier.name]}
                                     alt={currentTier.name}
@@ -201,8 +201,8 @@ const WalletSettings = () => {
                                             <div
                                                 className="absolute flex items-center justify-center rounded-full text-[10px] font-medium text-white z-20"
                                                 style={{
-                                                    top: "12px",
-                                                    right: "12px",
+                                                    top: "13px",
+                                                    right: "13px",
                                                     width: "88px",
                                                     height: "24px",
                                                     backgroundImage: `url(${tier.chip})`,
@@ -216,13 +216,13 @@ const WalletSettings = () => {
 
                                         <h3
                                             className="text-[15px] font-bold leading-none absolute z-10"
-                                            style={{ top: "51px", left: "12px" }}
+                                            style={{ top: "51px", left: "13px" }}
                                         >
                                             {tier.name.toUpperCase()} WALLET
                                         </h3>
 
                                         <div
-                                            className="absolute flex flex-col gap-[6px] pl-[12px] w-full pr-4"
+                                            className="absolute flex flex-col gap-[6px] pl-[13px] w-full pr-[13px]"
                                             style={{ top: "83px" }}
                                         >
                                             <div>
