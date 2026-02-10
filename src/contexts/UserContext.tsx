@@ -1,5 +1,9 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
+/* -------------------- Types -------------------- */
+
+export type WalletTier = 'Starter' | 'Pro' | 'Elite' | 'Supreme';
+
 interface UserProfile {
   id: string;
   phone: string | null;
@@ -34,6 +38,9 @@ interface UserState {
   walletBalance: number;
   walletTransactions: WalletTransaction[];
   isWalletActivated: boolean;
+
+  /* Wallet Tier */
+  walletTier: WalletTier;
 }
 
 interface UserContextType extends UserState {
@@ -51,7 +58,12 @@ interface UserContextType extends UserState {
   addWalletBalance: (amount: number) => void;
   addTransaction: (transaction: WalletTransaction) => void;
   activateWallet: () => void;
+
+  /* Wallet Tier */
+  setWalletTier: (tier: WalletTier) => void;
 }
+
+/* -------------------- Constants -------------------- */
 
 const USER_STORAGE_KEY = 'gridpe_user_state';
 
@@ -69,7 +81,11 @@ const defaultState: UserState = {
   walletBalance: 0,
   walletTransactions: [],
   isWalletActivated: false,
+
+  walletTier: 'Starter',
 };
+
+/* -------------------- Context -------------------- */
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
@@ -79,17 +95,17 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     return stored ? { ...defaultState, ...JSON.parse(stored) } : defaultState;
   });
 
-  // Persist to localStorage on change
+  /* Persist to localStorage */
   useEffect(() => {
     localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(state));
   }, [state]);
 
-  // Auto-transition from pending to complete after 2 minutes
+  /* Auto-transition KYC */
   useEffect(() => {
     if (state.kycStatus === 'pending' && state.kycSubmittedAt) {
       const elapsed = Date.now() - state.kycSubmittedAt;
       const twoMinutes = 2 * 60 * 1000;
-      
+
       if (elapsed >= twoMinutes) {
         setState(prev => ({ ...prev, kycStatus: 'complete' }));
       } else {
@@ -101,6 +117,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       }
     }
   }, [state.kycStatus, state.kycSubmittedAt]);
+
+  /* -------------------- Setters -------------------- */
 
   const setPhoneNumber = (phone: string) => {
     setState(prev => ({ ...prev, phoneNumber: phone }));
@@ -158,7 +176,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const addTransaction = (transaction: WalletTransaction) => {
     setState(prev => ({
       ...prev,
-      walletTransactions: [transaction, ...prev.walletTransactions]
+      walletTransactions: [transaction, ...prev.walletTransactions],
     }));
   };
 
@@ -166,7 +184,13 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setState(prev => ({ ...prev, isWalletActivated: true }));
   };
 
-  const contextValue = {
+  const setWalletTier = (tier: WalletTier) => {
+    setState(prev => ({ ...prev, walletTier: tier }));
+  };
+
+  /* -------------------- Provider -------------------- */
+
+  const contextValue: UserContextType = {
     ...state,
     setPhoneNumber,
     setName,
@@ -182,6 +206,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     addWalletBalance,
     addTransaction,
     activateWallet,
+    setWalletTier,
   };
 
   return (
@@ -190,6 +215,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     </UserContext.Provider>
   );
 };
+
+/* -------------------- Hook -------------------- */
 
 export const useUser = () => {
   const context = useContext(UserContext);
