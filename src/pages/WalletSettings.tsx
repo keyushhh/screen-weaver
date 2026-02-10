@@ -4,13 +4,17 @@ import { ChevronLeft } from "lucide-react";
 import { useUser, WalletTier } from "@/contexts/UserContext";
 
 import starterDiamond from "@/assets/starter diamond.png";
+import proDiamond from "@/assets/pro.png";
+import eliteDiamond from "@/assets/elite.png";
+import supremeDiamond from "@/assets/supreme.png";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import freeChip from "@/assets/free chip.png";
 import proChip from "@/assets/pro chip.png";
 import eliteChip from "@/assets/elite chip.png";
 import supremeChip from "@/assets/supreme chip.png";
-import tierCardActive from "@/assets/tier card.png";
+import tierCardActive from "@/assets/selected wallet.png";
 import tierCardInactive from "@/assets/non selected card.png";
+import tierCardBg from "@/assets/tier-card-bg.png";
 
 const WalletSettings = () => {
     const navigate = useNavigate();
@@ -25,6 +29,7 @@ const WalletSettings = () => {
         name: WalletTier;
         badge: string;
         chip: string;
+        diamond: string;
         walletLimit: string;
         withdrawLimit: string;
         verification: string;
@@ -34,6 +39,7 @@ const WalletSettings = () => {
                 name: "Starter",
                 badge: "Free",
                 chip: freeChip,
+                diamond: starterDiamond,
                 walletLimit: "₹ 5,000",
                 withdrawLimit: "₹ 5,000",
                 verification: "Mobile number, basic information",
@@ -43,6 +49,7 @@ const WalletSettings = () => {
                 name: "Pro",
                 badge: "₹25/month",
                 chip: proChip,
+                diamond: proDiamond,
                 walletLimit: "₹ 15,000",
                 withdrawLimit: "₹ 10,000",
                 verification: "PAN, Address proof",
@@ -52,6 +59,7 @@ const WalletSettings = () => {
                 name: "Elite",
                 badge: "₹100/month",
                 chip: eliteChip,
+                diamond: eliteDiamond,
                 walletLimit: "₹ 1,00,000",
                 withdrawLimit: "₹ 50,000",
                 verification: "Video KYC needed",
@@ -61,6 +69,7 @@ const WalletSettings = () => {
                 name: "Supreme",
                 badge: "Invite Only",
                 chip: supremeChip,
+                diamond: supremeDiamond,
                 walletLimit: "No limit",
                 withdrawLimit: "No limit",
                 verification: "Physical verification",
@@ -88,8 +97,9 @@ const WalletSettings = () => {
 
     return (
         <div
-            className="h-full w-full overflow-hidden flex flex-col safe-area-top safe-area-bottom font-sans"
+            className="h-full w-full overflow-hidden flex flex-col safe-area-top safe-area-bottom"
             style={{
+                fontFamily: "'Satoshi', sans-serif",
                 backgroundColor: "#0a0a12",
                 backgroundImage: `url(${bgDarkMode})`,
                 backgroundSize: "cover",
@@ -118,20 +128,22 @@ const WalletSettings = () => {
                     <div
                         className="relative w-full rounded-[28px] overflow-hidden"
                         style={{
-                            background:
-                                "radial-gradient(120% 120% at 100% 0%, #2b2f6f 0%, #0b0b14 45%, #05050a 100%)",
+                            backgroundImage: `url(${tierCardBg})`,
+                            backgroundSize: "cover",
+                            backgroundPosition: "center",
+                            backgroundRepeat: "no-repeat",
                         }}
                     >
-                        <div className="relative z-10 p-6 flex flex-col gap-6">
+                        <div className="relative z-10 pt-[17px] pl-[15px] pr-6 pb-6 flex flex-col gap-6">
                             <div className="flex items-center gap-4">
                                 <img
                                     src={tierIconMap[currentTier.name]}
                                     alt={currentTier.name}
-                                    className="w-[42px] h-[42px] object-contain"
+                                    className="w-[47px] h-[40px] object-contain"
                                 />
 
                                 <div className="flex flex-col">
-                                    <span className="text-white text-[13px] font-semibold tracking-[0.18em]">
+                                    <span className="text-white text-[15px] font-medium tracking-normal">
                                         {currentTier.name.toUpperCase()}
                                     </span>
 
@@ -148,11 +160,10 @@ const WalletSettings = () => {
 
                             <button
                                 onClick={handleUpgrade}
-                                disabled={activeTier === walletTier}
-                                className="w-full h-[56px] rounded-full text-white text-[18px] font-medium active:scale-95 transition-transform disabled:opacity-50"
-                                style={{ background: "#6C72FF" }}
+                                className="mx-auto h-[48px] rounded-full text-white text-[18px] font-medium active:scale-95 transition-transform"
+                                style={{ background: "#6C72FF", width: "326px", maxWidth: "100%" }}
                             >
-                                {activeTier === walletTier ? "Current Plan" : "Upgrade Now"}
+                                Upgrade Now
                             </button>
                         </div>
                     </div>
@@ -185,13 +196,24 @@ const WalletSettings = () => {
                                     {/* Content */}
                                     <div className="relative z-10 p-6 flex flex-col h-full text-white">
                                         <div className="flex justify-between items-start mb-6">
+                                            {/* Diamond icon (left) */}
                                             <img
-                                                src={tier.chip}
+                                                src={tier.diamond}
                                                 alt={tier.name}
-                                                className="w-[52px] h-[52px] object-contain relative z-20"
+                                                className="w-[34px] h-[28px] object-contain relative z-20"
                                             />
 
-                                            <div className="px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md text-[14px] font-medium">
+                                            {/* Chip badge with text (right) */}
+                                            <div
+                                                className="flex items-center justify-center rounded-full text-[10px] font-medium text-white"
+                                                style={{
+                                                    width: "88px",
+                                                    height: "24px",
+                                                    backgroundImage: `url(${tier.chip})`,
+                                                    backgroundSize: "100% 100%",
+                                                    backgroundRepeat: "no-repeat",
+                                                }}
+                                            >
                                                 {tier.badge}
                                             </div>
                                         </div>
@@ -241,34 +263,34 @@ const WalletSettings = () => {
                 {/* -------- INFO SECTIONS -------- */}
                 <div className="px-5 pb-10 flex flex-col gap-12">
                     <div>
-                        <h3 className="text-white text-[28px] font-medium mb-6">
+                        <h3 className="text-white text-[16px] font-medium mb-6">
                             How to Upgrade?
                         </h3>
                         <ul className="flex flex-col gap-4 list-disc pl-6">
-                            <li className="text-white text-[20px] leading-relaxed">
+                            <li className="text-white text-[16px] font-light leading-relaxed">
                                 Complete full KYC verification
                             </li>
-                            <li className="text-white text-[20px] leading-relaxed">
+                            <li className="text-white text-[16px] font-light leading-relaxed">
                                 Submit PAN (mandatory)
                             </li>
-                            <li className="text-white text-[20px] leading-relaxed">
+                            <li className="text-white text-[16px] font-light leading-relaxed">
                                 Actively use your wallet for faster upgrades
                             </li>
-                            <li className="text-white text-[20px] leading-relaxed">
+                            <li className="text-white text-[16px] font-light leading-relaxed">
                                 Need higher business limits? Submit GST details
                             </li>
                         </ul>
                     </div>
 
                     <div>
-                        <h3 className="text-white text-[28px] font-medium mb-6">
+                        <h3 className="text-white text-[16px] font-medium mb-6">
                             Why Limits?
                         </h3>
-                        <p className="text-white text-[20px] leading-relaxed mb-4">
+                        <p className="text-white text-[16px] font-light leading-relaxed mb-4">
                             Wallets in India are governed by RBI-regulated limits to ensure fund
                             security and prevent misuse.
                         </p>
-                        <p className="text-white text-[20px] leading-relaxed">
+                        <p className="text-white text-[16px] font-light leading-relaxed">
                             Your tier helps us serve you better, safely, and responsibly.
                         </p>
                     </div>
