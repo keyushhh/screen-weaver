@@ -130,24 +130,24 @@ const WalletSettings = () => {
                         }}
                     >
                         <div className="relative z-10 p-6 flex flex-col gap-6 h-full">
-                            <div className="flex items-center justify-end h-[66px]">
+                            <div className="flex items-center h-[66px] pl-[90px]">
                                 <img
                                     src={tierIconMap[currentTier.name]}
                                     alt={currentTier.name}
                                     className="absolute top-0 left-0 w-[79px] h-[66px] object-contain"
                                 />
 
-                                <div className="flex flex-col items-end">
+                                <div className="flex flex-col items-start">
                                     <span className="text-white text-[15px] font-medium tracking-normal">
                                         {currentTier.name.toUpperCase()}
                                     </span>
 
                                     <div className="flex items-end gap-2 mt-1">
-                                        <span className="text-white/70 text-[16px] font-medium mb-[2px]">
-                                            / wallet limit
-                                        </span>
                                         <span className="text-white text-[34px] font-bold leading-none">
                                             {currentTier.walletLimit}
+                                        </span>
+                                        <span className="text-white/70 text-[16px] font-medium mb-[2px]">
+                                            / wallet limit
                                         </span>
                                     </div>
                                 </div>
@@ -229,7 +229,7 @@ const WalletSettings = () => {
                                                 <p className="text-white/50 text-[12px] font-medium mb-0">
                                                     Verification
                                                 </p>
-                                                <p className="text-[12px] font-medium">{tier.verification}</p>
+                                                <p className="text-[12px] font-medium whitespace-nowrap overflow-hidden text-ellipsis">{tier.verification}</p>
                                             </div>
 
                                             <div>
