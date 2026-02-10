@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { useUser, WalletTier } from "@/contexts/UserContext";
@@ -19,9 +19,6 @@ import tierCardBg from "@/assets/tier-card-bg.png";
 const WalletSettings = () => {
     const navigate = useNavigate();
     const { walletTier, setWalletTier } = useUser();
-
-    // Browsing state (carousel)
-    const [activeTier, setActiveTier] = useState<WalletTier>(walletTier);
 
     /* ---------------- Tier Config ---------------- */
 
@@ -78,7 +75,7 @@ const WalletSettings = () => {
         ];
 
     const currentTier =
-        tiers.find((tier) => tier.name === activeTier) || tiers[0];
+        tiers.find((tier) => tier.name === walletTier) || tiers[0];
 
     /* ---------------- Tier → Icon mapping (TOP CARD ONLY) ---------------- */
 
@@ -90,9 +87,7 @@ const WalletSettings = () => {
     };
 
     const handleUpgrade = () => {
-        if (activeTier !== walletTier) {
-            setWalletTier(activeTier);
-        }
+        // Upgrade logic here
     };
 
     return (
@@ -173,13 +168,12 @@ const WalletSettings = () => {
                 <div className="mb-8">
                     <div className="flex overflow-x-auto no-scrollbar px-5 gap-4 pb-4 snap-x snap-mandatory">
                         {tiers.map((tier) => {
-                            const isActive = activeTier === tier.name;
+                            const isActive = walletTier === tier.name;
 
                             return (
                                 <div
                                     key={tier.name}
-                                    onClick={() => setActiveTier(tier.name)}
-                                    className="snap-center shrink-0 relative cursor-pointer transition-transform active:scale-[0.98]"
+                                    className="snap-center shrink-0 relative transition-transform"
                                     style={{ width: "290px", height: "420px" }}
                                 >
                                     {/* Selected / Non-selected background ONLY */}
@@ -222,7 +216,7 @@ const WalletSettings = () => {
                                             {tier.name.toUpperCase()} WALLET
                                         </h3>
 
-                                        <div className="flex flex-col gap-4">
+                                        <div className="flex flex-col gap-[6px]">
                                             <div>
                                                 <p className="text-white/50 text-[14px] mb-1">
                                                     Verification
@@ -266,7 +260,7 @@ const WalletSettings = () => {
                         <h3 className="text-white text-[16px] font-medium mb-6">
                             How to Upgrade?
                         </h3>
-                        <ul className="flex flex-col gap-4 list-disc pl-6">
+                        <ul className="flex flex-col gap-[2px] list-disc pl-6">
                             <li className="text-white text-[16px] font-light leading-relaxed">
                                 Complete full KYC verification
                             </li>
@@ -289,8 +283,6 @@ const WalletSettings = () => {
                         <p className="text-white text-[16px] font-light leading-relaxed mb-4">
                             Wallets in India are governed by RBI-regulated limits to ensure fund
                             security and prevent misuse.
-                        </p>
-                        <p className="text-white text-[16px] font-light leading-relaxed">
                             Your tier helps us serve you better, safely, and responsibly.
                         </p>
                     </div>
