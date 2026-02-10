@@ -13,6 +13,7 @@ import proChip from "@/assets/pro chip.png";
 import eliteChip from "@/assets/elite chip.png";
 import supremeChip from "@/assets/supreme chip.png";
 import tierCardActive from "@/assets/selected wallet.png";
+import topCardNew from "@/assets/top-card-new.png";
 import tierCardInactive from "@/assets/non selected card.png";
 import tierCardBg from "@/assets/tier-card-bg.png";
 
@@ -60,7 +61,7 @@ const WalletSettings = () => {
                 walletLimit: "₹1,00,000",
                 withdrawLimit: "₹50,000",
                 verification: "Video KYC needed",
-                limitations: "Higher limits, priority support.",
+                limitations: "No limitations, withdraw cannot exceed ₹25,000 a day.",
             },
             {
                 name: "Supreme",
@@ -70,7 +71,7 @@ const WalletSettings = () => {
                 walletLimit: "No limit",
                 withdrawLimit: "No limit",
                 verification: "Physical verification",
-                limitations: "Exclusive benefits, dedicated manager.",
+                limitations: "No limitations",
             },
         ];
 
@@ -119,7 +120,7 @@ const WalletSettings = () => {
             <div className="flex-1 w-full overflow-y-auto no-scrollbar pb-[40px]">
 
                 {/* -------- TOP TIER SUMMARY CARD -------- */}
-                <div className="px-5 mb-8">
+                <div className="px-5 mb-[20px]">
                     <div
                         className="relative w-full rounded-[28px] overflow-hidden"
                         style={{
@@ -129,10 +130,10 @@ const WalletSettings = () => {
                             backgroundRepeat: "no-repeat",
                         }}
                     >
-                        <div className="relative z-10 p-6 flex flex-col gap-6 h-full">
+                        <div className="relative z-10 pt-[14px] px-6 pb-[17px] flex flex-col justify-between h-full">
                             <div className="flex items-center h-[66px] pl-[57px]">
                                 <img
-                                    src={tierIconMap[currentTier.name]}
+                                    src={topCardNew}
                                     alt={currentTier.name}
                                     className="absolute top-0 left-0 w-[79px] h-[66px] object-contain"
                                 />
@@ -165,7 +166,7 @@ const WalletSettings = () => {
                 </div>
 
                 {/* -------- TIERS CAROUSEL -------- */}
-                <div className="mb-[21px]">
+                <div className="mb-[20px]">
                     <div className="flex overflow-x-auto no-scrollbar px-5 gap-4 pb-4 snap-x snap-mandatory">
                         {tiers.map((tier) => {
                             const isActive = walletTier === tier.name;
@@ -269,16 +270,16 @@ const WalletSettings = () => {
                             How to Upgrade?
                         </h3>
                         <ul className="flex flex-col gap-[2px] list-disc pl-6">
-                            <li className="text-white text-[16px] font-light leading-relaxed">
+                            <li className="text-white text-[16px] font-light leading-[1.4] tracking-[-0.3px]">
                                 Complete full KYC verification
                             </li>
-                            <li className="text-white text-[16px] font-light leading-relaxed">
+                            <li className="text-white text-[16px] font-light leading-[1.4] tracking-[-0.3px]">
                                 Submit PAN (mandatory)
                             </li>
-                            <li className="text-white text-[16px] font-light leading-relaxed">
+                            <li className="text-white text-[16px] font-light leading-[1.4] tracking-[-0.3px]">
                                 Actively use your wallet for faster upgrades
                             </li>
-                            <li className="text-white text-[16px] font-light leading-relaxed">
+                            <li className="text-white text-[16px] font-light leading-[1.4] tracking-[-0.3px]">
                                 Need higher business limits? Submit GST details
                             </li>
                         </ul>
@@ -288,7 +289,7 @@ const WalletSettings = () => {
                         <h3 className="text-white text-[16px] font-medium mb-[6px]">
                             Why Limits?
                         </h3>
-                        <p className="text-white text-[16px] font-light leading-relaxed mb-4">
+                        <p className="text-white text-[16px] font-light leading-[1.4] tracking-[-0.3px] mb-4">
                             Wallets in India are governed by RBI-regulated limits to ensure fund
                             security and prevent misuse.
                             Your tier helps us serve you better, safely, and responsibly.
