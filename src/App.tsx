@@ -52,6 +52,7 @@ import AuthCallback from "./pages/AuthCallback";
 import Wallet from "./pages/Wallet";
 import WalletCreated from "./pages/WalletCreated";
 import WalletAddMoney from "./pages/WalletAddMoney";
+import WalletSettings from "./pages/WalletSettings";
 import AddPaymentMethod from "./pages/AddPaymentMethod";
 import OrderSummary from "./pages/OrderSummary";
 import WalletTopUpSuccess from "./pages/WalletTopUpSuccess";
@@ -165,6 +166,7 @@ const App = () => {
             <Route path="/order-tracking" element={<OrderTracking />} />
             <Route path="/wallet" element={<Wallet />} />
             <Route path="/wallet-created" element={<WalletCreated />} />
+            <Route path="/wallet-settings" element={<WalletSettings />} />
             <Route path="/wallet-add-money" element={<WalletAddMoney />} />
             <Route path="/add-payment-method" element={<AddPaymentMethod />} />
             <Route path="/order-summary" element={<OrderSummary />} />

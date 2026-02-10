@@ -105,7 +105,7 @@ const WalletCreated = () => {
 
                 {/* Settings Button */}
                 <button
-                    onClick={() => navigate('/settings')}
+                    onClick={() => navigate('/wallet-settings')}
                     className="w-10 h-10 flex items-center justify-center"
                 >
                     <img src={settingsIcon} alt="Settings" className="w-6 h-6" />
