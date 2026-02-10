@@ -15,7 +15,6 @@ import supremeChip from "@/assets/supreme chip.png";
 import tierCardActive from "@/assets/selected wallet.png";
 import topCardNew from "@/assets/top-card-new.png";
 import tierCardInactive from "@/assets/non selected card.png";
-import tierCardBg from "@/assets/tier-card-bg.png";
 
 const WalletSettings = () => {
     const navigate = useNavigate();
@@ -124,20 +123,14 @@ const WalletSettings = () => {
                     <div
                         className="relative w-full rounded-[28px] overflow-hidden"
                         style={{
-                            backgroundImage: `url(${tierCardBg})`,
+                            backgroundImage: `url(${topCardNew})`,
                             backgroundSize: "cover",
                             backgroundPosition: "center",
                             backgroundRepeat: "no-repeat",
                         }}
                     >
                         <div className="relative z-10 pt-[14px] px-6 pb-[17px] flex flex-col justify-between h-full">
-                            <div className="flex items-center h-[66px] pl-[57px]">
-                                <img
-                                    src={topCardNew}
-                                    alt={currentTier.name}
-                                    className="absolute top-0 left-0 w-[79px] h-[66px] object-contain"
-                                />
-
+                            <div className="flex items-center h-[66px] pl-[20px]">
                                 <div className="flex flex-col items-start">
                                     <span className="text-white text-[15px] font-medium tracking-normal">
                                         {currentTier.name.toUpperCase()}
@@ -166,7 +159,7 @@ const WalletSettings = () => {
                 </div>
 
                 {/* -------- TIERS CAROUSEL -------- */}
-                <div className="mb-[20px]">
+                <div className="mb-2">
                     <div className="flex overflow-x-auto no-scrollbar px-5 gap-4 pb-4 snap-x snap-mandatory">
                         {tiers.map((tier) => {
                             const isActive = walletTier === tier.name;
@@ -264,7 +257,7 @@ const WalletSettings = () => {
                 </div>
 
                 {/* -------- INFO SECTIONS -------- */}
-                <div className="px-5 pb-10 flex flex-col gap-6">
+                <div className="px-5 pb-5 flex flex-col gap-4">
                     <div>
                         <h3 className="text-white text-[16px] font-medium mb-[6px]">
                             How to Upgrade?
