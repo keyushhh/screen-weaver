@@ -129,8 +129,8 @@ const WalletSettings = () => {
                             backgroundRepeat: "no-repeat",
                         }}
                     >
-                        <div className="relative z-10 pt-[14px] px-6 pb-[17px] flex flex-col justify-between h-full">
-                            <div className="flex items-center h-[66px] pl-[20px]">
+                        <div className="relative z-10 flex flex-col h-full">
+                            <div className="flex items-center pl-[77px] pt-[14px]">
                                 <div className="flex flex-col items-start">
                                     <span className="text-white text-[15px] font-medium tracking-normal">
                                         {currentTier.name.toUpperCase()}
@@ -147,13 +147,15 @@ const WalletSettings = () => {
                                 </div>
                             </div>
 
-                            <button
-                                onClick={handleUpgrade}
-                                className="mx-auto h-[48px] rounded-full text-white text-[18px] font-medium active:scale-95 transition-transform"
-                                style={{ background: "#6C72FF", width: "326px", maxWidth: "100%" }}
-                            >
-                                Upgrade Now
-                            </button>
+                            <div className="mt-[17px] mb-[17px] px-6">
+                                <button
+                                    onClick={handleUpgrade}
+                                    className="mx-auto h-[48px] flex items-center justify-center rounded-full text-white text-[18px] font-medium active:scale-95 transition-transform"
+                                    style={{ background: "#6C72FF", width: "326px", maxWidth: "100%" }}
+                                >
+                                    Upgrade Now
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
