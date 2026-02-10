@@ -223,31 +223,31 @@ const WalletSettings = () => {
 
                                         <div className="flex flex-col gap-[6px] pl-[12px]">
                                             <div>
-                                                <p className="text-white/50 text-[14px] mb-1">
+                                                <p className="text-white/50 text-[12px] font-medium mb-0">
                                                     Verification
                                                 </p>
-                                                <p className="text-[16px]">{tier.verification}</p>
+                                                <p className="text-[12px] font-medium">{tier.verification}</p>
                                             </div>
 
                                             <div>
-                                                <p className="text-white/50 text-[14px] mb-1">
+                                                <p className="text-white/50 text-[12px] font-medium mb-0">
                                                     Wallet limit
                                                 </p>
-                                                <p className="text-[18px]">{tier.walletLimit}</p>
+                                                <p className="text-[12px] font-medium">{tier.walletLimit}</p>
                                             </div>
 
                                             <div>
-                                                <p className="text-white/50 text-[14px] mb-1">
+                                                <p className="text-white/50 text-[12px] font-medium mb-0">
                                                     Withdraw limit
                                                 </p>
-                                                <p className="text-[18px]">{tier.withdrawLimit}</p>
+                                                <p className="text-[12px] font-medium">{tier.withdrawLimit}</p>
                                             </div>
 
                                             <div>
-                                                <p className="text-white/50 text-[14px] mb-1">
+                                                <p className="text-white/50 text-[12px] font-medium mb-0">
                                                     Limitations
                                                 </p>
-                                                <p className="text-[14px] leading-snug">
+                                                <p className="text-[12px] font-medium leading-snug">
                                                     {tier.limitations}
                                                 </p>
                                             </div>
