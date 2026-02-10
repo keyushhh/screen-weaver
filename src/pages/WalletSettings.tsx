@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { useUser, WalletTier } from "@/contexts/UserContext";
 
-import starterDiamond from "@/assets/starter diamond.png";
+import starterDiamond from "@/assets/starter-diamond.png";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import freeChip from "@/assets/free chip.png";
 import proChip from "@/assets/pro chip.png";
@@ -16,10 +16,10 @@ const WalletSettings = () => {
     const navigate = useNavigate();
     const { walletTier, setWalletTier } = useUser();
 
-    // Browsing state for carousel
+    // Browsing state (carousel)
     const [activeTier, setActiveTier] = useState<WalletTier>(walletTier);
 
-    /* -------------------- Tier Config -------------------- */
+    /* ---------------- Tier Config ---------------- */
 
     const tiers: {
         name: WalletTier;
@@ -71,6 +71,15 @@ const WalletSettings = () => {
     const currentTier =
         tiers.find((tier) => tier.name === activeTier) || tiers[0];
 
+    /* ---------------- Tier → Icon mapping (TOP CARD ONLY) ---------------- */
+
+    const tierIconMap: Record<WalletTier, string> = {
+        Starter: starterDiamond,
+        Pro: proChip,
+        Elite: eliteChip,
+        Supreme: supremeChip,
+    };
+
     const handleUpgrade = () => {
         if (activeTier !== walletTier) {
             setWalletTier(activeTier);
@@ -103,7 +112,8 @@ const WalletSettings = () => {
 
             {/* Scrollable Content */}
             <div className="flex-1 w-full overflow-y-auto no-scrollbar pb-[40px]">
-                {/* Current Tier Summary */}
+
+                {/* -------- TOP TIER SUMMARY CARD -------- */}
                 <div className="px-5 mb-8">
                     <div
                         className="relative w-full rounded-[28px] overflow-hidden"
@@ -115,8 +125,8 @@ const WalletSettings = () => {
                         <div className="relative z-10 p-6 flex flex-col gap-6">
                             <div className="flex items-center gap-4">
                                 <img
-                                    src={starterDiamond}
-                                    alt="Tier"
+                                    src={tierIconMap[currentTier.name]}
+                                    alt={currentTier.name}
                                     className="w-[42px] h-[42px] object-contain"
                                 />
 
@@ -148,7 +158,7 @@ const WalletSettings = () => {
                     </div>
                 </div>
 
-                {/* Tiers Carousel */}
+                {/* -------- TIERS CAROUSEL -------- */}
                 <div className="mb-8">
                     <div className="flex overflow-x-auto no-scrollbar px-5 gap-4 pb-4 snap-x snap-mandatory">
                         {tiers.map((tier) => {
@@ -161,6 +171,7 @@ const WalletSettings = () => {
                                     className="snap-center shrink-0 relative cursor-pointer transition-transform active:scale-[0.98]"
                                     style={{ width: "290px", height: "420px" }}
                                 >
+                                    {/* Selected / Non-selected background ONLY */}
                                     <div
                                         className="absolute inset-0 rounded-[24px] overflow-hidden"
                                         style={{
@@ -171,14 +182,16 @@ const WalletSettings = () => {
                                         }}
                                     />
 
+                                    {/* Content */}
                                     <div className="relative z-10 p-6 flex flex-col h-full text-white">
                                         <div className="flex justify-between items-start mb-6">
                                             <img
                                                 src={tier.chip}
                                                 alt={tier.name}
-                                                className="w-[44px] h-[44px] object-contain"
+                                                className="w-[52px] h-[52px] object-contain relative z-20"
                                             />
-                                            <div className="px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md text-[14px] font-medium">
+
+                                            <div className="px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md text-[14px] font-medium">
                                                 {tier.badge}
                                             </div>
                                         </div>
@@ -225,7 +238,7 @@ const WalletSettings = () => {
                     </div>
                 </div>
 
-                {/* Ending Sections */}
+                {/* -------- INFO SECTIONS -------- */}
                 <div className="px-5 pb-10 flex flex-col gap-12">
                     <div>
                         <h3 className="text-white text-[28px] font-medium mb-6">
