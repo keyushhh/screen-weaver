@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { useUser, WalletTransaction } from "@/contexts/UserContext";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
-import walletCardBg from "@/assets/wallet - card.png";
-import diamondIcon from "@/assets/diamond.png";
+import walletCardBg from "@/assets/wallet-starter.png";
 import settingsIcon from "@/assets/settings.svg";
 import buttonPrimary from "@/assets/button-primary-wide.png";
 
@@ -135,11 +134,6 @@ const WalletCreated = () => {
                             <span className="text-white text-[15px] font-medium font-sans">
                                 WALLET BALANCE
                             </span>
-                            <img
-                                src={diamondIcon}
-                                alt="Diamond"
-                                className="w-[42px] h-[42px] translate-y-[3px]"
-                            />
                         </div>
 
                         <div className="flex items-center justify-between mt-[12px]">
