@@ -165,7 +165,7 @@ const WalletSettings = () => {
                 </div>
 
                 {/* -------- TIERS CAROUSEL -------- */}
-                <div className="mb-8">
+                <div className="mb-[21px]">
                     <div className="flex overflow-x-auto no-scrollbar px-5 gap-4 pb-4 snap-x snap-mandatory">
                         {tiers.map((tier) => {
                             const isActive = walletTier === tier.name;
@@ -265,7 +265,7 @@ const WalletSettings = () => {
                 {/* -------- INFO SECTIONS -------- */}
                 <div className="px-5 pb-10 flex flex-col gap-6">
                     <div>
-                        <h3 className="text-white text-[16px] font-medium mb-6">
+                        <h3 className="text-white text-[16px] font-medium mb-[6px]">
                             How to Upgrade?
                         </h3>
                         <ul className="flex flex-col gap-[2px] list-disc pl-6">
@@ -285,7 +285,7 @@ const WalletSettings = () => {
                     </div>
 
                     <div>
-                        <h3 className="text-white text-[16px] font-medium mb-6">
+                        <h3 className="text-white text-[16px] font-medium mb-[6px]">
                             Why Limits?
                         </h3>
                         <p className="text-white text-[16px] font-light leading-relaxed mb-4">
