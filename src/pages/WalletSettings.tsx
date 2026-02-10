@@ -129,25 +129,25 @@ const WalletSettings = () => {
                             backgroundRepeat: "no-repeat",
                         }}
                     >
-                        <div className="relative z-10 pt-[17px] pl-[15px] pr-6 pb-6 flex flex-col gap-6">
-                            <div className="flex items-center gap-4">
+                        <div className="relative z-10 p-6 flex flex-col gap-6 h-full">
+                            <div className="flex items-center justify-end h-[66px]">
                                 <img
                                     src={tierIconMap[currentTier.name]}
                                     alt={currentTier.name}
-                                    className="w-[52px] h-[48px] object-contain"
+                                    className="absolute top-0 left-0 w-[79px] h-[66px] object-contain"
                                 />
 
-                                <div className="flex flex-col">
+                                <div className="flex flex-col items-end">
                                     <span className="text-white text-[15px] font-medium tracking-normal">
                                         {currentTier.name.toUpperCase()}
                                     </span>
 
                                     <div className="flex items-end gap-2 mt-1">
-                                        <span className="text-white text-[34px] font-bold leading-none">
-                                            {currentTier.walletLimit}
-                                        </span>
                                         <span className="text-white/70 text-[16px] font-medium mb-[2px]">
                                             / wallet limit
+                                        </span>
+                                        <span className="text-white text-[34px] font-bold leading-none">
+                                            {currentTier.walletLimit}
                                         </span>
                                     </div>
                                 </div>
@@ -221,7 +221,10 @@ const WalletSettings = () => {
                                             {tier.name.toUpperCase()} WALLET
                                         </h3>
 
-                                        <div className="flex flex-col gap-[6px] pl-[12px]">
+                                        <div
+                                            className="absolute flex flex-col gap-[6px] pl-[12px] w-full pr-4"
+                                            style={{ top: "83px" }}
+                                        >
                                             <div>
                                                 <p className="text-white/50 text-[12px] font-medium mb-0">
                                                     Verification
