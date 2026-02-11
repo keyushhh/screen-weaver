@@ -14,7 +14,7 @@ import amazonIcon from "@/assets/amazon.png";
 const AddPaymentMethod = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { amount } = location.state || { amount: "0.00" };
+    const { amount, flow, tier } = location.state || { amount: "0.00", flow: "add-money", tier: "" };
 
     const glassContainerStyle: React.CSSProperties = {
         backgroundColor: "rgba(25, 25, 25, 0.31)",
@@ -217,7 +217,13 @@ const AddPaymentMethod = () => {
                         {/* Netbanking */}
                         <div
                             className="flex items-center mt-[9px] relative h-[40px] cursor-pointer"
-                            onClick={() => navigate('/order-summary', { state: { amount } })}
+                            onClick={() => {
+                                if (flow === 'upgrade') {
+                                    navigate('/subscription-details', { state: { tier } });
+                                } else {
+                                    navigate('/order-summary', { state: { amount } });
+                                }
+                            }}
                         >
                             <div className="flex flex-col justify-center">
                                 <span className="text-white text-[16px] font-bold font-sans leading-none mb-[6px]">

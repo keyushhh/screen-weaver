@@ -159,11 +159,19 @@ const WalletSettings = () => {
                                                 <p className="text-[12px] font-medium whitespace-nowrap overflow-hidden text-ellipsis">{tier.verification}</p>
                                             </div>
 
-                                            <div>
-                                                <p className="text-white/50 text-[12px] font-medium mb-0">
-                                                    Wallet limit
-                                                </p>
-                                                <p className="text-[12px] font-medium">{tier.walletLimit}</p>
+                                            <div className="flex items-start gap-4">
+                                                <div>
+                                                    <p className="text-white/50 text-[12px] font-medium mb-0">
+                                                        Wallet limit
+                                                    </p>
+                                                    <p className="text-[12px] font-medium">{tier.walletLimit}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-white/50 text-[12px] font-medium mb-0">
+                                                        Daily top up
+                                                    </p>
+                                                    <p className="text-[12px] font-medium">{tier.dailyTopUpLimit}</p>
+                                                </div>
                                             </div>
 
                                             <div>
