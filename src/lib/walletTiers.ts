@@ -9,6 +9,13 @@ import proChip from "@/assets/pro chip.png";
 import eliteChip from "@/assets/elite chip.png";
 import supremeChip from "@/assets/supreme chip.png";
 
+// New assets
+import starterExpand from "@/assets/starter-expand.png";
+import proExpand from "@/assets/pro-expand.png";
+import eliteExpand from "@/assets/elite-expand.png";
+import supremeExpand from "@/assets/supreme-expand.png";
+import infoBg from "@/assets/info bg.png";
+
 export type { WalletTier };
 
 export interface TierConfig {
@@ -16,11 +23,39 @@ export interface TierConfig {
     badge: string;
     chip: string;
     diamond: string;
-    walletLimit: string;
-    withdrawLimit: string;
+
+    // Detailed page fields
+    headerTitle: string;
+    headerSubtitle: string;
+    headerImage: string;
+    infoBg: string;
+
+    // Info sections
     verification: string;
+    walletLimit: string;
+    dailyTopUpLimit: string;
+    withdrawals: string;
+    withdrawLimit: string; // Existing, keep for compatibility
     limitations: string;
+
+    // Additional sections
+    downgradeOptions?: string;
+    note: string;
+
+    // Button
+    buttonText: string;
+    buttonAction: string;
 }
+
+const placeholderContent = {
+    dailyTopUpLimit: "₹5,000",
+    withdrawals: "Not allowed",
+    verification: "Mobile number, basic information",
+    limitations: "Add money cooldown, withdraw cannot exceed ₹5,000 a day.",
+    note: "Upgrade to Pro to unlock higher limits and withdrawals.",
+    buttonText: "Compare Plans",
+    buttonAction: "/wallet-settings"
+};
 
 export const tiers: TierConfig[] = [
     {
@@ -29,9 +64,14 @@ export const tiers: TierConfig[] = [
         chip: freeChip,
         diamond: starterDiamond,
         walletLimit: "₹5,000",
-        withdrawLimit: "₹5,000",
-        verification: "Mobile number, basic information",
-        limitations: "Add money cooldown, withdraw cannot exceed ₹5,000 a day.",
+        withdrawLimit: "Not allowed",
+
+        headerTitle: "STARTER",
+        headerSubtitle: "₹5,000 / wallet limit",
+        headerImage: starterExpand,
+        infoBg: infoBg,
+
+        ...placeholderContent
     },
     {
         name: "Pro",
@@ -40,8 +80,13 @@ export const tiers: TierConfig[] = [
         diamond: proDiamond,
         walletLimit: "₹15,000",
         withdrawLimit: "₹10,000",
-        verification: "PAN, Address proof",
-        limitations: "Add money cooldown, withdraw cannot exceed ₹10,000 a day.",
+
+        headerTitle: "PRO",
+        headerSubtitle: "₹15,000 / wallet limit",
+        headerImage: proExpand,
+        infoBg: infoBg,
+
+        ...placeholderContent
     },
     {
         name: "Elite",
@@ -50,8 +95,13 @@ export const tiers: TierConfig[] = [
         diamond: eliteDiamond,
         walletLimit: "₹1,00,000",
         withdrawLimit: "₹50,000",
-        verification: "Video KYC needed",
-        limitations: "No limitations, withdraw cannot exceed ₹25,000 a day.",
+
+        headerTitle: "ELITE",
+        headerSubtitle: "₹1,00,000 / wallet limit",
+        headerImage: eliteExpand,
+        infoBg: infoBg,
+
+        ...placeholderContent
     },
     {
         name: "Supreme",
@@ -60,8 +110,13 @@ export const tiers: TierConfig[] = [
         diamond: supremeDiamond,
         walletLimit: "No limit",
         withdrawLimit: "No limit",
-        verification: "Physical verification",
-        limitations: "No limitations",
+
+        headerTitle: "SUPREME",
+        headerSubtitle: "No limit / wallet limit",
+        headerImage: supremeExpand,
+        infoBg: infoBg,
+
+        ...placeholderContent
     },
 ];
 
