@@ -14,40 +14,25 @@ const WalletTierDetails = () => {
         <div className="h-full w-full bg-black text-white flex flex-col relative overflow-y-auto no-scrollbar font-satoshi safe-area-top safe-area-bottom">
 
             {/* Header Section */}
-            <div className="relative w-full shrink-0">
-                <img
-                    src={currentTier.headerImage}
-                    alt={currentTier.name}
-                    className="w-full h-auto object-cover block"
-                />
-
-                {/* Back Button */}
+            <div className="flex items-center px-5 pt-6 pb-2 shrink-0">
                 <button
                     onClick={() => navigate(-1)}
-                    className="absolute top-6 left-5 w-10 h-10 flex items-center justify-center rounded-full bg-black/20 backdrop-blur-md z-50 active:scale-95 transition-transform border border-white/10"
+                    className="w-10 h-10 flex items-center justify-center -ml-2 rounded-full active:scale-95 transition-transform"
                 >
                     <ChevronLeft className="w-6 h-6 text-white" />
                 </button>
-
-                {/* Header Text Overlay */}
-                <div className="absolute bottom-8 left-6 right-6 z-20">
-                     <h1 className="text-white text-[32px] font-bold uppercase tracking-wide mb-1 drop-shadow-lg">
-                        {currentTier.headerTitle}
-                     </h1>
-                     <p className="text-white/90 text-[18px] font-medium drop-shadow-md">
-                        {currentTier.headerSubtitle}
-                     </p>
-                </div>
+                <h1 className="text-white text-[22px] font-medium ml-2">
+                    Wallet Settings
+                </h1>
             </div>
 
-            {/* Info Section */}
+            {/* Content Container */}
             <div
-                className="flex-1 w-full relative flex flex-col -mt-6 pt-10 pb-8 px-6 z-10"
+                className="flex-1 w-full flex flex-col mt-[28px] px-6 py-6 overflow-y-auto no-scrollbar"
                 style={{
-                    backgroundImage: `url(${currentTier.infoBg})`,
+                    backgroundImage: `url(${currentTier.headerImage})`,
                     backgroundSize: '100% 100%',
                     backgroundRepeat: 'no-repeat',
-                    minHeight: '500px'
                 }}
             >
                 {/* Info List */}
@@ -84,10 +69,10 @@ const WalletTierDetails = () => {
                 </div>
 
                 {/* Downgrade Options - Conditional if present, or generic */}
-                 <div className="mb-8">
+                <div className="mb-8">
                     <p className="text-white/50 text-[13px] font-medium uppercase mb-1 tracking-wider">Downgrade Options</p>
                     <p className="text-white text-[16px] font-medium">{currentTier.downgradeOptions || "Anytime"}</p>
-                 </div>
+                </div>
 
                 {/* Note Container */}
                 <div className="bg-[#1C1C1E] rounded-[16px] p-5 mb-8 border border-white/5">
@@ -100,7 +85,7 @@ const WalletTierDetails = () => {
                 {/* CTA Button */}
                 <button
                     onClick={() => navigate(currentTier.buttonAction)}
-                    className="w-full h-[52px] rounded-full bg-[#6C72FF] text-white text-[16px] font-bold active:scale-95 transition-transform flex items-center justify-center shadow-lg shadow-[#6C72FF]/20"
+                    className="w-full h-[52px] rounded-full bg-[#6C72FF] text-white text-[16px] font-bold active:scale-95 transition-transform flex items-center justify-center shadow-lg shadow-[#6C72FF]/20 mt-auto"
                 >
                     {currentTier.buttonText}
                 </button>
