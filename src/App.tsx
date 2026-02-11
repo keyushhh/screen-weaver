@@ -58,6 +58,8 @@ import AddPaymentMethod from "./pages/AddPaymentMethod";
 import OrderSummary from "./pages/OrderSummary";
 import WalletTopUpSuccess from "./pages/WalletTopUpSuccess";
 import WalletTopUpFailed from "./pages/WalletTopUpFailed";
+import SubscriptionSummary from "./pages/SubscriptionSummary";
+import WalletUpgradeSuccess from "./pages/WalletUpgradeSuccess";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -67,121 +69,123 @@ const App = () => {
     // Handle deep links for OAuth
     const listener = CapacitorApp.addListener('appUrlOpen', async ({ url }) => {
       if (url.startsWith('gridpe://')) {
-          console.log("App opened with URL:", url); // Debug logging
+        console.log("App opened with URL:", url); // Debug logging
 
-          // Extract params from fragment (#) or query (?)
-          // Supabase usually sends params in fragment for implicit flow
-          // But for PKCE flow (default in v2) it sends 'code' in query?
-          // Let's handle generic case:
+        // Extract params from fragment (#) or query (?)
+        // Supabase usually sends params in fragment for implicit flow
+        // But for PKCE flow (default in v2) it sends 'code' in query?
+        // Let's handle generic case:
 
-          // Check for #access_token=...
-          if (url.includes('access_token') && url.includes('refresh_token')) {
-              // Parse fragment
-              const fragment = url.split('#')[1];
-              const params = new URLSearchParams(fragment);
-              const access_token = params.get('access_token');
-              const refresh_token = params.get('refresh_token');
+        // Check for #access_token=...
+        if (url.includes('access_token') && url.includes('refresh_token')) {
+          // Parse fragment
+          const fragment = url.split('#')[1];
+          const params = new URLSearchParams(fragment);
+          const access_token = params.get('access_token');
+          const refresh_token = params.get('refresh_token');
 
-              if (access_token && refresh_token) {
-                  const { error } = await supabase.auth.setSession({
-                      access_token,
-                      refresh_token
-                  });
-                  if (error) console.error("Set session error:", error);
-                  else console.log("Session set from tokens");
-              }
+          if (access_token && refresh_token) {
+            const { error } = await supabase.auth.setSession({
+              access_token,
+              refresh_token
+            });
+            if (error) console.error("Set session error:", error);
+            else console.log("Session set from tokens");
           }
-          // Check for ?code=... (PKCE) or #code=...
-          else {
-              // Robust parsing for code in query or fragment
-              const codeMatch = url.match(/[?#&]code=([^&]+)/);
-              if (codeMatch && codeMatch[1]) {
-                  const code = codeMatch[1];
-                  console.log("Exchanging code for session...");
-                  const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-                  if (error) {
-                      console.error("Auth exchange error:", error);
-                  } else {
-                      console.log("Session exchanged successfully", data.session ? "Active" : "No Session");
-                  }
-              } else {
-                  console.log("No code or tokens found in URL");
-              }
+        }
+        // Check for ?code=... (PKCE) or #code=...
+        else {
+          // Robust parsing for code in query or fragment
+          const codeMatch = url.match(/[?#&]code=([^&]+)/);
+          if (codeMatch && codeMatch[1]) {
+            const code = codeMatch[1];
+            console.log("Exchanging code for session...");
+            const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+            if (error) {
+              console.error("Auth exchange error:", error);
+            } else {
+              console.log("Session exchanged successfully", data.session ? "Active" : "No Session");
+            }
+          } else {
+            console.log("No code or tokens found in URL");
           }
+        }
       }
     });
 
     return () => {
-        listener.then(handle => handle.remove());
+      listener.then(handle => handle.remove());
     };
   }, []);
 
   return (
-  <QueryClientProvider client={queryClient}>
-    <UserProvider>
-      <CustomToasterProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <GlobalCustomToaster />
-          <HashRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/home" element={<Homepage />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/kyc-intro" element={<KYCIntro />} />
-            <Route path="/kyc-form" element={<KYCForm />} />
-            <Route path="/kyc-upload" element={<KYCUpload />} />
-            <Route path="/kyc-selfie" element={<KYCSelfie />} />
-            <Route path="/kyc-review" element={<KYCReview />} />
-            <Route path="/kyc-success" element={<SuccessScreen />} />
-            <Route path="/profile-edit" element={<ProfileEdit />} />
-            <Route path="/cards" element={<MyCards />} />
-            <Route path="/cards/add" element={<AddCard />} />
-            <Route path="/card-remove-success" element={<CardRemoveSuccess />} />
-            <Route path="/camera-page" element={<CameraPage />} />
-            <Route path="/banking" element={<Banking />} />
-            <Route path="/banking/add" element={<AddBank />} />
-            <Route path="/banking/linked-accounts" element={<LinkedAccounts />} />
-            <Route path="/bank-remove-success" element={<BankRemoveSuccess />} />
-            <Route path="/security-dashboard" element={<SecurityDashboard />} />
-            <Route path="/kyc-status-complete" element={<KYCStatusComplete />} />
-            <Route path="/delete-account" element={<DeleteAccount />} />
-            <Route path="/confirm-deactivation" element={<ConfirmDeactivation />} />
-            <Route path="/account-deactivated" element={<AccountDeactivated />} />
-            <Route path="/delete-account-reasons" element={<DeleteAccountReasons />} />
-            <Route path="/delete-account-mobile" element={<DeleteAccountMobile />} />
-            <Route path="/delete-account-otp" element={<DeleteAccountOTP />} />
-            <Route path="/account-deleted" element={<AccountDeleted />} />
-            <Route path="/account-retrieved" element={<AccountRetrieved />} />
-            <Route path="/security/mpin-settings" element={<MpinSettings />} />
-            <Route path="/forgot-mpin" element={<ForgotMpin />} />
-            <Route path="/order-cash" element={<OrderCash />} />
-            <Route path="/order-cash-summary" element={<OrderCashSummary />} />
-            <Route path="/order-history" element={<OrderHistory />} />
-            <Route path="/order-details/:orderId" element={<OrderDetails />} />
-            <Route path="/schedule-delivery" element={<ScheduleDelivery />} />
-            <Route path="/add-address" element={<AddAddress />} />
-            <Route path="/add-address-details" element={<AddAddressDetails />} />
-            <Route path="/order-cancelled" element={<OrderCancelled />} />
-            <Route path="/order-tracking" element={<OrderTracking />} />
-            <Route path="/wallet" element={<Wallet />} />
-            <Route path="/wallet-created" element={<WalletCreated />} />
-            <Route path="/wallet-settings" element={<WalletSettings />} />
-            <Route path="/wallet-tier/:tierId" element={<WalletTierDetails />} />
-            <Route path="/wallet-add-money" element={<WalletAddMoney />} />
-            <Route path="/add-payment-method" element={<AddPaymentMethod />} />
-            <Route path="/order-summary" element={<OrderSummary />} />
-            <Route path="/wallet-topup-success" element={<WalletTopUpSuccess />} />
-            <Route path="/wallet-topup-failed" element={<WalletTopUpFailed />} />
-            <Route path="/auth/v1/callback" element={<AuthCallback />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          </HashRouter>
-        </TooltipProvider>
-      </CustomToasterProvider>
-    </UserProvider>
-  </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <UserProvider>
+        <CustomToasterProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <GlobalCustomToaster />
+            <HashRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/home" element={<Homepage />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/kyc-intro" element={<KYCIntro />} />
+                <Route path="/kyc-form" element={<KYCForm />} />
+                <Route path="/kyc-upload" element={<KYCUpload />} />
+                <Route path="/kyc-selfie" element={<KYCSelfie />} />
+                <Route path="/kyc-review" element={<KYCReview />} />
+                <Route path="/kyc-success" element={<SuccessScreen />} />
+                <Route path="/profile-edit" element={<ProfileEdit />} />
+                <Route path="/cards" element={<MyCards />} />
+                <Route path="/cards/add" element={<AddCard />} />
+                <Route path="/card-remove-success" element={<CardRemoveSuccess />} />
+                <Route path="/camera-page" element={<CameraPage />} />
+                <Route path="/banking" element={<Banking />} />
+                <Route path="/banking/add" element={<AddBank />} />
+                <Route path="/banking/linked-accounts" element={<LinkedAccounts />} />
+                <Route path="/bank-remove-success" element={<BankRemoveSuccess />} />
+                <Route path="/security-dashboard" element={<SecurityDashboard />} />
+                <Route path="/kyc-status-complete" element={<KYCStatusComplete />} />
+                <Route path="/delete-account" element={<DeleteAccount />} />
+                <Route path="/confirm-deactivation" element={<ConfirmDeactivation />} />
+                <Route path="/account-deactivated" element={<AccountDeactivated />} />
+                <Route path="/delete-account-reasons" element={<DeleteAccountReasons />} />
+                <Route path="/delete-account-mobile" element={<DeleteAccountMobile />} />
+                <Route path="/delete-account-otp" element={<DeleteAccountOTP />} />
+                <Route path="/account-deleted" element={<AccountDeleted />} />
+                <Route path="/account-retrieved" element={<AccountRetrieved />} />
+                <Route path="/security/mpin-settings" element={<MpinSettings />} />
+                <Route path="/forgot-mpin" element={<ForgotMpin />} />
+                <Route path="/order-cash" element={<OrderCash />} />
+                <Route path="/order-cash-summary" element={<OrderCashSummary />} />
+                <Route path="/order-history" element={<OrderHistory />} />
+                <Route path="/order-details/:orderId" element={<OrderDetails />} />
+                <Route path="/schedule-delivery" element={<ScheduleDelivery />} />
+                <Route path="/add-address" element={<AddAddress />} />
+                <Route path="/add-address-details" element={<AddAddressDetails />} />
+                <Route path="/order-cancelled" element={<OrderCancelled />} />
+                <Route path="/order-tracking" element={<OrderTracking />} />
+                <Route path="/wallet" element={<Wallet />} />
+                <Route path="/wallet-created" element={<WalletCreated />} />
+                <Route path="/wallet-settings" element={<WalletSettings />} />
+                <Route path="/wallet-tier/:tierId" element={<WalletTierDetails />} />
+                <Route path="/wallet-add-money" element={<WalletAddMoney />} />
+                <Route path="/add-payment-method" element={<AddPaymentMethod />} />
+                <Route path="/order-summary" element={<OrderSummary />} />
+                <Route path="/wallet-topup-success" element={<WalletTopUpSuccess />} />
+                <Route path="/wallet-topup-failed" element={<WalletTopUpFailed />} />
+                <Route path="/subscription-details" element={<SubscriptionSummary />} />
+                <Route path="/wallet-upgrade-success" element={<WalletUpgradeSuccess />} />
+                <Route path="/auth/v1/callback" element={<AuthCallback />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </HashRouter>
+          </TooltipProvider>
+        </CustomToasterProvider>
+      </UserProvider>
+    </QueryClientProvider>
   );
 };
 

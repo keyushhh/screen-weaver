@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
@@ -10,11 +10,46 @@ import credIcon from "@/assets/cred.png";
 import gpayIcon from "@/assets/gpay.png";
 import phonepeIcon from "@/assets/phonepe.png";
 import amazonIcon from "@/assets/amazon.png";
+import hdfcLogo from "@/assets/hdfc-bank-logo.png";
+
+// Mock payment methods data
+interface PaymentMethod {
+    id: string;
+    name: string;
+    icon: string;
+    type: "upi" | "card" | "wallet" | "netbanking";
+    linked: boolean;
+    subtitle?: string;
+    hasInput?: boolean;
+    inputPlaceholder?: string;
+}
+
+const mockPaymentMethods: PaymentMethod[] = [
+    // UPI Methods
+    { id: "cred", name: "CRED UPI", icon: credIcon, type: "upi", linked: true },
+    { id: "gpay", name: "Google Pay UPI", icon: gpayIcon, type: "upi", linked: true },
+    { id: "phonepe", name: "PhonePe UPI", icon: phonepeIcon, type: "upi", linked: true },
+    { id: "upi-id", name: "UPI ID", icon: "", type: "upi", linked: false, hasInput: true, inputPlaceholder: "Required" },
+    // Cards
+    { id: "hdfc-card", name: "3232 **** **** 5233", icon: hdfcLogo, type: "card", linked: true },
+    // More Options
+    { id: "amazon", name: "Amazon Pay Wallet", icon: amazonIcon, type: "wallet", linked: true },
+    { id: "netbanking", name: "HDFC Netbanking", icon: hdfcLogo, type: "netbanking", linked: true, subtitle: "Savings account | 5233" },
+];
 
 const AddPaymentMethod = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { amount, flow, tier } = location.state || { amount: "0.00", flow: "add-money", tier: "" };
+
+    const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
+
+    const hasLinkedMethods = mockPaymentMethods.some((m) => m.linked);
+    const title = hasLinkedMethods ? "Select Payment" : "Add Payment";
+
+    const upiMethods = mockPaymentMethods.filter((m) => m.type === "upi");
+    const cardMethods = mockPaymentMethods.filter((m) => m.type === "card");
+    const moreMethods = mockPaymentMethods.filter((m) => m.type === "wallet" || m.type === "netbanking");
 
     const glassContainerStyle: React.CSSProperties = {
         backgroundColor: "rgba(25, 25, 25, 0.31)",
@@ -43,6 +78,70 @@ const AddPaymentMethod = () => {
         <div className="w-[338px] h-[1px] bg-[#202020] mx-auto" />
     );
 
+    const RadioButton = ({ selected }: { selected: boolean }) => (
+        <div
+            className={`w-[22px] h-[22px] rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${selected ? "border-[#6C72FF]" : "border-[#6C72FF]/50"
+                }`}
+        >
+            {selected && (
+                <div className="w-[12px] h-[12px] rounded-full bg-[#6C72FF]" />
+            )}
+        </div>
+    );
+
+    const handleProceed = () => {
+        if (!selectedMethod) return;
+        if (flow === "upgrade") {
+            navigate("/subscription-details", { state: { tier, paymentMethod: selectedMethod, flow } });
+        } else {
+            navigate("/order-summary", { state: { amount } });
+        }
+    };
+
+    const renderPaymentRow = (method: PaymentMethod, isLast: boolean) => (
+        <React.Fragment key={method.id}>
+            <div
+                className={`flex items-center h-[32px] cursor-pointer ${!isLast ? "mb-[9px]" : ""}`}
+                onClick={() => method.linked && setSelectedMethod(method.id)}
+            >
+                {method.icon ? (
+                    <img src={method.icon} alt={method.name} className="w-[32px] h-[32px] object-contain" />
+                ) : method.hasInput ? (
+                    <div className="w-[32px]" />
+                ) : null}
+
+                <div className="flex flex-col ml-[8px] flex-1 min-w-0">
+                    <span className={`text-white text-[16px] font-bold font-sans leading-none ${method.subtitle ? "mb-[4px]" : ""}`}>
+                        {method.name}
+                    </span>
+                    {method.subtitle && (
+                        <span className="text-white/40 text-[12px] font-medium font-sans leading-none">
+                            {method.subtitle}
+                        </span>
+                    )}
+                </div>
+
+                {method.hasInput && (
+                    <input
+                        type="text"
+                        placeholder={method.inputPlaceholder}
+                        className="ml-[5px] bg-transparent border-none outline-none text-white text-[14px] font-medium font-sans placeholder:text-[#FAFAFA]/30 flex-1"
+                    />
+                )}
+
+                <div className="ml-auto pl-2">
+                    {method.linked ? (
+                        <RadioButton selected={selectedMethod === method.id} />
+                    ) : (
+                        <RadioButton selected={selectedMethod === method.id} />
+                    )}
+                </div>
+            </div>
+            {!isLast && <Divider />}
+            {!isLast && <div className="h-[10px]" />}
+        </React.Fragment>
+    );
+
     return (
         <div
             className="h-full w-full overflow-y-auto overscroll-y-none flex flex-col safe-area-top safe-area-bottom pb-8"
@@ -63,8 +162,8 @@ const AddPaymentMethod = () => {
                     <ChevronLeft className="w-6 h-6 text-white" />
                 </button>
 
-                <h1 className="text-white text-[18px] font-medium font-sans absolute left-1/2 -translate-x-1/2">
-                    Add Payment
+                <h1 className="text-white text-[22px] font-medium leading-[120%] font-satoshi absolute left-1/2 -translate-x-1/2">
+                    {title}
                 </h1>
 
                 <div className="w-10" />
@@ -85,73 +184,14 @@ const AddPaymentMethod = () => {
                     style={{
                         ...glassContainerStyle,
                         height: "auto",
-                        minHeight: "202px",
                         paddingTop: "9px",
                         paddingBottom: "15px",
                     }}
                 >
                     <StrokeOverlay />
-
-                    {/* CRED */}
-                    <div className="flex items-center h-[32px] mb-[9px]">
-                        <img src={credIcon} alt="CRED" className="w-[32px] h-[32px] object-contain" />
-                        <span className="ml-[8px] text-white text-[16px] font-bold font-sans w-[80px]">
-                            CRED UPI
-                        </span>
-                        <div className="ml-auto flex items-center gap-1 cursor-pointer">
-                            <span className="text-white text-[12px] font-medium font-sans">
-                                Link Account
-                            </span>
-                            <img src={chevronIcon} alt=">" className="w-4 h-4 opacity-70" />
-                        </div>
-                    </div>
-
-                    <Divider />
-
-                    {/* Google Pay */}
-                    <div className="flex items-center h-[32px] mt-[10px] mb-[9px]">
-                        <img src={gpayIcon} alt="GPay" className="w-[32px] h-[32px] object-contain" />
-                        <span className="ml-[8px] text-white text-[16px] font-bold font-sans w-[120px]">
-                            Google Pay UPI
-                        </span>
-                        <div className="ml-auto flex items-center gap-1 cursor-pointer">
-                            <span className="text-white text-[12px] font-medium font-sans">
-                                Link Account
-                            </span>
-                            <img src={chevronIcon} alt=">" className="w-4 h-4 opacity-70" />
-                        </div>
-                    </div>
-
-                    <Divider />
-
-                    {/* PhonePe */}
-                    <div className="flex items-center h-[32px] mt-[10px] mb-[9px]">
-                        <img src={phonepeIcon} alt="PhonePe" className="w-[32px] h-[32px] object-contain" />
-                        <span className="ml-[8px] text-white text-[16px] font-bold font-sans w-[120px]">
-                            PhonePe UPI
-                        </span>
-                        <div className="ml-auto flex items-center gap-1 cursor-pointer">
-                            <span className="text-white text-[12px] font-medium font-sans">
-                                Link Account
-                            </span>
-                            <img src={chevronIcon} alt=">" className="w-4 h-4 opacity-70" />
-                        </div>
-                    </div>
-
-                    <Divider />
-
-                    {/* UPI ID */}
-                    <div className="flex items-center h-[32px] mt-[10px]">
-                        <div className="w-[32px]" />
-                        <span className="text-white text-[16px] font-bold font-sans -ml-[32px]">
-                            UPI ID
-                        </span>
-                        <input
-                            type="text"
-                            placeholder="Required"
-                            className="ml-[37px] bg-transparent border-none outline-none text-white text-[14px] font-medium font-sans placeholder:text-[#FAFAFA]/30 flex-1"
-                        />
-                    </div>
+                    {upiMethods.map((method, i) =>
+                        renderPaymentRow(method, i === upiMethods.length - 1)
+                    )}
                 </div>
 
                 {/* Cards Section */}
@@ -160,30 +200,45 @@ const AddPaymentMethod = () => {
                         Cards
                     </span>
 
-                    <div
-                        className="w-[363px] h-[66px] rounded-[22px] relative flex flex-col justify-center pl-[20px] pr-[13px] overflow-hidden"
-                        style={glassContainerStyle}
-                    >
-                        <StrokeOverlay />
-
-                        <div className="absolute right-[20px] top-1/2 -translate-y-1/2">
-                            <img src={addIcon} alt="Add" className="w-[20px] h-[20px]" />
+                    {cardMethods.length > 0 ? (
+                        <div
+                            className="w-[363px] rounded-[22px] flex flex-col px-[10px] overflow-hidden"
+                            style={{
+                                ...glassContainerStyle,
+                                height: "auto",
+                                paddingTop: "9px",
+                                paddingBottom: "15px",
+                            }}
+                        >
+                            <StrokeOverlay />
+                            {cardMethods.map((method, i) =>
+                                renderPaymentRow(method, i === cardMethods.length - 1)
+                            )}
                         </div>
-
-                        <div className="flex flex-col">
-                            <span className="text-white text-[16px] font-bold font-sans leading-none mb-[6px]">
-                                Add a credit or debit card
-                            </span>
-                            <div className="flex items-baseline gap-1">
-                                <span className="text-white text-[12px] font-light font-sans leading-none">
-                                    Incl.
+                    ) : (
+                        <div
+                            className="w-[363px] h-[66px] rounded-[22px] relative flex flex-col justify-center pl-[20px] pr-[13px] overflow-hidden"
+                            style={glassContainerStyle}
+                        >
+                            <StrokeOverlay />
+                            <div className="absolute right-[20px] top-1/2 -translate-y-1/2">
+                                <img src={addIcon} alt="Add" className="w-[20px] h-[20px]" />
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-white text-[16px] font-bold font-sans leading-none mb-[6px]">
+                                    Add a credit or debit card
                                 </span>
-                                <span className="text-white text-[12px] font-bold font-sans leading-none">
-                                    ₹9 Processing Fee
-                                </span>
+                                <div className="flex items-baseline gap-1">
+                                    <span className="text-white text-[12px] font-light font-sans leading-none">
+                                        Incl.
+                                    </span>
+                                    <span className="text-white text-[12px] font-bold font-sans leading-none">
+                                        ₹9 Processing Fee
+                                    </span>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
                 </div>
 
                 {/* More Payment Options */}
@@ -193,61 +248,40 @@ const AddPaymentMethod = () => {
                     </span>
 
                     <div
-                        className="w-[363px] h-[110px] rounded-[22px] flex flex-col px-[10px] overflow-hidden"
-                        style={{ ...glassContainerStyle, paddingTop: "9px" }}
+                        className="w-[363px] rounded-[22px] flex flex-col px-[10px] overflow-hidden"
+                        style={{
+                            ...glassContainerStyle,
+                            height: "auto",
+                            paddingTop: "9px",
+                            paddingBottom: "15px",
+                        }}
                     >
                         <StrokeOverlay />
-
-                        {/* Amazon Pay */}
-                        <div className="flex items-center h-[32px] mb-[9px]">
-                            <img src={amazonIcon} alt="Amazon" className="w-[32px] h-[32px] object-contain" />
-                            <span className="ml-[8px] text-white text-[16px] font-bold font-sans whitespace-nowrap">
-                                Amazon Pay Wallet
-                            </span>
-                            <div className="ml-auto flex items-center gap-1 cursor-pointer">
-                                <span className="text-white text-[12px] font-medium font-sans">
-                                    Link Account
-                                </span>
-                                <img src={chevronIcon} alt=">" className="w-4 h-4 opacity-70" />
-                            </div>
-                        </div>
-
-                        <Divider />
-
-                        {/* Netbanking */}
-                        <div
-                            className="flex items-center mt-[9px] relative h-[40px] cursor-pointer"
-                            onClick={() => {
-                                if (flow === 'upgrade') {
-                                    navigate('/subscription-details', { state: { tier } });
-                                } else {
-                                    navigate('/order-summary', { state: { amount } });
-                                }
-                            }}
-                        >
-                            <div className="flex flex-col justify-center">
-                                <span className="text-white text-[16px] font-bold font-sans leading-none mb-[6px]">
-                                    Netbanking
-                                </span>
-                                <div className="flex items-baseline gap-1">
-                                    <span className="text-white text-[12px] font-light font-sans leading-none">
-                                        Incl.
-                                    </span>
-                                    <span className="text-white text-[12px] font-bold font-sans leading-none">
-                                        ₹5 Processing Fee
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="absolute right-0 top-1 flex items-center gap-2">
-                                <span className="text-white text-[12px] font-medium font-sans">
-                                    Select Bank
-                                </span>
-                                <img src={codeIcon} alt="Code" className="w-[18px] h-[18px]" />
-                            </div>
-                        </div>
+                        {moreMethods.map((method, i) =>
+                            renderPaymentRow(method, i === moreMethods.length - 1)
+                        )}
                     </div>
                 </div>
+            </div>
+
+            {/* Bottom CTAs */}
+            <div className="px-5 mt-[32px] mb-[42px] flex flex-col gap-[12px]">
+                <button
+                    onClick={handleProceed}
+                    disabled={!selectedMethod}
+                    className={`w-full h-[48px] rounded-full text-white text-[16px] font-bold transition-all flex items-center justify-center ${selectedMethod
+                        ? "bg-[#6C72FF] active:scale-95 shadow-lg shadow-[#6C72FF]/20"
+                        : "bg-[#6C72FF]/40 cursor-not-allowed"
+                        }`}
+                >
+                    Proceed
+                </button>
+                <button
+                    onClick={() => navigate(-1)}
+                    className="w-full h-[48px] rounded-full bg-transparent border border-[#2C2C2C] text-white text-[16px] font-bold active:scale-95 transition-transform flex items-center justify-center"
+                >
+                    Cancel
+                </button>
             </div>
         </div>
     );

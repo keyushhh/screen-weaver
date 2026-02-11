@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { useUser, WalletTransaction } from "@/contexts/UserContext";
+import { tierIconMap, tierCardMap } from "@/lib/walletTiers";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import walletCardBg from "@/assets/wallet-starter.png";
 import settingsIcon from "@/assets/settings.svg";
@@ -9,13 +10,46 @@ import buttonPrimary from "@/assets/button-primary-wide.png";
 
 const WalletCreated = () => {
     const navigate = useNavigate();
-    const { walletBalance, walletTransactions } = useUser();
+    const { walletBalance, walletTransactions, walletTier, upgradeTimestamp } = useUser();
 
     // Get the latest transaction for the card status display
     const latestTx = walletTransactions.length > 0 ? walletTransactions[0] : null;
 
     const renderStatusIndicator = () => {
-        if (!latestTx) {
+        const hasNewerTransaction = latestTx && (!upgradeTimestamp || new Date(latestTx.date).getTime() > upgradeTimestamp);
+
+        if (!hasNewerTransaction) {
+            if (walletTier !== 'Starter') {
+                const priceMap: Record<string, string> = {
+                    'Pro': '25',
+                    'Elite': '50',
+                    'Supreme': '100'
+                };
+                const price = priceMap[walletTier] || '0';
+
+                return (
+                    <div className="mt-[16px]">
+                        <div className="flex items-center">
+                            <div
+                                style={{
+                                    width: '14px',
+                                    height: '14px',
+                                    borderRadius: '50%',
+                                    backgroundColor: '#5CFF00',
+                                    boxShadow: '0 0 0 5px rgba(92, 255, 0, 0.17)'
+                                }}
+                            />
+                            <span className="ml-[13px] text-white text-[14px] font-medium font-sans">
+                                Your wallet is upgraded to {walletTier}
+                            </span>
+                        </div>
+                        <p className="mt-[10px] text-white/60 text-[12px] font-normal font-sans leading-snug">
+                            You will be charged ₹{price} / month
+                        </p>
+                    </div>
+                );
+            }
+
             return (
                 <div className="mt-[16px]">
                     <p className="text-white/90 text-[13px] font-medium font-sans leading-tight tracking-tight">
@@ -26,30 +60,27 @@ const WalletCreated = () => {
             );
         }
 
-        const formattedAmount = latestTx.amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const formattedAmount = latestTx!.amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         let statusColor = "";
         let strokeColor = "";
         let title = "";
         let description = "";
 
-        if (latestTx.type === 'hold') {
+        if (latestTx!.type === 'hold') {
             statusColor = "#FACC15"; // Yellow
             strokeColor = "rgba(250, 204, 21, 0.17)";
             title = `On hold - ₹${formattedAmount}`;
             description = `₹${formattedAmount} is currently on hold. It’ll be released after delivery confirmation.`;
-        } else if (latestTx.type === 'debit') {
+        } else if (latestTx!.type === 'debit') {
             statusColor = "#D33313"; // Red
             strokeColor = "rgba(211, 51, 19, 0.17)";
             title = `Amount debited - ₹${formattedAmount}`;
             description = `₹${formattedAmount} was debited from your wallet after successful delivery confirmation.`;
-        } else if (latestTx.type === 'credit') {
+        } else if (latestTx!.type === 'credit') {
             statusColor = "#5CFF00"; // Green
             strokeColor = "rgba(92, 255, 0, 0.17)";
             title = `Amount Credited - ₹${formattedAmount}`;
             description = `₹${formattedAmount} was added to your wallet via UPI.`;
-        } else {
-            // Fallback
-            return null;
         }
 
         return (
@@ -121,7 +152,7 @@ const WalletCreated = () => {
                     <div
                         className="absolute inset-0 w-full h-full"
                         style={{
-                            backgroundImage: `url('${walletCardBg}')`,
+                            backgroundImage: `url('${tierCardMap[useUser().walletTier as keyof typeof tierCardMap]}')`,
                             backgroundSize: '100% 100%',
                             backgroundRepeat: 'no-repeat',
                             borderRadius: '20px'
@@ -144,9 +175,11 @@ const WalletCreated = () => {
 
                         <div className="mt-[8px]">
                             <span className="text-white/80 text-[14px] font-medium font-sans">
-                                Limit: ₹ 5,000.00
+                                Limit: {useUser().walletLimit.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}
                             </span>
                         </div>
+
+
 
                         {/* Dynamic Status Indicator */}
                         {renderStatusIndicator()}

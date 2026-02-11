@@ -14,7 +14,20 @@ import starterExpand from "@/assets/starter-expand.png";
 import proExpand from "@/assets/pro-expand.png";
 import eliteExpand from "@/assets/elite-expand.png";
 import supremeExpand from "@/assets/supreme-expand.png";
+
 import infoBg from "@/assets/info bg.png";
+
+// New Card Assets
+import starterCard from "@/assets/starter-created.png";
+import proCard from "@/assets/pro-created.png";
+import eliteCard from "@/assets/elite-created.png";
+import supremeCard from "@/assets/supreme-created.png";
+
+// Settings Card Assets
+import starterSettings from "@/assets/starter-settings.png";
+import proSettings from "@/assets/pro-settings.png";
+import eliteSettings from "@/assets/elite-settings.png";
+import supremeSettings from "@/assets/supreme-settings.png";
 
 export type { WalletTier };
 
@@ -222,7 +235,21 @@ export const tiers: TierConfig[] = [
 
 export const tierIconMap: Record<WalletTier, string> = {
     Starter: starterDiamond,
-    Pro: proChip,
-    Elite: eliteChip,
-    Supreme: supremeChip,
+    Pro: proDiamond,
+    Elite: eliteDiamond,
+    Supreme: supremeDiamond,
+};
+
+export const tierCardMap: Record<WalletTier, string> = {
+    Starter: starterCard,
+    Pro: proCard,
+    Elite: eliteCard,
+    Supreme: supremeCard,
+};
+
+export const tierSettingsCardMap: Record<WalletTier, string> = {
+    Starter: starterSettings,
+    Pro: proSettings,
+    Elite: eliteSettings,
+    Supreme: supremeSettings,
 };

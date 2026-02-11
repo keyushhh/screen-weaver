@@ -1,6 +1,7 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
+import { useUser } from "@/contexts/UserContext";
 import { tiers } from "@/lib/walletTiers";
 import infoBg from "@/assets/info bg.png";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
@@ -170,14 +171,62 @@ const WalletTierDetails = () => {
                 </div>
 
                 {/* CTA Button */}
-                <button
-                    onClick={() => navigate(currentTier.buttonAction, {
-                        state: { flow: 'upgrade', tier: currentTier.name }
-                    })}
-                    className="w-full h-[52px] rounded-full bg-[#6C72FF] text-white text-[16px] font-bold active:scale-95 transition-transform flex items-center justify-center shadow-lg shadow-[#6C72FF]/20 mt-[20px]"
-                >
-                    {currentTier.buttonText}
-                </button>
+                {/* CTA Button */}
+                {(() => {
+                    const { walletTier, setWalletTier } = useUser();
+                    const currentTierIndex = tiers.findIndex(t => t.name === walletTier);
+                    const viewedTierIndex = tiers.findIndex(t => t.name === currentTier.name);
+                    const isDowngrade = viewedTierIndex < currentTierIndex;
+                    const isUpgrade = viewedTierIndex > currentTierIndex;
+                    const isCurrent = viewedTierIndex === currentTierIndex;
+
+                    const handleAction = () => {
+                        if (isUpgrade) {
+                            navigate(currentTier.buttonAction, {
+                                state: { flow: 'upgrade', tier: currentTier.name }
+                            });
+                        } else if (isDowngrade) {
+                            navigate('/subscription-details', {
+                                state: { flow: 'downgrade', tier: currentTier.name }
+                            });
+                        }
+                    };
+
+                    if (isCurrent) {
+                        // User said "if he's already on starter, and clicks on starter, the current [compare plans] is fine."
+                        // But for other tiers, if they are on it, disabled or "Current Plan"?
+                        // Design implies we might just show "Current Plan" or keep default button if it's "Compare Plans" for starter.
+                        // Let's stick to default button text/action for Starter (which is Compare Plans / settings)
+                        // For others, maybe "Current Plan" disabled?
+                        if (currentTier.name === 'Starter') {
+                            return (
+                                <button
+                                    onClick={() => navigate(currentTier.buttonAction)}
+                                    className="w-full h-[52px] rounded-full bg-[#6C72FF] text-white text-[16px] font-bold active:scale-95 transition-transform flex items-center justify-center shadow-lg shadow-[#6C72FF]/20 mt-[20px]"
+                                >
+                                    {currentTier.buttonText}
+                                </button>
+                            );
+                        }
+                        return (
+                            <button
+                                disabled
+                                className="w-full h-[52px] rounded-full bg-[#2C2C2C] text-white/50 text-[16px] font-bold flex items-center justify-center mt-[20px]"
+                            >
+                                Current Plan
+                            </button>
+                        );
+                    }
+
+                    return (
+                        <button
+                            onClick={handleAction}
+                            className="w-full h-[52px] rounded-full bg-[#6C72FF] text-white text-[16px] font-bold active:scale-95 transition-transform flex items-center justify-center shadow-lg shadow-[#6C72FF]/20 mt-[20px]"
+                        >
+                            {isDowngrade ? "Downgrade Now" : "Upgrade Now"}
+                        </button>
+                    );
+                })()}
             </div>
         </div>
     );

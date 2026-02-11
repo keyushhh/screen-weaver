@@ -41,6 +41,8 @@ interface UserState {
 
   /* Wallet Tier */
   walletTier: WalletTier;
+  walletLimit: number;
+  upgradeTimestamp: number | null;
 }
 
 interface UserContextType extends UserState {
@@ -83,6 +85,8 @@ const defaultState: UserState = {
   isWalletActivated: false,
 
   walletTier: 'Starter',
+  walletLimit: 5000,
+  upgradeTimestamp: null,
 };
 
 /* -------------------- Context -------------------- */
@@ -185,7 +189,14 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const setWalletTier = (tier: WalletTier) => {
-    setState(prev => ({ ...prev, walletTier: tier }));
+    let limit = 5000;
+    switch (tier) {
+      case 'Starter': limit = 5000; break;
+      case 'Pro': limit = 15000; break;
+      case 'Elite': limit = 50000; break;
+      case 'Supreme': limit = 150000; break;
+    }
+    setState(prev => ({ ...prev, walletTier: tier, walletLimit: limit, upgradeTimestamp: Date.now() }));
   };
 
   /* -------------------- Provider -------------------- */

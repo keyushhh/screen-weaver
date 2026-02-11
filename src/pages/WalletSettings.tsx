@@ -5,9 +5,8 @@ import { useUser } from "@/contexts/UserContext";
 
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 import tierCardActive from "@/assets/selected wallet.png";
-import topCardNew from "@/assets/top-card-new.png";
 import tierCardInactive from "@/assets/non selected card.png";
-import { tiers, tierIconMap } from "@/lib/walletTiers";
+import { tiers, tierIconMap, tierSettingsCardMap } from "@/lib/walletTiers";
 
 const WalletSettings = () => {
     const navigate = useNavigate();
@@ -17,7 +16,15 @@ const WalletSettings = () => {
         tiers.find((tier) => tier.name === walletTier) || tiers[0];
 
     const handleUpgrade = () => {
-        // Upgrade logic here
+        const currentIndex = tiers.findIndex(t => t.name === walletTier);
+        const nextTier = tiers[currentIndex + 1];
+        if (nextTier) {
+            navigate(`/wallet-tier/${nextTier.name.toLowerCase()}`);
+        } else {
+            // If supreme, maybe just go to supreme detail or do nothing?
+            // For now, let's navigate to Supreme detail if we are at Supreme
+            navigate(`/wallet-tier/${walletTier.toLowerCase()}`);
+        }
     };
 
     return (
@@ -53,7 +60,7 @@ const WalletSettings = () => {
                     <div
                         className="relative w-full rounded-[28px] overflow-hidden"
                         style={{
-                            backgroundImage: `url(${topCardNew})`,
+                            backgroundImage: `url(${tierSettingsCardMap[currentTier.name]})`,
                             backgroundSize: "cover",
                             backgroundPosition: "center",
                             backgroundRepeat: "no-repeat",
