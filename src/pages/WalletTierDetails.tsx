@@ -1,125 +1,109 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
-import bgDarkMode from "@/assets/bg-dark-mode.png";
 import { tiers } from "@/lib/walletTiers";
-
-// Import expansion images
-import starterImg from "@/assets/wallet-starter.png";
-import proImg from "@/assets/pro-expand.png";
-import eliteImg from "@/assets/elite-expand.png";
-import supremeImg from "@/assets/supreme-expand.png";
 
 const WalletTierDetails = () => {
     const { tierId } = useParams<{ tierId: string }>();
     const navigate = useNavigate();
-
-    const tierImages: Record<string, string> = {
-        starter: starterImg,
-        pro: proImg,
-        elite: eliteImg,
-        supreme: supremeImg
-    };
-
     const currentTier = tiers.find(t => t.name.toLowerCase() === tierId?.toLowerCase());
-    const currentImage = tierId ? tierImages[tierId.toLowerCase()] : null;
 
-    if (!currentTier || !currentImage) {
-        return (
-             <div className="h-full w-full bg-black text-white flex flex-col items-center justify-center safe-area-top safe-area-bottom">
-                <p>Tier not found</p>
-                <button onClick={() => navigate(-1)} className="mt-4 text-blue-500">Go Back</button>
-             </div>
-        );
-    }
+    if (!currentTier) return null;
 
     return (
-        <div
-            className="h-full w-full overflow-hidden flex flex-col safe-area-top safe-area-bottom"
-            style={{
-                fontFamily: "'Satoshi', sans-serif",
-                backgroundColor: "#0a0a12",
-                backgroundImage: `url(${bgDarkMode})`,
-                backgroundSize: "cover",
-                backgroundPosition: "top center",
-                backgroundRepeat: "no-repeat",
-            }}
-        >
-            {/* Header */}
-            <div className="shrink-0 relative flex items-center justify-center w-full px-5 pt-6 pb-0 z-10">
+        <div className="h-full w-full bg-black text-white flex flex-col relative overflow-y-auto no-scrollbar font-satoshi safe-area-top safe-area-bottom">
+
+            {/* Header Section */}
+            <div className="relative w-full shrink-0">
+                <img
+                    src={currentTier.headerImage}
+                    alt={currentTier.name}
+                    className="w-full h-auto object-cover block"
+                />
+
+                {/* Back Button */}
                 <button
                     onClick={() => navigate(-1)}
-                    className="absolute left-5 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md active:scale-95 transition-transform"
+                    className="absolute top-6 left-5 w-10 h-10 flex items-center justify-center rounded-full bg-black/20 backdrop-blur-md z-50 active:scale-95 transition-transform border border-white/10"
                 >
                     <ChevronLeft className="w-6 h-6 text-white" />
                 </button>
-                <h1 className="text-white text-[22px] font-medium tracking-normal text-center uppercase">
-                    {currentTier.name} Wallet
-                </h1>
+
+                {/* Header Text Overlay */}
+                <div className="absolute bottom-8 left-6 right-6 z-20">
+                     <h1 className="text-white text-[32px] font-bold uppercase tracking-wide mb-1 drop-shadow-lg">
+                        {currentTier.headerTitle}
+                     </h1>
+                     <p className="text-white/90 text-[18px] font-medium drop-shadow-md">
+                        {currentTier.headerSubtitle}
+                     </p>
+                </div>
             </div>
 
-            {/* Scrollable Content */}
-            <div className="flex-1 w-full overflow-y-auto no-scrollbar flex flex-col items-center pt-8 pb-8 px-5">
-
-                 {/* Tier Image */}
-                 <img
-                    src={currentImage}
-                    alt={`${currentTier.name} details`}
-                    className="w-full h-auto object-contain max-w-[340px] mb-8"
-                 />
-
-                 {/* Details Container */}
-                 <div className="w-full rounded-[20px] bg-white/5 backdrop-blur-md p-6 border border-white/10 flex flex-col gap-5">
-
+            {/* Info Section */}
+            <div
+                className="flex-1 w-full relative flex flex-col -mt-6 pt-10 pb-8 px-6 z-10"
+                style={{
+                    backgroundImage: `url(${currentTier.infoBg})`,
+                    backgroundSize: '100% 100%',
+                    backgroundRepeat: 'no-repeat',
+                    minHeight: '500px'
+                }}
+            >
+                {/* Info List */}
+                <div className="space-y-6 mb-8">
                     {/* Verification */}
                     <div>
-                        <p className="text-white/50 text-[14px] font-medium mb-1">
-                            Verification
-                        </p>
-                        <p className="text-white text-[16px] font-medium">
-                            {currentTier.verification}
-                        </p>
+                        <p className="text-white/50 text-[13px] font-medium uppercase mb-1 tracking-wider">Verification</p>
+                        <p className="text-white text-[16px] font-medium">{currentTier.verification}</p>
                     </div>
 
                     {/* Wallet Limit */}
                     <div>
-                        <p className="text-white/50 text-[14px] font-medium mb-1">
-                            Wallet limit
-                        </p>
-                        <p className="text-white text-[16px] font-medium">
-                            {currentTier.walletLimit}
-                        </p>
+                        <p className="text-white/50 text-[13px] font-medium uppercase mb-1 tracking-wider">Wallet limit</p>
+                        <p className="text-white text-[16px] font-medium">{currentTier.walletLimit}</p>
                     </div>
 
-                    {/* Withdraw Limit */}
+                    {/* Daily Top Up Limit */}
                     <div>
-                        <p className="text-white/50 text-[14px] font-medium mb-1">
-                            Withdraw limit
-                        </p>
-                        <p className="text-white text-[16px] font-medium">
-                            {currentTier.withdrawLimit}
-                        </p>
+                        <p className="text-white/50 text-[13px] font-medium uppercase mb-1 tracking-wider">Daily top up limit</p>
+                        <p className="text-white text-[16px] font-medium">{currentTier.dailyTopUpLimit}</p>
+                    </div>
+
+                    {/* Withdrawals */}
+                    <div>
+                        <p className="text-white/50 text-[13px] font-medium uppercase mb-1 tracking-wider">Withdrawals</p>
+                        <p className="text-white text-[16px] font-medium">{currentTier.withdrawals}</p>
                     </div>
 
                     {/* Limitations */}
                     <div>
-                        <p className="text-white/50 text-[14px] font-medium mb-1">
-                            Limitations
-                        </p>
-                        <p className="text-white text-[16px] font-medium leading-snug">
-                            {currentTier.limitations}
-                        </p>
+                        <p className="text-white/50 text-[13px] font-medium uppercase mb-1 tracking-wider">Limitations</p>
+                        <p className="text-white text-[16px] font-medium leading-relaxed opacity-90">{currentTier.limitations}</p>
                     </div>
+                </div>
+
+                {/* Downgrade Options - Conditional if present, or generic */}
+                 <div className="mb-8">
+                    <p className="text-white/50 text-[13px] font-medium uppercase mb-1 tracking-wider">Downgrade Options</p>
+                    <p className="text-white text-[16px] font-medium">{currentTier.downgradeOptions || "Anytime"}</p>
                  </div>
 
-                 {/* CTA */}
-                 <button
-                    onClick={() => navigate('/wallet-settings')}
-                    className="mt-8 w-full h-[52px] rounded-full bg-[#6C72FF] text-white text-[16px] font-bold active:scale-95 transition-transform"
-                 >
-                    Compare Plans
-                 </button>
+                {/* Note Container */}
+                <div className="bg-[#1C1C1E] rounded-[16px] p-5 mb-8 border border-white/5">
+                    <p className="text-[#A4A4A4] text-[14px] font-medium leading-relaxed">
+                        <span className="text-white font-bold block mb-2">Note:</span>
+                        {currentTier.note}
+                    </p>
+                </div>
 
+                {/* CTA Button */}
+                <button
+                    onClick={() => navigate(currentTier.buttonAction)}
+                    className="w-full h-[52px] rounded-full bg-[#6C72FF] text-white text-[16px] font-bold active:scale-95 transition-transform flex items-center justify-center shadow-lg shadow-[#6C72FF]/20"
+                >
+                    {currentTier.buttonText}
+                </button>
             </div>
         </div>
     );
