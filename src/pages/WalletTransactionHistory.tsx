@@ -15,6 +15,10 @@ import successIcon from "@/assets/success.svg";
 import processingIcon from "@/assets/processing.svg";
 import failedIcon from "@/assets/failed.svg";
 import closeIcon from "@/assets/close.svg";
+import detailsIcon from "@/assets/details.svg";
+import copyIcon from "@/assets/copy.svg";
+import transactionPopupBg from "@/assets/transaction-popup.png";
+import popupCloseBtnBg from "@/assets/pop-up-close-btn.png";
 import { useUser, WalletTransaction } from "@/contexts/UserContext";
 
 const WalletTransactionHistory = () => {
@@ -27,6 +31,7 @@ const WalletTransactionHistory = () => {
         type: "All",
         method: "All"
     });
+    const [selectedTx, setSelectedTx] = useState<WalletTransaction | null>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     // Close dropdown when clicking outside
@@ -239,6 +244,156 @@ const WalletTransactionHistory = () => {
         return { title, subtitle };
     };
 
+    const TransactionDetailsPopup = ({ tx, onClose }: { tx: WalletTransaction, onClose: () => void }) => {
+        const { title } = getTransactionDisplay(tx);
+        const amountColor = tx.type === 'credit' ? '#1CB956' : '#FF1E1E';
+
+        // Generate a pseudo-random 15 char ID if not present or use actual ID trimmed
+        const displayId = (tx.id.replace(/-/g, '').substring(0, 15).toUpperCase()) || "TXN1234567890AB";
+
+        const handleCopy = (e: React.MouseEvent) => {
+            e.stopPropagation();
+            navigator.clipboard.writeText(displayId);
+            // Optional: Show toast or feedback
+        };
+
+        return (
+            <div
+                className="fixed inset-0 z-[100] flex flex-col items-center justify-center p-5"
+                onClick={onClose}
+            >
+                {/* Full page blur backdrop */}
+                <div className="absolute inset-0 bg-black/40 backdrop-blur-[10px]" />
+
+                {/* Pop-up Container */}
+                <div
+                    className="relative z-10 w-[362px] h-[436px] flex flex-col items-center"
+                    style={{
+                        backgroundImage: `url(${transactionPopupBg})`,
+                        backgroundSize: '100% 100%',
+                        backgroundRepeat: 'no-repeat',
+                        borderRadius: '13px', // Keep for overflow control if needed
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    {/* Details Icon */}
+                    <img src={detailsIcon} alt="" className="w-[30px] h-[30px] mt-[22px]" />
+
+                    {/* Header */}
+                    <h2
+                        className="mt-[12px] text-white text-[16px] font-bold leading-[120%] tracking-[-0.3px] text-center"
+                        style={{ fontFamily: "'Satoshi', sans-serif" }}
+                    >
+                        Transaction Details
+                    </h2>
+
+                    {/* Transaction ID Pill */}
+                    <div
+                        className="mt-[19px] w-[213px] h-[40px] flex items-center justify-center bg-[#191919]/50 rounded-full border border-white/10"
+                        onClick={handleCopy}
+                    >
+                        <span
+                            className="text-white text-[17px] font-bold leading-[120%] tracking-[-0.3px]"
+                            style={{ fontFamily: "'Satoshi', sans-serif" }}
+                        >
+                            {displayId}
+                        </span>
+                        <img src={copyIcon} alt="Copy" className="w-[14px] h-[14px] ml-[8px] cursor-pointer" />
+                    </div>
+
+                    {/* Detail Container */}
+                    <div
+                        className="mt-[9px] w-[318px] h-[174px] rounded-[16px] p-[11px_15px] flex flex-col justify-between"
+                        style={{
+                            background: '#000000E5',
+                        }}
+                    >
+                        {(() => {
+                            const { title, subtitle } = getTransactionDisplay(tx);
+                            const methodId = tx.metadata?.paymentMethodId as string | undefined;
+
+                            const getPaymentMode = () => {
+                                if (!methodId) {
+                                    if (subtitle.includes("UPI")) return "UPI";
+                                    if (subtitle.includes("Cards")) return "Credit/Debit Card";
+                                    if (subtitle.includes("Netbanking")) return "Netbanking";
+                                    if (subtitle.includes("Amazon")) return "Amazon Wallet";
+                                    return subtitle.replace("Added via ", "");
+                                }
+                                if (['cred', 'gpay', 'phonepe', 'upi-id'].includes(methodId)) return "Google Pay (UPI)";
+                                if (methodId === 'hdfc-card') return "Credit/Debit Card";
+                                if (methodId === 'netbanking') return "Netbanking";
+                                if (methodId === 'amazon') return "Amazon Wallet";
+                                return "Netbanking";
+                            };
+
+                            const getStatusLabel = () => {
+                                if (tx.status === 'success') return 'Completed';
+                                if (tx.status === 'pending') return 'Processing';
+                                if (tx.status === 'failed') return 'Failed';
+                                return tx.status;
+                            };
+
+                            const rowData = [
+                                { label: "Transaction Type", value: title },
+                                { label: "Transaction Purpose", value: subtitle === "Wallet Top Up" ? "Wallet Top Up" : subtitle },
+                                { label: "Time", value: new Date(tx.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) },
+                                { label: "Date", value: new Date(tx.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) },
+                                { label: "Payment Mode", value: getPaymentMode() },
+                                { label: "Status", value: getStatusLabel() }
+                            ];
+
+                            return rowData.map((row, i) => (
+                                <div key={i} className="flex justify-between items-center" style={{ fontFamily: "'Satoshi', sans-serif", fontSize: '12px', fontWeight: 500, letterSpacing: '-0.3px', lineHeight: '120%' }}>
+                                    <span style={{ color: '#FFFFFF', opacity: 0.5 }}>{row.label}</span>
+                                    <span style={{ color: '#FFFFFF', opacity: 1 }}>{row.value}</span>
+                                </div>
+                            ));
+                        })()}
+                    </div>
+
+                    {/* CTA */}
+                    <button
+                        className="mt-[10px] w-[318px] h-[44px] flex items-center justify-center rounded-full text-white text-[14px] font-bold active:scale-95 transition-transform"
+                        style={{
+                            backgroundColor: "#171717",
+                            border: "1px solid rgba(255,255,255,0.1)"
+                        }}
+                    >
+                        Download Receipt
+                    </button>
+
+                    {/* Help Link */}
+                    <p
+                        className="mt-[17px] text-white text-[12px] font-medium text-center"
+                        style={{ fontFamily: "'Satoshi', sans-serif" }}
+                    >
+                        Need help with this transaction? <span className="underline text-[#148DFF] cursor-pointer">Click here.</span>
+                    </p>
+                </div>
+
+                {/* Close Button */}
+                <button
+                    onClick={onClose}
+                    className="relative z-10 mt-[19px] w-[137px] h-[42px] flex items-center justify-center gap-[6px] active:scale-95 transition-transform shrink-0"
+                    style={{
+                        backgroundImage: `url(${popupCloseBtnBg})`,
+                        backgroundSize: '100% 100%',
+                        backgroundRepeat: 'no-repeat',
+                    }}
+                >
+                    <img src={closeIcon} alt="" className="w-6 h-6" />
+                    <span
+                        className="text-white text-[16px] font-medium leading-[120%]"
+                        style={{ fontFamily: "'Satoshi', sans-serif" }}
+                    >
+                        Close
+                    </span>
+                </button>
+            </div>
+        );
+    };
+
     return (
         <div
             className="h-full w-full overflow-hidden flex flex-col safe-area-top safe-area-bottom"
@@ -424,7 +579,7 @@ const WalletTransactionHistory = () => {
                                         });
 
                                         return (
-                                            <div key={tx.id}>
+                                            <div key={tx.id} onClick={() => setSelectedTx(tx)} className="cursor-pointer active:opacity-70 transition-opacity">
                                                 <div className="flex justify-between items-start">
                                                     <div className="flex items-start gap-[16px]">
                                                         <img src={icon} alt="" className="w-[32px] h-[32px]" />
@@ -466,6 +621,13 @@ const WalletTransactionHistory = () => {
                     });
                 })()}
             </div>
+            {/* Transaction Details Pop-up */}
+            {selectedTx && (
+                <TransactionDetailsPopup
+                    tx={selectedTx}
+                    onClose={() => setSelectedTx(null)}
+                />
+            )}
         </div>
     );
 };
