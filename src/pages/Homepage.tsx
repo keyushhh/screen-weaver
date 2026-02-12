@@ -168,116 +168,89 @@ const Homepage = () => {
 
   return (
     <div
-      className="h-screen w-full overflow-y-auto overscroll-y-auto flex flex-col safe-area-top safe-area-bottom pb-[120px]"
+      className="fixed inset-0 flex flex-col overflow-hidden bg-[#0a0a12]"
       style={{
-        backgroundColor: "#0a0a12",
         backgroundImage: `url(${bgDarkMode})`,
         backgroundSize: "cover",
         backgroundPosition: "top center",
         backgroundRepeat: "no-repeat",
       }}
     >
+      {/* Fixed Top Section (Header, Balance, Actions, Banner) */}
+      <div className="shrink-0 flex flex-col safe-area-top z-10">
 
-      {/* Header */}
-      <div className="px-5 pt-12 flex items-start justify-between">
-        <div className="space-y-1 max-w-[70%]">
-          {savedAddress ? (
-            <div className="flex items-center gap-1">
-              <img src={getTagIcon(savedAddress.tag)} alt={savedAddress.tag} className="w-3 h-3" />
-              <p className="text-[14px] font-bold text-white font-satoshi tracking-wider uppercase">
-                {savedAddress.tag}
-              </p>
-            </div>
-          ) : (
-            <p className="text-[12px] text-muted-foreground font-medium tracking-wider">DELIVERING</p>
-          )}
+        {/* Header */}
+        <div className="px-5 pt-12 flex items-start justify-between">
+          <div className="space-y-1 max-w-[70%]">
+            {savedAddress ? (
+              <div className="flex items-center gap-1">
+                <img src={getTagIcon(savedAddress.tag)} alt={savedAddress.tag} className="w-3 h-3" />
+                <p className="text-[14px] font-bold text-white font-satoshi tracking-wider uppercase">
+                  {savedAddress.tag}
+                </p>
+              </div>
+            ) : (
+              <p className="text-[12px] text-muted-foreground font-medium tracking-wider">DELIVERING</p>
+            )}
 
+            <button
+              onClick={() => {
+                if (savedAddress) {
+                  setIsAddressSheetOpen(true);
+                } else {
+                  navigate('/add-address');
+                }
+              }}
+              className="flex items-center gap-1 text-foreground text-[14px] font-normal w-full"
+            >
+              <span className="truncate block">
+                {getAddressDisplay()}
+              </span>
+              <ChevronDown className="w-4 h-4 shrink-0" />
+            </button>
+          </div>
+          <button onClick={() => navigate('/settings')}>
+            <img src={avatarImg} alt="Profile" className="w-12 h-12 rounded-full" />
+          </button>
+        </div>
+
+        {/* Address Selection Sheet */}
+        <AddressSelectionSheet
+          isOpen={isAddressSheetOpen}
+          onClose={() => setIsAddressSheetOpen(false)}
+          onAddressSelect={handleAddressSelect}
+        />
+
+        {/* Balance Section */}
+        <div className="flex flex-col items-center mt-8 space-y-4">
+          <div className="flex items-center gap-2">
+            <p className="text-muted-foreground text-[14px]">Available Balance</p>
+            <button onClick={() => setShowBalance(!showBalance)} className="p-1">
+              {showBalance ? <Eye className="w-5 h-5 text-muted-foreground" /> : <EyeOff className="w-5 h-5 text-muted-foreground" />}
+            </button>
+          </div>
+          <p className="text-foreground text-[32px] font-semibold">
+            ₹{showBalance ? walletBalance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "******"}
+          </p>
           <button
-            onClick={() => {
-              if (savedAddress) {
-                setIsAddressSheetOpen(true);
-              } else {
-                navigate('/add-address');
-              }
-            }}
-            className="flex items-center gap-1 text-foreground text-[14px] font-normal w-full"
-          >
-            <span className="truncate block">
-              {getAddressDisplay()}
-            </span>
-            <ChevronDown className="w-4 h-4 shrink-0" />
-          </button>
-        </div>
-        <button onClick={() => navigate('/settings')}>
-          <img src={avatarImg} alt="Profile" className="w-12 h-12 rounded-full" />
-        </button>
-      </div>
-
-      {/* Address Selection Sheet */}
-      <AddressSelectionSheet
-        isOpen={isAddressSheetOpen}
-        onClose={() => setIsAddressSheetOpen(false)}
-        onAddressSelect={handleAddressSelect}
-      />
-
-      {/* Balance Section */}
-      <div className="flex flex-col items-center mt-8 space-y-4">
-        <div className="flex items-center gap-2">
-          <p className="text-muted-foreground text-[14px]">Available Balance</p>
-          <button onClick={() => setShowBalance(!showBalance)} className="p-1">
-            {showBalance ? <Eye className="w-5 h-5 text-muted-foreground" /> : <EyeOff className="w-5 h-5 text-muted-foreground" />}
-          </button>
-        </div>
-        <p className="text-foreground text-[32px] font-semibold">
-          ₹{showBalance ? walletBalance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "******"}
-        </p>
-        <button
-          onClick={() => navigate('/order-cash')}
-          className="flex items-center justify-center gap-2 px-6 py-3 text-foreground text-[14px] font-medium h-12 w-[180px]"
-          style={{
-            backgroundImage: `url(${orderCashBg})`,
-            backgroundSize: "100% 100%",
-            backgroundRepeat: "no-repeat",
-          }}
-        >
-          <img src={iconOrderCash} alt="Order Cash" className="w-[22px] h-[22px]" />
-          Order Cash
-        </button>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="flex justify-center gap-6 mt-8 px-5">
-        {/* Add Money - Custom Circle Button */}
-        <button
-          onClick={() => navigate('/wallet-add-money')}
-          className="flex flex-col items-center gap-2"
-        >
-          <div
-            className="w-[52px] h-[52px] flex items-center justify-center"
+            onClick={() => navigate('/order-cash')}
+            className="flex items-center justify-center gap-2 px-6 py-3 text-foreground text-[14px] font-medium h-12 w-[180px]"
             style={{
-              backgroundImage: `url(${circleButtonBg})`,
+              backgroundImage: `url(${orderCashBg})`,
               backgroundSize: "100% 100%",
               backgroundRepeat: "no-repeat",
             }}
           >
-            <img src={addIcon} alt="Add" className="w-[22px] h-[22px]" />
-          </div>
-          <span className="text-foreground text-[12px]">Add Money</span>
-        </button>
+            <img src={iconOrderCash} alt="Order Cash" className="w-[22px] h-[22px]" />
+            Order Cash
+          </button>
+        </div>
 
-        {/* Other Actions */}
-        {[{
-          icon: iconWallet,
-          label: "Wallet",
-          action: () => navigate('/wallet')
-        }, {
-          icon: iconFxConvert,
-          label: "FX Convert",
-          action: () => { }
-        }].map(action => (
+        {/* Quick Actions */}
+        <div className="flex justify-center gap-6 mt-8 px-5">
+          {/* Add Money - Custom Circle Button */}
           <button
-            key={action.label}
-            onClick={action.action}
+            onClick={() => navigate('/wallet-add-money')}
             className="flex flex-col items-center gap-2"
           >
             <div
@@ -288,116 +261,146 @@ const Homepage = () => {
                 backgroundRepeat: "no-repeat",
               }}
             >
-              <img src={action.icon} alt={action.label} className="w-[22px] h-[22px]" />
+              <img src={addIcon} alt="Add" className="w-[22px] h-[22px]" />
             </div>
-            <span className="text-foreground text-[12px]">{action.label}</span>
+            <span className="text-foreground text-[12px]">Add Money</span>
           </button>
-        ))}
-      </div>
 
-      {/* Active Order OR Referral Banner */}
-      {activeOrder ? (
-        <div className="mx-5 mt-6 mb-[16px] flex flex-col">
-          {/* Header Row (Top Container) */}
-          <div
-            className="w-full px-[16px] py-[9px] flex justify-between items-start z-10 shrink-0 rounded-t-[14px]"
-            style={{
-              backgroundColor: "#000000",
-            }}
-          >
-            <span className="text-white text-[12px] font-medium font-sans whitespace-nowrap mr-2">
-              Delivering to - {activeOrder.addresses?.label || "Home"}
-            </span>
-            <span className="text-white text-[12px] font-medium font-sans text-right leading-tight">
-              {getActiveOrderAddressDisplay()}
-            </span>
-          </div>
+          {/* Other Actions */}
+          {[{
+            icon: iconWallet,
+            label: "Wallet",
+            action: () => navigate('/wallet')
+          }, {
+            icon: iconFxConvert,
+            label: "FX Convert",
+            action: () => { }
+          }].map(action => (
+            <button
+              key={action.label}
+              onClick={action.action}
+              className="flex flex-col items-center gap-2"
+            >
+              <div
+                className="w-[52px] h-[52px] flex items-center justify-center"
+                style={{
+                  backgroundImage: `url(${circleButtonBg})`,
+                  backgroundSize: "100% 100%",
+                  backgroundRepeat: "no-repeat",
+                }}
+              >
+                <img src={action.icon} alt={action.label} className="w-[22px] h-[22px]" />
+              </div>
+              <span className="text-foreground text-[12px]">{action.label}</span>
+            </button>
+          ))}
+        </div>
 
-          {/* Status & Map Container (Bottom Container) */}
-          <div
-            className="w-full rounded-b-[14px] flex cursor-pointer"
-            style={{
-              backgroundColor: "rgba(25, 25, 25, 0.34)",
-              padding: "12px",
-              marginTop: 0
-            }}
-            onClick={() => navigate(`/order-details/${activeOrder.id}`, { state: { order: activeOrder } })}
-          >
-            {/* Left Text */}
-            <div className="flex-1 flex flex-col justify-start pr-2">
-              <p className="text-white text-[14px] font-medium font-sans leading-snug mb-[12px]">
-                We’re assigning a delivery<br />partner soon!
-              </p>
-              <p className="text-white text-[12px] font-light font-sans leading-snug mb-[4px]">
-                Assigning a delivery partner in the next 2 minutes.
-              </p>
-            </div>
-
-            {/* Mini Map */}
+        {/* Active Order OR Referral Banner */}
+        {activeOrder ? (
+          <div className="mx-5 mt-6 mb-[16px] flex flex-col">
+            {/* Header Row (Top Container) */}
             <div
-              onClick={() => navigate('/order-tracking')}
-              className="shrink-0 relative rounded-[8px] overflow-hidden cursor-pointer active:scale-95 transition-transform"
+              className="w-full px-[16px] py-[9px] flex justify-between items-start z-10 shrink-0 rounded-t-[14px]"
               style={{
-                width: "110px",
-                height: "82px",
-                backgroundColor: "#1A1A1A"
+                backgroundColor: "#000000",
               }}
             >
-              <Map
-                {...viewState}
-                style={{ width: "100%", height: "100%" }}
-                mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
-                attributionControl={false}
-                interactive={false}
-              >
-                {/* Dashed Route Line */}
-                <Source id="route" type="geojson" data={routeGeoJson}>
-                  <Layer {...routeLayer} />
-                </Source>
-
-                {/* Delivery/User Location Marker */}
-                <Marker latitude={viewState.latitude} longitude={viewState.longitude}>
-                  <img src={currentLocationIcon} alt="User" className="w-4 h-4" />
-                </Marker>
-
-                {/* Mock Rider Marker (slightly offset) */}
-                <Marker
-                  latitude={viewState.latitude + 0.002}
-                  longitude={viewState.longitude + 0.002}
-                >
-                  <img src={deliveryRiderIcon} alt="Rider" className="w-6 h-6" />
-                </Marker>
-              </Map>
+              <span className="text-white text-[12px] font-medium font-sans whitespace-nowrap mr-2">
+                Delivering to - {activeOrder.addresses?.label || "Home"}
+              </span>
+              <span className="text-white text-[12px] font-medium font-sans text-right leading-tight">
+                {getActiveOrderAddressDisplay()}
+              </span>
             </div>
-          </div>
-        </div>
-      ) : (
-        <div className="mx-5 mt-6">
-          <div className="rounded-2xl overflow-hidden flex" style={{
-            backgroundImage: `url(${bannerBg})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center'
-          }}>
-            <div className="flex-1 p-4 flex flex-col justify-center">
-              <div className="flex items-center gap-2 mb-2">
-                <img src={iconGift} alt="Gift" className="w-5 h-5" />
+
+            {/* Status & Map Container (Bottom Container) */}
+            <div
+              className="w-full rounded-b-[14px] flex cursor-pointer"
+              style={{
+                backgroundColor: "rgba(25, 25, 25, 0.34)",
+                padding: "12px",
+                marginTop: 0
+              }}
+              onClick={() => navigate(`/order-details/${activeOrder.id}`, { state: { order: activeOrder } })}
+            >
+              {/* Left Text */}
+              <div className="flex-1 flex flex-col justify-start pr-2">
+                <p className="text-white text-[14px] font-medium font-sans leading-snug mb-[12px]">
+                  We’re assigning a delivery<br />partner soon!
+                </p>
+                <p className="text-white text-[12px] font-light font-sans leading-snug mb-[4px]">
+                  Assigning a delivery partner in the next 2 minutes.
+                </p>
               </div>
-              <h3 className="text-foreground text-[16px] font-semibold mb-1">Refer & Earn!</h3>
-              <p className="text-muted-foreground text-[12px]">Earn ₹50 on each referral</p>
-            </div>
-            <img src={bannerImage} alt="Referral" className="w-[160px] h-[104px] object-cover rounded-r-2xl" />
-          </div>
-          {/* Carousel Dots */}
-          <div className="flex justify-center gap-2 mt-3">
-            <div className="w-2 h-2 rounded-full bg-primary" />
-            <div className="w-2 h-2 rounded-full bg-muted" />
-          </div>
-        </div>
-      )}
 
-      {/* Recent Transactions */}
-      <div className="mx-5 mt-6">
-        <div className="flex items-center justify-between mb-4">
+              {/* Mini Map */}
+              <div
+                onClick={() => navigate('/order-tracking')}
+                className="shrink-0 relative rounded-[8px] overflow-hidden cursor-pointer active:scale-95 transition-transform"
+                style={{
+                  width: "110px",
+                  height: "82px",
+                  backgroundColor: "#1A1A1A"
+                }}
+              >
+                <Map
+                  {...viewState}
+                  style={{ width: "100%", height: "100%" }}
+                  mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
+                  attributionControl={false}
+                  interactive={false}
+                >
+                  {/* Dashed Route Line */}
+                  <Source id="route" type="geojson" data={routeGeoJson}>
+                    <Layer {...routeLayer} />
+                  </Source>
+
+                  {/* Delivery/User Location Marker */}
+                  <Marker latitude={viewState.latitude} longitude={viewState.longitude}>
+                    <img src={currentLocationIcon} alt="User" className="w-4 h-4" />
+                  </Marker>
+
+                  {/* Mock Rider Marker (slightly offset) */}
+                  <Marker
+                    latitude={viewState.latitude + 0.002}
+                    longitude={viewState.longitude + 0.002}
+                  >
+                    <img src={deliveryRiderIcon} alt="Rider" className="w-6 h-6" />
+                  </Marker>
+                </Map>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="mx-5 mt-6">
+            <div className="rounded-2xl overflow-hidden flex" style={{
+              backgroundImage: `url(${bannerBg})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            }}>
+              <div className="flex-1 p-4 flex flex-col justify-center">
+                <div className="flex items-center gap-2 mb-2">
+                  <img src={iconGift} alt="Gift" className="w-5 h-5" />
+                </div>
+                <h3 className="text-foreground text-[16px] font-semibold mb-1">Refer & Earn!</h3>
+                <p className="text-muted-foreground text-[12px]">Earn ₹50 on each referral</p>
+              </div>
+              <img src={bannerImage} alt="Referral" className="w-[160px] h-[104px] object-cover rounded-r-2xl" />
+            </div>
+            {/* Carousel Dots */}
+            <div className="flex justify-center gap-2 mt-3">
+              <div className="w-2 h-2 rounded-full bg-primary" />
+              <div className="w-2 h-2 rounded-full bg-muted" />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Flexible Transaction Section (Scrollable) */}
+      <div className="flex-1 min-h-0 flex flex-col w-full">
+        {/* Fixed Title Row */}
+        <div className="mx-5 mt-6 shrink-0 flex items-center justify-between mb-4">
           <h3 className="text-foreground text-[16px] font-medium">Recent Transactions</h3>
           <button
             onClick={() => navigate('/order-history')}
@@ -410,77 +413,81 @@ const Homepage = () => {
             View All
           </button>
         </div>
-        <div className="border-t border-white/10 pt-[14px] min-h-[100px]">
-          {transactionHistory.length > 0 ? (
-            <div className="w-full">
-              {/* Headers */}
-              <div className="grid grid-cols-[1fr_100px_80px] gap-x-6 mb-[12px] px-0">
-                <div>
-                  <span className="text-[#7E7E7E] text-[12px] font-normal font-sans">
-                    Details
-                  </span>
-                </div>
-                <div className="text-right">
-                  <span className="text-[#7E7E7E] text-[12px] font-normal font-sans">
-                    Price
-                  </span>
-                </div>
-                <div className="text-right">
-                  <span className="text-[#7E7E7E] text-[12px] font-normal font-sans">
-                    Status
-                  </span>
-                </div>
-              </div>
 
-              {/* Rows */}
-              <div className="flex flex-col gap-[16px]">
-                {transactionHistory.map((tx) => (
-                  <div
-                    key={tx.id}
-                    className="grid grid-cols-[1fr_100px_80px] gap-x-6 items-start cursor-pointer hover:opacity-80 transition-opacity"
-                    onClick={() => navigate(`/order-details/${tx.id}`, { state: { order: tx } })}
-                  >
-                    {/* Details Column */}
-                    <div className="flex items-start">
-                      <img src={ongoingIcon} alt="Status" className="w-[26px] h-[26px]" />
-                      <div className="ml-[7px] flex flex-col">
-                        <span className="text-white text-[13px] font-normal font-sans leading-none mb-[2px]">
-                          {tx.addresses?.label ? `Order to ${tx.addresses.label}` : "Cash Order"}
+        {/* Scrollable List */}
+        <div className="flex-1 overflow-y-auto overscroll-y-contain mx-5 pb-[100px] scrollbar-hide">
+          <div className="border-t border-white/10 pt-[14px] min-h-[100px]">
+            {transactionHistory.length > 0 ? (
+              <div className="w-full">
+                {/* Headers */}
+                <div className="grid grid-cols-[1fr_100px_80px] gap-x-6 mb-[12px] px-0">
+                  <div>
+                    <span className="text-[#7E7E7E] text-[12px] font-normal font-sans">
+                      Details
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[#7E7E7E] text-[12px] font-normal font-sans">
+                      Price
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[#7E7E7E] text-[12px] font-normal font-sans">
+                      Status
+                    </span>
+                  </div>
+                </div>
+
+                {/* Rows */}
+                <div className="flex flex-col gap-[16px]">
+                  {transactionHistory.map((tx) => (
+                    <div
+                      key={tx.id}
+                      className="grid grid-cols-[1fr_100px_80px] gap-x-6 items-start cursor-pointer hover:opacity-80 transition-opacity"
+                      onClick={() => navigate(`/order-details/${tx.id}`, { state: { order: tx } })}
+                    >
+                      {/* Details Column */}
+                      <div className="flex items-start">
+                        <img src={ongoingIcon} alt="Status" className="w-[26px] h-[26px]" />
+                        <div className="ml-[7px] flex flex-col">
+                          <span className="text-white text-[13px] font-normal font-sans leading-none mb-[2px]">
+                            {tx.addresses?.label ? `Order to ${tx.addresses.label}` : "Cash Order"}
+                          </span>
+                          <span className="text-[#7E7E7E] text-[12px] font-normal font-sans leading-none">
+                            {new Date(tx.created_at).toLocaleDateString('en-IN', {
+                              day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+                            })}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Price Column */}
+                      <div className="text-right">
+                        <span className="text-white text-[13px] font-normal font-sans">
+                          ₹{(tx.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </span>
-                        <span className="text-[#7E7E7E] text-[12px] font-normal font-sans leading-none">
-                          {new Date(tx.created_at).toLocaleDateString('en-IN', {
-                            day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
-                          })}
+                      </div>
+
+                      {/* Status Column */}
+                      <div className="text-right">
+                        <span className="text-[#FACC15] text-[13px] font-normal font-sans capitalize">
+                          {tx.status}
                         </span>
                       </div>
                     </div>
-
-                    {/* Price Column */}
-                    <div className="text-right">
-                      <span className="text-white text-[13px] font-normal font-sans">
-                        ₹{(tx.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </span>
-                    </div>
-
-                    {/* Status Column */}
-                    <div className="text-right">
-                      <span className="text-[#FACC15] text-[13px] font-normal font-sans capitalize">
-                        {tx.status}
-                      </span>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          ) : (
-            <p className="text-muted-foreground text-[14px] text-center">
-              Your recent transactions will show up here
-            </p>
-          )}
+            ) : (
+              <p className="text-muted-foreground text-[14px] text-center">
+                Your recent transactions will show up here
+              </p>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Bottom Navigation */}
+      {/* Bottom Navigation (Fixed) */}
       <BottomNavigation activeTab="home" />
 
     </div>);
