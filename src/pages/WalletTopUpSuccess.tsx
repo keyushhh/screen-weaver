@@ -12,8 +12,17 @@ const WalletTopUpSuccess = () => {
     const processedRef = useRef(false);
 
     // creditAmount is the actual amount added to wallet. totalAmount includes fees.
-    const { totalAmount, creditAmount } = location.state || { totalAmount: 0, creditAmount: 0 };
+    const { totalAmount, creditAmount, paymentMethod } = location.state || { totalAmount: 0, creditAmount: 0, paymentMethod: null };
     const [formattedAmount, setFormattedAmount] = useState<string>("0.00");
+
+    const getPaymentMethodLabel = (id: string | null) => {
+        if (!id) return 'Netbanking';
+        if (['cred', 'gpay', 'phonepe', 'upi-id'].includes(id)) return 'UPI';
+        if (id === 'hdfc-card') return 'Cards';
+        if (id === 'netbanking') return 'Netbanking';
+        if (id === 'amazon') return 'Amazon Wallet';
+        return 'Netbanking';
+    };
 
     useEffect(() => {
         // Display the amount that actually landed in the wallet
@@ -25,10 +34,10 @@ const WalletTopUpSuccess = () => {
         // Process the transaction only once
         if (creditAmount && !processedRef.current) {
             processedRef.current = true;
-            
+
             // update balance
             addWalletBalance(creditAmount);
-            
+
             // log transaction
             addTransaction({
                 id: crypto.randomUUID(),
@@ -36,9 +45,10 @@ const WalletTopUpSuccess = () => {
                 amount: creditAmount,
                 status: 'success',
                 date: new Date().toISOString(),
-                description: 'Added via Netbanking'
+                description: 'Amount Credited',
+                metadata: { paymentMethodId: paymentMethod }
             });
-            
+
             // Activate wallet (skip intro in future)
             activateWallet();
         }
@@ -71,7 +81,7 @@ const WalletTopUpSuccess = () => {
             </h2>
 
             {/* Info Container */}
-            <div 
+            <div
                 className="mt-[45px] w-full rounded-[22px] px-[15px] pt-[11px] pb-[18px]"
                 style={{
                     backgroundColor: "rgba(25, 25, 25, 0.31)",
@@ -91,7 +101,7 @@ const WalletTopUpSuccess = () => {
                     <br />
                     Just pure financial laziness, powered by tech.
                 </p>
-                
+
                 <p className="text-[#AFAFAF] text-[16px] font-normal font-sans mt-[18px]">
                     We respect it.
                 </p>

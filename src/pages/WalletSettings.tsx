@@ -10,7 +10,7 @@ import { tiers, tierIconMap, tierSettingsCardMap } from "@/lib/walletTiers";
 
 const WalletSettings = () => {
     const navigate = useNavigate();
-    const { walletTier } = useUser();
+    const { walletTier, resetForDemo } = useUser();
 
     const currentTier =
         tiers.find((tier) => tier.name === walletTier) || tiers[0];
@@ -21,8 +21,6 @@ const WalletSettings = () => {
         if (nextTier) {
             navigate(`/wallet-tier/${nextTier.name.toLowerCase()}`);
         } else {
-            // If supreme, maybe just go to supreme detail or do nothing?
-            // For now, let's navigate to Supreme detail if we are at Supreme
             navigate(`/wallet-tier/${walletTier.toLowerCase()}`);
         }
     };
@@ -234,6 +232,22 @@ const WalletSettings = () => {
                             Wallets in India are governed by RBI-regulated limits to ensure fund
                             security and prevent misuse.
                             Your tier helps us serve you better, safely, and responsibly.
+                        </p>
+                    </div>
+
+                    {/* -------- RESET SECTION (DEMO ONLY) -------- */}
+                    <div className="mt-4">
+                        <button
+                            onClick={() => {
+                                resetForDemo();
+                                navigate('/');
+                            }}
+                            className="w-full h-[48px] flex items-center justify-center rounded-full text-white/40 text-[14px] font-medium border border-white/10 active:scale-95 transition-transform"
+                        >
+                            Reset Account (Demo Only)
+                        </button>
+                        <p className="text-white/20 text-[10px] text-center mt-2">
+                            This will clear all transactions, balance, and KYC status.
                         </p>
                     </div>
                 </div>

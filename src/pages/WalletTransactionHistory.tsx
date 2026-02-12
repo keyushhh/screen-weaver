@@ -1,0 +1,473 @@
+import React, { useState, useRef, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { ChevronLeft } from "lucide-react";
+import bgDarkMode from "@/assets/bg-dark-mode.png";
+import searchBg from "@/assets/search-bg.png";
+import searchIcon from "@/assets/search.svg";
+import filterIcon from "@/assets/filter.svg";
+import caretDownIcon from "@/assets/caret-down.svg";
+import dateBg from "@/assets/date.png";
+import typeBg from "@/assets/type.png";
+import methodBg from "@/assets/method.png";
+import debitedArrow from "@/assets/debited-arrow.svg";
+import creditedArrow from "@/assets/credited-arrow.svg";
+import successIcon from "@/assets/success.svg";
+import processingIcon from "@/assets/processing.svg";
+import failedIcon from "@/assets/failed.svg";
+import closeIcon from "@/assets/close.svg";
+import { useUser, WalletTransaction } from "@/contexts/UserContext";
+
+const WalletTransactionHistory = () => {
+    const navigate = useNavigate();
+    const { walletTransactions, profile } = useUser();
+    const [searchQuery, setSearchQuery] = useState("");
+    const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+    const [filters, setFilters] = useState({
+        date: "All Time",
+        type: "All",
+        method: "All"
+    });
+    const dropdownRef = useRef<HTMLDivElement>(null);
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setActiveDropdown(null);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const toggleDropdown = (id: string) => {
+        setActiveDropdown(activeDropdown === id ? null : id);
+    };
+
+    const handleSelect = (category: 'date' | 'type' | 'method', value: string) => {
+        setFilters(prev => ({ ...prev, [category]: value }));
+        setActiveDropdown(null);
+    };
+
+    const resetFilters = () => {
+        setFilters({
+            date: "All Time",
+            type: "All",
+            method: "All"
+        });
+    };
+
+    const isAnyFilterActive = filters.date !== "All Time" || filters.type !== "All" || filters.method !== "All";
+
+    const isNewUser = () => {
+        if (!profile?.created_at) return true;
+        const created = new Date(profile.created_at).getTime();
+        const now = Date.now();
+        const daysSinceCreation = (now - created) / (1000 * 60 * 60 * 24);
+        return daysSinceCreation < 30;
+    };
+
+    // Filter Logic
+    const filteredTransactions = useMemo(() => {
+        return walletTransactions.filter(tx => {
+            // 1. Search Query
+            const query = searchQuery.toLowerCase();
+            const formattedDate = new Date(tx.date).toLocaleDateString('en-IN', {
+                day: 'numeric', month: 'short', year: 'numeric'
+            }).toLowerCase();
+            const matchesSearch = (
+                tx.description.toLowerCase().includes(query) ||
+                tx.amount.toString().includes(query) ||
+                formattedDate.includes(query) ||
+                tx.id.toLowerCase().includes(query)
+            );
+            if (!matchesSearch) return false;
+
+            // 2. Date Filter
+            const txDate = new Date(tx.date);
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+
+            if (filters.date !== 'All Time') {
+                if (filters.date === 'Today') {
+                    const todayStart = new Date();
+                    todayStart.setHours(0, 0, 0, 0);
+                    if (txDate.getTime() < todayStart.getTime()) return false;
+                } else if (filters.date === 'Past 7 Days') {
+                    const sevenDaysAgo = new Date(now);
+                    sevenDaysAgo.setDate(now.getDate() - 7);
+                    if (txDate.getTime() < sevenDaysAgo.getTime()) return false;
+                } else if (filters.date === 'Past 30 Days') {
+                    const thirtyDaysAgo = new Date(now);
+                    thirtyDaysAgo.setDate(now.getDate() - 30);
+                    if (txDate.getTime() < thirtyDaysAgo.getTime()) return false;
+                } else if (filters.date === 'Past 90 Days') {
+                    const ninetyDaysAgo = new Date(now);
+                    ninetyDaysAgo.setDate(now.getDate() - 90);
+                    if (txDate.getTime() < ninetyDaysAgo.getTime()) return false;
+                } else if (filters.date === 'Past Year') {
+                    const oneYearAgo = new Date(now);
+                    oneYearAgo.setFullYear(now.getFullYear() - 1);
+                    if (txDate.getTime() < oneYearAgo.getTime()) return false;
+                }
+            }
+
+            // 3. Type Filter
+            if (filters.type !== 'All') {
+                if (filters.type === 'Cash Order' && !tx.description.toLowerCase().includes('cash order')) return false;
+                if (filters.type === 'Withdrawal' && !tx.description.toLowerCase().includes('withdrawal')) return false;
+                if (filters.type === 'Wallet Top-Up' && !(tx.type === 'credit' && tx.description.toLowerCase().includes('top up'))) return false;
+            }
+
+            // 4. Method Filter
+            if (filters.method !== 'All') {
+                if (filters.method === 'UPI' && !tx.description.toLowerCase().includes('upi')) return false;
+                if (filters.method === 'Netbanking' && !(tx.description.toLowerCase().includes('netbanking') || tx.description.toLowerCase().includes('withdrawal'))) return false;
+                if (filters.method === 'Cards' && !tx.description.toLowerCase().includes('card')) return false;
+            }
+
+            return true;
+        });
+    }, [walletTransactions, searchQuery, filters]);
+
+    const Dropdown = ({ id, width, label, bgImage, selectedValue, items, onSelect, isActive }: {
+        id: string,
+        width: string,
+        label: string,
+        bgImage: string,
+        selectedValue: string,
+        items: string[],
+        onSelect: (item: string) => void,
+        isActive?: boolean
+    }) => (
+        <div className="relative">
+            <div
+                onClick={() => toggleDropdown(id)}
+                className="flex items-center justify-between shrink-0 relative cursor-pointer"
+                style={{
+                    width: width,
+                    height: '34px',
+                    backgroundColor: isActive ? 'rgba(82, 96, 254, 0.21)' : 'rgba(25, 25, 25, 0.31)',
+                    backdropFilter: isActive ? 'blur(25.02px)' : 'blur(25px)',
+                    borderRadius: '8px',
+                    border: isActive ? '0.63px solid #5260FE' : '0.63px solid rgba(255, 255, 255, 0.12)',
+                }}
+            >
+                <span className="text-white text-[12px] font-medium font-sans ml-[8px] leading-[120%] truncate pr-1">
+                    {selectedValue !== 'All' && selectedValue !== 'All Time' ? selectedValue : label}
+                </span>
+                <img src={caretDownIcon} alt="" className="mr-[4px] w-[12px] h-[12px] shrink-0" />
+            </div>
+
+            {/* Dropdown Content */}
+            {activeDropdown === id && (
+                <div
+                    className="absolute top-full mt-[6px] left-0 z-50 flex flex-col pt-[12px] pb-[12px] pl-[8px]"
+                    style={{
+                        width: width,
+                        // Using auto height for flexibility if precise contentHeight is unknown/dynamic
+                        height: 'auto',
+                        backgroundImage: `url(${bgImage})`,
+                        backgroundSize: '100% 100%',
+                        backgroundRepeat: 'no-repeat',
+                        borderRadius: '8px',
+                        backdropFilter: 'blur(10px)',
+                    }}
+                >
+                    <div className="flex flex-col gap-[12px]">
+                        {items.map((item, index) => (
+                            <span
+                                key={index}
+                                onClick={(e) => { e.stopPropagation(); onSelect(item); }}
+                                className={`text-[12px] font-medium font-sans leading-[120%] cursor-pointer transition-colors ${selectedValue === item ? 'text-blue-500' : 'text-white hover:text-white/80'}`}
+                            >
+                                {item}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+
+    const dateItems = isNewUser()
+        ? ["All Time", "Today", "Past 7 Days"]
+        : ["All Time", "Today", "Past 7 Days", "Past 30 Days", "Past 90 Days", "Past Year"];
+
+    const getTransactionDisplay = (tx: WalletTransaction) => {
+        let title = tx.type === 'credit' ? "Amount Credited" : "Amount Debited";
+        let subtitle = tx.description;
+
+        // Try mapping from metadata first (for newer transactions)
+        const methodId = tx.metadata?.paymentMethodId as string | undefined;
+        if (methodId && tx.type === 'credit') {
+            if (['cred', 'gpay', 'phonepe', 'upi-id'].includes(methodId)) {
+                return { title, subtitle: "Added via UPI" };
+            }
+            if (methodId === 'hdfc-card') {
+                return { title, subtitle: "Added via Cards" };
+            }
+            if (methodId === 'netbanking') {
+                return { title, subtitle: "Added via Netbanking" };
+            }
+            if (methodId === 'amazon') {
+                return { title, subtitle: "Added via Amazon Wallet" };
+            }
+        }
+
+        // Fallback to pattern matching (for older or non-topup transactions)
+        const desc = tx.description.toLowerCase();
+        if (desc.includes("cash order")) {
+            title = "Amount Debited";
+            subtitle = "Cash Order";
+        } else if (desc.includes("withdrawal")) {
+            title = "Withdrawal";
+            subtitle = "Added via Netbanking";
+        } else if (desc.includes("cred") || desc.includes("google pay") || desc.includes("phone pe") || desc.includes("upi id") || desc.includes("upi")) {
+            subtitle = "Added via UPI";
+        } else if (desc.includes("cards") || desc.includes("card")) {
+            subtitle = "Added via Cards";
+        } else if (desc.includes("netbanking")) {
+            subtitle = "Added via Netbanking";
+        } else if (desc.includes("amazon wallet") || desc.includes("amazon")) {
+            subtitle = "Added via Amazon Wallet";
+        } else if (tx.type === 'credit') {
+            const cleanDesc = tx.description.replace(/^Added via\s+/i, '');
+            subtitle = `Added via ${cleanDesc}`;
+        }
+
+        return { title, subtitle };
+    };
+
+    return (
+        <div
+            className="h-full w-full overflow-hidden flex flex-col safe-area-top safe-area-bottom"
+            style={{
+                backgroundColor: "#0a0a12",
+                backgroundImage: `url(${bgDarkMode})`,
+                backgroundSize: "cover",
+                backgroundPosition: "top center",
+                backgroundRepeat: "no-repeat",
+            }}
+        >
+            {/* Header Container */}
+            <div className="shrink-0 flex items-center justify-between w-full px-5 pt-4 pb-2 z-10 relative">
+                {/* Back Button */}
+                <button
+                    onClick={(e) => { e.stopPropagation(); navigate(-1); }}
+                    className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md border border-white/10"
+                    style={{ zIndex: 20 }}
+                >
+                    <ChevronLeft className="w-6 h-6 text-white" />
+                </button>
+
+                {/* Title */}
+                <h1 className="text-white text-[22px] font-medium font-sans leading-[120%] text-center">
+                    Transaction History
+                </h1>
+
+                {/* Spacer for right side */}
+                <div className="w-10"></div>
+            </div>
+
+            {/* Search Bar Container */}
+            <div className="w-full px-[19px] mt-[28px]">
+                <div
+                    className="w-full flex items-center px-[16px]"
+                    style={{
+                        height: '44px',
+                        backgroundImage: `url(${searchBg})`,
+                        backgroundSize: '100% 100%',
+                        backgroundRepeat: 'no-repeat',
+                        // Removed fixed borderRadius: '9999px' to match original image style
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    {/* Search Icon */}
+                    <img src={searchIcon} alt="Search" className="w-[24px] h-[24px] shrink-0" />
+
+                    {/* Input */}
+                    <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search by amount, date, transaction id, etc..."
+                        className="ml-[16px] w-full bg-transparent border-none outline-none text-white placeholder:text-white/60 text-[14px] font-normal font-sans leading-[140%]"
+                    />
+                </div>
+            </div>
+
+            {/* Filter Row */}
+            <div
+                className="w-full pl-[27px] pr-[26px] mt-[15px] overflow-x-auto no-scrollbar pb-[200px] pointer-events-none"
+                ref={dropdownRef}
+                style={{ zIndex: 10, position: 'relative' }}
+                onClick={(e) => e.stopPropagation()}
+            >
+                <div className="flex items-start min-w-max h-full pointer-events-auto items-center">
+                    {/* Filter Icon or Reset Button */}
+                    {isAnyFilterActive ? (
+                        <div
+                            onClick={resetFilters}
+                            className="flex items-center gap-[6px] px-[12px] h-[34px] bg-[#191919]/30 backdrop-blur-[25px] rounded-[8px] border border-white/10 cursor-pointer shrink-0"
+                            style={{
+                                backgroundColor: 'rgba(25, 25, 25, 0.31)',
+                                border: '0.63px solid rgba(255, 255, 255, 0.12)'
+                            }}
+                        >
+                            <span className="text-white text-[12px] font-medium font-sans leading-[120%]">Reset</span>
+                            <img src={closeIcon} alt="Reset" className="w-[12px] h-[12px]" />
+                        </div>
+                    ) : (
+                        <img src={filterIcon} alt="Filter" className="w-[24px] h-[24px]" />
+                    )}
+
+                    {/* Dropdowns */}
+                    <div className="flex items-start gap-[8px] ml-[12px]">
+                        <Dropdown
+                            id="date"
+                            width="93px"
+                            label="Date"
+                            bgImage={dateBg}
+                            selectedValue={filters.date}
+                            items={dateItems}
+                            onSelect={(val) => handleSelect('date', val)}
+                            isActive={filters.date !== "All Time"}
+                        />
+                        <Dropdown
+                            id="type"
+                            width="93px"
+                            label="Type"
+                            bgImage={typeBg}
+                            selectedValue={filters.type}
+                            items={["All", "Cash Order", "Withdrawal", "Wallet Top-Up"]}
+                            onSelect={(val) => handleSelect('type', val)}
+                            isActive={filters.type !== "All"}
+                        />
+                        <Dropdown
+                            id="method"
+                            width="111px"
+                            label="Method"
+                            bgImage={methodBg}
+                            selectedValue={filters.method}
+                            items={["All", "UPI", "Netbanking", "Cards"]}
+                            onSelect={(val) => handleSelect('method', val)}
+                            isActive={filters.method !== "All"}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            {/* Content area */}
+            <div className="flex-1 w-full overflow-y-auto px-5 mt-[-167px] pb-[20px]" style={{ zIndex: 0, position: 'relative' }}>
+                {(() => {
+                    // Group by date
+                    const grouped: { [key: string]: typeof walletTransactions } = {};
+                    filteredTransactions.forEach(tx => {
+                        const date = new Date(tx.date);
+                        // Normalize to midnight for grouping
+                        const dateKey = new Date(date.getFullYear(), date.getMonth(), date.getDate()).toISOString();
+                        if (!grouped[dateKey]) grouped[dateKey] = [];
+                        grouped[dateKey].push(tx);
+                    });
+
+                    // Sort dates descending
+                    const sortedDates = Object.keys(grouped).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+
+                    if (sortedDates.length === 0) {
+                        return (
+                            <div className="text-center" style={{ marginTop: '5px' }}>
+                                <span className="text-white/50 text-[14px] font-normal font-sans leading-[120%]">
+                                    No transaction history found for the selected filter!
+                                </span>
+                            </div>
+                        );
+                    }
+
+                    return sortedDates.map((dateKey, index) => {
+                        const transactions = grouped[dateKey];
+                        const dateObj = new Date(dateKey);
+                        const today = new Date();
+                        const isToday = dateObj.getDate() === today.getDate() &&
+                            dateObj.getMonth() === today.getMonth() &&
+                            dateObj.getFullYear() === today.getFullYear();
+
+                        const heading = isToday ? "TODAY" : dateObj.toLocaleDateString('en-GB', {
+                            day: 'numeric', month: 'short', year: 'numeric'
+                        }).toUpperCase();
+
+                        return (
+                            <div key={dateKey} className={index === 0 ? "" : "mt-[20px]"}>
+                                <h2
+                                    className="text-white/50 text-[13px] font-medium font-sans leading-[120%] tracking-[1px]"
+                                >
+                                    {heading}
+                                </h2>
+
+                                <div
+                                    className="mt-[10px] flex flex-col"
+                                    style={{
+                                        backgroundColor: 'rgba(25, 25, 25, 0.31)',
+                                        border: '0.63px solid rgba(255, 255, 255, 0.12)',
+                                        borderRadius: '22px',
+                                        backdropFilter: 'blur(25.02px)',
+                                        padding: '10px 13px',
+                                    }}
+                                >
+                                    {transactions.map((tx, txIndex) => {
+                                        const { title, subtitle } = getTransactionDisplay(tx);
+                                        const icon = tx.type === 'credit' ? creditedArrow : debitedArrow;
+                                        const amountColor = tx.type === 'credit' ? '#1CB956' : '#FF1E1E';
+
+                                        const time = new Date(tx.date).toLocaleTimeString('en-US', {
+                                            hour: 'numeric', minute: '2-digit', hour12: true
+                                        });
+
+                                        return (
+                                            <div key={tx.id}>
+                                                <div className="flex justify-between items-start">
+                                                    <div className="flex items-start gap-[16px]">
+                                                        <img src={icon} alt="" className="w-[32px] h-[32px]" />
+                                                        <div className="flex flex-col gap-[2px]">
+                                                            <span className="text-white text-[12px] font-medium font-sans leading-[120%]">
+                                                                {title}
+                                                            </span>
+                                                            <span className="text-white/50 text-[12px] font-normal font-sans leading-[120%]">
+                                                                {subtitle}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-right flex flex-col items-end gap-[2px]">
+                                                        <span
+                                                            className="text-[12px] font-medium font-sans leading-[120%]"
+                                                            style={{ color: amountColor }}
+                                                        >
+                                                            {tx.type === 'credit' ? '+' : '-'} ₹{tx.amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                        </span>
+                                                        <span className="text-white/50 text-[12px] font-normal font-sans leading-[120%]">
+                                                            {time} | {tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Divider */}
+                                                {txIndex < transactions.length - 1 && (
+                                                    <div
+                                                        className="h-[1px] bg-[#202020] mt-[8px] mb-[12px]"
+                                                        style={{ marginLeft: '48px' }}
+                                                    ></div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        );
+                    });
+                })()}
+            </div>
+        </div>
+    );
+};
+
+export default WalletTransactionHistory;

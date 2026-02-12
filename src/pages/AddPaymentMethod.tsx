@@ -94,7 +94,7 @@ const AddPaymentMethod = () => {
         if (flow === "upgrade") {
             navigate("/subscription-details", { state: { tier, paymentMethod: selectedMethod, flow } });
         } else {
-            navigate("/order-summary", { state: { amount } });
+            navigate("/order-summary", { state: { amount, paymentMethod: selectedMethod } });
         }
     };
 

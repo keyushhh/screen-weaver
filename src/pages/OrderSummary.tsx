@@ -9,7 +9,7 @@ import { SlideToPay } from "@/components/SlideToPay";
 const OrderSummary = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { amount, retry } = location.state || { amount: "0.00", retry: false };
+    const { amount, retry, paymentMethod } = location.state || { amount: "0.00", retry: false, paymentMethod: null };
 
     const parsedAmount = parseFloat(amount) || 0;
     const processingFee = 5.0;
@@ -208,7 +208,7 @@ const OrderSummary = () => {
                     onComplete={() => {
                         if (retry) {
                             // Pass the original entered amount for wallet credit
-                            navigate('/wallet-topup-success', { state: { totalAmount: totalPayable, creditAmount: parsedAmount } });
+                            navigate('/wallet-topup-success', { state: { totalAmount: totalPayable, creditAmount: parsedAmount, paymentMethod } });
                         } else {
                             navigate('/wallet-topup-failed', { state: { amount } });
                         }

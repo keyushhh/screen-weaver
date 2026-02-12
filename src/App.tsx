@@ -51,6 +51,7 @@ import OrderTracking from "./pages/OrderTracking";
 import AuthCallback from "./pages/AuthCallback";
 import Wallet from "./pages/Wallet";
 import WalletCreated from "./pages/WalletCreated";
+import WalletTransactionHistory from "./pages/WalletTransactionHistory";
 import WalletAddMoney from "./pages/WalletAddMoney";
 import WalletSettings from "./pages/WalletSettings";
 import WalletTierDetails from "./pages/WalletTierDetails";
@@ -169,6 +170,7 @@ const App = () => {
                 <Route path="/order-tracking" element={<OrderTracking />} />
                 <Route path="/wallet" element={<Wallet />} />
                 <Route path="/wallet-created" element={<WalletCreated />} />
+                <Route path="/wallet-transaction-history" element={<WalletTransactionHistory />} />
                 <Route path="/wallet-settings" element={<WalletSettings />} />
                 <Route path="/wallet-tier/:tierId" element={<WalletTierDetails />} />
                 <Route path="/wallet-add-money" element={<WalletAddMoney />} />
