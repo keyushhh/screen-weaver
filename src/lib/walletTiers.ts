@@ -18,7 +18,7 @@ import supremeExpand from "@/assets/supreme-expand.png";
 import infoBg from "@/assets/info bg.png";
 
 // New Card Assets
-import starterCard from "@/assets/starter-created.png";
+import starterCard from "@/assets/wallet-starter.png";
 import proCard from "@/assets/pro-created.png";
 import eliteCard from "@/assets/elite-created.png";
 import supremeCard from "@/assets/supreme-created.png";
@@ -71,11 +71,11 @@ export interface TierConfig {
 
 const placeholderContent = {
     dailyTopUpLimit: "₹5,000/day",
-    withdrawals: "Up to ₹5,000 (takes under 30 mins, we swear)",
+    withdrawals: "Up to ₹3,000 (takes under 30 mins, we swear)",
     verification: "Mobile number + vibes",
     detailedVerification: "Mobile number + vibes",
-    limitations: "Add money cooldown, withdraw cannot exceed ₹5,000 a day.",
-    detailedLimitations: "1. 24-hour nap after each withdrawal 2. ₹5K/day top-up cap 3. No FX Conversion",
+    limitations: "Add money cooldown, withdraw cannot exceed ₹3,000 a day.",
+    detailedLimitations: "1. 24-hour nap after each withdrawal 2. ₹3K/day top-up cap 3. No FX Conversion",
 
     whyTitle: "Why you’re on STARTER?",
     whyContent: [
@@ -101,14 +101,16 @@ export const tiers: TierConfig[] = [
         chip: freeChip,
         diamond: starterDiamond,
         walletLimit: "₹5,000",
-        withdrawLimit: "Not allowed",
+        withdrawLimit: "₹3,000",
 
         headerTitle: "STARTER",
         headerSubtitle: "₹5,000 / wallet limit",
         headerImage: starterExpand,
         infoBg: infoBg,
 
-        ...placeholderContent
+        ...placeholderContent,
+        withdrawals: "Up to ₹3,000 (takes under 30 mins, we swear)",
+        limitations: "Withdraw limit of ₹3,000 is applied."
     },
     {
         name: "Pro",

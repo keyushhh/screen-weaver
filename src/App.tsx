@@ -61,6 +61,12 @@ import WalletTopUpSuccess from "./pages/WalletTopUpSuccess";
 import WalletTopUpFailed from "./pages/WalletTopUpFailed";
 import SubscriptionSummary from "./pages/SubscriptionSummary";
 import WalletUpgradeSuccess from "./pages/WalletUpgradeSuccess";
+import WalletWithdraw from "./pages/WalletWithdraw";
+import WalletWithdrawSuccess from "./pages/WalletWithdrawSuccess";
+import PaymentMissing from "./pages/PaymentMissing";
+import SelectPaymentMethod from "./pages/SelectPaymentMethod";
+import WithdrawOTP from "./pages/WithdrawOTP";
+import WalletWithdrawFailed from "./pages/WalletWithdrawFailed";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -180,6 +186,12 @@ const App = () => {
                 <Route path="/wallet-topup-failed" element={<WalletTopUpFailed />} />
                 <Route path="/subscription-details" element={<SubscriptionSummary />} />
                 <Route path="/wallet-upgrade-success" element={<WalletUpgradeSuccess />} />
+                <Route path="/wallet-withdraw" element={<WalletWithdraw />} />
+                <Route path="/wallet-withdraw-success" element={<WalletWithdrawSuccess />} />
+                <Route path="/payment-missing" element={<PaymentMissing />} />
+                <Route path="/select-payment-method" element={<SelectPaymentMethod />} />
+                <Route path="/withdraw-otp" element={<WithdrawOTP />} />
+                <Route path="/wallet-withdraw-failed" element={<WalletWithdrawFailed />} />
                 <Route path="/auth/v1/callback" element={<AuthCallback />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, ChevronDown } from "lucide-react";
-import Map, { Marker, Source, Layer, LineLayer } from "react-map-gl/maplibre";
+import Map, { Marker, Source, Layer } from "react-map-gl/maplibre";
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { OpenLocationCode } from "open-location-code";
 import { fetchRecentOrders, fetchActiveOrders, Order } from "@/lib/orders";
@@ -54,70 +54,70 @@ const Homepage = () => {
 
   // Map State
   const [viewState, setViewState] = useState({
-      latitude: 12.9716,
-      longitude: 77.5946,
-      zoom: 13
+    latitude: 12.9716,
+    longitude: 77.5946,
+    zoom: 13
   });
 
   useEffect(() => {
     const loadData = async () => {
-        // Load Saved Address from Local Storage (Active Session Context)
-        const addressStr = localStorage.getItem("gridpe_user_address");
-        if (addressStr) {
-          try {
-            setSavedAddress(JSON.parse(addressStr));
-          } catch (e) {
-            console.error("Failed to parse saved address", e);
-          }
+      // Load Saved Address from Local Storage (Active Session Context)
+      const addressStr = localStorage.getItem("gridpe_user_address");
+      if (addressStr) {
+        try {
+          setSavedAddress(JSON.parse(addressStr));
+        } catch (e) {
+          console.error("Failed to parse saved address", e);
         }
+      }
 
-        // Fetch Orders
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-            try {
-                const activeOrders = await fetchActiveOrders(session.user.id);
-                // Homepage only shows one active order banner (the latest one)
-                setActiveOrder(activeOrders.length > 0 ? activeOrders[0] : null);
+      // Fetch Orders
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        try {
+          const activeOrders = await fetchActiveOrders(session.user.id);
+          // Homepage only shows one active order banner (the latest one)
+          setActiveOrder(activeOrders.length > 0 ? activeOrders[0] : null);
 
-                const recent = await fetchRecentOrders(session.user.id);
-                setTransactionHistory(recent);
-            } catch (e) {
-                console.error("Failed to fetch orders", e);
-            }
+          const recent = await fetchRecentOrders(session.user.id);
+          setTransactionHistory(recent);
+        } catch (e) {
+          console.error("Failed to fetch orders", e);
         }
+      }
     };
     loadData();
   }, []);
 
   // Update map viewState when active order address changes
   useEffect(() => {
-      if (activeOrder?.addresses?.plus_code) {
-          try {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const olc = new OpenLocationCode() as any;
-              const decoded = olc.decode(activeOrder.addresses.plus_code);
-              setViewState({
-                  latitude: decoded.latitudeCenter,
-                  longitude: decoded.longitudeCenter,
-                  zoom: 14
-              });
-          } catch (e) {
-              console.error("Failed to decode Plus Code", e);
-          }
-      } else if (activeOrder?.addresses?.latitude && activeOrder?.addresses?.longitude) {
-           setViewState({
-               latitude: activeOrder.addresses.latitude,
-               longitude: activeOrder.addresses.longitude,
-               zoom: 14
-           });
+    if (activeOrder?.addresses?.plus_code) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const olc = new OpenLocationCode() as any;
+        const decoded = olc.decode(activeOrder.addresses.plus_code);
+        setViewState({
+          latitude: decoded.latitudeCenter,
+          longitude: decoded.longitudeCenter,
+          zoom: 14
+        });
+      } catch (e) {
+        console.error("Failed to decode Plus Code", e);
       }
+    } else if (activeOrder?.addresses?.latitude && activeOrder?.addresses?.longitude) {
+      setViewState({
+        latitude: activeOrder.addresses.latitude,
+        longitude: activeOrder.addresses.longitude,
+        zoom: 14
+      });
+    }
   }, [activeOrder]);
 
   const handleAddressSelect = (address: any | null) => {
-     setSavedAddress(address);
-     if (address) {
-        setIsAddressSheetOpen(false);
-     }
+    setSavedAddress(address);
+    if (address) {
+      setIsAddressSheetOpen(false);
+    }
   };
 
   const getTagIcon = (tag: string) => {
@@ -145,10 +145,10 @@ const Homepage = () => {
   };
 
   const routeGeoJson = {
-    type: "Feature",
+    type: "Feature" as const,
     properties: {},
     geometry: {
-      type: "LineString",
+      type: "LineString" as const,
       coordinates: [
         [viewState.longitude, viewState.latitude],
         [viewState.longitude + 0.002, viewState.latitude + 0.002],
@@ -156,7 +156,7 @@ const Homepage = () => {
     },
   };
 
-  const routeLayer: LineLayer = {
+  const routeLayer: any = {
     id: "route-line",
     type: "line",
     paint: {
@@ -167,29 +167,29 @@ const Homepage = () => {
   };
 
   return (
-  <div
-    className={`h-full w-full ${transactionHistory.length > 1 ? 'overflow-y-auto' : 'overflow-y-hidden'} overscroll-y-none flex flex-col safe-area-top safe-area-bottom pb-[96px]`}
-    style={{
-      backgroundColor: "#0a0a12",
-      backgroundImage: `url(${bgDarkMode})`,
-      backgroundSize: "cover",
-      backgroundPosition: "top center",
-      backgroundRepeat: "no-repeat",
-    }}
-  >
+    <div
+      className="h-screen w-full overflow-y-auto overscroll-y-auto flex flex-col safe-area-top safe-area-bottom pb-[120px]"
+      style={{
+        backgroundColor: "#0a0a12",
+        backgroundImage: `url(${bgDarkMode})`,
+        backgroundSize: "cover",
+        backgroundPosition: "top center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
 
       {/* Header */}
-      <div className="px-5 pt-4 flex items-start justify-between">
+      <div className="px-5 pt-12 flex items-start justify-between">
         <div className="space-y-1 max-w-[70%]">
           {savedAddress ? (
-             <div className="flex items-center gap-1">
-                <img src={getTagIcon(savedAddress.tag)} alt={savedAddress.tag} className="w-3 h-3" />
-                <p className="text-[14px] font-bold text-white font-satoshi tracking-wider uppercase">
-                  {savedAddress.tag}
-                </p>
-             </div>
+            <div className="flex items-center gap-1">
+              <img src={getTagIcon(savedAddress.tag)} alt={savedAddress.tag} className="w-3 h-3" />
+              <p className="text-[14px] font-bold text-white font-satoshi tracking-wider uppercase">
+                {savedAddress.tag}
+              </p>
+            </div>
           ) : (
-             <p className="text-[12px] text-muted-foreground font-medium tracking-wider">DELIVERING</p>
+            <p className="text-[12px] text-muted-foreground font-medium tracking-wider">DELIVERING</p>
           )}
 
           <button
@@ -273,7 +273,7 @@ const Homepage = () => {
         }, {
           icon: iconFxConvert,
           label: "FX Convert",
-          action: () => {}
+          action: () => { }
         }].map(action => (
           <button
             key={action.label}
@@ -297,87 +297,87 @@ const Homepage = () => {
 
       {/* Active Order OR Referral Banner */}
       {activeOrder ? (
-         <div className="mx-5 mt-6 mb-[16px] flex flex-col">
-              {/* Header Row (Top Container) */}
-              <div
-                  className="w-full px-[16px] py-[9px] flex justify-between items-start z-10 shrink-0 rounded-t-[14px]"
-                  style={{
-                      backgroundColor: "#000000",
-                  }}
+        <div className="mx-5 mt-6 mb-[16px] flex flex-col">
+          {/* Header Row (Top Container) */}
+          <div
+            className="w-full px-[16px] py-[9px] flex justify-between items-start z-10 shrink-0 rounded-t-[14px]"
+            style={{
+              backgroundColor: "#000000",
+            }}
+          >
+            <span className="text-white text-[12px] font-medium font-sans whitespace-nowrap mr-2">
+              Delivering to - {activeOrder.addresses?.label || "Home"}
+            </span>
+            <span className="text-white text-[12px] font-medium font-sans text-right leading-tight">
+              {getActiveOrderAddressDisplay()}
+            </span>
+          </div>
+
+          {/* Status & Map Container (Bottom Container) */}
+          <div
+            className="w-full rounded-b-[14px] flex cursor-pointer"
+            style={{
+              backgroundColor: "rgba(25, 25, 25, 0.34)",
+              padding: "12px",
+              marginTop: 0
+            }}
+            onClick={() => navigate(`/order-details/${activeOrder.id}`, { state: { order: activeOrder } })}
+          >
+            {/* Left Text */}
+            <div className="flex-1 flex flex-col justify-start pr-2">
+              <p className="text-white text-[14px] font-medium font-sans leading-snug mb-[12px]">
+                We’re assigning a delivery<br />partner soon!
+              </p>
+              <p className="text-white text-[12px] font-light font-sans leading-snug mb-[4px]">
+                Assigning a delivery partner in the next 2 minutes.
+              </p>
+            </div>
+
+            {/* Mini Map */}
+            <div
+              onClick={() => navigate('/order-tracking')}
+              className="shrink-0 relative rounded-[8px] overflow-hidden cursor-pointer active:scale-95 transition-transform"
+              style={{
+                width: "110px",
+                height: "82px",
+                backgroundColor: "#1A1A1A"
+              }}
+            >
+              <Map
+                {...viewState}
+                style={{ width: "100%", height: "100%" }}
+                mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
+                attributionControl={false}
+                interactive={false}
               >
-                  <span className="text-white text-[12px] font-medium font-sans whitespace-nowrap mr-2">
-                      Delivering to - {activeOrder.addresses?.label || "Home"}
-                  </span>
-                  <span className="text-white text-[12px] font-medium font-sans text-right leading-tight">
-                      {getActiveOrderAddressDisplay()}
-                  </span>
-              </div>
+                {/* Dashed Route Line */}
+                <Source id="route" type="geojson" data={routeGeoJson}>
+                  <Layer {...routeLayer} />
+                </Source>
 
-              {/* Status & Map Container (Bottom Container) */}
-              <div
-                  className="w-full rounded-b-[14px] flex cursor-pointer"
-                  style={{
-                      backgroundColor: "rgba(25, 25, 25, 0.34)",
-                      padding: "12px",
-                      marginTop: 0
-                  }}
-                  onClick={() => navigate(`/order-details/${activeOrder.id}`, { state: { order: activeOrder } })}
-              >
-                  {/* Left Text */}
-                  <div className="flex-1 flex flex-col justify-start pr-2">
-                      <p className="text-white text-[14px] font-medium font-sans leading-snug mb-[12px]">
-                          We’re assigning a delivery<br />partner soon!
-                      </p>
-                      <p className="text-white text-[12px] font-light font-sans leading-snug mb-[4px]">
-                          Assigning a delivery partner in the next 2 minutes.
-                      </p>
-                  </div>
+                {/* Delivery/User Location Marker */}
+                <Marker latitude={viewState.latitude} longitude={viewState.longitude}>
+                  <img src={currentLocationIcon} alt="User" className="w-4 h-4" />
+                </Marker>
 
-                  {/* Mini Map */}
-                  <div
-                    onClick={() => navigate('/order-tracking')}
-                    className="shrink-0 relative rounded-[8px] overflow-hidden cursor-pointer active:scale-95 transition-transform"
-                    style={{
-                        width: "110px",
-                        height: "82px",
-                        backgroundColor: "#1A1A1A"
-                    }}
-                  >
-                       <Map
-                           {...viewState}
-                           style={{ width: "100%", height: "100%" }}
-                           mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
-                           attributionControl={false}
-                           interactive={false}
-                       >
-                           {/* Dashed Route Line */}
-                           <Source id="route" type="geojson" data={routeGeoJson}>
-                               <Layer {...routeLayer} />
-                           </Source>
-
-                           {/* Delivery/User Location Marker */}
-                           <Marker latitude={viewState.latitude} longitude={viewState.longitude}>
-                               <img src={currentLocationIcon} alt="User" className="w-4 h-4" />
-                           </Marker>
-
-                           {/* Mock Rider Marker (slightly offset) */}
-                           <Marker
-                                latitude={viewState.latitude + 0.002}
-                                longitude={viewState.longitude + 0.002}
-                           >
-                                <img src={deliveryRiderIcon} alt="Rider" className="w-6 h-6" />
-                           </Marker>
-                       </Map>
-                  </div>
-              </div>
-         </div>
+                {/* Mock Rider Marker (slightly offset) */}
+                <Marker
+                  latitude={viewState.latitude + 0.002}
+                  longitude={viewState.longitude + 0.002}
+                >
+                  <img src={deliveryRiderIcon} alt="Rider" className="w-6 h-6" />
+                </Marker>
+              </Map>
+            </div>
+          </div>
+        </div>
       ) : (
         <div className="mx-5 mt-6">
           <div className="rounded-2xl overflow-hidden flex" style={{
-          backgroundImage: `url(${bannerBg})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }}>
+            backgroundImage: `url(${bannerBg})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          }}>
             <div className="flex-1 p-4 flex flex-col justify-center">
               <div className="flex items-center gap-2 mb-2">
                 <img src={iconGift} alt="Gift" className="w-5 h-5" />
@@ -396,17 +396,16 @@ const Homepage = () => {
       )}
 
       {/* Recent Transactions */}
-      <div className="mx-5 mt-6 flex-1">
+      <div className="mx-5 mt-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-foreground text-[16px] font-medium">Recent Transactions</h3>
           <button
-             onClick={() => navigate('/order-history')}
-             disabled={transactionHistory.length === 0 && !activeOrder}
-             className={`text-primary text-[14px] transition-colors ${
-                 transactionHistory.length === 0 && !activeOrder
-                 ? 'opacity-50 cursor-not-allowed'
-                 : 'hover:text-primary/80 cursor-pointer'
-             }`}
+            onClick={() => navigate('/order-history')}
+            disabled={transactionHistory.length === 0 && !activeOrder}
+            className={`text-primary text-[14px] transition-colors ${transactionHistory.length === 0 && !activeOrder
+              ? 'opacity-50 cursor-not-allowed'
+              : 'hover:text-primary/80 cursor-pointer'
+              }`}
           >
             View All
           </button>
@@ -414,64 +413,64 @@ const Homepage = () => {
         <div className="border-t border-white/10 pt-[14px] min-h-[100px]">
           {transactionHistory.length > 0 ? (
             <div className="w-full">
-               {/* Headers */}
-               <div className="grid grid-cols-[1fr_100px_80px] gap-x-6 mb-[12px] px-0">
-                   <div>
-                       <span className="text-[#7E7E7E] text-[12px] font-normal font-sans">
-                           Details
-                       </span>
-                   </div>
-                   <div className="text-right">
-                       <span className="text-[#7E7E7E] text-[12px] font-normal font-sans">
-                           Price
-                       </span>
-                   </div>
-                   <div className="text-right">
-                       <span className="text-[#7E7E7E] text-[12px] font-normal font-sans">
-                           Status
-                       </span>
-                   </div>
-               </div>
+              {/* Headers */}
+              <div className="grid grid-cols-[1fr_100px_80px] gap-x-6 mb-[12px] px-0">
+                <div>
+                  <span className="text-[#7E7E7E] text-[12px] font-normal font-sans">
+                    Details
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="text-[#7E7E7E] text-[12px] font-normal font-sans">
+                    Price
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="text-[#7E7E7E] text-[12px] font-normal font-sans">
+                    Status
+                  </span>
+                </div>
+              </div>
 
-               {/* Rows */}
-               <div className="flex flex-col gap-[16px]">
-                   {transactionHistory.map((tx) => (
-                       <div
-                           key={tx.id}
-                           className="grid grid-cols-[1fr_100px_80px] gap-x-6 items-start cursor-pointer hover:opacity-80 transition-opacity"
-                           onClick={() => navigate(`/order-details/${tx.id}`, { state: { order: tx } })}
-                       >
-                           {/* Details Column */}
-                           <div className="flex items-start">
-                               <img src={ongoingIcon} alt="Status" className="w-[26px] h-[26px]" />
-                               <div className="ml-[7px] flex flex-col">
-                                   <span className="text-white text-[13px] font-normal font-sans leading-none mb-[2px]">
-                                       {tx.addresses?.label ? `Order to ${tx.addresses.label}` : "Cash Order"}
-                                   </span>
-                                   <span className="text-[#7E7E7E] text-[12px] font-normal font-sans leading-none">
-                                       {new Date(tx.created_at).toLocaleDateString('en-IN', {
-                                            day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
-                                       })}
-                                   </span>
-                               </div>
-                           </div>
+              {/* Rows */}
+              <div className="flex flex-col gap-[16px]">
+                {transactionHistory.map((tx) => (
+                  <div
+                    key={tx.id}
+                    className="grid grid-cols-[1fr_100px_80px] gap-x-6 items-start cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => navigate(`/order-details/${tx.id}`, { state: { order: tx } })}
+                  >
+                    {/* Details Column */}
+                    <div className="flex items-start">
+                      <img src={ongoingIcon} alt="Status" className="w-[26px] h-[26px]" />
+                      <div className="ml-[7px] flex flex-col">
+                        <span className="text-white text-[13px] font-normal font-sans leading-none mb-[2px]">
+                          {tx.addresses?.label ? `Order to ${tx.addresses.label}` : "Cash Order"}
+                        </span>
+                        <span className="text-[#7E7E7E] text-[12px] font-normal font-sans leading-none">
+                          {new Date(tx.created_at).toLocaleDateString('en-IN', {
+                            day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+                          })}
+                        </span>
+                      </div>
+                    </div>
 
-                           {/* Price Column */}
-                           <div className="text-right">
-                               <span className="text-white text-[13px] font-normal font-sans">
-                                   ₹{(tx.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                               </span>
-                           </div>
+                    {/* Price Column */}
+                    <div className="text-right">
+                      <span className="text-white text-[13px] font-normal font-sans">
+                        ₹{(tx.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </span>
+                    </div>
 
-                           {/* Status Column */}
-                           <div className="text-right">
-                               <span className="text-[#FACC15] text-[13px] font-normal font-sans capitalize">
-                                   {tx.status}
-                               </span>
-                           </div>
-                       </div>
-                   ))}
-               </div>
+                    {/* Status Column */}
+                    <div className="text-right">
+                      <span className="text-[#FACC15] text-[13px] font-normal font-sans capitalize">
+                        {tx.status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           ) : (
             <p className="text-muted-foreground text-[14px] text-center">

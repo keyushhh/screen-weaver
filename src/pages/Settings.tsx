@@ -70,10 +70,10 @@ const Settings = () => {
   };
 
   const handleLogout = () => {
-      // Clear session/state
-      localStorage.clear();
-      // Navigate to authentication screen (Index)
-      navigate("/");
+    // Clear session/state
+    localStorage.clear();
+    // Navigate to authentication screen (Index)
+    navigate("/");
   };
 
   const securityConfig = getSecurityConfig(kycStatus);
@@ -90,7 +90,7 @@ const Settings = () => {
       }}
     >
       {/* Header */}
-      <div className="px-5 pt-4 flex items-center justify-between">
+      <div className="px-5 pt-12 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate("/home")}
@@ -101,15 +101,15 @@ const Settings = () => {
           <h1 className="text-foreground text-[18px] font-semibold">Settings</h1>
         </div>
         <button
-  className="px-4 py-2 rounded-full flex items-center gap-2"
-  style={{
-    backgroundImage: 'url("/lovable-uploads/881be237-04b4-4be4-b639-b56090b04ed5.png")',
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-  }}
->
-  <span className="text-foreground text-[14px]">+ Support</span>
-</button>
+          className="px-4 py-2 rounded-full flex items-center gap-2"
+          style={{
+            backgroundImage: 'url("/lovable-uploads/881be237-04b4-4be4-b639-b56090b04ed5.png")',
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        >
+          <span className="text-foreground text-[14px]">+ Support</span>
+        </button>
       </div>
 
       {/* Profile */}
@@ -156,15 +156,15 @@ const Settings = () => {
             </div>
           </div>
           <button
-             onClick={() => navigate("/security-dashboard")}
-             className="px-4 h-[32px] flex items-center justify-center rounded-full text-[12px] text-foreground"
-             style={{
-                backgroundImage: 'url("/lovable-uploads/881be237-04b4-4be4-b639-b56090b04ed5.png")',
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-             }}
+            onClick={() => navigate("/security-dashboard")}
+            className="px-4 h-[32px] flex items-center justify-center rounded-full text-[12px] text-foreground"
+            style={{
+              backgroundImage: 'url("/lovable-uploads/881be237-04b4-4be4-b639-b56090b04ed5.png")',
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
           >
-             Check Security
+            Check Security
           </button>
         </div>
       </div>
@@ -185,8 +185,8 @@ const Settings = () => {
                   {cardCount === 0
                     ? "0 cards saved"
                     : cardCount === 1
-                    ? "1 card linked"
-                    : `${cardCount} cards linked`}
+                      ? "1 card linked"
+                      : `${cardCount} cards linked`}
                 </p>
               </div>
             </div>
@@ -202,8 +202,8 @@ const Settings = () => {
                   {bankAccountCount === 0
                     ? "0 bank accounts linked"
                     : bankAccountCount === 1
-                    ? "1 bank account linked"
-                    : `${bankAccountCount} bank accounts linked`}
+                      ? "1 bank account linked"
+                      : `${bankAccountCount} bank accounts linked`}
                 </p>
               </div>
             </div>
@@ -224,9 +224,8 @@ const Settings = () => {
             <div className="space-y-4 ml-6">
               <div className="flex justify-between">
                 <span
-                  className={`text-[14px] ${
-                    pushNotifications ? "text-foreground" : "text-muted-foreground"
-                  }`}
+                  className={`text-[14px] ${pushNotifications ? "text-foreground" : "text-muted-foreground"
+                    }`}
                 >
                   Push Notifications
                 </span>
@@ -241,9 +240,8 @@ const Settings = () => {
 
               <div className="flex justify-between">
                 <span
-                  className={`text-[14px] ${
-                    transactionAlerts ? "text-foreground" : "text-muted-foreground"
-                  }`}
+                  className={`text-[14px] ${transactionAlerts ? "text-foreground" : "text-muted-foreground"
+                    }`}
                 >
                   Transaction Alerts
                 </span>

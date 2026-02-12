@@ -52,7 +52,7 @@ const KYCReview = () => {
       }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-5 pt-4 pb-2">
+      <div className="flex items-center justify-between px-5 pt-12 pb-2">
         <button
           onClick={() => navigate(-1)}
           className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center transition-colors hover:bg-white/10"
@@ -114,12 +114,12 @@ const KYCReview = () => {
                 {/* Thumbnails for Front & Back */}
                 {images.front && (
                   <div className="w-[42px] h-[32px] rounded-[4px] bg-white/10 overflow-hidden border border-white/20 flex items-center justify-center">
-                      <img src={images.front} alt="Front" className="w-full h-full object-cover" />
+                    <img src={images.front} alt="Front" className="w-full h-full object-cover" />
                   </div>
                 )}
                 {images.back && (
                   <div className="w-[42px] h-[32px] rounded-[4px] bg-white/10 overflow-hidden border border-white/20 flex items-center justify-center">
-                      <img src={images.back} alt="Back" className="w-full h-full object-cover" />
+                    <img src={images.back} alt="Back" className="w-full h-full object-cover" />
                   </div>
                 )}
               </div>
@@ -146,13 +146,13 @@ const KYCReview = () => {
             {/* Selfie Verification */}
             <div className="flex justify-between items-center border-t border-white/10 pt-4">
               <div>
-                 <p className="text-white/40 text-[12px] mb-1">Selfie Verification</p>
-                 <p className="text-white text-[14px] font-medium">Selfie Verified</p>
+                <p className="text-white/40 text-[12px] mb-1">Selfie Verification</p>
+                <p className="text-white text-[14px] font-medium">Selfie Verified</p>
               </div>
               {/* Selfie Thumbnail */}
               {selfie && (
                 <div className="w-[42px] h-[42px] rounded-[8px] bg-white/10 overflow-hidden border border-white/20">
-                   <img src={selfie} alt="Selfie" className="w-full h-full object-cover" />
+                  <img src={selfie} alt="Selfie" className="w-full h-full object-cover" />
                 </div>
               )}
             </div>
@@ -164,16 +164,16 @@ const KYCReview = () => {
       {/* Footer Area */}
       <div className="fixed bottom-0 left-0 right-0 px-5 pb-8 pt-4 bg-gradient-to-t from-[#0a0a12] via-[#0a0a12] to-transparent z-20">
         <div className="flex items-start gap-3 mb-6" onClick={() => setAgreed(!agreed)}>
-            <img
-              src={agreed ? checkBox : checkBoxOutlineBlank}
-              alt="Checkbox"
-              className="w-5 h-5 mt-0.5 object-contain"
-            />
-            <label
-                className="text-white/60 text-[13px] leading-tight cursor-pointer"
-            >
-                I agree, all information provided are correct and accurate to best of my knowledge.
-            </label>
+          <img
+            src={agreed ? checkBox : checkBoxOutlineBlank}
+            alt="Checkbox"
+            className="w-5 h-5 mt-0.5 object-contain"
+          />
+          <label
+            className="text-white/60 text-[13px] leading-tight cursor-pointer"
+          >
+            I agree, all information provided are correct and accurate to best of my knowledge.
+          </label>
         </div>
 
         <Button

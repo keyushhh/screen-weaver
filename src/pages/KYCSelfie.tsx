@@ -27,17 +27,17 @@ const KYCSelfie = () => {
   const handleCapture = () => {
     // Simulate capture with 25% chance of error for demo
     const hasSelfieError = Math.random() < 0.25;
-    
+
     if (hasSelfieError) {
       setSelfieError("Selfie was too dark and unclear. Please try again with proper lighting and background.");
       setIsCameraOpen(false);
       setCapturedImage(null);
       return;
     }
-    
+
     // Clear any previous error on successful capture
     setSelfieError(null);
-    
+
     // In a real app, we would draw video frame to canvas
     // For now, we'll just use a placeholder color/data URI
     const placeholderImage = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjNTI2MEZFIi8+PC9zdmc+";
@@ -56,7 +56,7 @@ const KYCSelfie = () => {
       }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-5 pt-4 pb-2">
+      <div className="flex items-center justify-between px-5 pt-12 pb-2">
         <button
           onClick={() => navigate(-1)}
           className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center transition-colors hover:bg-white/10"
@@ -126,31 +126,31 @@ const KYCSelfie = () => {
                 backgroundRepeat: 'no-repeat',
               }}
             >
-               <div className="w-[82px] h-[69px] rounded-[12px] overflow-hidden bg-black flex-shrink-0">
-                  <img src={capturedImage} alt="Selfie" className="w-full h-full object-cover" />
-               </div>
-               <p className="text-white text-[12px] font-normal leading-tight">
-                 You didn't have to snap this hard, but we appreciate it.
-               </p>
+              <div className="w-[82px] h-[69px] rounded-[12px] overflow-hidden bg-black flex-shrink-0">
+                <img src={capturedImage} alt="Selfie" className="w-full h-full object-cover" />
+              </div>
+              <p className="text-white text-[12px] font-normal leading-tight">
+                You didn't have to snap this hard, but we appreciate it.
+              </p>
             </div>
           )}
         </div>
       </div>
 
-       {/* Footer - Continue Button (only when captured) */}
-       {capturedImage && (
+      {/* Footer - Continue Button (only when captured) */}
+      {capturedImage && (
         <div className="fixed bottom-0 left-0 right-0 px-5 pb-8 pt-4 bg-gradient-to-t from-[#0a0a12] to-transparent z-20">
           <Button
             variant="default"
             className="w-full h-[48px] rounded-full text-[16px] font-medium bg-[#5260FE] hover:bg-[#5260FE]/90 text-white"
             onClick={() => {
-                // Navigate to next step or complete
-                navigate("/kyc-review", {
-                  state: {
-                    ...location.state,
-                    selfie: capturedImage
-                  }
-                });
+              // Navigate to next step or complete
+              navigate("/kyc-review", {
+                state: {
+                  ...location.state,
+                  selfie: capturedImage
+                }
+              });
             }}
           >
             Continue
@@ -170,42 +170,42 @@ const KYCSelfie = () => {
               <X className="w-5 h-5 text-white" />
             </button>
             {/* Blue dot/camera indicator simulation */}
-             <div className="absolute top-4 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-blue-600 shadow-[0_0_8px_rgba(37,99,235,0.8)]"></div>
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-blue-600 shadow-[0_0_8px_rgba(37,99,235,0.8)]"></div>
           </div>
 
           {/* Camera Viewport Simulation */}
           <div className="flex-1 relative bg-black flex flex-col items-center justify-center">
-              {/* Frame Asset */}
-              <div className="relative w-[85%] aspect-square max-w-[360px] flex items-center justify-center">
-                <img src={frameIcon} alt="Frame" className="w-full h-full object-contain" />
-              </div>
+            {/* Frame Asset */}
+            <div className="relative w-[85%] aspect-square max-w-[360px] flex items-center justify-center">
+              <img src={frameIcon} alt="Frame" className="w-full h-full object-contain" />
+            </div>
 
-              {/* Text Instructions */}
-              <div className="mt-12 flex flex-col items-center gap-4">
-                  <p className="text-white text-[20px] font-normal font-sans">Align your face within the frame</p>
+            {/* Text Instructions */}
+            <div className="mt-12 flex flex-col items-center gap-4">
+              <p className="text-white text-[20px] font-normal font-sans">Align your face within the frame</p>
 
-                  <div className="w-[256px] h-[34px] bg-[#090909] rounded-full flex items-center justify-center border border-white/5">
-                      <span className="text-white/80 text-[12px] font-normal">Avoid sunglasses, hats, or masks.</span>
-                  </div>
+              <div className="w-[256px] h-[34px] bg-[#090909] rounded-full flex items-center justify-center border border-white/5">
+                <span className="text-white/80 text-[12px] font-normal">Avoid sunglasses, hats, or masks.</span>
               </div>
+            </div>
           </div>
 
           {/* Camera Controls */}
           <div className="h-[120px] pb-8 flex items-center justify-center relative bg-black px-8">
-              {/* Shutter Button */}
-              <button
-                onClick={handleCapture}
-                className="w-20 h-20 rounded-full flex items-center justify-center transition-transform active:scale-95 z-20"
-              >
-                  <img src={shutterIcon} alt="Capture" className="w-full h-full object-contain" />
-              </button>
+            {/* Shutter Button */}
+            <button
+              onClick={handleCapture}
+              className="w-20 h-20 rounded-full flex items-center justify-center transition-transform active:scale-95 z-20"
+            >
+              <img src={shutterIcon} alt="Capture" className="w-full h-full object-contain" />
+            </button>
 
-              {/* Flash Button */}
-              <div className="absolute inset-0 flex items-center justify-end px-12 pointer-events-none">
-                  <button className="w-8 h-8 flex items-center justify-center pointer-events-auto">
-                      <img src={flashIcon} alt="Flash" className="w-full h-full object-contain" />
-                  </button>
-              </div>
+            {/* Flash Button */}
+            <div className="absolute inset-0 flex items-center justify-end px-12 pointer-events-none">
+              <button className="w-8 h-8 flex items-center justify-center pointer-events-auto">
+                <img src={flashIcon} alt="Flash" className="w-full h-full object-contain" />
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -45,7 +45,7 @@ const AddPaymentMethod = () => {
     const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
 
     const hasLinkedMethods = mockPaymentMethods.some((m) => m.linked);
-    const title = hasLinkedMethods ? "Select Payment" : "Add Payment";
+    const title = flow === "withdrawal" ? "Add Payment Method" : (hasLinkedMethods ? "Select Payment" : "Add Payment");
 
     const upiMethods = mockPaymentMethods.filter((m) => m.type === "upi");
     const cardMethods = mockPaymentMethods.filter((m) => m.type === "card");
@@ -91,10 +91,12 @@ const AddPaymentMethod = () => {
 
     const handleProceed = () => {
         if (!selectedMethod) return;
-        if (flow === "upgrade") {
-            navigate("/subscription-details", { state: { tier, paymentMethod: selectedMethod, flow } });
+        if (location.state?.flow === "withdrawal") {
+            navigate("/select-payment-method", { state: { ...location.state, selectedMethod } });
+        } else if (location.state?.flow === "upgrade") {
+            navigate("/subscription-details", { state: { ...location.state, paymentMethod: selectedMethod } });
         } else {
-            navigate("/order-summary", { state: { amount, paymentMethod: selectedMethod } });
+            navigate("/order-summary", { state: { ...location.state, paymentMethod: selectedMethod } });
         }
     };
 

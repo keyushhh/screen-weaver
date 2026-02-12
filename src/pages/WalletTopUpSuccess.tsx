@@ -64,7 +64,7 @@ const WalletTopUpSuccess = () => {
             }}
         >
             {/* Payment Success Heading */}
-            <div className="w-full pt-6 flex justify-center">
+            <div className="w-full pt-12 flex justify-center">
                 <h1 className="text-white text-[18px] font-semibold font-sans">
                     Payment Success!
                 </h1>

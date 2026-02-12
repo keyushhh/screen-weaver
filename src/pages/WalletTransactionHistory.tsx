@@ -227,7 +227,17 @@ const WalletTransactionHistory = () => {
             subtitle = "Cash Order";
         } else if (desc.includes("withdrawal")) {
             title = "Withdrawal";
-            subtitle = "Added via Netbanking";
+            const methodNames: Record<string, string> = {
+                'cred': 'CRED UPI',
+                'gpay': 'Google Pay UPI',
+                'phonepe': 'PhonePe UPI',
+                'upi-id': 'UPI ID',
+                'hdfc-card': 'HDFC Card',
+                'amazon': 'Amazon Pay Wallet',
+                'netbanking': 'HDFC Netbanking'
+            };
+            const methodLabel = methodId ? (methodNames[methodId as string] || "Bank") : "Netbanking";
+            subtitle = `Withdrawn to ${methodLabel}`;
         } else if (desc.includes("cred") || desc.includes("google pay") || desc.includes("phone pe") || desc.includes("upi id") || desc.includes("upi")) {
             subtitle = "Added via UPI";
         } else if (desc.includes("cards") || desc.includes("card")) {
@@ -406,7 +416,7 @@ const WalletTransactionHistory = () => {
             }}
         >
             {/* Header Container */}
-            <div className="shrink-0 flex items-center justify-between w-full px-5 pt-4 pb-2 z-10 relative">
+            <div className="shrink-0 flex items-center justify-between w-full px-5 pt-12 pb-2 z-10 relative">
                 {/* Back Button */}
                 <button
                     onClick={(e) => { e.stopPropagation(); navigate(-1); }}

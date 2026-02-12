@@ -30,7 +30,7 @@ const KYCIntro = () => {
   ];
 
   return (
-    <div 
+    <div
       className="h-full w-full overflow-y-auto overscroll-y-none flex flex-col safe-area-top safe-area-bottom"
       style={{
         backgroundColor: '#0a0a12',
@@ -40,8 +40,8 @@ const KYCIntro = () => {
       }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-5 pt-4 pb-2">
-        <button 
+      <div className="flex items-center justify-between px-5 pt-12 pb-2">
+        <button
           onClick={() => navigate("/settings")}
           className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center"
         >
@@ -76,13 +76,13 @@ const KYCIntro = () => {
 
       {/* Bottom Actions */}
       <div className="px-5 pb-8 space-y-4">
-        <button 
+        <button
           onClick={() => navigate('/kyc-form')}
           className="w-full py-4 rounded-full text-foreground font-semibold text-[16px] btn-gradient"
         >
           Start KYC
         </button>
-        <button 
+        <button
           onClick={() => setShowWhyModal(true)}
           className="w-full text-center text-foreground text-[14px] underline underline-offset-2"
         >
@@ -94,13 +94,13 @@ const KYCIntro = () => {
       {showWhyModal && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center p-6">
           {/* Backdrop */}
-          <div 
+          <div
             className="absolute inset-0 backdrop-blur-md bg-black/40"
             onClick={() => setShowWhyModal(false)}
           />
-          
+
           {/* Popup Box with glass background */}
-          <div 
+          <div
             className="relative rounded-2xl p-6 max-w-[320px] w-full z-10"
             style={{
               backgroundImage: `url(${popupBg})`,
@@ -120,9 +120,9 @@ const KYCIntro = () => {
               </div>
             </div>
           </div>
-          
+
           {/* Close Button - Outside the popup */}
-          <button 
+          <button
             onClick={() => setShowWhyModal(false)}
             className="relative z-10 mt-6 px-8 py-3 rounded-full flex items-center justify-center gap-2"
             style={{

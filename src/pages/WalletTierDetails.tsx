@@ -27,10 +27,10 @@ const WalletTierDetails = () => {
         >
 
             {/* Header Section */}
-            <div className="relative flex items-center justify-center px-5 pt-6 pb-2 shrink-0">
+            <div className="relative flex items-center justify-center px-5 pt-12 pb-2 shrink-0">
                 <button
                     onClick={() => navigate(-1)}
-                    className="absolute left-5 top-6 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md active:scale-95 transition-transform z-10"
+                    className="absolute left-5 top-12 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md active:scale-95 transition-transform z-10"
                 >
                     <ChevronLeft className="w-6 h-6 text-white" />
                 </button>

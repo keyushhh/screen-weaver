@@ -38,7 +38,7 @@ const WalletSettings = () => {
             }}
         >
             {/* Header */}
-            <div className="shrink-0 relative flex items-center justify-center w-full px-5 pt-6 pb-0 z-10">
+            <div className="shrink-0 relative flex items-center justify-center w-full px-5 pt-12 pb-0 z-10">
                 <button
                     onClick={() => navigate(-1)}
                     className="absolute left-5 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md active:scale-95 transition-transform"
@@ -88,7 +88,7 @@ const WalletSettings = () => {
                                     className="mx-auto h-[48px] flex items-center justify-center rounded-full text-white text-[18px] font-medium active:scale-95 transition-transform"
                                     style={{ background: "#6C72FF", width: "326px", maxWidth: "100%" }}
                                 >
-                                    Upgrade Now
+                                    {currentTier.buttonText}
                                 </button>
                             </div>
                         </div>
@@ -122,12 +122,14 @@ const WalletSettings = () => {
                                     {/* Content */}
                                     <div className="relative z-10 flex flex-col h-full text-white">
                                         <div className="flex justify-between items-start">
-                                            {/* Diamond icon (top-left) */}
-                                            <img
-                                                src={tier.diamond}
-                                                alt={tier.name}
-                                                className="absolute top-0 left-0 w-[65px] h-[55px] object-contain z-20"
-                                            />
+                                            {/* Diamond icon (top-left) - Hide for Starter */}
+                                            {tier.name !== 'Starter' && (
+                                                <img
+                                                    src={tier.diamond}
+                                                    alt={tier.name}
+                                                    className="absolute top-0 left-0 w-[65px] h-[55px] object-contain z-20"
+                                                />
+                                            )}
 
                                             {/* Chip badge with text (top-right) */}
                                             <div

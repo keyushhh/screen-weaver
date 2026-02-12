@@ -10,6 +10,7 @@ import buttonPrimary from "@/assets/button-primary-wide.png";
 import successIcon from "@/assets/success.svg";
 import processingIcon from "@/assets/processing.svg";
 import failedIcon from "@/assets/failed.svg";
+import addPaymentCta from "@/assets/add-payment-cta.png";
 
 const WalletCreated = () => {
     const navigate = useNavigate();
@@ -123,7 +124,7 @@ const WalletCreated = () => {
             }}
         >
             {/* Header Container */}
-            <div className="shrink-0 flex items-center justify-between w-full px-5 pt-4 pb-2 z-10">
+            <div className="shrink-0 flex items-center justify-between w-full px-5 pt-12 pb-2 z-10">
                 {/* Back Button */}
                 <button
                     onClick={() => navigate(-1)}
@@ -291,11 +292,13 @@ const WalletCreated = () => {
 
                 {walletBalance > 0 && (
                     <button
-                        onClick={() => { }} // Do nothing as requested
+                        onClick={() => navigate('/wallet-withdraw')}
                         className="w-full h-[48px] flex items-center justify-center text-white text-[16px] font-medium font-sans rounded-full active:scale-95 transition-transform"
                         style={{
-                            backgroundColor: "#171717", // Dark background
-                            border: "1px solid rgba(255,255,255,0.1)"
+                            backgroundImage: `url(${addPaymentCta})`,
+                            backgroundSize: "cover",
+                            backgroundPosition: "center",
+                            backgroundRepeat: "no-repeat"
                         }}
                     >
                         Withdraw

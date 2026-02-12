@@ -45,26 +45,26 @@ const SecurityDashboard = () => {
           >
             {/* Flex Column for Text */}
             <div className="flex flex-col justify-center w-full h-full">
-               <div className="flex items-center gap-2">
-                  <img src={kycBadge} className="w-[24px] h-[24px] object-contain" alt="Badge" />
-                  <span className="text-white text-[18px] font-medium font-sans">Security Breach-ish.</span>
-               </div>
-               <span className="text-[#7E7E7E] text-[13px] font-normal font-sans mt-[2px]">Some settings need your attention. Give ‘em a tap.</span>
+              <div className="flex items-center gap-2">
+                <img src={kycBadge} className="w-[24px] h-[24px] object-contain" alt="Badge" />
+                <span className="text-white text-[18px] font-medium font-sans">Security Breach-ish.</span>
+              </div>
+              <span className="text-[#7E7E7E] text-[13px] font-normal font-sans mt-[2px]">Some settings need your attention. Give ‘em a tap.</span>
             </div>
           </div>
         );
       case "pending":
-         return (
+        return (
           <div
             className={commonClasses}
             style={bgStyle(bannerPending)}
           >
             <div className="flex flex-col justify-center w-full h-full">
-               <div className="flex items-center gap-2">
-                  <img src={kycBadge} className="w-[24px] h-[24px] object-contain" alt="Badge" />
-                  <span className="text-white text-[18px] font-medium font-sans">In Progress…</span>
-               </div>
-               <span className="text-[#7E7E7E] text-[13px] font-normal font-sans mt-[2px]">We’re working our magic. Check back soon.</span>
+              <div className="flex items-center gap-2">
+                <img src={kycBadge} className="w-[24px] h-[24px] object-contain" alt="Badge" />
+                <span className="text-white text-[18px] font-medium font-sans">In Progress…</span>
+              </div>
+              <span className="text-[#7E7E7E] text-[13px] font-normal font-sans mt-[2px]">We’re working our magic. Check back soon.</span>
             </div>
           </div>
         );
@@ -75,11 +75,11 @@ const SecurityDashboard = () => {
             style={bgStyle(bannerComplete)}
           >
             <div className="flex flex-col justify-center w-full h-full">
-               <div className="flex items-center gap-2">
-                  <img src={kycBadge} className="w-[24px] h-[24px] object-contain" alt="Badge" />
-                  <span className="text-white text-[18px] font-medium font-sans">Looks Good!</span>
-               </div>
-               <span className="text-[#7E7E7E] text-[13px] font-normal font-sans mt-[2px]">Your security setup looks good and completed.</span>
+              <div className="flex items-center gap-2">
+                <img src={kycBadge} className="w-[24px] h-[24px] object-contain" alt="Badge" />
+                <span className="text-white text-[18px] font-medium font-sans">Looks Good!</span>
+              </div>
+              <span className="text-[#7E7E7E] text-[13px] font-normal font-sans mt-[2px]">Your security setup looks good and completed.</span>
             </div>
           </div>
         );
@@ -105,92 +105,92 @@ const SecurityDashboard = () => {
 
     // Incomplete specific overrides
     if (kycStatus === "incomplete") {
-        kycBg = "rgba(255, 30, 30, 0.12)";
-        kycIcon = kycAlertIcon;
+      kycBg = "rgba(255, 30, 30, 0.12)";
+      kycIcon = kycAlertIcon;
     } else if (kycStatus === "pending") {
-        kycBg = "rgba(250, 204, 21, 0.12)";
+      kycBg = "rgba(250, 204, 21, 0.12)";
     }
 
     const handleKycClick = () => {
-        if (kycStatus === 'incomplete' || kycStatus === 'pending') {
-            navigate("/kyc-intro");
-        } else if (kycStatus === 'complete') {
-            navigate("/kyc-status-complete");
-        }
+      if (kycStatus === 'incomplete' || kycStatus === 'pending') {
+        navigate("/kyc-intro");
+      } else if (kycStatus === 'complete') {
+        navigate("/kyc-status-complete");
+      }
     };
 
     return (
-        <div className="flex flex-col gap-[4px] w-full">
+      <div className="flex flex-col gap-[4px] w-full">
 
-            {/* ROW 1: KYC */}
-            <div
-                className={`w-full ${rowHeight} flex items-center justify-between ${paddingClass} cursor-pointer rounded-t-xl rounded-b-none`}
-                style={{ backgroundColor: kycBg }}
-                onClick={handleKycClick}
-            >
-                <div className="flex items-center gap-4 w-full">
-                    <img src={kycIcon} alt="KYC" className={iconClass} />
-                    <div className={`${textWrapperClass} ${textGap} w-full`}>
-                        <span className={headerClass}>KYC</span>
-                        <span className={subTextClass}>KYC also unlocks wallet limits, faster refunds, and your inner peace.</span>
-                    </div>
-                </div>
-                <ChevronRight className={chevronClass} />
+        {/* ROW 1: KYC */}
+        <div
+          className={`w-full ${rowHeight} flex items-center justify-between ${paddingClass} cursor-pointer rounded-t-xl rounded-b-none`}
+          style={{ backgroundColor: kycBg }}
+          onClick={handleKycClick}
+        >
+          <div className="flex items-center gap-4 w-full">
+            <img src={kycIcon} alt="KYC" className={iconClass} />
+            <div className={`${textWrapperClass} ${textGap} w-full`}>
+              <span className={headerClass}>KYC</span>
+              <span className={subTextClass}>KYC also unlocks wallet limits, faster refunds, and your inner peace.</span>
             </div>
-
-            {/* ROW 2: MPIN */}
-            <div
-                className={`w-full ${rowHeight} flex items-center justify-between ${paddingClass} bg-[#0B0B0B] cursor-pointer`}
-                onClick={() => setShowMpinSheet(true)}
-            >
-                 <div className="flex items-center gap-4 w-full">
-                    <img src={mpinIcon} alt="MPIN" className={iconClass} />
-                    <div className={`${textWrapperClass} ${textGap} w-full`}>
-                        <span className={headerClass}>MPIN</span>
-                        <span className={subTextClass}>No birthdays, no 1234. We're judging you silently.</span>
-                    </div>
-                </div>
-                <ChevronRight className={chevronClass} />
-            </div>
-
-            {/* ROW 3: Biometric */}
-            <div className={`w-full ${rowHeight} flex items-center justify-between ${paddingClass} bg-[#0B0B0B]`}>
-                 <div className="flex items-center gap-4 w-full">
-                    <img src={biometricIcon} alt="Biometric" className={iconClass} />
-                    <div className={`flex flex-col justify-center ${textGap} w-full`}>
-                        <span className={headerClass}>Biometric Unlock</span>
-                        <span className={subTextClass}>Don’t worry, your face/finger data stays on your phone. We don’t want it. Promise</span>
-                    </div>
-                </div>
-                {/* Toggle Wrapper: Increased size and adjusted margin */}
-                <div
-                  className="mr-[10px] cursor-pointer w-[34px] h-[20px] flex items-center justify-center shrink-0"
-                  onClick={() => setBiometricEnabled(!biometricEnabled)}
-                >
-                    <img
-                        src={biometricEnabled ? toggleActive : toggleInactive}
-                        className="w-full h-full object-contain"
-                        alt="Toggle"
-                    />
-                </div>
-            </div>
-
-            {/* ROW 4: Delete Account */}
-            <div
-                className={`w-full ${rowHeight} flex items-center justify-between ${paddingClass} bg-[#0B0B0B] cursor-pointer rounded-t-none rounded-b-xl`}
-                onClick={() => navigate("/delete-account")}
-            >
-                 <div className="flex items-center gap-4 w-full">
-                    <img src={deleteAccountIcon} alt="Delete" className={iconClass} />
-                    <div className={`${textWrapperClass} ${textGap} w-full`}>
-                        <span className={headerClass}>Delete Account</span>
-                        <span className={subTextClass}>Thinking of leaving? It's okay, we can handle heartbreak.</span>
-                    </div>
-                </div>
-                <ChevronRight className={chevronClass} />
-            </div>
-
+          </div>
+          <ChevronRight className={chevronClass} />
         </div>
+
+        {/* ROW 2: MPIN */}
+        <div
+          className={`w-full ${rowHeight} flex items-center justify-between ${paddingClass} bg-[#0B0B0B] cursor-pointer`}
+          onClick={() => setShowMpinSheet(true)}
+        >
+          <div className="flex items-center gap-4 w-full">
+            <img src={mpinIcon} alt="MPIN" className={iconClass} />
+            <div className={`${textWrapperClass} ${textGap} w-full`}>
+              <span className={headerClass}>MPIN</span>
+              <span className={subTextClass}>No birthdays, no 1234. We're judging you silently.</span>
+            </div>
+          </div>
+          <ChevronRight className={chevronClass} />
+        </div>
+
+        {/* ROW 3: Biometric */}
+        <div className={`w-full ${rowHeight} flex items-center justify-between ${paddingClass} bg-[#0B0B0B]`}>
+          <div className="flex items-center gap-4 w-full">
+            <img src={biometricIcon} alt="Biometric" className={iconClass} />
+            <div className={`flex flex-col justify-center ${textGap} w-full`}>
+              <span className={headerClass}>Biometric Unlock</span>
+              <span className={subTextClass}>Don’t worry, your face/finger data stays on your phone. We don’t want it. Promise</span>
+            </div>
+          </div>
+          {/* Toggle Wrapper: Increased size and adjusted margin */}
+          <div
+            className="mr-[10px] cursor-pointer w-[34px] h-[20px] flex items-center justify-center shrink-0"
+            onClick={() => setBiometricEnabled(!biometricEnabled)}
+          >
+            <img
+              src={biometricEnabled ? toggleActive : toggleInactive}
+              className="w-full h-full object-contain"
+              alt="Toggle"
+            />
+          </div>
+        </div>
+
+        {/* ROW 4: Delete Account */}
+        <div
+          className={`w-full ${rowHeight} flex items-center justify-between ${paddingClass} bg-[#0B0B0B] cursor-pointer rounded-t-none rounded-b-xl`}
+          onClick={() => navigate("/delete-account")}
+        >
+          <div className="flex items-center gap-4 w-full">
+            <img src={deleteAccountIcon} alt="Delete" className={iconClass} />
+            <div className={`${textWrapperClass} ${textGap} w-full`}>
+              <span className={headerClass}>Delete Account</span>
+              <span className={subTextClass}>Thinking of leaving? It's okay, we can handle heartbreak.</span>
+            </div>
+          </div>
+          <ChevronRight className={chevronClass} />
+        </div>
+
+      </div>
     );
   };
 
@@ -219,7 +219,7 @@ const SecurityDashboard = () => {
       }}
     >
       {/* Header - Fixed */}
-      <div className="px-5 pt-4 flex items-center gap-3 relative z-50 flex-none">
+      <div className="px-5 pt-12 flex items-center gap-3 relative z-50 flex-none">
         <button
           onClick={() => navigate("/settings")}
           className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center bg-black/20 backdrop-blur-md"

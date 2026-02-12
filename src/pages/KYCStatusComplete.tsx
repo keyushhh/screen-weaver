@@ -33,7 +33,7 @@ const KYCStatusComplete = () => {
       }}
     >
       {/* Header */}
-      <div className="px-5 pt-4 flex items-center relative z-50 mb-8">
+      <div className="px-5 pt-12 flex items-center relative z-50 mb-8">
         <button
           onClick={handleGoBack}
           className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center bg-black/20 backdrop-blur-md absolute left-5"
@@ -47,30 +47,30 @@ const KYCStatusComplete = () => {
       <div className="px-5 flex-1">
         {/* Banner */}
         <div className={commonClasses} style={bgStyle}>
-            <div className="flex flex-col justify-center w-full h-full">
-               <div className="flex items-center gap-2">
-                  <img src={kycBadge} className="w-[24px] h-[24px] object-contain" alt="Badge" />
-                  <span className="text-white text-[18px] font-medium font-sans">Looks Good!</span>
-               </div>
-               <span className="text-[#7E7E7E] text-[13px] font-normal font-sans mt-[2px]">Your KYC status looks good and completed.</span>
+          <div className="flex flex-col justify-center w-full h-full">
+            <div className="flex items-center gap-2">
+              <img src={kycBadge} className="w-[24px] h-[24px] object-contain" alt="Badge" />
+              <span className="text-white text-[18px] font-medium font-sans">Looks Good!</span>
             </div>
+            <span className="text-[#7E7E7E] text-[13px] font-normal font-sans mt-[2px]">Your KYC status looks good and completed.</span>
+          </div>
         </div>
 
         {/* Sub-text */}
         <div className="mt-4">
-            <p className="text-white text-[14px] font-normal font-sans leading-snug">
-                There’s nothing to be done here anymore, you’re good to continue! If anything seems sus, we’ll let you know!
-            </p>
+          <p className="text-white text-[14px] font-normal font-sans leading-snug">
+            There’s nothing to be done here anymore, you’re good to continue! If anything seems sus, we’ll let you know!
+          </p>
         </div>
       </div>
 
       {/* Footer / CTA */}
       <div className="px-5 pb-10 mt-auto">
         <Button
-            className="w-full h-[48px] bg-[#5260FE] hover:bg-[#5260FE]/90 text-white rounded-full font-semibold text-[16px]"
-            onClick={handleGoBack}
+          className="w-full h-[48px] bg-[#5260FE] hover:bg-[#5260FE]/90 text-white rounded-full font-semibold text-[16px]"
+          onClick={handleGoBack}
         >
-            Go Back
+          Go Back
         </Button>
       </div>
     </div>
