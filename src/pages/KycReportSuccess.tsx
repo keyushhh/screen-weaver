@@ -1,0 +1,71 @@
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import successBg from "@/assets/success-bg.png";
+import checkIcon from "@/assets/check-icon.svg";
+import darkbgCta from "@/assets/darkbg-cta.png";
+
+const KycReportSuccess = () => {
+    const navigate = useNavigate();
+    const [seconds, setSeconds] = useState(30);
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setSeconds((prev) => {
+                if (prev <= 1) {
+                    clearInterval(timer);
+                    navigate("/home");
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [navigate]);
+
+    return (
+        <div
+            className="fixed inset-0 w-full h-full flex flex-col bg-[#0a0a12] safe-area-top safe-area-bottom overflow-hidden"
+            style={{
+                backgroundImage: `url(${successBg})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+            }}
+        >
+            <div className="flex flex-col items-center px-[35px] safe-area-top" style={{ paddingTop: "24px" }}>
+                {/* Header */}
+                <h1 className="text-white text-[24px] font-medium font-satoshi text-center leading-tight">
+                    Verification Successful
+                </h1>
+
+                {/* Status Icon - 21px below header */}
+                <div className="mt-[21px] flex items-center justify-center">
+                    <img src={checkIcon} alt="Success" style={{ width: '62px', height: '62px' }} />
+                </div>
+
+                {/* Sub-text - 35px below icon */}
+                <p className="mt-[35px] text-white text-[18px] font-bold font-satoshi text-center leading-[140%]">
+                    Thanks for confirming the KYC! Your response has been logged to help Grid.Pe secure. 🎉
+                </p>
+
+                {/* Countdown CTA - 87px below sub-text */}
+                <button
+                    onClick={() => navigate("/home")}
+                    className="mt-[87px] w-[364px] h-[48px] flex items-center justify-center active:scale-95 transition-transform"
+                    style={{
+                        backgroundImage: `url(${darkbgCta})`,
+                        backgroundSize: "100% 100%",
+                        backgroundRepeat: "no-repeat",
+                    }}
+                >
+                    <span className="text-white text-[16px] font-medium font-satoshi">
+                        Redirecting Home in {seconds}s...
+                    </span>
+                </button>
+            </div>
+        </div>
+    );
+};
+
+export default KycReportSuccess;
