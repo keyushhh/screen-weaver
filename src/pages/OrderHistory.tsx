@@ -10,56 +10,51 @@ import failedIcon from "@/assets/failed.svg";
 import checkIcon from "@/assets/check.svg";
 import crossIcon from "@/assets/cross.svg";
 import { supabase } from "@/lib/supabase";
-import { fetchActiveOrders, fetchRecentOrders, Order } from "@/lib/orders";
+import { fetchActiveOrders, fetchPastOrders, Order, cancelOrder } from "@/lib/orders";
+import OrderDetailsSheet from "@/components/OrderDetailsSheet";
 
 const OrderHistory = () => {
     const navigate = useNavigate();
     const [activeOrders, setActiveOrders] = useState<Order[]>([]);
-    const [recentOrders, setRecentOrders] = useState<Order[]>([]);
+    const [pastOrders, setPastOrders] = useState<Order[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
-    const [filteredRecentOrders, setFilteredRecentOrders] = useState<Order[]>([]);
+    const [filteredPastOrders, setFilteredPastOrders] = useState<Order[]>([]);
+
+    // Bottom Sheet State
+    const [isSheetOpen, setIsSheetOpen] = useState(false);
+    const [selectedOrderForSheet, setSelectedOrderForSheet] = useState<Order | null>(null);
+
+    const loadOrders = async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+            try {
+                // Fetch Active Orders
+                const active = await fetchActiveOrders(session.user.id);
+                setActiveOrders(active);
+
+                // Fetch Past Orders
+                const past = await fetchPastOrders(session.user.id);
+                setPastOrders(past);
+                setFilteredPastOrders(past);
+            } catch (e) {
+                console.error("Failed to load order history", e);
+            }
+        }
+    };
 
     useEffect(() => {
-        const loadOrders = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session?.user) {
-                try {
-                    // Fetch Active Orders
-                    const active = await fetchActiveOrders(session.user.id);
-                    console.log("Active Orders fetched:", active);
-                    setActiveOrders(active);
-
-                    // Fetch Recent Orders
-                    const { data, error } = await supabase
-                        .from('orders')
-                        .select('*, addresses(*)')
-                        .eq('user_id', session.user.id)
-                        .neq('status', 'processing') // Exclude active/processing from recent list
-                        .order('created_at', { ascending: false });
-
-                    console.log("Recent Orders fetched:", data, "Error:", error);
-
-                    if (!error && data) {
-                        setRecentOrders(data as Order[]);
-                        setFilteredRecentOrders(data as Order[]);
-                    }
-                } catch (e) {
-                    console.error("Failed to load order history", e);
-                }
-            }
-        };
         loadOrders();
     }, []);
 
     // Search Logic
     useEffect(() => {
         if (!searchQuery) {
-            setFilteredRecentOrders(recentOrders);
+            setFilteredPastOrders(pastOrders);
             return;
         }
 
         const query = searchQuery.toLowerCase();
-        const filtered = recentOrders.filter(order => {
+        const filtered = pastOrders.filter(order => {
             const amountStr = order.amount.toString();
             const date = new Date(order.created_at);
             const dateStr = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).toLowerCase();
@@ -69,8 +64,8 @@ const OrderHistory = () => {
                 dateStr.includes(query) ||
                 monthStr.includes(query);
         });
-        setFilteredRecentOrders(filtered);
-    }, [searchQuery, recentOrders]);
+        setFilteredPastOrders(filtered);
+    }, [searchQuery, pastOrders]);
 
 
     // Helper for formatting date/time
@@ -91,7 +86,7 @@ const OrderHistory = () => {
     // Helper for status styles
     const getStatusConfig = (status: string) => {
         const s = status.toLowerCase();
-        if (s === 'processing') {
+        if (s === 'processing' || s === 'out_for_delivery' || s === 'arrived') {
             return {
                 color: '#FACC15',
                 bgOpacity: 0.21,
@@ -99,7 +94,7 @@ const OrderHistory = () => {
                 statusIcon: refreshIcon,
                 label: 'Processing'
             };
-        } else if (s === 'success' || s === 'delivered') { // Assuming 'delivered' maps to success UI
+        } else if (s === 'success' || s === 'delivered') {
             return {
                 color: '#1CB956',
                 bgOpacity: 0.21,
@@ -107,21 +102,13 @@ const OrderHistory = () => {
                 statusIcon: checkIcon,
                 label: 'Success'
             };
-        } else if (s === 'failed') {
+        } else if (s === 'failed' || s === 'cancelled') {
             return {
                 color: '#FF1E1E',
                 bgOpacity: 0.21,
                 icon: failedIcon,
-                statusIcon: crossIcon, // Using cross for failed
-                label: 'Failed'
-            };
-        } else if (s === 'cancelled') {
-            return {
-                color: '#FF1E1E',
-                bgOpacity: 0.21,
-                icon: failedIcon, // Using failed icon for cancelled as per instruction ("icons will be updated from 'processing' icon to 'failed' icon")
                 statusIcon: crossIcon,
-                label: 'Cancelled'
+                label: s === 'cancelled' ? 'Cancelled' : 'Failed'
             };
         }
         // Default fallback
@@ -134,14 +121,32 @@ const OrderHistory = () => {
         };
     };
 
+    const handleCancelOrder = async (orderId: string) => {
+        try {
+            await cancelOrder(orderId);
+            setIsSheetOpen(false);
+            // Refresh counts
+            loadOrders();
+        } catch (e) {
+            console.error("Failed to cancel order", e);
+        }
+    };
+
     const renderOrderCard = (order: Order, isActive: boolean) => {
-        const config = getStatusConfig(isActive ? 'processing' : order.status);
+        const config = getStatusConfig(order.status);
 
         return (
             <div
                 key={order.id}
                 className="w-full rounded-[13px] overflow-hidden mb-[16px] cursor-pointer active:opacity-90 transition-opacity"
-                onClick={() => navigate(`/order-details/${order.id}`, { state: { order } })}
+                onClick={() => {
+                    if (isActive) {
+                        setSelectedOrderForSheet(order);
+                        setIsSheetOpen(true);
+                    } else {
+                        navigate(`/order-details/${order.id}`, { state: { order } });
+                    }
+                }}
             >
                 {/* Top Container */}
                 <div className="w-full h-[25px] flex items-center px-[18px] relative overflow-hidden">
@@ -165,10 +170,12 @@ const OrderHistory = () => {
 
                 {/* Main Content Container */}
                 <div
-                    className="w-full relative"
+                    className="w-full relative rounded-b-[13px]"
                     style={{
                         height: '67px',
                         backgroundColor: '#000000',
+                        border: '0.6px solid rgba(255, 255, 255, 0.12)',
+                        marginTop: '-1px' // Slight overlap to prevent gap with top bar
                     }}
                 >
                     <div className="flex items-start justify-between py-[14px] pl-[16px] pr-[14px]">
@@ -184,10 +191,6 @@ const OrderHistory = () => {
                             </div>
                         </div>
 
-                        {/* Amount - Center aligned with content on left?
-                        "centre aligned with the content on the left side"
-                        Flex 'items-center' on the parent row handles vertical centering.
-                    */}
                         <div className="h-[35px] flex items-center">
                             <span className="text-white text-[16px] font-medium font-satoshi">
                                 ₹{order.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
@@ -249,16 +252,22 @@ const OrderHistory = () => {
                 </div>
             )}
 
-            {/* Recent Orders */}
-            {filteredRecentOrders.length > 0 && (
+            {/* Past Orders */}
+            {filteredPastOrders.length > 0 && (
                 <div className="px-5 pb-10">
                     <h2 className="text-white text-[16px] font-bold font-satoshi mb-[12px]">
-                        Recent orders
+                        Past orders
                     </h2>
-                    {filteredRecentOrders.map(order => renderOrderCard(order, false))}
+                    {filteredPastOrders.map(order => renderOrderCard(order, false))}
                 </div>
             )}
 
+            <OrderDetailsSheet
+                isOpen={isSheetOpen}
+                onClose={() => setIsSheetOpen(false)}
+                order={selectedOrderForSheet}
+                onCancel={handleCancelOrder}
+            />
         </div>
     );
 };

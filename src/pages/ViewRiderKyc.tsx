@@ -118,6 +118,7 @@ const ViewRiderKyc = () => {
                 {/* Need Help CTA - 75px below close button */}
                 <div className="mt-[75px] w-[364px]">
                     <button
+                        onClick={() => navigate('/report-rider-kyc')}
                         className="w-full h-[48px] rounded-full text-white text-[16px] font-medium active:scale-95 transition-transform flex items-center justify-center"
                         style={{
                             backgroundImage: `url(${darkbgCta})`,
@@ -137,7 +138,7 @@ const ViewRiderKyc = () => {
 
                 {/* Hyperlink - 10px below security text */}
                 <button
-                    onClick={() => navigate('/report-rider-kyc')}
+                    onClick={() => navigate('/verify-rider-kyc')}
                     className="mt-[10px] text-white text-[16px] font-medium font-satoshi text-center underline pb-10 active:opacity-70 transition-opacity"
                 >
                     Does this KYC look correct?

@@ -53,6 +53,7 @@ const Homepage = () => {
   const [isAddressSheetOpen, setIsAddressSheetOpen] = useState(false);
   const [activeOrder, setActiveOrder] = useState<Order | null>(null);
   const [transactionHistory, setTransactionHistory] = useState<Order[]>([]);
+  const [isRiderAssigned, setIsRiderAssigned] = useState(false);
 
   // Map State
   const [viewState, setViewState] = useState({
@@ -90,6 +91,16 @@ const Homepage = () => {
     };
     loadData();
   }, []);
+
+  // Simulate Rider Assignment
+  useEffect(() => {
+    if (activeOrder && activeOrder.status === 'processing') {
+      const timer = setTimeout(() => {
+        setIsRiderAssigned(true);
+      }, 5000); // 5 second delay to show "assigning soon"
+      return () => clearTimeout(timer);
+    }
+  }, [activeOrder]);
 
   // Update map viewState when active order address changes
   useEffect(() => {
@@ -150,7 +161,10 @@ const Homepage = () => {
     if (!activeOrder) return { title: "", sub: "" };
     switch (activeOrder.status) {
       case 'processing':
-        return {
+        return isRiderAssigned ? {
+          title: <>Rider Assigned</>,
+          sub: "Your delivery partner is on the way to the store."
+        } : {
           title: <>We’re assigning a delivery<br />partner soon!</>,
           sub: "Assigning a delivery partner in the next 2 minutes."
         };
@@ -418,23 +432,29 @@ const Homepage = () => {
                   attributionControl={false}
                   interactive={false}
                 >
-                  {/* Dashed Route Line */}
-                  <Source id="route" type="geojson" data={routeGeoJson}>
-                    <Layer {...routeLayer} />
-                  </Source>
+                  {/* Dashed Route Line - Only when rider assigned */}
+                  {isRiderAssigned && (
+                    <Source id="route" type="geojson" data={routeGeoJson}>
+                      <Layer {...routeLayer} />
+                    </Source>
+                  )}
 
                   {/* Delivery/User Location Marker */}
                   <Marker latitude={viewState.latitude} longitude={viewState.longitude}>
-                    <img src={currentLocationIcon} alt="User" className="w-4 h-4" />
+                    <div className="animate-pulse">
+                      <img src={currentLocationIcon} alt="User" className="w-4 h-4" />
+                    </div>
                   </Marker>
 
-                  {/* Mock Rider Marker (slightly offset) */}
-                  <Marker
-                    latitude={viewState.latitude + 0.002}
-                    longitude={viewState.longitude + 0.002}
-                  >
-                    <img src={deliveryRiderIcon} alt="Rider" className="w-6 h-6" />
-                  </Marker>
+                  {/* Mock Rider Marker (slightly offset) - Only when rider assigned */}
+                  {isRiderAssigned && (
+                    <Marker
+                      latitude={viewState.latitude + 0.002}
+                      longitude={viewState.longitude + 0.002}
+                    >
+                      <img src={deliveryRiderIcon} alt="Rider" className="w-6 h-6" />
+                    </Marker>
+                  )}
                 </Map>
               </div>
             </div>

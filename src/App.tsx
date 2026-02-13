@@ -68,9 +68,12 @@ import SelectPaymentMethod from "./pages/SelectPaymentMethod";
 import WithdrawOTP from "./pages/WithdrawOTP";
 import WalletWithdrawFailed from "./pages/WalletWithdrawFailed";
 import ViewRiderKyc from "./pages/ViewRiderKyc";
+import VerifyRiderKyc from "./pages/VerifyRiderKyc";
 import ReportRiderKyc from "./pages/ReportRiderKyc";
 import KycReportSuccess from "./pages/KycReportSuccess";
 import KycReportError from "./pages/KycReportError";
+import ReportRiderConfirm from "./pages/ReportRiderConfirm";
+import OrderDelivered from "./pages/OrderDelivered";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -197,9 +200,12 @@ const App = () => {
                 <Route path="/withdraw-otp" element={<WithdrawOTP />} />
                 <Route path="/wallet-withdraw-failed" element={<WalletWithdrawFailed />} />
                 <Route path="/view-rider-kyc" element={<ViewRiderKyc />} />
+                <Route path="/verify-rider-kyc" element={<VerifyRiderKyc />} />
                 <Route path="/report-rider-kyc" element={<ReportRiderKyc />} />
                 <Route path="/kyc-report-success" element={<KycReportSuccess />} />
                 <Route path="/kyc-report-error" element={<KycReportError />} />
+                <Route path="/report-rider-confirm" element={<ReportRiderConfirm />} />
+                <Route path="/order-delivered" element={<OrderDelivered />} />
                 <Route path="/auth/v1/callback" element={<AuthCallback />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

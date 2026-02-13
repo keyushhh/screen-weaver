@@ -1,101 +1,88 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import errorBg from "@/assets/error-bg.png";
-import cancelledIcon from "@/assets/cancelled-ico.svg";
-import deliveryCancelledIcon from "@/assets/delivery-cancelled-ico.svg";
+import crossFailedIcon from "@/assets/cross failed.svg";
+import darkbgCta from "@/assets/darkbg-cta.png";
 
 const OrderCancelled = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { totalAmount } = location.state || {};
-  const [timer, setTimer] = useState(30);
+  const [seconds, setSeconds] = useState(28);
 
   useEffect(() => {
-    if (timer > 0) {
-      const interval = setInterval(() => {
-        setTimer((prev) => prev - 1);
-      }, 1000);
-      return () => clearInterval(interval);
-    } else {
-      navigate("/home");
-    }
-  }, [timer, navigate]);
+    const timer = setInterval(() => {
+      setSeconds((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          navigate("/home");
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [navigate]);
 
   return (
     <div
-      className="h-full w-full overflow-hidden flex flex-col items-center safe-area-top safe-area-bottom relative"
+      className="fixed inset-0 w-full h-full flex flex-col safe-area-top safe-area-bottom overflow-hidden"
       style={{
-        backgroundColor: "#0a0a12", // Fallback
+        backgroundColor: "#0a0a12",
         backgroundImage: `url(${errorBg})`,
         backgroundSize: "cover",
-        backgroundPosition: "center",
+        backgroundPosition: "top center",
         backgroundRepeat: "no-repeat",
       }}
     >
-      {/* Header Spacer or Content */}
-      <div className="mt-[60px] flex flex-col items-center w-full px-5">
-
-        {/* Title */}
-        <h1 className="text-white text-[26px] font-medium font-sans mb-[20px]">
+      <div className="flex flex-col items-center px-[35px] safe-area-top" style={{ paddingTop: "24px" }}>
+        {/* Header */}
+        <h1 className="text-white text-[24px] font-medium font-satoshi text-center leading-tight">
           Order Cancelled
         </h1>
 
-        {/* Big Icon */}
-        <div className="w-[62px] h-[62px] mb-[24px]">
-            <img src={cancelledIcon} alt="Cancelled" className="w-full h-full object-contain" />
+        {/* Status Icon - 21px below header */}
+        <div className="mt-[21px] flex items-center justify-center">
+          <img src={crossFailedIcon} alt="Cancelled" style={{ width: '62px', height: '62px' }} />
         </div>
 
-        {/* Subheader */}
-        <h2 className="text-white text-[18px] font-bold font-sans text-center mb-[24px]">
-          Well, that escalated unnecessarily fast.
-        </h2>
-
-        {/* Info Container */}
-        <div
-          className="w-full rounded-[13px] p-[16px] mb-[32px]"
-          style={{
-             border: "1px solid rgba(255, 255, 255, 0.20)",
-             background: "rgba(0, 0, 0, 0.20)", // Semi-transparent based on screenshot look
-             backdropFilter: "blur(10px)",
-          }}
-        >
-            {/* Amount Text */}
-            <p className="text-white text-[16px] font-medium font-sans mb-[8px]">
-                Your order for amount ₹{(totalAmount || 0).toLocaleString('en-IN')} has been cancelled.
-            </p>
-
-            {/* Body Text */}
-            <p className="text-[#AFAFAF] text-[14px] font-normal font-sans leading-[1.5] mb-[20px]">
-                The delivery gods were halfway out the door when you pulled the plug. <br/>
-                Your refund will arrive in 30 minutes.. unlike closure, or that text back from 2020.
-            </p>
-
-            {/* Footer Row */}
-            <div className="flex items-center">
-                 <img src={deliveryCancelledIcon} alt="Status" className="w-[16px] h-[16px] mr-[8px]" />
-                 <span className="text-[#D0D0D0] text-[13px] font-normal font-sans">
-                     Delivery cancelled.
-                 </span>
-            </div>
-        </div>
-
-        {/* Countdown Button */}
-        <button
-            onClick={() => navigate("/home")}
-            className="w-full h-[50px] rounded-full flex items-center justify-center text-white text-[16px] font-medium font-sans mb-[16px] transition-colors hover:bg-white/10"
-            style={{
-                border: "1px solid rgba(255, 255, 255, 0.20)",
-                backgroundColor: "transparent",
-            }}
-        >
-            Redirecting Home in {timer}s...
-        </button>
-
-        {/* Bottom Text */}
-        <p className="text-[#6F6F6F] text-[13px] font-normal font-sans text-center leading-snug px-4">
-            (so you don't sit here questioning your life choices — <br /> again)
+        {/* Sub-text - 35px below icon */}
+        <p className="mt-[35px] text-white text-[18px] font-bold font-satoshi text-center leading-[140%]">
+          We’re sorry for the inconvenience!
         </p>
 
+        {/* Info Box - 32px below sub-text */}
+        <div
+          className="mt-[32px] p-4 rounded-[12px] border border-white/10"
+          style={{ width: "362px", backgroundColor: "rgba(25, 25, 25, 0.31)", backdropFilter: "blur(25px)" }}
+        >
+          <p className="text-white text-[16px] font-medium font-satoshi mb-2">
+            Your order for amount ₹2000 has been cancelled.
+          </p>
+          <p className="text-white/60 text-[14px] font-normal font-satoshi leading-[150%] mb-4">
+            Since you’ve reported the rider’s KYC and rejected to accept the order, the amount will be refunded in your wallet within 30 minutes. We will look into this matter! Thanks for keeping Grid.Pe safe.
+          </p>
+          {/* Status Dot */}
+          <div className="flex items-start gap-2">
+            <div className="w-[12px] h-[12px] rounded-full bg-[#EF4444] shadow-[0_0_8px_rgba(239,68,68,0.5)] mt-0.5" />
+            <span className="text-[#D0D0D0] text-[12px] font-normal font-satoshi">Delivery rejected due to flagged verification.</span>
+          </div>
+        </div>
+
+        {/* Countdown CTA - mt-12 */}
+        <button
+          onClick={() => navigate("/home")}
+          className="mt-12 h-[48px] flex items-center justify-center active:scale-95 transition-transform"
+          style={{
+            width: "362px",
+            backgroundImage: `url(${darkbgCta})`,
+            backgroundSize: "100% 100%",
+            backgroundRepeat: "no-repeat",
+          }}
+        >
+          <span className="text-white text-[16px] font-medium font-satoshi">
+            Redirecting Home in {seconds}s...
+          </span>
+        </button>
       </div>
     </div>
   );
