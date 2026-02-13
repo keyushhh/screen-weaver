@@ -72,7 +72,7 @@ export const fetchActiveOrders = async (userId: string) => {
     .from('orders')
     .select('*, addresses(*)')
     .eq('user_id', userId)
-    .eq('status', 'processing')
+    .in('status', ['processing', 'out_for_delivery', 'arrived'])
     .order('created_at', { ascending: false });
 
   if (error) throw error;

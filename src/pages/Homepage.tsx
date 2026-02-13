@@ -20,6 +20,8 @@ import avatarImg from "@/assets/avatar.png";
 import currentLocationIcon from "@/assets/current-location.svg";
 import deliveryRiderIcon from "@/assets/delivery-rider.svg";
 import ongoingIcon from "@/assets/ongoing.svg";
+import checkIcon from "@/assets/check-icon.png";
+import rejectedIcon from "@/assets/cancelled-ico.svg";
 import BottomNavigation from "@/components/BottomNavigation";
 import AddressSelectionSheet from "@/components/AddressSelectionSheet";
 import { useUser } from "@/contexts/UserContext";
@@ -142,6 +144,68 @@ const Homepage = () => {
     const parts = [activeOrder.addresses.apartment, activeOrder.addresses.area];
     const fullString = parts.filter(Boolean).join(", ");
     return fullString.length > 20 ? fullString.substring(0, 20) + "..." : fullString;
+  };
+
+  const getActiveOrderBannerContent = () => {
+    if (!activeOrder) return { title: "", sub: "" };
+    switch (activeOrder.status) {
+      case 'processing':
+        return {
+          title: <>We’re assigning a delivery<br />partner soon!</>,
+          sub: "Assigning a delivery partner in the next 2 minutes."
+        };
+      case 'out_for_delivery':
+        return {
+          title: <>Partner is on the way!</>,
+          sub: "Your delivery partner has picked up your order."
+        };
+      case 'arrived':
+        return {
+          title: <>Partner has arrived!</>,
+          sub: "Please meet your delivery partner at the door."
+        };
+      default:
+        return {
+          title: <>We’re assigning a delivery<br />partner soon!</>,
+          sub: "Assigning a delivery partner in the next 2 minutes."
+        };
+    }
+  };
+
+  const getStatusInfo = (status: string) => {
+    switch (status) {
+      case 'processing':
+      case 'out_for_delivery':
+      case 'arrived':
+        return { text: 'Ongoing', color: '#FACC15' };
+      case 'delivered':
+      case 'success':
+        return { text: 'Completed', color: '#16B751' };
+      case 'cancelled':
+      case 'failed':
+      case 'rejected':
+        return { text: 'Rejected', color: '#FF3B30' };
+      default:
+        return { text: status, color: '#FACC15' };
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'processing':
+      case 'out_for_delivery':
+      case 'arrived':
+        return ongoingIcon;
+      case 'delivered':
+      case 'success':
+        return checkIcon;
+      case 'cancelled':
+      case 'failed':
+      case 'rejected':
+        return rejectedIcon;
+      default:
+        return ongoingIcon;
+    }
   };
 
   const routeGeoJson = {
@@ -327,16 +391,19 @@ const Homepage = () => {
               {/* Left Text */}
               <div className="flex-1 flex flex-col justify-start pr-2">
                 <p className="text-white text-[14px] font-medium font-sans leading-snug mb-[12px]">
-                  We’re assigning a delivery<br />partner soon!
+                  {getActiveOrderBannerContent().title}
                 </p>
                 <p className="text-white text-[12px] font-light font-sans leading-snug mb-[4px]">
-                  Assigning a delivery partner in the next 2 minutes.
+                  {getActiveOrderBannerContent().sub}
                 </p>
               </div>
 
               {/* Mini Map */}
               <div
-                onClick={() => navigate('/order-tracking')}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate('/order-tracking', { state: { order: activeOrder } });
+                }}
                 className="shrink-0 relative rounded-[8px] overflow-hidden cursor-pointer active:scale-95 transition-transform"
                 style={{
                   width: "110px",
@@ -448,7 +515,7 @@ const Homepage = () => {
                     >
                       {/* Details Column */}
                       <div className="flex items-start">
-                        <img src={ongoingIcon} alt="Status" className="w-[26px] h-[26px]" />
+                        <img src={getStatusIcon(tx.status)} alt="Status" className="w-[26px] h-[26px]" />
                         <div className="ml-[7px] flex flex-col">
                           <span className="text-white text-[13px] font-normal font-sans leading-none mb-[2px]">
                             {tx.addresses?.label ? `Order to ${tx.addresses.label}` : "Cash Order"}
@@ -470,8 +537,11 @@ const Homepage = () => {
 
                       {/* Status Column */}
                       <div className="text-right">
-                        <span className="text-[#FACC15] text-[13px] font-normal font-sans capitalize">
-                          {tx.status}
+                        <span
+                          className="text-[13px] font-normal font-sans capitalize"
+                          style={{ color: getStatusInfo(tx.status).color }}
+                        >
+                          {getStatusInfo(tx.status).text}
                         </span>
                       </div>
                     </div>

@@ -67,6 +67,7 @@ import PaymentMissing from "./pages/PaymentMissing";
 import SelectPaymentMethod from "./pages/SelectPaymentMethod";
 import WithdrawOTP from "./pages/WithdrawOTP";
 import WalletWithdrawFailed from "./pages/WalletWithdrawFailed";
+import ViewRiderKyc from "./pages/ViewRiderKyc";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -192,6 +193,7 @@ const App = () => {
                 <Route path="/select-payment-method" element={<SelectPaymentMethod />} />
                 <Route path="/withdraw-otp" element={<WithdrawOTP />} />
                 <Route path="/wallet-withdraw-failed" element={<WalletWithdrawFailed />} />
+                <Route path="/view-rider-kyc" element={<ViewRiderKyc />} />
                 <Route path="/auth/v1/callback" element={<AuthCallback />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
