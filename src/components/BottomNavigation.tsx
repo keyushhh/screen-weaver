@@ -1,11 +1,12 @@
 import { useNavigate } from "react-router-dom";
-import navPlusButton from "@/assets/nav-plus-button.png";
+import addNavIcon from "@/assets/add-nav.svg";
 import navHome from "@/assets/nav-home.svg";
 import navHomeInactive from "@/assets/nav-home-inactive.png";
 import navCards from "@/assets/nav-cards.svg";
 import navCardsActive from "@/assets/nav-cards-active.png";
 import navRewards from "@/assets/nav-rewards.svg";
 import navMore from "@/assets/nav-more.svg";
+import navbarOverlay from "@/assets/navbar-overlay.png";
 
 interface BottomNavigationProps {
   activeTab: "home" | "cards" | "rewards" | "more";
@@ -15,21 +16,30 @@ const BottomNavigation = ({ activeTab }: BottomNavigationProps) => {
   const navigate = useNavigate();
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 h-[80px] z-50 flex items-center justify-between px-6 backdrop-blur-md bg-black/80 border-t border-white/5">
+    <div className="fixed bottom-0 left-0 right-0 h-[104px] z-50 flex items-center justify-between px-6 backdrop-blur-md bg-black/80 border-t border-white/40 overflow-hidden">
+      {/* Background Overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none z-[-1]"
+        style={{
+          backgroundImage: `url(${navbarOverlay})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          opacity: 0.06
+        }}
+      />
       {/* Home */}
       <button
         onClick={() => navigate("/home")}
         className="flex flex-col items-center gap-1 min-w-[60px]"
       >
         <img
-            src={activeTab === "home" ? navHome : navHomeInactive}
-            alt="Home"
-            className="w-6 h-6 object-contain"
+          src={activeTab === "home" ? navHome : navHomeInactive}
+          alt="Home"
+          className="w-6 h-6 object-contain"
         />
         <span
-          className={`text-[11px] font-medium ${
-            activeTab === "home" ? "text-white" : "text-white/40"
-          }`}
+          className={`text-[11px] font-medium ${activeTab === "home" ? "text-white" : "text-white/40"
+            }`}
         >
           Home
         </span>
@@ -41,31 +51,31 @@ const BottomNavigation = ({ activeTab }: BottomNavigationProps) => {
         className="flex flex-col items-center gap-1 min-w-[60px]"
       >
         <img
-            src={activeTab === "cards" ? navCardsActive : navCards}
-            alt="Cards"
-            className="w-6 h-6 object-contain"
+          src={activeTab === "cards" ? navCardsActive : navCards}
+          alt="Cards"
+          className="w-6 h-6 object-contain"
         />
         <span
-          className={`text-[11px] font-medium ${
-            activeTab === "cards" ? "text-white" : "text-white/40"
-          }`}
+          className={`text-[11px] font-medium ${activeTab === "cards" ? "text-white" : "text-white/40"
+            }`}
         >
           Cards
         </span>
       </button>
 
       {/* Center FAB Space */}
-      <div className="w-[60px] relative -top-6">
-          <button
-            onClick={() => navigate("/camera-page")}
-            className="absolute top-0 left-1/2 -translate-x-1/2 w-[64px] h-[64px] rounded-full flex items-center justify-center transition-transform active:scale-95 shadow-lg"
-            style={{
-                backgroundImage: `url(${navPlusButton})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-            }}
-          >
-          </button>
+      <div className="flex justify-center w-[72px] relative h-full">
+        <button
+          onClick={() => navigate("/wallet-add-money")}
+          className="absolute top-[9px] w-[72px] h-[72px] rounded-full flex items-center justify-center transition-transform active:scale-95 z-20"
+          style={{
+            backgroundImage: `url(${addNavIcon})`,
+            backgroundSize: '100% 100%',
+            backgroundPosition: 'center',
+            boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.79), 0 3px 3px 0 rgba(0, 0, 0, 0.68), 0 7px 4px 0 rgba(0, 0, 0, 0.40), 0 12px 5px 0 rgba(0, 0, 0, 0.12), 0 19px 5px 0 rgba(0, 0, 0, 0.01)'
+          }}
+        >
+        </button>
       </div>
 
       {/* Rewards */}
@@ -74,14 +84,13 @@ const BottomNavigation = ({ activeTab }: BottomNavigationProps) => {
         className="flex flex-col items-center gap-1 min-w-[60px]"
       >
         <img
-            src={navRewards}
-            alt="Rewards"
-            className={`w-6 h-6 object-contain ${activeTab === "rewards" ? "" : "opacity-40 grayscale"}`}
+          src={navRewards}
+          alt="Rewards"
+          className={`w-6 h-6 object-contain ${activeTab === "rewards" ? "" : "opacity-40 grayscale"}`}
         />
         <span
-          className={`text-[11px] font-medium ${
-            activeTab === "rewards" ? "text-white" : "text-white/40"
-          }`}
+          className={`text-[11px] font-medium ${activeTab === "rewards" ? "text-white" : "text-white/40"
+            }`}
         >
           Rewards
         </span>
@@ -93,14 +102,13 @@ const BottomNavigation = ({ activeTab }: BottomNavigationProps) => {
         className="flex flex-col items-center gap-1 min-w-[60px]"
       >
         <img
-            src={navMore}
-            alt="More"
-            className={`w-6 h-6 object-contain ${activeTab === "more" ? "" : "opacity-40 grayscale"}`}
+          src={navMore}
+          alt="More"
+          className={`w-6 h-6 object-contain ${activeTab === "more" ? "" : "opacity-40 grayscale"}`}
         />
         <span
-          className={`text-[11px] font-medium ${
-            activeTab === "more" ? "text-white" : "text-white/40"
-          }`}
+          className={`text-[11px] font-medium ${activeTab === "more" ? "text-white" : "text-white/40"
+            }`}
         >
           More
         </span>

@@ -39,7 +39,7 @@ const OrderDelivered = () => {
 
     return (
         <div
-            className="fixed inset-0 w-full h-full flex flex-col items-center bg-[#0a0a12] safe-area-top safe-area-bottom overflow-hidden"
+            className="fixed inset-0 w-full h-full flex flex-col items-center bg-[#0a0a12] overflow-hidden"
             style={{
                 backgroundImage: `url(${successBg})`,
                 backgroundSize: "cover",
@@ -47,7 +47,7 @@ const OrderDelivered = () => {
                 backgroundRepeat: "no-repeat",
             }}
         >
-            <div className="flex flex-col items-center px-4 safe-area-top pt-[24px]">
+            <div className="flex flex-col items-center px-4 pt-[24px]">
                 {/* Heading: Satoshi - medium - 22px */}
                 <h1 className="text-white text-[22px] font-medium font-satoshi text-center">
                     Order Delivered
