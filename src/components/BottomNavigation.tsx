@@ -5,6 +5,7 @@ import navHomeInactive from "@/assets/nav-home-inactive.png";
 import navCards from "@/assets/nav-cards.svg";
 import navCardsActive from "@/assets/nav-cards-active.png";
 import navRewards from "@/assets/nav-rewards.svg";
+import navRewardsActive from "@/assets/rewards-filled.svg";
 import navMore from "@/assets/nav-more.svg";
 import navbarOverlay from "@/assets/navbar-overlay.png";
 
@@ -80,13 +81,13 @@ const BottomNavigation = ({ activeTab }: BottomNavigationProps) => {
 
       {/* Rewards */}
       <button
-        // Assuming rewards route exists or does nothing for now
+        onClick={() => navigate("/rewards")}
         className="flex flex-col items-center gap-1 min-w-[60px]"
       >
         <img
-          src={navRewards}
+          src={activeTab === "rewards" ? navRewardsActive : navRewards}
           alt="Rewards"
-          className={`w-6 h-6 object-contain ${activeTab === "rewards" ? "" : "opacity-40 grayscale"}`}
+          className="w-6 h-6 object-contain"
         />
         <span
           className={`text-[11px] font-medium ${activeTab === "rewards" ? "text-white" : "text-white/40"
