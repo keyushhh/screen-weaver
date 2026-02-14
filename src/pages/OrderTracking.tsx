@@ -78,7 +78,7 @@ const OrderTracking = () => {
         const timer = setTimeout(() => {
             setIsOtpVerified(true);
             setTimeout(() => {
-                navigate('/home', { state: { orderDelivered: true } });
+                navigate('/order-delivered', { state: { order } });
             }, 3000);
         }, 60000);
         return () => clearTimeout(timer);
@@ -158,7 +158,7 @@ const OrderTracking = () => {
                                 console.error("Dev update failed", e);
                             }
                             setOrder({ ...order, status: 'success' });
-                            navigate('/home', { state: { orderDelivered: true } });
+                            navigate('/order-delivered', { state: { order: { ...order, status: 'success' } } });
                         }}
                         className="px-2 py-1 bg-green-600 text-white text-[10px] rounded hover:bg-green-500"
                     >
