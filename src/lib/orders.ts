@@ -10,6 +10,13 @@ export interface Order {
   address_id: string | null;
   created_at: string;
   updated_at?: string;
+  metadata?: {
+    failure_reason?: string;
+    cancelled_by?: string;
+    cancel_reason_type?: string;
+    cancelled_at?: string;
+    [key: string]: any;
+  };
   // Join fields
   addresses?: Address;
 }
@@ -38,14 +45,9 @@ export const fetchRecentOrders = async (userId: string) => {
 };
 
 export const dev_updateOrderStatus = async (orderId: string, status: 'success' | 'failed' | 'cancelled') => {
-  // Only allow in development
-  if (!import.meta.env.DEV) {
-    console.warn("dev_updateOrderStatus called in non-dev environment");
-    return;
-  }
+  if (!import.meta.env.DEV) return;
 
-  let metadata = {};
-
+  let metadata: any = {};
   if (status === 'failed') {
     metadata = { failure_reason: "Simulated dev failure" };
   } else if (status === 'cancelled') {
@@ -58,10 +60,7 @@ export const dev_updateOrderStatus = async (orderId: string, status: 'success' |
 
   const { error } = await supabase
     .from('orders')
-    .update({
-      status: status,
-      metadata: metadata
-    })
+    .update({ status, metadata })
     .eq('id', orderId);
 
   if (error) throw error;
@@ -102,5 +101,56 @@ export const cancelOrder = async (orderId: string) => {
     })
     .eq('id', orderId);
 
+  if (error) throw error;
+};
+
+export const dev_seedMockOrders = async (userId: string) => {
+  if (!import.meta.env.DEV) return;
+
+  const { data: addrData } = await supabase
+    .from('addresses')
+    .select('id')
+    .eq('user_id', userId)
+    .limit(1);
+
+  const addressId = addrData?.[0]?.id || null;
+
+  const mockOrders = [
+    {
+      user_id: userId,
+      amount: 1250.50,
+      status: 'success',
+      payment_mode: 'wallet',
+      address_id: addressId,
+      created_at: new Date(Date.now() - 3600000).toISOString(),
+      metadata: {}
+    },
+    {
+      user_id: userId,
+      amount: 840.00,
+      status: 'cancelled',
+      payment_mode: 'wallet',
+      address_id: addressId,
+      created_at: new Date(Date.now() - 86400000).toISOString(),
+      metadata: {
+        cancelled_by: 'user',
+        cancel_reason_type: 'I changed my mind',
+        cancelled_at: new Date(Date.now() - 86300000).toISOString()
+      }
+    },
+    {
+      user_id: userId,
+      amount: 2100.25,
+      status: 'failed',
+      payment_mode: 'wallet',
+      address_id: addressId,
+      created_at: new Date(Date.now() - 172800000).toISOString(),
+      metadata: {
+        failure_reason: 'Insufficient funds'
+      }
+    }
+  ];
+
+  const { error } = await supabase.from('orders').insert(mockOrders);
   if (error) throw error;
 };

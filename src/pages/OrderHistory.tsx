@@ -10,8 +10,9 @@ import failedIcon from "@/assets/failed.svg";
 import checkIcon from "@/assets/check.svg";
 import crossIcon from "@/assets/cross.svg";
 import { supabase } from "@/lib/supabase";
-import { fetchActiveOrders, fetchPastOrders, Order, cancelOrder } from "@/lib/orders";
+import { fetchActiveOrders, fetchPastOrders, Order, cancelOrder, dev_seedMockOrders } from "@/lib/orders";
 import OrderDetailsSheet from "@/components/OrderDetailsSheet";
+import { toast } from "@/components/ui/use-toast";
 
 const OrderHistory = () => {
     const navigate = useNavigate();
@@ -44,6 +45,39 @@ const OrderHistory = () => {
 
     useEffect(() => {
         loadOrders();
+
+        // Real-time subscription
+        let channel: any;
+
+        const setupSubscription = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.user) {
+                channel = supabase
+                    .channel('order-history-sync')
+                    .on(
+                        'postgres_changes',
+                        {
+                            event: 'UPDATE', // Use '*' for all events if needed
+                            schema: 'public',
+                            table: 'orders',
+                            filter: `user_id=eq.${session.user.id}`
+                        },
+                        (payload) => {
+                            console.log('Real-time order update:', payload);
+                            loadOrders();
+                        }
+                    )
+                    .subscribe();
+            }
+        };
+
+        setupSubscription();
+
+        return () => {
+            if (channel) {
+                supabase.removeChannel(channel);
+            }
+        };
     }, []);
 
     // Search Logic
@@ -140,7 +174,11 @@ const OrderHistory = () => {
                 key={order.id}
                 className="w-full rounded-[13px] overflow-hidden mb-[16px] cursor-pointer active:opacity-90 transition-opacity"
                 onClick={() => {
-                    if (isActive) {
+                    const s = order.status.toLowerCase();
+                    const isCompleted = s === 'success' || s === 'delivered';
+                    const isFailedOrCancelled = s === 'failed' || s === 'cancelled';
+
+                    if (isActive || isCompleted || isFailedOrCancelled) {
                         setSelectedOrderForSheet(order);
                         setIsSheetOpen(true);
                     } else {
@@ -174,8 +212,10 @@ const OrderHistory = () => {
                     style={{
                         height: '67px',
                         backgroundColor: '#000000',
-                        border: '0.6px solid rgba(255, 255, 255, 0.12)',
-                        marginTop: '-1px' // Slight overlap to prevent gap with top bar
+                        border: (order.status === 'success' || order.status === 'delivered')
+                            ? '0.6px solid rgba(28, 185, 86, 0.3)'
+                            : '0.6px solid rgba(255, 255, 255, 0.12)',
+                        marginTop: '-1px'
                     }}
                 >
                     <div className="flex items-start justify-between py-[14px] pl-[16px] pr-[14px]">
@@ -185,9 +225,14 @@ const OrderHistory = () => {
                                 <span className="text-white text-[16px] font-regular font-satoshi leading-none">
                                     {order.addresses?.label ? `Order to ${order.addresses.label}` : "Cash Order"}
                                 </span>
-                                <span className="text-white text-[12px] font-medium font-satoshi mt-1">
-                                    {formatDateTime(order.created_at)}
-                                </span>
+                                <div className="flex items-center gap-2 mt-1">
+                                    <span className="text-white text-[12px] font-medium font-satoshi">
+                                        {formatDateTime(order.created_at)}
+                                    </span>
+                                    {(order.status === 'success' || order.status === 'delivered') && (
+                                        <div className="w-[4px] h-[4px] rounded-full bg-[#1CB956]" />
+                                    )}
+                                </div>
                             </div>
                         </div>
 
@@ -213,6 +258,43 @@ const OrderHistory = () => {
                 backgroundRepeat: "no-repeat",
             }}
         >
+            {/* DEV SEEDER */}
+            {import.meta.env.DEV && (
+                <div className="px-5 py-2">
+                    <button
+                        onClick={async () => {
+                            try {
+                                const { data: { session } } = await supabase.auth.getSession();
+                                if (session?.user) {
+                                    await dev_seedMockOrders(session.user.id);
+                                    await loadOrders();
+                                    toast({
+                                        title: "Mock Data Seeded",
+                                        description: "3 orders added to history."
+                                    });
+                                } else {
+                                    toast({
+                                        variant: "destructive",
+                                        title: "Seeding Failed",
+                                        description: "No active session found."
+                                    });
+                                }
+                            } catch (error: any) {
+                                console.error("Seeding error:", error);
+                                toast({
+                                    variant: "destructive",
+                                    title: "Seeding Failed",
+                                    description: error.message || "An unknown error occurred"
+                                });
+                            }
+                        }}
+                        className="w-full h-8 bg-red-600/20 border border-red-500/50 rounded-lg text-red-500 text-[10px] font-bold uppercase tracking-widest hover:bg-red-600/30 transition-colors"
+                    >
+                        Seed Dev Data (Secret Design Power)
+                    </button>
+                </div>
+            )}
+
             {/* Header */}
             <div className="px-5 pt-12 flex items-center relative mb-[26px]">
                 <button

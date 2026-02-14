@@ -74,6 +74,8 @@ import KycReportSuccess from "./pages/KycReportSuccess";
 import KycReportError from "./pages/KycReportError";
 import ReportRiderConfirm from "./pages/ReportRiderConfirm";
 import OrderDelivered from "./pages/OrderDelivered";
+import NeedHelp from "./pages/NeedHelp";
+import HelpReportSuccess from "./pages/HelpReportSuccess";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -206,6 +208,8 @@ const App = () => {
                 <Route path="/kyc-report-error" element={<KycReportError />} />
                 <Route path="/report-rider-confirm" element={<ReportRiderConfirm />} />
                 <Route path="/order-delivered" element={<OrderDelivered />} />
+                <Route path="/help" element={<NeedHelp />} />
+                <Route path="/help/success" element={<HelpReportSuccess />} />
                 <Route path="/auth/v1/callback" element={<AuthCallback />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

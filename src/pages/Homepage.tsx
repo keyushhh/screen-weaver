@@ -19,12 +19,14 @@ import bannerImage from "@/assets/banner-image.png";
 import avatarImg from "@/assets/avatar.png";
 import currentLocationIcon from "@/assets/current-location.svg";
 import deliveryRiderIcon from "@/assets/delivery-rider.svg";
-import ongoingIcon from "@/assets/ongoing.svg";
-import checkIcon from "@/assets/check-icon.png";
-import rejectedIcon from "@/assets/cancelled-ico.svg";
+import successIcon from "@/assets/success.svg";
+import failedIcon from "@/assets/failed.svg";
+import processingIcon from "@/assets/processing.svg";
 import BottomNavigation from "@/components/BottomNavigation";
 import AddressSelectionSheet from "@/components/AddressSelectionSheet";
+import OrderDetailsSheet from "@/components/OrderDetailsSheet";
 import { useUser } from "@/contexts/UserContext";
+import { cancelOrder } from "@/lib/orders";
 
 // Tag Icons
 import homeIcon from "@/assets/HomeTag.svg";
@@ -54,6 +56,8 @@ const Homepage = () => {
   const [activeOrder, setActiveOrder] = useState<Order | null>(null);
   const [transactionHistory, setTransactionHistory] = useState<Order[]>([]);
   const [isRiderAssigned, setIsRiderAssigned] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [selectedOrderForSheet, setSelectedOrderForSheet] = useState<Order | null>(null);
 
   // Map State
   const [viewState, setViewState] = useState({
@@ -89,7 +93,41 @@ const Homepage = () => {
         }
       }
     };
+
     loadData();
+
+    // Real-time subscription
+    let channel: any;
+
+    const setupSubscription = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        channel = supabase
+          .channel('homepage-order-sync')
+          .on(
+            'postgres_changes',
+            {
+              event: 'UPDATE',
+              schema: 'public',
+              table: 'orders',
+              filter: `user_id=eq.${session.user.id}`
+            },
+            (payload) => {
+              console.log('Homepage real-time update:', payload);
+              loadData();
+            }
+          )
+          .subscribe();
+      }
+    };
+
+    setupSubscription();
+
+    return () => {
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
+    };
   }, []);
 
   // Simulate Rider Assignment
@@ -130,6 +168,23 @@ const Homepage = () => {
     setSavedAddress(address);
     if (address) {
       setIsAddressSheetOpen(false);
+    }
+  };
+
+  const handleCancelOrder = async (orderId: string) => {
+    try {
+      await cancelOrder(orderId);
+      setIsSheetOpen(false);
+      // Refresh data
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const activeOrders = await fetchActiveOrders(session.user.id);
+        setActiveOrder(activeOrders.length > 0 ? activeOrders[0] : null);
+        const recent = await fetchRecentOrders(session.user.id);
+        setTransactionHistory(recent);
+      }
+    } catch (e) {
+      console.error("Failed to cancel order", e);
     }
   };
 
@@ -205,20 +260,20 @@ const Homepage = () => {
   };
 
   const getStatusIcon = (status: string) => {
-    switch (status) {
+    switch (status.toLowerCase()) {
       case 'processing':
       case 'out_for_delivery':
       case 'arrived':
-        return ongoingIcon;
+        return processingIcon;
       case 'delivered':
       case 'success':
-        return checkIcon;
+        return successIcon;
       case 'cancelled':
       case 'failed':
       case 'rejected':
-        return rejectedIcon;
+        return failedIcon;
       default:
-        return ongoingIcon;
+        return processingIcon;
     }
   };
 
@@ -246,7 +301,7 @@ const Homepage = () => {
 
   return (
     <div
-      className="fixed inset-0 flex flex-col overflow-hidden bg-[#0a0a12]"
+      className="absolute inset-0 flex flex-col overflow-y-auto overscroll-y-contain bg-[#0a0a12] scrollbar-hide"
       style={{
         backgroundImage: `url(${bgDarkMode})`,
         backgroundSize: "cover",
@@ -484,8 +539,8 @@ const Homepage = () => {
         )}
       </div>
 
-      {/* Flexible Transaction Section (Scrollable) */}
-      <div className="flex-1 min-h-0 flex flex-col w-full">
+      {/* Flexible Transaction Section */}
+      <div className="flex flex-col w-full">
         {/* Fixed Title Row */}
         <div className="mx-5 mt-6 shrink-0 flex items-center justify-between mb-4">
           <h3 className="text-foreground text-[16px] font-medium">Recent Transactions</h3>
@@ -501,8 +556,8 @@ const Homepage = () => {
           </button>
         </div>
 
-        {/* Scrollable List */}
-        <div className="flex-1 overflow-y-auto overscroll-y-contain mx-5 pb-[100px] scrollbar-hide">
+        {/* Transaction List */}
+        <div className="mx-5 pb-[100px]">
           <div className="border-t border-white/10 pt-[14px] min-h-[100px]">
             {transactionHistory.length > 0 ? (
               <div className="w-full">
@@ -531,7 +586,18 @@ const Homepage = () => {
                     <div
                       key={tx.id}
                       className="grid grid-cols-[1fr_100px_80px] gap-x-6 items-start cursor-pointer hover:opacity-80 transition-opacity"
-                      onClick={() => navigate(`/order-details/${tx.id}`, { state: { order: tx } })}
+                      onClick={() => {
+                        const s = tx.status.toLowerCase();
+                        const isCompleted = s === 'success' || s === 'delivered';
+                        const isFailedOrCancelled = s === 'failed' || s === 'cancelled';
+
+                        if (isCompleted || isFailedOrCancelled) {
+                          setSelectedOrderForSheet(tx);
+                          setIsSheetOpen(true);
+                        } else {
+                          navigate(`/order-details/${tx.id}`, { state: { order: tx } });
+                        }
+                      }}
                     >
                       {/* Details Column */}
                       <div className="flex items-start">
@@ -579,6 +645,13 @@ const Homepage = () => {
 
       {/* Bottom Navigation (Fixed) */}
       <BottomNavigation activeTab="home" />
+
+      <OrderDetailsSheet
+        isOpen={isSheetOpen}
+        onClose={() => setIsSheetOpen(false)}
+        order={selectedOrderForSheet}
+        onCancel={handleCancelOrder}
+      />
 
     </div>);
 };

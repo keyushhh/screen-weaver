@@ -5,7 +5,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { ChevronLeft } from "lucide-react";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { OpenLocationCode } from "open-location-code";
-import { Order } from "@/lib/orders";
+import { Order, dev_updateOrderStatus } from "@/lib/orders";
 import bgDarkMode from "@/assets/bg-dark-mode.png";
 
 import arrivingIcon from "@/assets/arriving.svg";
@@ -124,10 +124,15 @@ const OrderTracking = () => {
                 return "Partner is on the way to pick up your order.";
             case 'arrived':
                 return "Partner has arrived at your location!";
+            case 'success':
+            case 'delivered':
+                return "Order Delivered Successfully!";
             default:
                 return "Your order is being processed!";
         }
     };
+
+    const isDelivered = order?.status === 'success' || order?.status === 'delivered';
 
     return (
         <div
@@ -140,6 +145,43 @@ const OrderTracking = () => {
                 backgroundRepeat: "no-repeat",
             }}
         >
+            {/* DEV CONTROLS */}
+            {import.meta.env.DEV && (
+                <div className="fixed top-24 right-4 z-[9999] flex flex-col gap-2 bg-black/90 p-2 rounded-lg border border-red-500/50 shadow-xl pointer-events-auto">
+                    <span className="text-white text-[10px] font-bold text-center border-b border-white/20 pb-1">DEV CONTROLS</span>
+                    <button
+                        onClick={async () => {
+                            if (!order) return;
+                            try {
+                                await dev_updateOrderStatus(order.id, 'success');
+                            } catch (e) {
+                                console.error("Dev update failed", e);
+                            }
+                            setOrder({ ...order, status: 'success' });
+                            navigate('/home', { state: { orderDelivered: true } });
+                        }}
+                        className="px-2 py-1 bg-green-600 text-white text-[10px] rounded hover:bg-green-500"
+                    >
+                        Set Success & End
+                    </button>
+                    <button
+                        onClick={async () => {
+                            if (!order) return;
+                            try {
+                                await dev_updateOrderStatus(order.id, 'cancelled');
+                            } catch (e) {
+                                console.error("Dev update failed", e);
+                            }
+                            setOrder({ ...order, status: 'cancelled' });
+                            navigate(`/order-details/${order.id}`, { state: { order: { ...order, status: 'cancelled' } } });
+                        }}
+                        className="px-2 py-1 bg-gray-600 text-white text-[10px] rounded hover:bg-gray-500"
+                    >
+                        Set Cancelled
+                    </button>
+                </div>
+            )}
+
             {/* Header Overlay */}
             <div className="fixed top-0 left-0 right-0 z-10 pointer-events-none">
                 <div
@@ -205,16 +247,16 @@ const OrderTracking = () => {
                         backgroundImage: `url(${arrivingContainerBg})`,
                         backgroundSize: "cover",
                         backgroundPosition: "center",
-                        border: "1px solid rgba(255,255,255,0.1)"
+                        border: isDelivered ? "1px solid #16B751" : "1px solid rgba(255,255,255,0.1)"
                     }}
                 >
                     <div className="flex justify-between items-start mb-[8px]">
                         <div className="flex flex-col">
                             <p className="text-[#7E7E7E] text-[12px] font-bold font-satoshi tracking-widest uppercase leading-none">
-                                ARRIVING IN
+                                {isDelivered ? "ORDER STATUS" : "ARRIVING IN"}
                             </p>
-                            <p className="text-white text-[20px] font-bold font-satoshi mt-[1px]" style={{ lineHeight: "140%" }}>
-                                {order?.status === 'arrived' ? 'Arrived' : '1 Min'}
+                            <p className="text-white text-[20px] font-bold font-satoshi mt-[1px]" style={{ lineHeight: "140%", color: isDelivered ? "#1CB956" : "#FFFFFF" }}>
+                                {isDelivered ? 'Delivered' : order?.status === 'arrived' ? 'Arrived' : '1 Min'}
                             </p>
                         </div>
                         <div
@@ -226,15 +268,19 @@ const OrderTracking = () => {
                                 height: "31px"
                             }}
                         >
-                            <img src={arrivingIcon} alt="Arriving" className="w-full h-full" />
+                            <img src={isDelivered ? verifiedCircleIcon : arrivingIcon} alt="StatusIcon" className="w-full h-full" />
                         </div>
                     </div>
 
                     {/* Loader */}
                     <div className="h-[9px] bg-white/10 rounded-full overflow-hidden mb-[14px]">
                         <div
-                            className="h-full bg-primary rounded-full transition-all duration-300 ease-linear shadow-[0_0_10px_rgba(82,96,254,0.5)]"
-                            style={{ width: `${progress}%` }}
+                            className="h-full rounded-full transition-all duration-300 ease-linear"
+                            style={{
+                                width: isDelivered ? "100%" : `${progress}%`,
+                                backgroundColor: isDelivered ? "#16B751" : "#5260FE",
+                                boxShadow: isDelivered ? "0 0 10px rgba(22, 183, 81, 0.5)" : "0 0 10px rgba(82,96,254,0.5)"
+                            }}
                         />
                     </div>
 
@@ -243,9 +289,11 @@ const OrderTracking = () => {
                             {getStatusText()}
                         </p>
                         <p className="text-white/50 text-[12px] font-normal font-satoshi leading-tight">
-                            {order?.status === 'processing'
-                                ? "We're assigning a partner to your request."
-                                : "Your delivery partner and order are tracked in real-time."}
+                            {isDelivered
+                                ? "Your package has been handed over successfully."
+                                : order?.status === 'processing'
+                                    ? "We're assigning a partner to your request."
+                                    : "Your delivery partner and order are tracked in real-time."}
                         </p>
                     </div>
                 </div>
@@ -363,6 +411,7 @@ const OrderTracking = () => {
             {/* Need Help CTA */}
             <div className="px-5 mt-[16px] pb-10 relative z-0">
                 <button
+                    onClick={() => navigate('/help', { state: { order } })}
                     className="w-full h-[48px] rounded-full text-white text-[16px] font-medium active:scale-95 transition-transform flex items-center justify-center"
                     style={{
                         backgroundImage: `url(${darkbgCta})`,
