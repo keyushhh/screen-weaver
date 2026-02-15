@@ -77,6 +77,7 @@ import OrderDelivered from "./pages/OrderDelivered";
 import NeedHelp from "./pages/NeedHelp";
 import HelpReportSuccess from "./pages/HelpReportSuccess";
 import Rewards from "./pages/Rewards";
+import LegalPage from "./pages/LegalPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -212,6 +213,8 @@ const App = () => {
                 <Route path="/help" element={<NeedHelp />} />
                 <Route path="/help/success" element={<HelpReportSuccess />} />
                 <Route path="/rewards" element={<Rewards />} />
+                <Route path="/legal/privacy" element={<LegalPage type="privacy" />} />
+                <Route path="/legal/terms" element={<LegalPage type="terms" />} />
                 <Route path="/auth/v1/callback" element={<AuthCallback />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

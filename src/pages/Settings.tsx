@@ -279,6 +279,7 @@ const Settings = () => {
         </div>
       </div>
 
+
       {/* Footer */}
       <div
         className="px-5 mt-14 pb-10 opacity-40 cursor-pointer"

@@ -67,7 +67,7 @@ const OnboardingScreen = () => {
           // App Launch: treat as Restore (isExplicitLogin = false)
           await handleSession(session.user, false);
         } else {
-           setIsAuthChecking(false);
+          setIsAuthChecking(false);
         }
       } catch (e) {
         console.error("Session check failed", e);
@@ -80,10 +80,10 @@ const OnboardingScreen = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log(`Auth Event: ${event}`);
       if (event === 'SIGNED_IN' && session?.user) {
-         // Explicit Login: treat as Login (isExplicitLogin = true)
-         handleSession(session.user, true);
+        // Explicit Login: treat as Login (isExplicitLogin = true)
+        handleSession(session.user, true);
       } else if (event === 'SIGNED_OUT') {
-         setIsAuthChecking(false);
+        setIsAuthChecking(false);
       }
     });
 
@@ -105,14 +105,14 @@ const OnboardingScreen = () => {
     }
 
     if (confirmMpin.length === 4 && mpin.length === 4) {
-       if (mpin !== confirmMpin) {
-         setMpinError("Bro... seriously? That's not even close.");
-       } else {
-         setMpinError("");
-         setMpinSuccess(true);
-       }
+      if (mpin !== confirmMpin) {
+        setMpinError("Bro... seriously? That's not even close.");
+      } else {
+        setMpinError("");
+        setMpinSuccess(true);
+      }
     } else {
-       if (!isWeakMpin(mpin).weak) setMpinError("");
+      if (!isWeakMpin(mpin).weak) setMpinError("");
     }
   }, [mpin, confirmMpin]);
 
@@ -167,133 +167,133 @@ const OnboardingScreen = () => {
   };
 
   const handleSession = async (user: User, isExplicitLogin: boolean) => {
-      console.log(`handleSession started for user: ${user?.id}, mode: ${isExplicitLogin ? 'LOGIN' : 'RESTORE'}`);
+    console.log(`handleSession started for user: ${user?.id}, mode: ${isExplicitLogin ? 'LOGIN' : 'RESTORE'}`);
 
-      if (!user) {
-          setIsAuthChecking(false);
-          return;
-      }
+    if (!user) {
+      setIsAuthChecking(false);
+      return;
+    }
 
-      let currentProfile = null;
+    let currentProfile = null;
 
-      // 1. Fetch existing profile
-      const { data: initialProfileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
+    // 1. Fetch existing profile
+    const { data: initialProfileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
 
-      let profileData = initialProfileData;
-      const socialName = user.user_metadata?.full_name || user.user_metadata?.name || user.user_metadata?.preferred_username;
+    let profileData = initialProfileData;
+    const socialName = user.user_metadata?.full_name || user.user_metadata?.name || user.user_metadata?.preferred_username;
 
-      // 2. Handle Profile Logic based on Mode
-      if (profileError && profileError.code === 'PGRST116') {
-        // Profile Not Found
-        if (!isExplicitLogin) {
-            // Restore Mode: If profile is missing, state is corrupted or incomplete.
-            // Sign out to force clean login.
-            console.warn("Restore Mode: Profile missing. Signing out to force re-auth.");
-            await supabase.auth.signOut();
-            setIsAuthChecking(false);
-            return;
-        }
-
-        // Login Mode: Create new profile (New User)
-        console.log("Login Mode: Profile not found, creating new profile...");
-        const { data: newProfile, error: createError } = await supabase
-          .from('profiles')
-          .insert({
-            id: user.id,
-            phone: user.phone || null,
-            name: socialName || user.email || null,
-            mpin_set: false
-          })
-          .select()
-          .single();
-
-        if (createError) {
-          console.error("Error creating profile:", createError);
-          setIsAuthChecking(false);
-          // If we fail to create profile on login, better show error or stay on login
-          return;
-        }
-
-        profileData = newProfile;
-        currentProfile = newProfile;
-        setProfile(newProfile);
-        console.log('Profile created:', newProfile);
-      } else if (profileError) {
-        console.error("Error fetching profile:", profileError);
+    // 2. Handle Profile Logic based on Mode
+    if (profileError && profileError.code === 'PGRST116') {
+      // Profile Not Found
+      if (!isExplicitLogin) {
+        // Restore Mode: If profile is missing, state is corrupted or incomplete.
+        // Sign out to force clean login.
+        console.warn("Restore Mode: Profile missing. Signing out to force re-auth.");
+        await supabase.auth.signOut();
         setIsAuthChecking(false);
         return;
       }
 
-      // Profile Exists (or just created)
-      if (profileData) {
-          // Optional: Update name if social login provides newer info
-          if (socialName && profileData.name !== socialName) {
-              const { data: updatedProfile, error: updateError } = await supabase
-                  .from('profiles')
-                  .update({ name: socialName })
-                  .eq('id', user.id)
-                  .select()
-                  .single();
+      // Login Mode: Create new profile (New User)
+      console.log("Login Mode: Profile not found, creating new profile...");
+      const { data: newProfile, error: createError } = await supabase
+        .from('profiles')
+        .insert({
+          id: user.id,
+          phone: user.phone || null,
+          name: socialName || user.email || null,
+          mpin_set: false
+        })
+        .select()
+        .single();
 
-              if (!updateError && updatedProfile) {
-                  currentProfile = updatedProfile;
-                  setProfile(updatedProfile);
-              } else {
-                  currentProfile = profileData;
-                  setProfile(profileData);
-              }
-          } else {
-              currentProfile = profileData;
-              setProfile(profileData);
-          }
+      if (createError) {
+        console.error("Error creating profile:", createError);
+        setIsAuthChecking(false);
+        // If we fail to create profile on login, better show error or stay on login
+        return;
       }
 
-      // 3. Save Context Data
-      if (user.phone) {
-          savePhoneNumber(user.phone);
-      }
+      profileData = newProfile;
+      currentProfile = newProfile;
+      setProfile(newProfile);
+      console.log('Profile created:', newProfile);
+    } else if (profileError) {
+      console.error("Error fetching profile:", profileError);
+      setIsAuthChecking(false);
+      return;
+    }
 
-      // 4. Navigation Logic based on Mode & MPIN Status
-      const isMpinSet = currentProfile?.mpin_set || false;
+    // Profile Exists (or just created)
+    if (profileData) {
+      // Optional: Update name if social login provides newer info
+      if (socialName && profileData.name !== socialName) {
+        const { data: updatedProfile, error: updateError } = await supabase
+          .from('profiles')
+          .update({ name: socialName })
+          .eq('id', user.id)
+          .select()
+          .single();
 
-      if (isExplicitLogin) {
-          // Login Mode
-          if (isMpinSet) {
-              // Existing User -> Enter MPIN
-              console.log("Login Mode: MPIN set. Requesting MPIN.");
-              setShowMpinLogin(true);
-              setIsAuthChecking(false);
-          } else {
-              // New User (or incomplete) -> Create MPIN
-              console.log("Login Mode: MPIN not set. Showing Setup.");
-              setShowOtpInput(false);
-              setShowMpinSetup(true);
-              setIsAuthChecking(false);
-          }
+        if (!updateError && updatedProfile) {
+          currentProfile = updatedProfile;
+          setProfile(updatedProfile);
+        } else {
+          currentProfile = profileData;
+          setProfile(profileData);
+        }
       } else {
-          // Restore Mode (App Launch)
-          if (isMpinSet) {
-              // Valid Session -> Enter MPIN
-              console.log("Restore Mode: MPIN set. Requesting MPIN.");
-              setShowMpinLogin(true);
-              setIsAuthChecking(false);
-          } else {
-              // Invalid State (Zombie session) -> Sign Out -> Login Screen
-              console.log("Restore Mode: MPIN NOT set. Force Sign Out.");
-              resetForDemo();
-              await supabase.auth.signOut();
-              // UI is already on Login Screen (default state), so just ensure cleanup
-              setPhoneNumber("");
-              setOtp("");
-              setShowOtpInput(false);
-              setShowMpinSetup(false);
-              setIsAuthChecking(false);
-          }
+        currentProfile = profileData;
+        setProfile(profileData);
       }
+    }
+
+    // 3. Save Context Data
+    if (user.phone) {
+      savePhoneNumber(user.phone);
+    }
+
+    // 4. Navigation Logic based on Mode & MPIN Status
+    const isMpinSet = currentProfile?.mpin_set || false;
+
+    if (isExplicitLogin) {
+      // Login Mode
+      if (isMpinSet) {
+        // Existing User -> Enter MPIN
+        console.log("Login Mode: MPIN set. Requesting MPIN.");
+        setShowMpinLogin(true);
+        setIsAuthChecking(false);
+      } else {
+        // New User (or incomplete) -> Create MPIN
+        console.log("Login Mode: MPIN not set. Showing Setup.");
+        setShowOtpInput(false);
+        setShowMpinSetup(true);
+        setIsAuthChecking(false);
+      }
+    } else {
+      // Restore Mode (App Launch)
+      if (isMpinSet) {
+        // Valid Session -> Enter MPIN
+        console.log("Restore Mode: MPIN set. Requesting MPIN.");
+        setShowMpinLogin(true);
+        setIsAuthChecking(false);
+      } else {
+        // Invalid State (Zombie session) -> Sign Out -> Login Screen
+        console.log("Restore Mode: MPIN NOT set. Force Sign Out.");
+        resetForDemo();
+        await supabase.auth.signOut();
+        // UI is already on Login Screen (default state), so just ensure cleanup
+        setPhoneNumber("");
+        setOtp("");
+        setShowOtpInput(false);
+        setShowMpinSetup(false);
+        setIsAuthChecking(false);
+      }
+    }
   };
 
   const handleVerifyOTP = async () => {
@@ -357,7 +357,7 @@ const OnboardingScreen = () => {
     try {
       // Update profile on server
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         setGeneralError("Session expired. Please try logging in again.");
         setIsLoading(false);
@@ -368,21 +368,21 @@ const OnboardingScreen = () => {
       const hashedMpin = await hashMpin(mpin);
 
       const { data: updatedProfile, error } = await supabase
-          .from('profiles')
-          .update({
-              mpin_set: true,
-              mpin_hash: hashedMpin,
-              mpin_created_at: new Date().toISOString()
-          })
-          .eq('id', user.id)
-          .select()
-          .single();
+        .from('profiles')
+        .update({
+          mpin_set: true,
+          mpin_hash: hashedMpin,
+          mpin_created_at: new Date().toISOString()
+        })
+        .eq('id', user.id)
+        .select()
+        .single();
 
       if (error) {
-          console.error("Failed to update MPIN status:", error);
-          setGeneralError("Failed to save MPIN. Please try again.");
-          setIsLoading(false);
-          return;
+        console.error("Failed to update MPIN status:", error);
+        setGeneralError("Failed to save MPIN. Please try again.");
+        setIsLoading(false);
+        return;
       }
 
       console.log("MPIN status updated on server:", updatedProfile);
@@ -402,53 +402,53 @@ const OnboardingScreen = () => {
   };
 
   const handleLoginMpinVerification = async () => {
-      if (mpin.length < 4) return;
-      setIsLoading(true);
-      setGeneralError("");
+    if (mpin.length < 4) return;
+    setIsLoading(true);
+    setGeneralError("");
 
-      try {
-          const { data: { user } } = await supabase.auth.getUser();
-          if (!user) {
-              setGeneralError("Session expired.");
-              setIsLoading(false);
-              return;
-          }
-
-          // Fetch hash if not in context (profile might be stale if page reloaded)
-          let targetHash = profile?.mpin_hash;
-
-          if (!targetHash) {
-             const { data: fetchedProfile } = await supabase
-                .from('profiles')
-                .select('mpin_hash')
-                .eq('id', user.id)
-                .single();
-             targetHash = fetchedProfile?.mpin_hash;
-          }
-
-          if (!targetHash) {
-              setGeneralError("MPIN not set. Please reset app data.");
-              setIsLoading(false);
-              return;
-          }
-
-          const hashedInput = await hashMpin(mpin);
-
-          if (hashedInput === targetHash) {
-              console.log("MPIN Verified. Entering Home.");
-              // Only save context if successful
-              saveMpin(mpin);
-              navigate("/home");
-          } else {
-              setGeneralError("Incorrect MPIN.");
-              setMpin(""); // Clear input
-          }
-      } catch (e) {
-          console.error("Login Verification Error", e);
-          setGeneralError("Verification failed.");
-      } finally {
-          setIsLoading(false);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setGeneralError("Session expired.");
+        setIsLoading(false);
+        return;
       }
+
+      // Fetch hash if not in context (profile might be stale if page reloaded)
+      let targetHash = profile?.mpin_hash;
+
+      if (!targetHash) {
+        const { data: fetchedProfile } = await supabase
+          .from('profiles')
+          .select('mpin_hash')
+          .eq('id', user.id)
+          .single();
+        targetHash = fetchedProfile?.mpin_hash;
+      }
+
+      if (!targetHash) {
+        setGeneralError("MPIN not set. Please reset app data.");
+        setIsLoading(false);
+        return;
+      }
+
+      const hashedInput = await hashMpin(mpin);
+
+      if (hashedInput === targetHash) {
+        console.log("MPIN Verified. Entering Home.");
+        // Only save context if successful
+        saveMpin(mpin);
+        navigate("/home");
+      } else {
+        setGeneralError("Incorrect MPIN.");
+        setMpin(""); // Clear input
+      }
+    } catch (e) {
+      console.error("Login Verification Error", e);
+      setGeneralError("Verification failed.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSocialLogin = async (providerName: string) => {
@@ -457,43 +457,43 @@ const OnboardingScreen = () => {
     let provider: Provider | undefined;
     if (providerName === "Google") provider = 'google';
     if (providerName === "X" || providerName === "Twitter") {
-        console.log("Using provider 'x'");
-        provider = 'x' as Provider;
+      console.log("Using provider 'x'");
+      provider = 'x' as Provider;
     }
 
     if (provider) {
-        try {
-            const isNative = Capacitor.isNativePlatform();
-            let redirectTo: string;
+      try {
+        const isNative = Capacitor.isNativePlatform();
+        let redirectTo: string;
 
-            // X OAuth is strict. Always go through Supabase HTTPS callback.
-            if (provider === 'x') {
-            redirectTo = `${import.meta.env.VITE_SUPABASE_URL}/auth/v1/callback`;
-          } 
-          else {
-          redirectTo = isNative
-          ? 'gridpe://auth-callback'
-           : `${window.location.origin}/#/auth/v1/callback`;
-          }
-
-
-
-            if (import.meta.env.DEV) {
-                console.log("[Diagnostic] VITE_SUPABASE_URL:", import.meta.env.VITE_SUPABASE_URL);
-                console.log(`[Diagnostic] Initiating ${provider} login with redirect: ${redirectTo}`);
-            }
-
-            const { error } = await supabase.auth.signInWithOAuth({
-                provider,
-                options: {
-                    redirectTo
-                }
-            });
-            if (error) throw error;
-        } catch (error) {
-            console.error(`${providerName} login error:`, error);
-            setPhoneError(`Failed to initiate ${providerName} login.`);
+        // X OAuth is strict. Always go through Supabase HTTPS callback.
+        if (provider === 'x') {
+          redirectTo = `${import.meta.env.VITE_SUPABASE_URL}/auth/v1/callback`;
         }
+        else {
+          redirectTo = isNative
+            ? 'gridpe://auth-callback'
+            : `${window.location.origin}/#/auth/v1/callback`;
+        }
+
+
+
+        if (import.meta.env.DEV) {
+          console.log("[Diagnostic] VITE_SUPABASE_URL:", import.meta.env.VITE_SUPABASE_URL);
+          console.log(`[Diagnostic] Initiating ${provider} login with redirect: ${redirectTo}`);
+        }
+
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider,
+          options: {
+            redirectTo
+          }
+        });
+        if (error) throw error;
+      } catch (error) {
+        console.error(`${providerName} login error:`, error);
+        setPhoneError(`Failed to initiate ${providerName} login.`);
+      }
     }
   };
 
@@ -512,21 +512,21 @@ const OnboardingScreen = () => {
   const isMismatchError = mpinError.includes("close");
 
   if (isAuthChecking) {
-      return (
-        <div className="h-full w-full flex items-center justify-center safe-area-top safe-area-bottom"
-          style={{
-            backgroundColor: '#0a0a12',
-            backgroundImage: `url(${bgDarkMode})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'top center',
-            backgroundRepeat: 'no-repeat'
-          }}
-        >
-            <div className="flex flex-col items-center animate-pulse">
-                 <img src={logo} alt="grid.pe" className="h-12 mb-3" />
-            </div>
+    return (
+      <div className="h-full w-full flex items-center justify-center safe-area-top safe-area-bottom"
+        style={{
+          backgroundColor: '#0a0a12',
+          backgroundImage: `url(${bgDarkMode})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'top center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
+        <div className="flex flex-col items-center animate-pulse">
+          <img src={logo} alt="grid.pe" className="h-12 mb-3" />
         </div>
-      );
+      </div>
+    );
   }
 
   return (
@@ -712,9 +712,9 @@ const OnboardingScreen = () => {
 
             <p className="text-center text-muted-foreground leading-relaxed px-4 pt-2 font-normal text-sm">
               By continuing, you agree to grid.pe's{" "}
-              <a href="#" className="text-link hover:underline">Terms & Conditions</a>{" "}
+              <button onClick={() => navigate('/legal/terms')} className="text-link hover:underline">Terms & Conditions</button>{" "}
               and{" "}
-              <a href="#" className="text-link hover:underline">Privacy Policy</a>
+              <button onClick={() => navigate('/legal/privacy')} className="text-link hover:underline">Privacy Policy</button>
             </p>
           </div>
         )}
@@ -743,8 +743,8 @@ const OnboardingScreen = () => {
                       index={index}
                       className={`h-[54px] w-[81px] rounded-[12px] border-none text-2xl font-semibold text-white transition-all bg-cover bg-center ring-1 ring-white/10`}
                       style={{
-                          backgroundColor: 'rgba(26, 26, 46, 0.5)'
-                       }}
+                        backgroundColor: 'rgba(26, 26, 46, 0.5)'
+                      }}
                     />
                   ))}
                 </InputOTPGroup>
@@ -780,28 +780,28 @@ const OnboardingScreen = () => {
             </Button>
 
             <div className="flex flex-col gap-2 items-center pb-4">
-                 <button
-                  onClick={() => navigate('/forgot-mpin')}
-                  className="text-link hover:underline text-sm"
-                >
-                  Forgot MPIN?
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="text-muted-foreground text-sm hover:text-white transition-colors"
-                >
-                  Not you? Use a different number
-                </button>
+              <button
+                onClick={() => navigate('/forgot-mpin')}
+                className="text-link hover:underline text-sm"
+              >
+                Forgot MPIN?
+              </button>
+              <button
+                onClick={handleLogout}
+                className="text-muted-foreground text-sm hover:text-white transition-colors"
+              >
+                Not you? Use a different number
+              </button>
             </div>
           </div>
         )}
 
         {/* Debug Info (Dev Only) */}
         {import.meta.env.DEV && !showMpinSetup && !showOtpInput && !showMpinLogin && (
-            <div className="px-6 pb-2 text-xs text-muted-foreground break-all opacity-50">
-                <p>Project: {import.meta.env.VITE_SUPABASE_URL}</p>
-                <p>Platform: {Capacitor.getPlatform()}</p>
-            </div>
+          <div className="px-6 pb-2 text-xs text-muted-foreground break-all opacity-50">
+            <p>Project: {import.meta.env.VITE_SUPABASE_URL}</p>
+            <p>Platform: {Capacitor.getPlatform()}</p>
+          </div>
         )}
 
         {/* MPIN Setup Screen */}
@@ -827,15 +827,14 @@ const OnboardingScreen = () => {
                     <InputOTPSlot
                       key={index}
                       index={index}
-                      className={`h-[54px] w-[81px] rounded-[12px] border-none text-2xl font-semibold text-white transition-all bg-cover bg-center ${
-                        isPredictableError ? 'border border-red-500 ring-1 ring-red-500' :
-                        mpinSuccess ? 'ring-1 ring-green-500' : 'ring-1 ring-white/10'
-                      }`}
+                      className={`h-[54px] w-[81px] rounded-[12px] border-none text-2xl font-semibold text-white transition-all bg-cover bg-center ${isPredictableError ? 'border border-red-500 ring-1 ring-red-500' :
+                          mpinSuccess ? 'ring-1 ring-green-500' : 'ring-1 ring-white/10'
+                        }`}
                       style={{
-                        backgroundImage: isPredictableError ? `url(${mpinInputError})` : 
-                                         mpinSuccess ? `url(${mpinInputSuccess})` : undefined,
+                        backgroundImage: isPredictableError ? `url(${mpinInputError})` :
+                          mpinSuccess ? `url(${mpinInputSuccess})` : undefined,
                         backgroundColor: (isPredictableError || mpinSuccess) ? 'transparent' : 'rgba(26, 26, 46, 0.5)'
-                       }}
+                      }}
                     />
                   ))}
                 </InputOTPGroup>
@@ -854,15 +853,14 @@ const OnboardingScreen = () => {
                     <InputOTPSlot
                       key={index}
                       index={index}
-                      className={`h-[54px] w-[81px] rounded-[12px] border-none text-2xl font-semibold text-white transition-all bg-cover bg-center ${
-                        isMismatchError ? 'border border-red-500 ring-1 ring-red-500' :
-                        mpinSuccess ? 'ring-1 ring-green-500' : 'ring-1 ring-white/10'
-                      }`}
+                      className={`h-[54px] w-[81px] rounded-[12px] border-none text-2xl font-semibold text-white transition-all bg-cover bg-center ${isMismatchError ? 'border border-red-500 ring-1 ring-red-500' :
+                          mpinSuccess ? 'ring-1 ring-green-500' : 'ring-1 ring-white/10'
+                        }`}
                       style={{
                         backgroundImage: isMismatchError ? `url(${mpinInputError})` :
-                                         mpinSuccess ? `url(${mpinInputSuccess})` : undefined,
+                          mpinSuccess ? `url(${mpinInputSuccess})` : undefined,
                         backgroundColor: (isMismatchError || mpinSuccess) ? 'transparent' : 'rgba(26, 26, 46, 0.5)'
-                       }}
+                      }}
                     />
                   ))}
                 </InputOTPGroup>
@@ -928,8 +926,8 @@ const OnboardingScreen = () => {
                 </span>
               ) : "Setup"}
             </Button>
-            
-            <button 
+
+            <button
               onClick={handleLogout}
               className="w-full text-center text-muted-foreground text-sm hover:text-white transition-colors pb-4"
             >
